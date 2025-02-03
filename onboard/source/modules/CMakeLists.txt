@@ -35,6 +35,7 @@ set(GB_MODULES
   src/Sleep.cc
   src/MosquittoManager.cc
   src/ReceiveCommand.cc
+  src/DistributeCommand.cc
 )
 
 if(GB_DEMO_MODE)

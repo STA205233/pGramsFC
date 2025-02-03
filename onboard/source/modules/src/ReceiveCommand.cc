@@ -90,28 +90,32 @@ ANLStatus ReceiveCommand::mod_analyze() {
     return AS_OK;
   }
   auto commands = mosq_->getPayload();
+  if (commands.empty()) {
+    return AS_OK;
+  }
   const size_t sz = commands.size();
   if (chatter_ >= 1) {
     std::cout << "ReceiveCommand Num_packet:" << sz << std::endl;
   }
   if (chatter_ >= 2) {
-    for (int i = 0; i < static_cast<int>(sz); i++) {
-      for (int j = 0; j < static_cast<int>(commands[i]->payload.size()); j++) {
-        std::cout << "ReceiveCommand Payload[" << i << "][" << j << "]:" << static_cast<int>(commands[i]->payload[j]) << std::endl;
-      }
+    for (int j = 0; j < static_cast<int>(commands[0]->payload.size()); j++) {
+      std::cout << "ReceiveCommand Payload[" << 0 << "][" << j << "]:" << static_cast<int>(commands[0]->payload[j]) << std::endl;
     }
   }
-  for (const auto &command: commands) {
-    const auto &command_payload = command->payload;
-    const bool applied = applyCommand(command_payload);
-    writeCommandToFile(!applied, command_payload);
-    if (!applied) {
-      commandRejectCount_++;
-      if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::INVALID_COMMAND);
-      }
+  const auto command = commands[0];
+  const auto &command_payload = command->payload;
+  if (command->topic != topic_) {
+    return AS_OK;
+  }
+  const bool applied = applyCommand(command_payload);
+  writeCommandToFile(!applied, command_payload);
+  if (!applied) {
+    commandRejectCount_++;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::INVALID_COMMAND);
     }
   }
+  commands.pop_front();
   return AS_OK;
 }
 

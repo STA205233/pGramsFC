@@ -75,6 +75,7 @@
 #include "GetSlowADCDataDemo.hh"
 #endif
 #include "MosquittoManager.hh"
+#include "DistributeCommand.hh"
 %}
 
 %include "std_vector.i"
@@ -228,6 +229,10 @@ class MosquittoManager : public anlnext::BasicModule
 {
 public:
   MosquittoManager();
+};
+class DistributeCommand: public anlnext::BasicModule {
+public:
+  DistributeCommand();
 };
 } // namespace pgrams
 

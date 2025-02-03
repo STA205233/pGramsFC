@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include "CRC16.hh"
 #include "BinaryFileManipulater.hh"
+#include <cstdint>
 
 
 /**
