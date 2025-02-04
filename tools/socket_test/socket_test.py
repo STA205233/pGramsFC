@@ -7,12 +7,19 @@ def main(host, port):
     # Create a socket object
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Connection to hostname on the port.
-    s.connect((host, port))
+    s.bind((socket.gethostname(), port))
+    try:
+        s.listen(5)
+        clientsocket, address = s.accept()
+        print(f"Connection from {address} has been established!")
+    except KeyboardInterrupt:
+        s.close()
+        sys.exit(0)
+    clientsocket.recv(1024)
     try:
         while (True):
             # Receive no more than 1024 bytes
-            msg = s.recv(1024)
+            msg = clientsocket.recv(1024)
             print(f"Received: {len(msg)} bytes")
             for byte in msg:
                 print(f"{hex(byte)}", end=" ")
