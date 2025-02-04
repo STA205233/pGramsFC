@@ -15,7 +15,6 @@ def main(host, port):
     except KeyboardInterrupt:
         s.close()
         sys.exit(0)
-    clientsocket.recv(1024)
     try:
         while (True):
             # Receive no more than 1024 bytes
