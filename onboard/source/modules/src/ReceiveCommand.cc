@@ -115,7 +115,7 @@ ANLStatus ReceiveCommand::mod_analyze() {
       sendTelemetry_->getErrorManager()->setError(ErrorType::INVALID_COMMAND);
     }
   }
-  commands.pop_front();
+  mosq_->popPayloadFront();
   return AS_OK;
 }
 
@@ -143,10 +143,20 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
   const uint16_t code = comdef_->Code();
   const uint16_t argc = comdef_->Argc();
   const std::vector<int32_t> arguments = comdef_->Arguments();
-
+  if (chatter_ >= 1) {
+    std::cout << "code: " << code << std::endl;
+    std::cout << "argc: " << argc << std::endl;
+    for (int i = 0; i < argc; i++) {
+      std::cout << "arguments[" << i << "]: " << arguments[i] << std::endl;
+    }
+  }
   if (code == 100 && argc == 0) {
     if (sendTelemetry_ != nullptr) {
-      if (readWaveform_->getOndemand() || sendTelemetry_->TelemetryType() == 2 || sendTelemetry_->WfDivisionCounter() > 0) {
+      bool isOndemand = false;
+      if (readWaveform_ != nullptr) {
+        isOndemand |= readWaveform_->getOndemand();
+      }
+      if (isOndemand || sendTelemetry_->TelemetryType() == 2 || sendTelemetry_->WfDivisionCounter() > 0) {
         return false;
       }
 

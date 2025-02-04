@@ -36,20 +36,36 @@ int main(int argc, char *argv[]) {
   }
   std::string host;
   std::string port_str;
+  std::string username;
+  std::string password;
+
   getline(ifs, host, '\n');
   getline(ifs, port_str, '\n');
+  getline(ifs, username, '\n');
+  getline(ifs, password, '\n');
   ifs.close();
   const int port = std::stoi(port_str);
   std::cout << "Host: " << host << std::endl;
   std::cout << "Port: " << port << std::endl;
+  std::cout << "Username: " << username << std::endl;
+  std::cout << "Password: " << password << std::endl;
   CommandSender sender(host, port);
-  if (!sender.open_mosquitto()) {
+  const int result = sender.open_mosquitto();
+  if (result != 0) {
+    std::cout << strerror(result) << std::endl;
     std::cout << "Mosquitto connection error -> exit" << std::endl;
-    return -1;
+    return result;
   }
-
+  if (username != "" && password != "") {
+    const int auth_result = sender.authentication(username, password);
+    if (auth_result != 0) {
+      std::cout << strerror(auth_result) << std::endl;
+      std::cout << "Authentication error -> exit" << std::endl;
+      return auth_result;
+    }
+  }
   const int length_sent = sender.send(argv[1], command);
-  std::cout << "Length sent: " << length_sent << std::endl;
+  //std::cout << "Length sent: " << length_sent << std::endl;
 
   gramsballoon::write_command(command, name);
 

@@ -21,7 +21,11 @@ public:
     if (mosquittoIo_ == nullptr) {
       return 0;
     }
+    mosquittoIo_->loop_stop();
     return mosquittoIo_->Disconnect();
+  }
+  int authentication(const std::string &username, const std::string &password) {
+    return mosquittoIo_->username_pw_set(username.c_str(), password.c_str());
   }
 
 private:

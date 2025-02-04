@@ -7,11 +7,14 @@
 namespace gramsballoon::pgrams {
 
 int CommandSender::open_mosquitto() {
-  mosquittoIo_ = std::make_shared<MosquittoIO<std::vector<uint8_t>>>(id_, host_, port_, keepAlive_);
+  mosquittoIo_ = std::make_shared<MosquittoIO<std::vector<uint8_t>>>(id_, host_, port_, keepAlive_, true);
   const int status = mosquittoIo_->Connect();
   if (status != 0) {
     std::cerr << "Failed to connect to mosquitto" << std::endl;
     return status;
+  }
+  for (int i = 0; i < 1; i++) {
+    mosquittoIo_->loop();
   }
   return 0;
 }
@@ -21,7 +24,15 @@ int CommandSender::send(const std::string &topic, const std::vector<uint8_t> &by
     std::cerr << "Mosquitto not open" << std::endl;
     return -1;
   }
-  return mosquittoIo_->Publish(byte_array, topic);
+  const int status = mosquittoIo_->Publish(byte_array, topic);
+  if (status != 0) {
+    std::cerr << "Failed to publish message" << std::endl;
+    return status;
+  }
+  for (int i = 0; i < 1; i++) {
+    mosquittoIo_->loop();
+  }
+  return 0;
 }
 
 } // namespace gramsballoon::pgrams
