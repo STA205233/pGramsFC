@@ -1,9 +1,10 @@
 #ifndef CommandSaver_HH
 #define CommandSaver_HH 1
 
-#include <string>
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
+#include <string>
 #include <vector>
 
 namespace gramsballoon

@@ -105,7 +105,7 @@ ANLStatus DistributeCommand::mod_analyze() {
         return AS_OK;
       }
       for (int i = 0; i < numTrial_; i++) {
-        const auto send_result = send(subSystem.second.socket, command_payload.data(), command_payload.size(), 0);
+        const auto send_result = send(subSystem.second.socket, command_payload.data(), command_payload.size(), 0); // TODO: this depends on telemetry definition.
         if (send_result == -1) {
           std::cerr << "Error in DistributeCommand::mod_analyze: " << "Trial " << i << " Sending data failed." << std::endl;
           failed_ = true;

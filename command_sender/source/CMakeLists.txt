@@ -38,6 +38,9 @@ else(ANLNEXT_USE_READLINE)
   set(READLINE_LIB edit)
 endif(ANLNEXT_USE_READLINE)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp REQUIRED)
+set(MOSQUITTO_LIB PkgConfig::Mosquitto)
 include_directories(
   include
   /opt/homebrew/include
@@ -45,6 +48,7 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${READLINE_INC_DIR}
   ${ANLNEXT_INC_DIR}
+  ../../onboard/source/core/include
   )
 
 link_directories(
@@ -52,13 +56,14 @@ link_directories(
   ${ANLNEXT_LIB_DIR}
   )
 
-add_executable(send_command send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc)
-target_link_libraries(send_command ${BOOST_LIB})
+add_executable(send_command send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_link_libraries(send_command ${BOOST_LIB} ${MOSQUITTO_LIB})
 add_executable(dump_command dump_command.cc CommandBuilder.cc)
-add_executable(run_command_plan run_command_plan.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc)
+#add_executable(run_command_plan run_command_plan.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc)
 
-target_link_libraries(run_command_plan
-  ${Boost_LIBRARIES}
-  ${READLINE_LIB}
-  ${ANLNEXT_LIB}
-  )
+#target_link_libraries(run_command_plan
+#  ${Boost_LIBRARIES}
+#  ${READLINE_LIB}
+#  ${ANLNEXT_LIB}
+#  ${MOSQUITTO_LIB}
+#  )

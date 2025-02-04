@@ -1,32 +1,37 @@
 #ifndef GRAMSBALOON_COMMANDSENDER_H
 #define GRAMSBALOON_COMMANDSENDER_H 1
 
+#include "MosquittoIO.hh"
 #include <cstdint>
-#include <vector>
+#include <memory>
 #include <string>
-#include <termios.h>
+#include <vector>
 
-namespace gramsballoon
-{
+namespace gramsballoon::pgrams {
 
-class CommandSender
-{
+class CommandSender {
 public:
-  CommandSender();
+  CommandSender() = default;
+  CommandSender(const std::string &host, const int port) : host_(host), port_(port) {}
   ~CommandSender() = default;
 
-  void set_serial_port(const std::string& dev) { serial_port_ = dev; }
-  std::string serial_port() const { return serial_port_; }
-  bool open_serial_port();
-  void close_serial_port();
-  int send(const std::vector<uint8_t>& byte_array);
+  int open_mosquitto();
+  int send(const std::string &topic, const std::vector<uint8_t> &byte_array);
+  int close_mosquitto() {
+    if (mosquittoIo_ == nullptr) {
+      return 0;
+    }
+    return mosquittoIo_->Disconnect();
+  }
 
 private:
-  std::string serial_port_;
-  int fd_ = 0;
-  struct termios tio_;
+  std::shared_ptr<MosquittoIO<std::vector<uint8_t>>> mosquittoIo_ = nullptr;
+  const std::string id_ = "CommandSender";
+  const std::string host_ = "localhost";
+  const int port_ = 1883;
+  const int keepAlive_ = 60;
 };
 
-} /* namespace gramsballoon */
+} // namespace gramsballoon::pgrams
 
 #endif /* GRAMSBALOON_COMMANDSENDER_H */
