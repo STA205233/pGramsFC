@@ -8,22 +8,28 @@ def main(host, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     s.bind((socket.gethostname(), port))
-    try:
-        s.listen(5)
-        clientsocket, address = s.accept()
-        print(f"Connection from {address} has been established!")
-    except KeyboardInterrupt:
-        s.close()
-        sys.exit(0)
-    try:
-        while (True):
-            # Receive no more than 1024 bytes
-            msg = clientsocket.recv(1024)
-            print(f"Received: {len(msg)} bytes")
-            for byte in msg:
-                print(f"{hex(byte)}", end=" ")
-    except KeyboardInterrupt:
-        pass
+    while True:
+        try:
+            print(f"Listening on {socket.gethostname()}:{port}")
+            s.listen(5)
+            clientsocket, address = s.accept()
+            print(f"Connection from {address} has been established!")
+        except KeyboardInterrupt:
+            s.close()
+            sys.exit(0)
+        try:
+            while (True):
+                # Receive no more than 1024 bytes
+                    
+                msg = clientsocket.recv(1024)
+                if len(msg) == 0:
+                    break
+                print(f"Received: {len(msg)} bytes")
+                for byte in msg:
+                    print(f"{hex(byte)}", end=" ")
+                print()
+        except KeyboardInterrupt:
+            break
     s.close()
 
 
