@@ -9,11 +9,15 @@ class MyApp < ANL::ANLApp
       # chain GRAMSBalloon::GetMHADCData
       # with_parameters(num_ch: 32, sleep_for_msec: 10, MHADCManager_name: "MHADCManager", chatter: 0)
       chain GRAMSBalloon::MosquittoManager
-      with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 100, threaded_set: true, device_id: "hubcomputer") do |m|
+      with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer") do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::ReceiveCommand
       with_parameters(topic: "command", chatter: 100, qos: 0, binary_filename_base: ENV["HOME"]+"/command_test/command") do |m|
+        m.set_singleton(0)
+      end
+      chain GRAMSBalloon::DistributeCommand
+      with_parameters(chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::Sleep
@@ -39,7 +43,7 @@ class MyApp < ANL::ANLApp
       chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_1"
       with_parameters(filename: "/dev/ttyUSB0", baudrate: 4098,  timeout_usec: 10000, timeout_sec: 0)
       chain GRAMSBalloon::GetPressure, "GetPressure_1"
-      with_parameters(EncodedSerialCommunicator_name:"PressureCommunicator_1", sleep_for_msec: 10, channel: 2, chatter: 1, type: "jp")
+      with_parameters(EncodedSerialCommunicator_name:"PressureCommunicator_1", sleep_for_msec: 10, channel: 2, chatter: 0, type: "jp")
       #chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_2"
       #with_parameters(filename: "/dev/ttyUSB1", baudrate: 4098, timeout_usec: 0, timeout_sec: 1)
       #chain GRAMSBalloon::GetPressure, "GetPressure_2"

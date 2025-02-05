@@ -1,5 +1,5 @@
 #include "DistributeCommand.hh"
-#include <arpa/inet.h>
+#include <errno.h>
 #include <iostream>
 #include <netinet/in.h>
 #include <signal.h>
@@ -49,20 +49,18 @@ ANLStatus DistributeCommand::mod_initialize() {
   sa.sa_flags = 0;
   sigaction(SIGPIPE, &sa, NULL);
 
-  /// Initialize sockets
+  ///// Initialize sockets
   for (auto &subSystem: subSystems_) {
+    mosq_->subscribe(NULL, subSystem.second.topic.c_str(), 0);
     subSystem.second.socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (subSystem.second.socket == -1) {
+    if (subSystem.second.socket < 0) {
       std::cerr << "Error in DistributeCommand::mod_initialize: Socket creation failed." << std::endl;
       return AS_ERROR;
     }
-    sockaddr_in serverAddress;
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(subSystem.second.port);
-    serverAddress.sin_addr.s_addr = inet_addr(subSystem.second.ip.c_str());
+
     failed_ = false;
     for (int i = 0; i < numTrial_; i++) {
-      if (connect(subSystem.second.socket, (sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {
+      if (connect(subSystem.second.socket, (sockaddr *)&subSystem.second.serverAddress, sizeof(subSystem.second.serverAddress)) < 0) {
         std::cerr << "Error in DistributeCommand::mod_initialize: Connection failed." << std::endl;
         failed_ = true;
         continue;
@@ -80,6 +78,13 @@ ANLStatus DistributeCommand::mod_initialize() {
       if (chatter_ > 0) {
         std::cout << "Connected to " << subSystem.first << std::endl;
       }
+      if (chatter_ > 1) {
+        std::cout << "IP: " << subSystem.second.ip << std::endl;
+        std::cout << "Port: " << subSystem.second.port << std::endl;
+      }
+      if (chatter_ > 2) {
+        std::cout << "Socket: " << subSystem.second.socket << std::endl;
+      }
     }
   }
   return AS_OK;
@@ -94,14 +99,17 @@ ANLStatus DistributeCommand::mod_analyze() {
   if (commands.empty()) {
     return AS_OK;
   }
-  const auto command = commands[0];
+  const auto command = commands.front();
   const auto &command_payload = command->payload;
   for (const auto &subSystem: subSystems_) {
     const auto &topic = subSystem.second.topic;
     if (topic == command->topic) {
+      if (chatter_ > 0) {
+        std::cout << "Received command for " << subSystem.first << std::endl;
+      }
       if (subSystem.second.socket == 0) {
         std::cerr << "Socket is not opened." << std::endl;
-        commands.pop_front();
+        mosq_->popPayloadFront();
         return AS_OK;
       }
       for (int i = 0; i < numTrial_; i++) {
@@ -111,6 +119,10 @@ ANLStatus DistributeCommand::mod_analyze() {
           failed_ = true;
           continue;
         }
+        else if (chatter_ > 0) {
+          std::cout << "Sent data to " << subSystem.first << std::endl;
+          std::cout << "Payload size: " << send_result << std::endl;
+        }
         failed_ = false;
         break;
       }
@@ -118,9 +130,6 @@ ANLStatus DistributeCommand::mod_analyze() {
         std::cerr << "Error in DistributeCommand::mod_analyze: Sending data failed, despite " << numTrial_ << " times trials." << std::endl;
       }
       else {
-        if (chatter_ > 0) {
-          std::cout << "Sent data to " << subSystem.first << std::endl;
-        }
         if (chatter_ > 1) {
           std::cout << "Payload:" << std::endl;
           for (const auto &byte: command_payload) {
@@ -129,7 +138,7 @@ ANLStatus DistributeCommand::mod_analyze() {
           std::cout << std::endl;
         }
       }
-      commands.pop_front();
+      mosq_->popPayloadFront();
       break;
     }
   }
