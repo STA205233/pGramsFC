@@ -57,6 +57,9 @@ ANLStatus GetMHADCData::mod_analyze() {
     else if (byte_read == 0) {
       continue;
     }
+    if (chatter_ > 1) {
+      std::cout << "Received message: " << dat << std::endl;
+    }
     bool success = true;
     for (int i = 0; i < numCh_; i++) {
       std::smatch m;
