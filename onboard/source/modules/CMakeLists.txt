@@ -36,6 +36,7 @@ set(GB_MODULES
   src/MosquittoManager.cc
   src/ReceiveCommand.cc
   src/DistributeCommand.cc
+  src/MeasureOrientationByMHADC.cc
 )
 
 if(GB_DEMO_MODE)

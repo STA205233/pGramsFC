@@ -1,5 +1,5 @@
-#ifndef DistrobuteCommand_hh
-#define DistrobuteCommand_hh 1
+#ifndef GB_DistributeCommand_hh
+#define GB_DistributeCommand_hh 1
 #include "MosquittoManager.hh"
 #include "SendTelemetry.hh"
 #include "anlnext/BasicModule.hh"

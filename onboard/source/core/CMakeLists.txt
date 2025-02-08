@@ -22,6 +22,7 @@ set(GB_CORE_CLASSES
   src/ErrorManager.cc
   src/DateManager.cc
   src/EncodedSerialCommunication.cc
+  src/OrientationInformation.cc
   )
 
 if(GB_USE_PIGPIO)

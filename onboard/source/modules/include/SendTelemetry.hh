@@ -47,11 +47,13 @@ class RunIDManager;
 namespace pgrams {
 class GetCompressorData;
 class GetArduinoData;
-//class MeasureTemperatureWithRTDSensorByMHADC;
-//class MeasureTemperatureWithRTDSensorByArduino;
+class MeasureTemperatureWithRTDSensorByMHADC;
+class MeasureTemperatureWithRTDSensorByArduino;
 class GetMHADCData;
 class GetPressure;
 class MosquittoManager;
+class DistributeCommand;
+class MeasureOrientationByMHADC;
 } // namespace pgrams
 
 class SendTelemetry: public anlnext::BasicModule {
