@@ -327,6 +327,10 @@ class MeasureTemperatureWithRTDSensorByMHADC: public MeasureTemperatureWithRTDSe
 public:
   MeasureTemperatureWithRTDSensorByMHADC();
 };
+class MeasureOrientationByMHADC: public anlnext::BasicModule {
+public:
+  MeasureOrientationByMHADC();
+};
 } // namespace pgrams
 class GetRaspiStatus : public GBBasicDemoModule
 {

@@ -16,7 +16,7 @@ OrientationInformation::OrientationInformation() {
       {"Humidity", "H"},
   };
   for (auto &&label: labels) {
-    regs_[label.first] = std::regex(label.second + "_([0-9.]+)");
+    regs_[label.first] = std::regex(label.second + "_([0-9.+-]+)");
     values_[label.first] = 0.0;
     valids_[label.first] = false;
   }

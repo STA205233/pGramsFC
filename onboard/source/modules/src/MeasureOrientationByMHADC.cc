@@ -6,6 +6,7 @@ namespace gramsballoon::pgrams {
 ANLStatus MeasureOrientationByMHADC::mod_define() {
   define_parameter("encodedSerialCommunicator_name", &mod_class::encodedSerialCommunicatorName_);
   define_parameter("sleep_for_msec", &mod_class::sleepForMsec_);
+  define_parameter("num_trials", &mod_class::numTrials_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -34,6 +35,7 @@ ANLStatus MeasureOrientationByMHADC::mod_analyze() {
     std::cerr << "MeasureOrientaionByMHADC::mod_analyze: OrientationInformation is nullptr" << std::endl;
     return AS_OK;
   }
+  std::this_thread::sleep_for(std::chrono::milliseconds(sleepForMsec_));
   std::string data;
   for (int i = 0; i < numTrials_; i++) {
     const int byte = esc_->SendComAndGetData("s", data, sleepForMsec_);
@@ -54,7 +56,20 @@ ANLStatus MeasureOrientationByMHADC::mod_analyze() {
     }
     break;
   }
-
+  if (chatter_ > 0) {
+    std::cout << "Measured Values" << std::endl;
+    std::cout << "T: " << orientationInfo_->GetTemperature() << std::endl;
+    std::cout << "Mx: " << orientationInfo_->GetMagnetX() << std::endl;
+    std::cout << "My: " << orientationInfo_->GetMagnetY() << std::endl;
+    std::cout << "Mz: " << orientationInfo_->GetMagnetZ() << std::endl;
+    std::cout << "Ax: " << orientationInfo_->GetAccelX() << std::endl;
+    std::cout << "Ay: " << orientationInfo_->GetAccelY() << std::endl;
+    std::cout << "Az: " << orientationInfo_->GetAccelZ() << std::endl;
+    std::cout << "Gx: " << orientationInfo_->GetGyroX() << std::endl;
+    std::cout << "Gy: " << orientationInfo_->GetGyroY() << std::endl;
+    std::cout << "Gz: " << orientationInfo_->GetGyroZ() << std::endl;
+    std::cout << "Humidity: " << orientationInfo_->GetHumidity() << std::endl;
+  }
   return AS_OK;
 }
 ANLStatus MeasureOrientationByMHADC::mod_finalize() {

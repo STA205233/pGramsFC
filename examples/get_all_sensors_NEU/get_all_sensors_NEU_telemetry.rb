@@ -4,10 +4,10 @@ require 'GRAMSBalloon'
 
 class MyApp < ANL::ANLApp
     def setup()
-      # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-      # with_parameters(filename: "/dev/ttyAMA0", baudrate:9600, timeout_sec: 0, timeout_usec: 100)
-      # chain GRAMSBalloon::GetMHADCData
-      # with_parameters(num_ch: 32, sleep_for_msec: 10, MHADCManager_name: "MHADCManager", chatter: 0)
+       chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+       with_parameters(filename: "/dev/ttyACM1", baudrate:9600, timeout_sec: 0, timeout_usec: 100)
+       chain GRAMSBalloon::GetMHADCData
+       with_parameters(num_ch: 32, sleep_for_msec: 10, MHADCManager_name: "MHADCManager", chatter: 0)
       chain GRAMSBalloon::MosquittoManager
       with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer") do |m|
         m.set_singleton(0)
@@ -27,13 +27,13 @@ class MyApp < ANL::ANLApp
       
       measure_temperature_modules = []
       for i in 0..5 do
-        # chain GRAMSBalloon::MeasureTemperatureWithRTDSensorByMHADC, "MeasureTemperatureWithRTDSensorByMHADC_#{i}"
-        chain GRAMSBalloon::MeasureTemperatureWithRTDSensorByArduino, "MeasureTemperatureWithRTDSensorByArduino_#{i}"
+         chain GRAMSBalloon::MeasureTemperatureWithRTDSensorByMHADC, "MeasureTemperatureWithRTDSensorByMHADC_#{i}"
+        #chain GRAMSBalloon::MeasureTemperatureWithRTDSensorByArduino, "MeasureTemperatureWithRTDSensorByArduino_#{i}"
         with_parameters(channel: i, chatter: 0) do |m|
             m.set_singleton(0)
         end
-        # measure_temperature_modules << "MeasureTemperatureWithRTDSensorByMHADC_#{i}"
-        measure_temperature_modules << "MeasureTemperatureWithRTDSensorByArduino_#{i}"
+         measure_temperature_modules << "MeasureTemperatureWithRTDSensorByMHADC_#{i}"
+        #measure_temperature_modules << "MeasureTemperatureWithRTDSensorByArduino_#{i}"
       end
       
       chain GRAMSBalloon::EncodedSerialCommunicator, "CompressorManager"

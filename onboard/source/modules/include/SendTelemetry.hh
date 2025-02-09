@@ -16,6 +16,7 @@
 #include "GetSlowADCData.hh"
 #include "MeasureAcceleration.hh"
 #include "MeasureTemperatureWithRTDSensor.hh"
+#include "MeasureOrientationByMHADC.hh"
 #include "MosquittoManager.hh"
 #include "ReadWaveform.hh"
 #include "ReceiveCommand.hh"
