@@ -17,6 +17,7 @@
 #include "SendTelemetry.hh"
 #include "SerialCommunication.hh"
 #include "ShutdownSystem.hh"
+#include "rapidjson/document.h"
 #include <anlnext/BasicModule.hh>
 #include <queue>
 #include <sys/select.h>
@@ -78,7 +79,7 @@ private:
   pgrams::MosquittoManager *mosquittoManager_ = nullptr;
 
   //communication
-  pgrams::MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
+  pgrams::MosquittoIO<std::string> *mosq_ = nullptr;
   std::string topic_ = "command";
   int qos_ = 0;
   int timeoutSec_ = 2;

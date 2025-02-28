@@ -36,6 +36,7 @@ option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
 option(GB_APT_RUBY "installed ruby via apt" OFF)
 option(GB_USE_ROOT "enable root" OFF)
 option(GB_USE_MYSQL "enable mysql" OFF)
+option(GB_USE_JSON "enable json" ON)
 
 # # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
@@ -134,6 +135,12 @@ if(GB_USE_ICM20948)
   set(ICM20948_LIB ICM20948 I2C)
   message("-- ICM20948_LIB: ${ICM20948_LIB}")
 endif(GB_USE_ICM20948)
+
+if (GB_USE_JSON)
+  find_package(rapidjson REQUIRED) 
+  set(RAPIDJSON_LIB rapidjson)
+  message("-- RAPIDJSON_LIB: ${RAPIDJSON_LIB}")
+endif(GB_USE_JSON)
 
 # ## HSQUICKLOOK ###
 if(GB_USE_HSQUICKLOOK)

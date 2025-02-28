@@ -29,7 +29,7 @@ ANLStatus MosquittoManager::mod_pre_initialize() {
     std::cerr << "Error in MosquittoManager::mod_pre_initialize: passwd is set but user is empty." << std::endl;
     return AS_ERROR;
   }
-  mosquittoIO_ = std::make_shared<MosquittoIO<std::vector<uint8_t>>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
+  mosquittoIO_ = std::make_shared<MosquittoIO<std::string>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
   mosquittoIO_->setVerbose(chatter_);
   return AS_OK;
 }

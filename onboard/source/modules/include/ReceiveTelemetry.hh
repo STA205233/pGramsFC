@@ -41,7 +41,7 @@ private:
 
   // communication
   pgrams::MosquittoManager *mosquittoManager_ = nullptr;
-  pgrams::MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
+  pgrams::MosquittoIO<std::string> *mosq_ = nullptr;
   int qos_ = 0;
   std::string subTopic_ = "Telemetry";
   int chatter_ = 0;

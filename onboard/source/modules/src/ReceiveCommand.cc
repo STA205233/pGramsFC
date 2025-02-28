@@ -123,7 +123,7 @@ ANLStatus ReceiveCommand::mod_finalize() {
   return AS_OK;
 }
 
-bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
+bool ReceiveCommand::applyCommand(const std::string &command) {
   commandIndex_++;
   if (chatter_ >= 1) {
     std::cout << "command start" << std::endl;
@@ -134,11 +134,10 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       std::cout << static_cast<int>(command[i]) << std::endl;
     }
   }
-  const bool status = comdef_->setCommand(command);
+  const bool status = comdef_->interpret(command);
   if (!status) {
     return false;
   }
-  comdef_->interpret();
 
   const uint16_t code = comdef_->Code();
   const uint16_t argc = comdef_->Argc();
