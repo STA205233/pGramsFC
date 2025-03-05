@@ -32,7 +32,6 @@ class ControlHighVoltage;
 class RunIDManager;
 namespace pgrams {
 class MosquittoManager;
-} // namespace pgrams
 class ReceiveCommand: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveCommand, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -50,7 +49,7 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  bool applyCommand(const std::vector<uint8_t> &command);
+  bool applyCommand(const std::string &command);
   void writeCommandToFile(bool failed, const std::vector<uint8_t> &command);
 
   uint16_t CommandCode() { return (singleton_self()->comdef_)->Code(); }
@@ -76,16 +75,17 @@ private:
   ControlHighVoltage *PMTHVController_ = nullptr;
   std::string PMTHVControllerModuleName_ = "";
   RunIDManager *runIDManager_ = nullptr;
-  pgrams::MosquittoManager *mosquittoManager_ = nullptr;
+  MosquittoManager *mosquittoManager_ = nullptr;
 
   //communication
-  pgrams::MosquittoIO<std::string> *mosq_ = nullptr;
+  MosquittoIO<std::string> *mosq_ = nullptr;
   std::string topic_ = "command";
   int qos_ = 0;
   int timeoutSec_ = 2;
   constexpr static int serialReadingTimems_ = 250;
 };
 
+} // namespace pgrams
 } /* namespace gramsballoon */
 
 #endif /* ReceiveCommand_H */

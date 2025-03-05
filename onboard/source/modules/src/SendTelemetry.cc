@@ -149,7 +149,7 @@ ANLStatus SendTelemetry::mod_analyze() {
     telemdef_->generateTelemetry();
     telemetryType_ = 1;
   }
-  const std::vector<uint8_t> &telemetry = telemdef_->Telemetry();
+  const auto telemetry = telemdef_->getJsonString();
   const int status = mosq_->Publish(telemetry, pubTopic_, qos_);
   const bool failed = (status != mosq_err_t::MOSQ_ERR_SUCCESS);
   if (failed) {

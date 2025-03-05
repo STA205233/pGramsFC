@@ -20,6 +20,8 @@ TelemetryDefinition::TelemetryDefinition() {
   magnet_.resize(3);
   ADCOffset_.resize(4);
   ADCRange_.resize(4);
+  buffer_ = std::make_unique<rapidjson::StringBuffer>();
+  writer_ = std::make_unique<rapidjson::Writer<rapidjson::StringBuffer>>(*buffer_);
 }
 
 void TelemetryDefinition::generateTelemetry(int wf_division_id /*=0*/) {
@@ -203,74 +205,74 @@ void TelemetryDefinition::writeCRC16() {
   addValue<uint16_t>(crc);
 }
 
-bool TelemetryDefinition::setTelemetry(const std::vector<uint8_t> &v) {
-  int n = v.size();
-  if (n < 10) {
-    std::cerr << "Telemetry is too short!!: length = " << n << std::endl;
-    return false;
-  }
+//bool TelemetryDefinition::setTelemetry(const std::vector<uint8_t> &v) {
+//  int n = v.size();
+//  if (n < 10) {
+//    std::cerr << "Telemetry is too short!!: length = " << n << std::endl;
+//    return false;
+//  }
 
-  if (v[0] != 0xEB || v[1] != 0x90 || v[2] != 0x5B || v[3] != 0x6A) {
-    std::cerr << "start code incorect" << std::endl;
-    return false;
-  }
-  if (v[n - 4] != 0xC5 || v[n - 3] != 0xA4 || v[n - 2] != 0xD2 || v[n - 1] != 0x79) {
-    std::cerr << "stop code incorrect" << std::endl;
-    return false;
-  }
+//  if (v[0] != 0xEB || v[1] != 0x90 || v[2] != 0x5B || v[3] != 0x6A) {
+//    std::cerr << "start code incorect" << std::endl;
+//    return false;
+//  }
+//  if (v[n - 4] != 0xC5 || v[n - 3] != 0xA4 || v[n - 2] != 0xD2 || v[n - 1] != 0x79) {
+//    std::cerr << "stop code incorrect" << std::endl;
+//    return false;
+//  }
 
-  telemetry_ = v;
+//  telemetry_ = v;
 
-  uint16_t type = getValue<uint16_t>(4);
-  const int hk_telemetry_len = 132;
-  const int wf_telemetry_len = 8248;
-  const int status_telemetry_len = 100;
-  if (type == 1) {
-    if (n != hk_telemetry_len) {
-      std::cerr << "Telemetry HK: Telemetry length is not correct: n = " << n << std::endl;
-      return false;
-    }
-  }
-  else if (type == 2) {
-    if (n != wf_telemetry_len) {
-      std::cerr << "Telemetry Status: Telemetry length is not correct: n = " << n << std::endl;
-      std::cerr << "We force to resize the telemetry..." << std::endl;
-      telemetry_.resize(wf_telemetry_len);
-      numZeroFill_ = wf_telemetry_len - n;
-      n = wf_telemetry_len;
-    }
-  }
-  else if (type == 3) {
-    if (n != status_telemetry_len) {
-      std::cerr << "Telemetry Status: Telemetry length is not correct: n = " << n << std::endl;
-      return false;
-    }
-  }
-  else {
-    std::cerr << "Invalid telemetry type: type = " << type << std::endl;
-  }
+//  uint16_t type = getValue<uint16_t>(4);
+//  const int hk_telemetry_len = 132;
+//  const int wf_telemetry_len = 8248;
+//  const int status_telemetry_len = 100;
+//  if (type == 1) {
+//    if (n != hk_telemetry_len) {
+//      std::cerr << "Telemetry HK: Telemetry length is not correct: n = " << n << std::endl;
+//      return false;
+//    }
+//  }
+//  else if (type == 2) {
+//    if (n != wf_telemetry_len) {
+//      std::cerr << "Telemetry Status: Telemetry length is not correct: n = " << n << std::endl;
+//      std::cerr << "We force to resize the telemetry..." << std::endl;
+//      telemetry_.resize(wf_telemetry_len);
+//      numZeroFill_ = wf_telemetry_len - n;
+//      n = wf_telemetry_len;
+//    }
+//  }
+//  else if (type == 3) {
+//    if (n != status_telemetry_len) {
+//      std::cerr << "Telemetry Status: Telemetry length is not correct: n = " << n << std::endl;
+//      return false;
+//    }
+//  }
+//else {
+//  std::cerr << "Invalid telemetry type: type = " << type << std::endl;
+//}
 
-  std::vector<uint8_t> telem_without_fotter;
-  for (int i = 0; i < n - 6; i++) {
-    telem_without_fotter.push_back(telemetry_[i]);
-  }
+//std::vector<uint8_t> telem_without_fotter;
+//for (int i = 0; i < n - 6; i++) {
+//  telem_without_fotter.push_back(telemetry_[i]);
+//}
 
-  uint16_t crc_calc = calcCRC16(telem_without_fotter);
-  uint16_t crc_attached = getValue<uint16_t>(n - 6);
-  if (crc_calc != crc_attached) {
-    if (type == 2) {
-      std::cerr << "CRC16 is not appropriate.\nBut for now, we process the telemetry as valid one since it is too long." << std::endl;
-      std::cerr << "Telemetry is very long: size = " << v.size() << std::endl;
-      return true;
-    }
-    if (type != 2) {
-      std::cerr << "Invalid telemetry: CRC16 not appropriate" << std::endl;
-      return false;
-    }
-  }
+//uint16_t crc_calc = calcCRC16(telem_without_fotter);
+//uint16_t crc_attached = getValue<uint16_t>(n - 6);
+//if (crc_calc != crc_attached) {
+//  if (type == 2) {
+//    std::cerr << "CRC16 is not appropriate.\nBut for now, we process the telemetry as valid one since it is too long." << std::endl;
+//    std::cerr << "Telemetry is very long: size = " << v.size() << std::endl;
+//    return true;
+//  }
+//  if (type != 2) {
+//    std::cerr << "Invalid telemetry: CRC16 not appropriate" << std::endl;
+//    return false;
+//  }
+//}
 
-  return true;
-}
+//return true;
+//}
 
 void TelemetryDefinition::interpret() {
   startCode_ = getValue<uint32_t>(0);

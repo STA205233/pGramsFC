@@ -113,13 +113,6 @@ public:
 };
 #endif
 
-#if defined GB_MAC || defined GB_DEMO_MODE
-class ReceiveCommand : public anlnext::BasicModule
-{
-public:
-  ReceiveCommand();
-};
-#endif
 
 #ifdef USE_WAVEFORMS
 class AnalogDiscoveryManager : public anlnext::BasicModule
@@ -189,6 +182,15 @@ public:
 };
 
 namespace pgrams {
+
+#if defined GB_MAC || defined GB_DEMO_MODE
+class ReceiveCommand : public anlnext::BasicModule
+{
+public:
+  ReceiveCommand();
+};
+#endif  
+
 class GetArduinoData: public anlnext::BasicModule {
 public:
   GetArduinoData();

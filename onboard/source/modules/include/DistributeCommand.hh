@@ -45,7 +45,7 @@ public:
 
 private:
   MosquittoManager *mosquittoManager_ = nullptr;
-  MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
+  MosquittoIO<std::string> *mosq_ = nullptr;
   std::map<const std::string, SubSystem, std::less<>> subSystems_;
   SendTelemetry *sendTelemetry_ = nullptr;
   int chatter_ = 0;

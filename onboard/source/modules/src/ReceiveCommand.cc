@@ -4,7 +4,7 @@
 
 using namespace anlnext;
 
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 
 ReceiveCommand::ReceiveCommand() {
   TPCHVControllerModuleName_ = "ControlHighVoltage_TPC";
@@ -108,7 +108,7 @@ ANLStatus ReceiveCommand::mod_analyze() {
     return AS_OK;
   }
   const bool applied = applyCommand(command_payload);
-  writeCommandToFile(!applied, command_payload);
+  writeCommandToFile(!applied, comdef_->Command());
   if (!applied) {
     commandRejectCount_++;
     if (sendTelemetry_) {
@@ -391,4 +391,4 @@ void ReceiveCommand::writeCommandToFile(bool failed, const std::vector<uint8_t> 
   fileIDmp_[type].second++;
 }
 
-} /* namespace gramsballoon */
+} // namespace gramsballoon::pgrams

@@ -26,13 +26,13 @@ public:
   anlnext::ANLStatus mod_end_run() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  void Publish(std::vector<uint8_t> &message, const std::string &topic, int qos) {
+  void Publish(std::string &message, const std::string &topic, int qos) {
     singleton_self()->mosquittoIO_->Publish(message, topic, qos);
   }
-  MosquittoIO<std::vector<uint8_t>> *getMosquittoIO() { return singleton_self()->mosquittoIO_.get(); }
+  MosquittoIO<std::string> *getMosquittoIO() { return singleton_self()->mosquittoIO_.get(); }
 
 private:
-  std::shared_ptr<MosquittoIO<std::vector<uint8_t>>> mosquittoIO_ = nullptr;
+  std::shared_ptr<MosquittoIO<std::string>> mosquittoIO_ = nullptr;
   std::string host_ = "localhost";
   std::string user_ = "";
   std::string passwd_ = "";

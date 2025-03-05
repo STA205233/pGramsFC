@@ -137,9 +137,8 @@ if(GB_USE_ICM20948)
 endif(GB_USE_ICM20948)
 
 if (GB_USE_JSON)
-  find_package(rapidjson REQUIRED) 
-  set(RAPIDJSON_LIB rapidjson)
-  message("-- RAPIDJSON_LIB: ${RAPIDJSON_LIB}")
+  set(JSON_INC_DIR /usr/local/include)
+  message("-- JSON_INC_DIR: ${JSON_INC_DIR}")
 endif(GB_USE_JSON)
 
 # ## HSQUICKLOOK ###

@@ -15,8 +15,8 @@
 #include "GetRaspiStatus.hh"
 #include "GetSlowADCData.hh"
 #include "MeasureAcceleration.hh"
-#include "MeasureTemperatureWithRTDSensor.hh"
 #include "MeasureOrientationByMHADC.hh"
+#include "MeasureTemperatureWithRTDSensor.hh"
 #include "MosquittoManager.hh"
 #include "ReadWaveform.hh"
 #include "ReceiveCommand.hh"
@@ -43,9 +43,9 @@ class GetRaspiStatus;
 class GetEnvironmentalData;
 class MeasureAcceleration;
 class GetSlowADCData;
-class ReceiveCommand;
 class RunIDManager;
 namespace pgrams {
+class ReceiveCommand;
 class GetCompressorData;
 class GetArduinoData;
 class MeasureTemperatureWithRTDSensorByMHADC;
@@ -123,11 +123,11 @@ private:
   pgrams::GetPressure *getPressureJacket_ = nullptr;
   MeasureAcceleration *measureAcceleration_ = nullptr;
   GetSlowADCData *getSlowADCData_ = nullptr;
-  ReceiveCommand *receiveCommand_ = nullptr;
+  pgrams::ReceiveCommand *receiveCommand_ = nullptr;
   RunIDManager *runIDManager_ = nullptr;
   pgrams::MosquittoManager *mosquittoManager_ = nullptr;
 
-  pgrams::MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
+  pgrams::MosquittoIO<std::string> *mosq_ = nullptr;
   std::string pubTopic_ = "telemetry";
   int qos_ = 0;
 };

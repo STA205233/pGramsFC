@@ -7,6 +7,7 @@ include_directories(
   ${BOOST_INC_DIR}
   ${PIGPIO_INC_DIR}
   ${MYSQL_INC_DIR}
+  ${JSON_INC_DIR}
   )
 
 link_directories(
