@@ -1,14 +1,11 @@
-#ifndef GB_DEMO_MODE
 #ifndef MAX31865IO_H
 #define MAX31865IO_H 1
 
-
-#include <pigpiod_if2.h>
-#include <iostream>
+#include "SPIInterface.hh"
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <vector>
-#include "SPIInterface.hh"
 
 /**
  * A class to handle MAX31865 to measure temperature
@@ -17,9 +14,6 @@
  * @date 2023-03-17
  */
 
-
-
-#include <pigpiod_if2.h>
 #include <iostream>
 #include <vector>
 
@@ -64,16 +58,16 @@
 #define MAX31865_BAD -1
 #define MAX31865_WARNING 10
 
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 
-class MAX31865IO
-{
+class MAX31865IO {
 public:
   MAX31865IO();
   ~MAX31865IO() = default;
 
-  void setInterface(SPIInterface* intf);
-  int readReg(uint8_t reg, char *value, unsigned int length);
+  void setInterface(SPIInterface *intf);
+  void setChipSelect(int cs) { cs_ = cs; }
+  int readReg(uint8_t reg, uint8_t *value, unsigned int length);
   int writeReg(uint8_t reg, char *value, unsigned int length);
   int setConfigure(char bits);
   int setConfigureSingle(char val, char mask);
@@ -83,7 +77,7 @@ public:
   int16_t getData();
   int faultStatusClear();
   int getFaultStatus();
-  double Tconversion(int adc);  
+  double Tconversion(int adc);
 
   int setBias(char val);
   int setConversion(char val);
@@ -100,19 +94,15 @@ public:
   int16_t TemperatureADC() { return temperatureADC_; }
 
 private:
-  int pi;
   const int rRef_ = 430;
-  unsigned int handle;
-  int cs;
-  char currentBits_;
-  SPIInterface* intf_;
+  int cs_;
+  uint8_t currentBits_;
+  SPIInterface *intf_;
   int16_t temperatureADC_ = 0;
   double temperature_ = 0.0;
+  std::vector<uint8_t> writeBuffer_;
 };
 
-} /* namespace gramsballoon */
+} // namespace gramsballoon::pgrams
 
-#endif /* GB_DEMO_MODE */
-#endif 
-
-
+#endif

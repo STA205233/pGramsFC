@@ -5,7 +5,7 @@
 #include <string>
 #include "SimpleLoop.hh"
 #include "Sleep.hh"
-#ifdef USE_PIGPIO
+#ifdef USE_SPI
 #include "SPIManager.hh"
 #endif
 #ifdef USE_PIGPIO
@@ -20,7 +20,7 @@
 #ifdef USE_WAVEFORMS
 #include "ControlHighVoltage.hh"
 #endif
-#ifdef USE_PIGPIO
+#ifdef USE_SPI
 #include "MeasureTemperatureWithRTDSensor.hh"
 #endif
 #ifdef USE_WAVEFORMS
@@ -66,9 +66,9 @@
 #include "ShutdownSystemDemo.hh"
 #include "GetEnvironmentalDataDemo.hh"
 #include "MeasureAccelerationDemo.hh"
-#include "MeasureTemperatureWithRTDSensorDemo.hh"
-#include "MeasureTemperatureWithRTDSensorByArduino.hh"
-#include "MeasureTemperatureWithRTDSensorByMHADC.hh"
+// #include "MeasureTemperatureWithRTDSensorDemo.hh"
+// #include "MeasureTemperatureWithRTDSensorByArduino.hh"
+// #include "MeasureTemperatureWithRTDSensorByMHADC.hh"
 #include "GetRaspiStatusDemo.hh"
 #include "ControlHighVoltageDemo.hh"
 #include "ReadWaveformDemo.hh"
@@ -96,14 +96,14 @@ class Sleep : public anlnext::BasicModule
 public:
   Sleep();
 };
-}
-#ifdef USE_PIGPIO
+#ifdef USE_SPI
 class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
 };
 #endif
+}
 
 #ifdef USE_PIGPIO
 class GetEnvironmentalData : public anlnext::BasicModule
@@ -134,14 +134,6 @@ class ControlHighVoltage : public anlnext::BasicModule
 {
 public:
   ControlHighVoltage();
-};
-#endif
-
-#ifdef USE_PIGPIO
-class MeasureTemperatureWithRTDSensor : public anlnext::BasicModule
-{
-public:
-  MeasureTemperatureWithRTDSensor();
 };
 #endif
 
@@ -189,6 +181,13 @@ public:
 };
 
 namespace pgrams {
+#ifdef USE_SPI
+class MeasureTemperatureWithRTDSensor : public anlnext::BasicModule
+{
+public:
+  MeasureTemperatureWithRTDSensor();
+};
+#endif
 class GetArduinoData: public anlnext::BasicModule {
 public:
   GetArduinoData();
@@ -312,21 +311,21 @@ public:
   MeasureAcceleration();
 };
 
-class MeasureTemperatureWithRTDSensor : public GBBasicDemoModule
-{
-public:
-  MeasureTemperatureWithRTDSensor();
-};
+// class MeasureTemperatureWithRTDSensor : public GBBasicDemoModule
+// {
+// public:
+//   MeasureTemperatureWithRTDSensor();
+// };
 namespace pgrams{
-class MeasureTemperatureWithRTDSensorByArduino: public MeasureTemperatureWithRTDSensor {
-public:
-  MeasureTemperatureWithRTDSensorByArduino();
-};
+// class MeasureTemperatureWithRTDSensorByArduino: public MeasureTemperatureWithRTDSensor {
+// public:
+//   MeasureTemperatureWithRTDSensorByArduino();
+// };
 
-class MeasureTemperatureWithRTDSensorByMHADC: public MeasureTemperatureWithRTDSensor {
-public:
-  MeasureTemperatureWithRTDSensorByMHADC();
-};
+// class MeasureTemperatureWithRTDSensorByMHADC: public MeasureTemperatureWithRTDSensor {
+// public:
+//   MeasureTemperatureWithRTDSensorByMHADC();
+// };
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
 public:
   MeasureOrientationByMHADC();

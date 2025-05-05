@@ -28,7 +28,7 @@ find_package(Ruby 3.0 REQUIRED)
 
 # ## options
 # # library options
-option(GB_USE_PIGPIO "enable PIGPIO" OFF)
+option(GB_USE_SPI "enable SPI" ON)
 option(GB_USE_WAVEFORMS "enable waveforms" OFF)
 option(GB_USE_ICM20948 "enable ICM20948" OFF)
 option(GB_USE_RASPISYS "enable raspi system control" OFF)
@@ -49,7 +49,7 @@ option(GB_MAC "shortcut" OFF)
 
 if(GB_MAC)
   message("-- GB_MAC is set")
-  set(GB_USE_PIGPIO OFF)
+  set(GB_USE_SPI OFF)
   set(GB_USE_WAVEFORMS OFF)
   set(GB_USE_ICM20948 OFF)
   set(GB_USE_RASPISYS OFF)
@@ -105,23 +105,32 @@ set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
 message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
-# ## PIGPIO ###
-if(GB_USE_PIGPIO)
-  set(PIGPIO_INSTALL_PREFIX /home/grams/software/pigpio/util)
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PIGPIO_INSTALL_PREFIX})
-  find_package(pigpio REQUIRED)
-  set(PIGPIO_INC_DIR ${pigpio_INCLUDE_DIRS})
-  set(PIGPIO_LIB_DIR ${pigpio_LIBRARY_DIRS})
-  set(PIGPIO_LIB ${pigpio_LIBRARIES})
-  message("-- PIGPIO_INC_DIR: ${PIGPIO_INC_DIR}")
-  message("-- PIGPIO_LIB_DIR: ${PIGPIO_LIB_DIR}")
-  message("-- PIGPIO_LIB: ${PIGPIO_LIB}")
-  set(PIGPIO_LIB_DAEMON pigpiod_if2)
-  message("-- PIGPIO_LIB_DAEMON: ${PIGPIO_LIB_DAEMON}")
-  set(PIGPIO_LIB_RT rt)
-  message("-- PIGPIO_LIB_RT: ${PIGPIO_LIB_RT}")
-  set(BME68x_LIB GBBME68x)
-endif(GB_USE_PIGPIO)
+# D2xx
+if (GB_USE_SPI)
+  find_path(D2XX_INC_DIR
+    NAMES ftd2xx.h REQUIRED
+    PATHS /usr/local/include)
+  find_path(WIN_TYPES_INC_DIR
+    NAMES WinTypes.h REQUIRED
+    PATHS /usr/local/include)
+  find_library(D2XX_LIB
+    NAMES libftd2xx.so libftd2xx.dylib REQUIRED
+    PATHS /usr/local/lib)
+    set(D2XX_LIB_DIR ${D2XX_LIB})
+    set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
+    message("-- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS}")
+    message("-- D2XX_LIB: ${D2XX_LIB}")
+  include_directories(${D2XX_INCLUDE_DIRS})
+  find_path(MPSSE_INC_DIR
+    NAMES libmpsse_spi.h REQUIRED
+    PATHS /usr/local/include)
+    message("-- MPSSE_INC_DIR: ${MPSSE_INC_DIR}")
+  find_library(MPSSE_LIB
+    NAMES libmpsse.so libmpsse.dylib REQUIRED
+    PATHS /usr/local/lib)
+    message("-- MPSSE_LIB: ${MPSSE_LIB}")
+  include_directories(${MPSSE_INC_DIR})
+endif(GB_USE_SPI)
 
 # ## Waveforms ###
 if(GB_USE_WAVEFORMS)

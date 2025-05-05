@@ -1,24 +1,20 @@
-#ifndef GB_DEMO_MODE
-#include <thread>
-#include <chrono>
 #include "MeasureTemperatureWithRTDSensor.hh"
-#include "pigpiod_if2.h"
-#include "bme68x.h"
+#include "MAX31865IO.hh"
+#include "SPIInterface.hh"
+#include <chrono>
+#include <thread>
 
 using namespace anlnext;
+using namespace gramsballoon;
+namespace gramsballoon::pgrams {
 
-namespace gramsballoon {
-
-MeasureTemperatureWithRTDSensor::MeasureTemperatureWithRTDSensor()
-{
+MeasureTemperatureWithRTDSensor::MeasureTemperatureWithRTDSensor() {
   max31865io_ = std::make_shared<MAX31865IO>();
-  interface_ = std::make_shared<SPIInterface>();
 }
 
 MeasureTemperatureWithRTDSensor::~MeasureTemperatureWithRTDSensor() = default;
 
-ANLStatus MeasureTemperatureWithRTDSensor::mod_define()
-{
+ANLStatus MeasureTemperatureWithRTDSensor::mod_define() {
   define_parameter("chip_select", &mod_class::chipSelect_);
   define_parameter("SPI_manager_name", &mod_class::SPIManagerName_);
   define_parameter("chatter", &mod_class::chatter_);
@@ -26,14 +22,18 @@ ANLStatus MeasureTemperatureWithRTDSensor::mod_define()
   return AS_OK;
 }
 
-ANLStatus MeasureTemperatureWithRTDSensor::mod_pre_initialize()
-{
+ANLStatus MeasureTemperatureWithRTDSensor::mod_pre_initialize() {
+
+  return AS_OK;
+}
+
+ANLStatus MeasureTemperatureWithRTDSensor::mod_initialize() {
   const std::string send_telem_md = "SendTelemetry";
   if (exist_module(send_telem_md)) {
     get_module_NC(send_telem_md, &sendTelemetry_);
   }
 
-  if (chipSelect_<0 || chipSelect_>=27) {
+  if (chipSelect_ < 0 || chipSelect_ >= 27) {
     std::cerr << "Chip select must be non-negative and smaller than 27: CS=" << chipSelect_ << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::OTHER_ERRORS);
@@ -48,21 +48,9 @@ ANLStatus MeasureTemperatureWithRTDSensor::mod_pre_initialize()
       sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
     }
   }
-  SPIManager_->addChipSelect(chipSelect_);
+  interface_ = SPIManager_->Interface();
 
-  return AS_OK;
-}
-
-ANLStatus MeasureTemperatureWithRTDSensor::mod_initialize()
-{
-  const unsigned int spihandler = SPIManager_ -> Interface() -> SPIHandler();
-  const int pi = SPIManager_ -> Interface() -> GPIOHandler();
-
-  interface_ -> setSPIHandler(spihandler);
-  interface_ -> setChipSelect(chipSelect_);
-  interface_ -> setGPIOHandler(pi);
-
-  max31865io_->setInterface(interface_.get());
+  max31865io_->setInterface(interface_);
 
   max31865io_->faultStatusClear();
   max31865io_->setConfigureSingle(MAX31865_CONF_BIAS_ON, MAX31865_CONF_BIAS_MSK);
@@ -74,50 +62,47 @@ ANLStatus MeasureTemperatureWithRTDSensor::mod_initialize()
   return AS_OK;
 }
 
-ANLStatus MeasureTemperatureWithRTDSensor::mod_analyze()
-{
+ANLStatus MeasureTemperatureWithRTDSensor::mod_analyze() {
   int status = max31865io_->getData();
-  if (status!=MAX31865_OK) {
+  if (status != MAX31865_OK) {
     std::cerr << "Failed to get data in " << module_id() << "::mod_analyze(), status = " << status << std::endl;
     setDataAquisitionError();
   }
-  else if (TemperatureADC()==0) {
+  else if (TemperatureADC() == 0) {
     std::cerr << "Error in " << module_id() << "::mod_analyze(), RTD ADC is equal to zero." << std::endl;
     setDataAquisitionError();
   }
 
-  if (chatter_>=1) {
+  if (chatter_ >= 1) {
     const double temperature = max31865io_->Temperature();
     std::cout << "temperature ADC: " << TemperatureADC() << std::endl;
     std::cout << " temperature : " << temperature << std::endl;
   }
- 
+
   return AS_OK;
 }
 
-ANLStatus MeasureTemperatureWithRTDSensor::mod_finalize()
-{
+ANLStatus MeasureTemperatureWithRTDSensor::mod_finalize() {
   return AS_OK;
 }
 
-void MeasureTemperatureWithRTDSensor::setDataAquisitionError()
-{
-  if (sendTelemetry_==nullptr) return;
+void MeasureTemperatureWithRTDSensor::setDataAquisitionError() {
+  if (sendTelemetry_ == nullptr) return;
 
   const std::string name = module_id();
-  if (name=="MeasureTemperatureWithRTDSensor_1") {
+  if (name == "MeasureTemperatureWithRTDSensor_1") {
     sendTelemetry_->getErrorManager()->setError(ErrorType::RTD_DATA_AQUISITION_ERROR_1);
   }
-  else if (name=="MeasureTemperatureWithRTDSensor_2") {
+  else if (name == "MeasureTemperatureWithRTDSensor_2") {
     sendTelemetry_->getErrorManager()->setError(ErrorType::RTD_DATA_AQUISITION_ERROR_2);
   }
-  else if (name=="MeasureTemperatureWithRTDSensor_3") {
+  else if (name == "MeasureTemperatureWithRTDSensor_3") {
     sendTelemetry_->getErrorManager()->setError(ErrorType::RTD_DATA_AQUISITION_ERROR_3);
   }
-  else if (name=="MeasureTemperatureWithRTDSensor_4") {
+  else if (name == "MeasureTemperatureWithRTDSensor_4") {
     sendTelemetry_->getErrorManager()->setError(ErrorType::RTD_DATA_AQUISITION_ERROR_4);
   }
-  else if (name=="MeasureTemperatureWithRTDSensor_5") {
+  else if (name == "MeasureTemperatureWithRTDSensor_5") {
     sendTelemetry_->getErrorManager()->setError(ErrorType::RTD_DATA_AQUISITION_ERROR_5);
   }
   else {
@@ -125,5 +110,4 @@ void MeasureTemperatureWithRTDSensor::setDataAquisitionError()
   }
 }
 
-} /* namespace gramsballoon */
-#endif /* GB_DEMO_MODE */
+} // namespace gramsballoon::pgrams

@@ -15,6 +15,7 @@ set(RUBY_EXT_INCLUDE_DIRS
   ${HSQUICKLOOK_INC_DIR}
   ${ROOT_INC_DIR}
   ${MYSQL_INC_DIR}
+  ${D2XX_INCLUDE_DIRS}
   )
 set(RUBY_EXT_LIBRARY_DIRS
   /usr/local/lib
@@ -29,21 +30,21 @@ set(RUBY_EXT_LIBRARIES
   ${BME68x_LIB}
   GBCore
   GBModules
-  ${PIGPIO_LIB_DAEMON}
-  ${PIGPIO_LIB_RT}
   ${WAVEFORMS_LIB}
   ${ICM20948_LIB}
   ${HSQUICKLOOK_LIB}
   ${MONGODB_LIB}
   ${ROOT_LIB}
   ${MYSQL_LIB}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
 )
 
 
 ########################################################
 set(cxx_definitions )
-if(GB_USE_PIGPIO)
-  list(APPEND cxx_definitions -DUSE_PIGPIO)
+if(GB_USE_SPI)
+  list(APPEND cxx_definitions -DUSE_SPI)
 endif()
 if(GB_USE_WAVEFORMS)
   list(APPEND cxx_definitions -DUSE_WAVEFORMS)

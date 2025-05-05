@@ -5,7 +5,8 @@ include_directories(
   ../ICM20948-linux-i2c/I2C/src
   ${ADD_INC_DIR}
   ${BOOST_INC_DIR}
-  ${PIGPIO_INC_DIR}
+  ${D2XX_INC_DIR}
+  ${MPSSE_INC_DIR}
   ${MYSQL_INC_DIR}
   )
 
@@ -25,13 +26,14 @@ set(GB_CORE_CLASSES
   src/OrientationInformation.cc
   )
 
-if(GB_USE_PIGPIO)
-  set(GB_PIGPIO_CORE_CLASSES
+if(GB_USE_SPI)
+  set(GB_SPI_CORE_CLASSES
     src/BME680IO.cc
     src/MAX31865IO.cc
     src/SlowADCIO.cc
-    )
-endif(GB_USE_PIGPIO)
+    src/SPIInterface.cc
+  )
+endif(GB_USE_SPI)
 
 if(GB_USE_WAVEFORMS)
   set(GB_WAVEFORMS_CORE_CLASSES
@@ -57,7 +59,7 @@ set(GB_MOSQUITTO_CORE_CLASSES
 
 add_library(GBCore SHARED
   ${GB_CORE_CLASSES}
-  ${GB_PIGPIO_CORE_CLASSES}
+  ${GB_SPI_CORE_CLASSES}
   ${GB_WAVEFORMS_CORE_CLASSES}
   ${GB_ICM20948_CORE_CLASSES}
   ${GB_MYSQL_CORE_CLASSES}
@@ -68,8 +70,8 @@ target_link_libraries(GBCore
   ${BME68x_LIB}
   ${ADD_LIB}
   ${BOOST_LIB}
-  ${PIGPIO_LIB_DAEMON}
-  ${PIGPIO_LIB_RT}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
   ${WAVEFORMS_LIB}
   ${ICM20948_LIB}
   ${MYSQL_LIB}

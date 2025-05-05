@@ -15,8 +15,8 @@
 #include "GetRaspiStatus.hh"
 #include "GetSlowADCData.hh"
 #include "MeasureAcceleration.hh"
-#include "MeasureTemperatureWithRTDSensor.hh"
 #include "MeasureOrientationByMHADC.hh"
+#include "MeasureTemperatureWithRTDSensor.hh"
 #include "MosquittoManager.hh"
 #include "ReadWaveform.hh"
 #include "ReceiveCommand.hh"
@@ -37,7 +37,6 @@
 namespace gramsballoon {
 
 class ReadWaveform;
-class MeasureTemperatureWithRTDSensor;
 class ControlHighVoltage;
 class GetRaspiStatus;
 class GetEnvironmentalData;
@@ -48,6 +47,7 @@ class RunIDManager;
 namespace pgrams {
 class GetCompressorData;
 class GetArduinoData;
+class MeasureTemperatureWithRTDSensor;
 class MeasureTemperatureWithRTDSensorByMHADC;
 class MeasureTemperatureWithRTDSensorByArduino;
 class GetMHADCData;
@@ -108,7 +108,7 @@ private:
   // access to other classes
   ReadWaveform *readWaveform_ = nullptr;
   std::vector<std::string> measureTemperatureModuleNames_;
-  std::vector<MeasureTemperatureWithRTDSensor *> measureTemperatureVec_;
+  std::vector<pgrams::MeasureTemperatureWithRTDSensor *> measureTemperatureVec_;
   std::string TPCHVControllerModuleName_ = "";
   ControlHighVoltage *TPCHVController_ = nullptr;
   std::string PMTHVControllerModuleName_ = "";

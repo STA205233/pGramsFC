@@ -42,7 +42,6 @@ set(GB_MODULES
 if(GB_DEMO_MODE)
   set(GB_DEMO_MODULES
     ../demo/src/GBBasicDemoModule.cc
-    ../demo/src/MeasureTemperatureWithRTDSensorDemo.cc
     ../demo/src/ReadWaveformDemo.cc
     ../demo/src/MeasureAccelerationDemo.cc
     ../demo/src/GetRaspiStatusDemo.cc
@@ -51,8 +50,8 @@ if(GB_DEMO_MODE)
     ../demo/src/GetEnvironmentalDataDemo.cc
     ../demo/src/GetSlowADCDataDemo.cc
     ../demo/src/GetSlowADCDataIncludingPressure.cc
-    ../demo/src/MeasureTemperatureWithRTDSensorByArduino.cc
-    ../demo/src/MeasureTemperatureWithRTDSensorByMHADC.cc
+    #../demo/src/MeasureTemperatureWithRTDSensorByArduino.cc
+    #../demo/src/MeasureTemperatureWithRTDSensorByMHADC.cc
   )
   list(APPEND GB_MODULES 
     src/ReceiveCommand.cc
@@ -61,14 +60,12 @@ if(GB_DEMO_MODE)
    include_directories(../demo/include)
 endif(GB_DEMO_MODE) 
   
-if(GB_USE_PIGPIO)
+if(GB_USE_SPI)
   set(GB_PIGPIO_MODULES
     src/SPIManager.cc
-    src/GetEnvironmentalData.cc
     src/MeasureTemperatureWithRTDSensor.cc
-    src/GetSlowADCData.cc
     )
-endif(GB_USE_PIGPIO)
+endif(GB_USE_SPI)
 
 if(GB_USE_WAVEFORMS)
   set(GB_WAVEFORMS_MODULES
@@ -127,8 +124,8 @@ target_link_libraries(GBModules
   ${BME68x_LIB}
   ${ANLNEXT_LIB}
   ${ROOT_LIB}
-  ${PIGPIO_LIB_DAEMON}
-  ${PIGPIO_LIB_RT}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
   ${WAVEFORMS_LIB}
   ${ICM20948_LIB}
   ${MONGODB_LIB}
