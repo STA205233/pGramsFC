@@ -26,8 +26,8 @@ protected:
 
 public:
   int baudrate() const { return channelConfig_.ClockRate; }
-  void setBaudrate(int baudrate) { channelConfig_.ClockRate = baudrate; }
-  void setConfigOptions(int configOptions) { channelConfig_.configOptions = configOptions; }
+  void setBaudrate(unsigned int baudrate) { channelConfig_.ClockRate = baudrate; }
+  void setConfigOptions(unsigned int configOptions) { channelConfig_.configOptions = configOptions; }
   FT_HANDLE SPIHandler() { return SPIHandler_; }
   FT_STATUS Open(int channel);
   FT_STATUS Close() {
@@ -41,7 +41,7 @@ public:
   FT_STATUS Write(int cs, const uint8_t *writeBuffer, int size);
 
 private:
-  static constexpr int SPI_INTERNAL_CS = 0; // Internal Chip Select
+  static constexpr int SPI_INTERNAL_CS = 8; // Internal Chip Select
   FT_HANDLE SPIHandler_ = nullptr;
   ChannelConfig channelConfig_;
   static constexpr int TRANSFER_OPTION_INTERNAL_CS = SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE | SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES | SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE; // Using Internal Chip Select

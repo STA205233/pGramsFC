@@ -51,7 +51,7 @@ ANLStatus MeasureTemperatureWithRTDSensor::mod_initialize() {
   interface_ = SPIManager_->Interface();
 
   max31865io_->setInterface(interface_);
-
+  max31865io_->setChipSelect(chipSelect_);
   max31865io_->faultStatusClear();
   max31865io_->setConfigureSingle(MAX31865_CONF_BIAS_ON, MAX31865_CONF_BIAS_MSK);
   max31865io_->setConfigureSingle(MAX31865_CONF_CONVERSION_AUTO, MAX31865_CONF_CONVERSION_MSK);
@@ -64,6 +64,7 @@ ANLStatus MeasureTemperatureWithRTDSensor::mod_initialize() {
 
 ANLStatus MeasureTemperatureWithRTDSensor::mod_analyze() {
   int status = max31865io_->getData();
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   if (status != MAX31865_OK) {
     std::cerr << "Failed to get data in " << module_id() << "::mod_analyze(), status = " << status << std::endl;
     setDataAquisitionError();

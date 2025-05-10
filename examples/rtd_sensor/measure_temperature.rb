@@ -6,7 +6,7 @@ require 'GRAMSBalloon'
 class MyApp < ANL::ANLApp
     def setup()
         chain GRAMSBalloon::SPIManager
-        with_parameters(channel: 0, baudrate:1000000, spi_config_options: 1+0+32)
+        with_parameters(channel: 0, baudrate:1000000, spi_config_options: 3+0+32)
         chain GRAMSBalloon::MeasureTemperatureWithRTDSensor
         with_parameters(chip_select: 8)
     end

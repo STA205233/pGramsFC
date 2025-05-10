@@ -15,7 +15,7 @@ FT_STATUS SPIInterface::Open(int channel) {
     }
     else if (numChannels_ <= static_cast<DWORD>(channel)) {
       std::cerr << "Invalid SPI channel: " << channel << std::endl;
-      return FT_INVALID_HANDLE;
+      return FT_INVALID_PARAMETER;
     }
   }
   {
@@ -47,14 +47,9 @@ FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, int wsi
     writeBuffer_.push_back(0);
     readBuffer_.push_back(0);
   }
-  std::cout << "SPIInterface::WriteAndRead: writeBuffer = ";
-  for (const auto &i: writeBuffer_) {
-    std::cout << std::hex << static_cast<int>(i) << " ";
-  }
-  std::cout << std::endl;
   DWORD num_transfered;
   if (cs == SPI_INTERNAL_CS) {
-    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &writeBuffer_[0], &readBuffer_[0], wsize + rsize, &num_transfered, TRANSFER_OPTION_INTERNAL_CS);
+    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &readBuffer_[0], &writeBuffer_[0], wsize + rsize, &num_transfered, TRANSFER_OPTION_INTERNAL_CS);
     if (status != FT_OK) {
       std::cerr << "SPI_ReadWrite failed: status = " << status << std::endl;
       return status;
@@ -62,12 +57,13 @@ FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, int wsi
   }
   else {
     int cs_ = 1 << static_cast<uint8_t>(cs);
+    std::cout << "SPIInterface::WriteAndRead: cs_ = " << cs_ << std::endl;
     const FT_STATUS status_cs = FT_WriteGPIO(SPIHandler_, cs_, 0);
     if (status_cs != FT_OK) {
       std::cerr << "FT_WriteGPIO failed: status = " << status_cs << std::endl;
       return status_cs;
     }
-    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &writeBuffer_[0], &readBuffer_[0], wsize + rsize, &num_transfered, TRAMSFER_OPTION_EXTERNAL_CS);
+    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &readBuffer_[0], &writeBuffer_[0], wsize + rsize, &num_transfered, TRAMSFER_OPTION_EXTERNAL_CS);
     const FT_STATUS status_cs2 = FT_WriteGPIO(SPIHandler_, cs_, 1);
     if (status_cs2 != FT_OK) {
       std::cerr << "FT_WriteGPIO failed: status = " << status_cs2 << std::endl;
@@ -85,11 +81,6 @@ FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, int wsi
   for (int i = 0; i < rsize; ++i) {
     readBuffer[i] = readBuffer_[i + wsize];
   }
-  std::cout << "SPIInterface::WriteAndRead: readBuffer = ";
-  for (const auto &i: readBuffer_) {
-    std::cout << std::hex << static_cast<int>(i) << " ";
-  }
-  std::cout << std::endl;
   return FT_OK;
 }
 FT_STATUS SPIInterface::Write(int cs, const uint8_t *writeBuffer, int size) {
