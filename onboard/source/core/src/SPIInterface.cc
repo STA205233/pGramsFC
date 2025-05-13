@@ -36,7 +36,7 @@ FT_STATUS SPIInterface::Open(int channel) {
   return FT_OK;
 }
 
-FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+FT_STATUS SPIInterface::WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
   writeBuffer_.clear();
   readBuffer_.clear();
   for (int i = 0; i < wsize; ++i) {
@@ -63,7 +63,7 @@ FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, int wsi
       std::cerr << "FT_WriteGPIO failed: status = " << status_cs << std::endl;
       return status_cs;
     }
-    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &readBuffer_[0], &writeBuffer_[0], wsize + rsize, &num_transfered, TRAMSFER_OPTION_EXTERNAL_CS);
+    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &readBuffer_[0], &writeBuffer_[0], wsize + rsize, &num_transfered, TRANSFER_OPTION_EXTERNAL_CS);
     const FT_STATUS status_cs2 = FT_WriteGPIO(SPIHandler_, cs_, 1);
     if (status_cs2 != FT_OK) {
       std::cerr << "FT_WriteGPIO failed: status = " << status_cs2 << std::endl;
@@ -83,7 +83,39 @@ FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, int wsi
   }
   return FT_OK;
 }
-FT_STATUS SPIInterface::Write(int cs, const uint8_t *writeBuffer, int size) {
+FT_STATUS SPIInterface::WriteAndRead(int cs, const uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) {
+  unsigned int num_transfered;
+  if (cs == SPI_INTERNAL_CS) {
+    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &readBuffer_[0], &writeBuffer_[0], size, &num_transfered, TRANSFER_OPTION_EXTERNAL_CS);
+    if (status != FT_OK) {
+      std::cerr << "SPI_ReadWrite failed: status = " << status << std::endl;
+      return status;
+    }
+  }
+  else {
+    const FT_STATUS status_cs = FT_WriteGPIO(SPIHandler_, cs, 0);
+    if (status_cs != FT_OK) {
+      std::cerr << "FT_WriteGPIO failed: status = " << status_cs << std::endl;
+      return status_cs;
+    }
+    const FT_STATUS status = SPI_ReadWrite(SPIHandler_, &readBuffer_[0], &writeBuffer_[0], size, &num_transfered, TRANSFER_OPTION_EXTERNAL_CS);
+    const FT_STATUS status_cs2 = FT_WriteGPIO(SPIHandler_, cs, 1);
+    if (status_cs2 != FT_OK) {
+      std::cerr << "FT_WriteGPIO failed: status = " << status_cs2 << std::endl;
+      return status_cs2;
+    }
+    if (status != FT_OK) {
+      std::cerr << "SPI_ReadWrite failed: status = " << status << std::endl;
+      return status;
+    }
+  }
+  if (num_transfered != size) {
+    std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
+    return FT_OTHER_ERROR;
+  }
+  return FT_OK;
+}
+FT_STATUS SPIInterface::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
   writeBuffer_.clear();
   for (int i = 0; i < size; ++i) {
     writeBuffer_.push_back(writeBuffer[i]);
@@ -108,7 +140,7 @@ FT_STATUS SPIInterface::Write(int cs, const uint8_t *writeBuffer, int size) {
       std::cerr << "FT_WriteGPIO failed: status = " << status_cs << std::endl;
       return status_cs;
     }
-    const FT_STATUS status = SPI_Write(SPIHandler_, &writeBuffer_[0], size, &num_transfered, TRAMSFER_OPTION_EXTERNAL_CS);
+    const FT_STATUS status = SPI_Write(SPIHandler_, &writeBuffer_[0], size, &num_transfered, TRANSFER_OPTION_EXTERNAL_CS);
     const FT_STATUS status_cs2 = FT_WriteGPIO(SPIHandler_, cs_, 1);
     if (status_cs2 != FT_OK) {
       std::cerr << "FT_WriteGPIO failed: status = " << status_cs2 << std::endl;

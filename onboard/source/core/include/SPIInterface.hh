@@ -37,15 +37,16 @@ public:
     }
     return status;
   }
-  FT_STATUS WriteAndRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize);
-  FT_STATUS Write(int cs, const uint8_t *writeBuffer, int size);
+  FT_STATUS WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize);
+  FT_STATUS WriteAndRead(int cs, const uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer);
+  FT_STATUS Write(int cs, const uint8_t *writeBuffer, unsigned int size);
 
 private:
   static constexpr int SPI_INTERNAL_CS = 8; // Internal Chip Select
   FT_HANDLE SPIHandler_ = nullptr;
   ChannelConfig channelConfig_;
   static constexpr int TRANSFER_OPTION_INTERNAL_CS = SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE | SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES | SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE; // Using Internal Chip Select
-  static constexpr int TRAMSFER_OPTION_EXTERNAL_CS = SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES; // Using External Chip Select
+  static constexpr int TRANSFER_OPTION_EXTERNAL_CS = SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES; // Using External Chip Select
   std::vector<uint8_t> writeBuffer_;
   std::vector<uint8_t> readBuffer_;
 };

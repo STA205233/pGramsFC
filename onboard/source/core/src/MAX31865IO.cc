@@ -18,7 +18,7 @@ int MAX31865IO::readReg(uint8_t reg, uint8_t *value, unsigned int length) {
     return MAX31865_BAD;
   }
   reg &= ~MAX31865_WRITE_MSK;
-  FT_STATUS status = intf_->WriteAndRead(cs_, &reg, 1, value, length);
+  FT_STATUS status = intf_->WriteAfterRead(cs_, &reg, 1, value, length);
   if (status != FT_OK) {
     return status;
   }

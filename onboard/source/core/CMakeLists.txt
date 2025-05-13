@@ -5,7 +5,7 @@ include_directories(
   ../ICM20948-linux-i2c/I2C/src
   ${ADD_INC_DIR}
   ${BOOST_INC_DIR}
-  ${D2XX_INC_DIR}
+  ${D2XX_INCLUDE_DIRS}
   ${MPSSE_INC_DIR}
   ${MYSQL_INC_DIR}
   )
@@ -32,6 +32,8 @@ if(GB_USE_SPI)
     src/MAX31865IO.cc
     src/SlowADCIO.cc
     src/SPIInterface.cc
+    src/ADC128S102IO.cc
+    src/DAC121S101IO.cc
   )
 endif(GB_USE_SPI)
 
