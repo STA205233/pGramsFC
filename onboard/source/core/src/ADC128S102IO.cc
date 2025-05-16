@@ -7,8 +7,8 @@ float ADC128S102IO::getCurrentVoltage(int ch) {
   const uint8_t reg_value = (ch << 3) & (0xFF);
   writeBuffer_[0] = reg_value;
   writeBuffer_[1] = 0;
-  const FT_STATUS status = spiInterface_->WriteAndRead(cs_, writeBuffer_, 2, readBuffer_);
-  if (status != FT_OK) {
+  const int status = spiInterface_->WriteAndRead(cs_, writeBuffer_, 2, readBuffer_);
+  if (status < 0) {
     std::cerr << "Error in getCurrentVoltage: " << status << std::endl;
     return status;
   }

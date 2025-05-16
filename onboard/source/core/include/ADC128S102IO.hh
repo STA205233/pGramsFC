@@ -18,8 +18,7 @@ private:
   uint8_t writeBuffer_[2] = {0, 0};
 
 public:
-  float
-  convertVoltage(uint16_t value);
+  float convertVoltage(uint16_t value);
   float getCurrentVoltage(int ch);
   float convertVoltage(uint16_t value) const;
   void setSPIInterface(std::shared_ptr<SPIInterface> spiInterface) { spiInterface_ = spiInterface; }

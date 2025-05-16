@@ -1,4 +1,5 @@
 #include "SPIManager.hh"
+#include "FT232HIO.hh"
 
 using namespace anlnext;
 using namespace gramsballoon;
@@ -6,7 +7,7 @@ using namespace gramsballoon;
 namespace gramsballoon::pgrams {
 
 SPIManager::SPIManager() {
-  interface_ = std::make_shared<SPIInterface>();
+  interface_ = std::make_shared<FT232HIO>();
 }
 
 SPIManager::~SPIManager() {

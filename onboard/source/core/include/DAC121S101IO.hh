@@ -26,7 +26,7 @@ public:
 
   void setVoltage(float voltage);
   void setOperationMode(DAC121S101Mode mode);
-  void applySetting();
+  int applySetting();
   float getCurrentVoltage() const;
   float convertVoltage(uint16_t value) const;
   void setSPIInterface(std::shared_ptr<SPIInterface> spiInterface) { spiInterface_ = spiInterface; }

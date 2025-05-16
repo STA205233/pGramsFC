@@ -49,7 +49,7 @@ option(GB_MAC "shortcut" OFF)
 
 if(GB_MAC)
   message("-- GB_MAC is set")
-  set(GB_USE_SPI OFF)
+  set(GB_USE_SPI ON)
   set(GB_USE_WAVEFORMS OFF)
   set(GB_USE_ICM20948 OFF)
   set(GB_USE_RASPISYS OFF)

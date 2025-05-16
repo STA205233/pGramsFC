@@ -31,7 +31,7 @@ if(GB_USE_SPI)
     src/BME680IO.cc
     src/MAX31865IO.cc
     src/SlowADCIO.cc
-    src/SPIInterface.cc
+    src/FT232HIO.cc
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
   )
