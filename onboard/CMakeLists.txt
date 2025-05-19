@@ -105,31 +105,42 @@ set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
 message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
-# D2xx
-if (GB_USE_SPI)
-  find_path(D2XX_INC_DIR
-    NAMES ftd2xx.h REQUIRED
-    PATHS /usr/local/include)
-  find_path(WIN_TYPES_INC_DIR
-    NAMES WinTypes.h REQUIRED
-    PATHS /usr/local/include)
-  find_library(D2XX_LIB
-    NAMES libftd2xx.so libftd2xx.dylib REQUIRED
-    PATHS /usr/local/lib)
+# SPI
+if(GB_USE_SPI)
+  if(GB_USE_FT232H)
+    find_path(D2XX_INC_DIR
+      NAMES ftd2xx.h REQUIRED
+      PATHS /usr/local/include)
+    find_path(WIN_TYPES_INC_DIR
+      NAMES WinTypes.h REQUIRED
+      PATHS /usr/local/include)
+    find_library(D2XX_LIB
+      NAMES libftd2xx.so libftd2xx.dylib REQUIRED
+      PATHS /usr/local/lib)
     set(D2XX_LIB_DIR ${D2XX_LIB})
     set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
     message("-- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS}")
     message("-- D2XX_LIB: ${D2XX_LIB}")
-  include_directories(${D2XX_INCLUDE_DIRS})
-  find_path(MPSSE_INC_DIR
-    NAMES libmpsse_spi.h REQUIRED
-    PATHS /usr/local/include)
+    include_directories(${D2XX_INCLUDE_DIRS})
+    find_path(MPSSE_INC_DIR
+      NAMES libmpsse_spi.h REQUIRED
+      PATHS /usr/local/include)
     message("-- MPSSE_INC_DIR: ${MPSSE_INC_DIR}")
-  find_library(MPSSE_LIB
-    NAMES libmpsse.so libmpsse.dylib REQUIRED
-    PATHS /usr/local/lib)
+    find_library(MPSSE_LIB
+      NAMES libmpsse.so libmpsse.dylib REQUIRED
+      PATHS /usr/local/lib)
     message("-- MPSSE_LIB: ${MPSSE_LIB}")
-  include_directories(${MPSSE_INC_DIR})
+    include_directories(${MPSSE_INC_DIR})
+  endif(GB_USE_FT232H)
+
+  find_path(VERSALOGIC_INC_DIR
+    NAMES VL_OSALib.h REQUIRED
+    PATHS /usr/local/include)
+  find_library(VERSALOGIC_LIB
+    NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+    PATHS /usr/local/lib)
+  message("-- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR}")
+  message("-- VERSALOGIC_LIB: ${VERSALOGIC_LIB}")
 endif(GB_USE_SPI)
 
 # ## Waveforms ###

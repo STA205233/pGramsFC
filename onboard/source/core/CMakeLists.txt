@@ -8,12 +8,13 @@ include_directories(
   ${D2XX_INCLUDE_DIRS}
   ${MPSSE_INC_DIR}
   ${MYSQL_INC_DIR}
-  )
+  ${VERSALOGIC_INC_DIR}
+)
 
 link_directories(
   ${BOOST_LIB_DIR}
   ${MYSQL_LIB_DIR}
-  )
+)
 
 set(GB_CORE_CLASSES
   src/SerialCommunication.cc
@@ -24,24 +25,30 @@ set(GB_CORE_CLASSES
   src/DateManager.cc
   src/EncodedSerialCommunication.cc
   src/OrientationInformation.cc
-  )
+)
 
 if(GB_USE_SPI)
   set(GB_SPI_CORE_CLASSES
     src/BME680IO.cc
     src/MAX31865IO.cc
     src/SlowADCIO.cc
-    src/FT232HIO.cc
+    src/BayCatControl.cc
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
   )
+
+  if(GB_USE_FT232H)
+    list(APPEND GB_SPI_CORE_CLASSES
+      src/FT232HIO.cc
+    )
+  endif(GB_USE_FT232H)
 endif(GB_USE_SPI)
 
 if(GB_USE_WAVEFORMS)
   set(GB_WAVEFORMS_CORE_CLASSES
     src/AnalogDiscoveryIO.cc
     src/DAQIO.cc
-    )
+  )
 endif(GB_USE_WAVEFORMS)
 
 if(GB_USE_ICM20948)
@@ -53,11 +60,12 @@ endif(GB_USE_ICM20948)
 if(GB_USE_MYSQL)
   set(GB_MYSQL_CORE_CLASSES
     src/MySQLIO.cc
-    )
-endif(GB_USE_MYSQL)
-set(GB_MOSQUITTO_CORE_CLASSES
-    src/MosquittoIO.cc
   )
+endif(GB_USE_MYSQL)
+
+set(GB_MOSQUITTO_CORE_CLASSES
+  src/MosquittoIO.cc
+)
 
 add_library(GBCore SHARED
   ${GB_CORE_CLASSES}
@@ -66,7 +74,7 @@ add_library(GBCore SHARED
   ${GB_ICM20948_CORE_CLASSES}
   ${GB_MYSQL_CORE_CLASSES}
   ${GB_MOSQUITTO_CORE_CLASSES}
-  )
+)
 
 target_link_libraries(GBCore
   ${BME68x_LIB}
@@ -78,7 +86,8 @@ target_link_libraries(GBCore
   ${ICM20948_LIB}
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
-  )
+  ${VERSALOGIC_LIB}
+)
 
 install(TARGETS GBCore LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 

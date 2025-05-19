@@ -1,17 +1,16 @@
 #include "SPIManager.hh"
 #include "FT232HIO.hh"
-
+#include "BayCatControl.hh"
 using namespace anlnext;
 using namespace gramsballoon;
 
 namespace gramsballoon::pgrams {
 
 SPIManager::SPIManager() {
-  interface_ = std::make_shared<FT232HIO>();
+  interface_ = std::make_shared<BayCatControl>();
 }
 
 SPIManager::~SPIManager() {
-  Cleanup_libMPSSE();
   interface_.reset();
 };
 
@@ -28,11 +27,10 @@ ANLStatus SPIManager::mod_initialize() {
   if (exist_module(send_telem_md)) {
     get_module_NC(send_telem_md, &sendTelemetry_);
   }
-  Init_libMPSSE();
   interface_->setBaudrate(baudrate_);
   interface_->setConfigOptions(spiConfigOptions_);
-  FT_STATUS status = interface_->Open(channel_);
-  if (status != FT_OK) {
+  int status = interface_->Open(channel_);
+  if (status != 0) {
     std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
@@ -46,8 +44,8 @@ ANLStatus SPIManager::mod_analyze() {
 }
 
 ANLStatus SPIManager::mod_finalize() {
-  FT_STATUS status = interface_->Close();
-  if (status != FT_OK) {
+  int status = interface_->Close();
+  if (status != 0) {
     std::cerr << "SPI_CloseChannel failed: status = " << status << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented

@@ -1,6 +1,8 @@
 #ifndef GRAMSBalloon_BayCatControl_hh
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "SPIInterface.hh"
+#define linux 1
+#include "stdbool.h" // This is needed for including VL_OSALib.h
 #include "VL_OSALib.h"
 #include <map>
 #include <stdint.h>
@@ -28,8 +30,8 @@ private:
   int updateSetting();
   int Open(int channel) override;
   int Close() override;
-  int WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uin / t8_t * readBuffer, int rsize) override;
-  int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override;
+  int WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
+  int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override { return -1; }
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value);
 };
