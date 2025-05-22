@@ -28,7 +28,7 @@ int BayCatControl::updateSetting() {
     std::cerr << "SPISetMode failed: " << status << std::endl;
     failed = true;
   }
-  const VL_APIStatusT status2 = VSL_SPISetShiftDirection(options_ & SPI_SHIFT_DIRECTION);
+  const VL_APIStatusT status2 = VSL_SPISetShiftDirection((options_ & SPI_SHIFT_DIRECTION_MASK) >> SPI_SHIFT_DIRECTION_OFFSET);
   if (status2 != VL_API_OK) {
     std::cerr << "SPISetShiftDiretcion failed: " << status << std::endl;
     failed = true;
@@ -51,6 +51,11 @@ int BayCatControl::Open(int) {
     return status;
   }
   isOpen_ = true;
+  const auto status_update = updateSetting();
+  if (status_update != 0) {
+    std::cerr << "updateSetting failed: " << status_update << std::endl;
+    return status_update;
+  }
   return status;
 }
 int BayCatControl::Close() {

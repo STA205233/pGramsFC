@@ -9,7 +9,8 @@
 namespace gramsballoon::pgrams {
 class BayCatControl: public SPIInterface {
   static constexpr unsigned int SPI_MODE_MASK = 0x3;
-  static constexpr unsigned int SPI_SHIFT_DIRECTION = 0x4;
+  static constexpr unsigned int SPI_SHIFT_DIRECTION_MASK = 0x4;
+  static constexpr unsigned int SPI_SHIFT_DIRECTION_OFFSET = 2;
 
 public:
   BayCatControl();
