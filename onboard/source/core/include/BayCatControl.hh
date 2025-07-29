@@ -35,6 +35,10 @@ private:
   int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override { return -1; }
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value);
+  int controlFPGAGPIOImpl(int channel, bool value);
+  int contralDIOImpl(int channel, bool value);
+  int WriteFPGAResister(unsigned long reg, unsigned char data);
+  int ReadFPGAResister(unsigned long reg, unsigned char *data);
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_BayCatSPIInterface_hh

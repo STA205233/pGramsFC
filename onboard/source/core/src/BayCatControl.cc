@@ -160,4 +160,32 @@ int BayCatControl::Write(int cs, const uint8_t *writeBuffer, unsigned int size) 
   }
   return 0;
 }
+int BayCatControl::WriteFPGAResister(unsigned long reg, unsigned char data) {
+  if (!isOpen_) {
+    std::cerr << "VersaLogic Library is not initialized" << std::endl;
+    return -1;
+  }
+  const auto status = VSL_FPGAWriteRegister(reg, data);
+  if (status != VL_API_OK) {
+    std::cerr << "VSL_FPGAWriteRegister failed: " << status << std::endl;
+    return static_cast<int>(status);
+  }
+  return 0;
+}
+int BayCatControl::ReadFPGAResister(unsigned long reg, unsigned char *data) {
+  if (!isOpen_) {
+    std::cerr << "VersaLogic Library is not initialized" << std::endl;
+    return -1;
+  }
+  if (data == nullptr) {
+    std::cerr << "Data pointer is null" << std::endl;
+    return -1;
+  }
+  const auto status = VSL_FPGAReadRegister(reg, data);
+  if (status != VL_API_OK) {
+    std::cerr << "VSL_FPGAReadRegister failed: " << status << std::endl;
+    return static_cast<int>(status);
+  }
+  return 0;
+}
 } // namespace gramsballoon::pgrams
