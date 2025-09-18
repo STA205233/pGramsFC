@@ -12,6 +12,9 @@ class BayCatControl: public SPIInterface {
   static constexpr unsigned int SPI_SHIFT_DIRECTION_MASK = 0x4;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_OFFSET = 2;
 
+  static constexpr unsigned long DIR_GPIO = 0xCA1;
+  static constexpr unsigned long AUX_OUT = 0xCA3;
+
 public:
   BayCatControl();
   virtual ~BayCatControl() = default;
@@ -24,7 +27,6 @@ private:
   std::map<int, unsigned int> baudrateList_;
 
 public:
-private:
   int baudrate() const override { return baudrate_; }
   void setBaudrate(unsigned int baudrate) override;
   void setConfigOptions(unsigned int configOptions) override { options_ = configOptions; }
@@ -32,13 +34,15 @@ private:
   int Open(int channel) override;
   int Close() override;
   int WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
-  int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override { return -1; }
+  int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/) override { return -1; }
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value);
-  int controlFPGAGPIOImpl(int channel, bool value);
-  int contralDIOImpl(int channel, bool value);
-  int WriteFPGAResister(unsigned long reg, unsigned char data);
-  int ReadFPGAResister(unsigned long reg, unsigned char *data);
+  int controlDIO(int cs, bool value);
+  int controlFPGAGPIO(int cs, bool value);
+  int WriteFPGARegister(unsigned long reg, unsigned char data);
+  int WriteFPGARegisterOneChannel(unsigned long reg, in gpioId, unsigned char data);
+  int ReadFPGARegister(unsigned long reg, unsigned char *data);
+  int ReadFPGARegisterOneChannel(unsigned long reg, int gpioId, bool *value);
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_BayCatSPIInterface_hh

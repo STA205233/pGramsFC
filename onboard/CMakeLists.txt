@@ -29,26 +29,27 @@ find_package(Ruby 3.0 REQUIRED)
 # ## options
 # # library options
 option(GB_USE_SPI "enable SPI" ON)
-option(GB_USE_WAVEFORMS "enable waveforms" OFF)
-option(GB_USE_ICM20948 "enable ICM20948" OFF)
-option(GB_USE_RASPISYS "enable raspi system control" OFF)
-option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
-option(GB_APT_RUBY "installed ruby via apt" OFF)
-option(GB_USE_ROOT "enable root" OFF)
-option(GB_USE_MYSQL "enable mysql" OFF)
+option(GB_USE_FT232H "enable FT232H" ON)
+option(GB_USE_WAVEFORMS " enable waveforms " OFF)
+option(GB_USE_ICM20948 " enable ICM20948 " OFF)
+option(GB_USE_RASPISYS " enable raspi system control " OFF)
+option(GB_USE_HSQUICKLOOK " enable hsquicklook " OFF)
+option(GB_APT_RUBY " installed ruby via apt " OFF)
+option(GB_USE_ROOT " enable root " OFF)
+option(GB_USE_MYSQL " enable mysql " OFF)
 
 # # install options
-option(GB_INSTALL_HEADERS "install all header files" ON)
-option(GB_INSTALL_CMAKE_FILES "install all cmake files" ON)
-option(GB_DEMO_MODE "demo mode" ON)
+option(GB_INSTALL_HEADERS " install all header files " ON)
+option(GB_INSTALL_CMAKE_FILES " install all cmake files " ON)
+option(GB_DEMO_MODE " demo mode " ON)
 set(INSTALL_HEADERS ${GB_INSTALL_HEADERS})
 set(INSTALL_CMAKE_FILES ${GB_INSTALL_CMAKE_FILES})
 
 # # shortcut options
-option(GB_MAC "shortcut" OFF)
+option(GB_MAC " shortcut " OFF)
 
 if(GB_MAC)
-  message("-- GB_MAC is set")
+  message(" -- GB_MAC is set ")
   set(GB_USE_SPI ON)
   set(GB_USE_WAVEFORMS OFF)
   set(GB_USE_ICM20948 OFF)
@@ -59,13 +60,13 @@ if(GB_MAC)
 endif(GB_MAC)
 
 if(GB_DEMO_MODE)
-  message("-- GB_DEMO_MODE is set")
+  message(" -- GB_DEMO_MODE is set ")
   set(GB_USE_PIGPIO OFF)
   set(GB_USE_WAVEFORMS OFF)
   set(GB_USE_ICM20948 OFF)
   set(GB_USE_RASPISYS OFF)
   set(GB_APT_RUBY OFF)
-  add_compile_definitions("GB_DEMO_MODE")
+  add_compile_definitions(" GB_DEMO_MODE ")
 endif(GB_DEMO_MODE)
 
 if(GB_APT_RUBY)
@@ -73,11 +74,11 @@ if(GB_APT_RUBY)
 endif(GB_APT_RUBY)
 
 if(GB_USE_ROOT)
-  add_compile_definitions("USE_ROOT")
+  add_compile_definitions(" USE_ROOT ")
 endif(GB_USE_ROOT)
 
 if(GB_USE_HSQUICKLOOK)
-  add_compile_definitions("USE_HSQUICKLOOK")
+  add_compile_definitions(" USE_HSQUICKLOOK ")
 endif(GB_USE_HSQUICKLOOK)
 
 # ## External libraries
@@ -86,9 +87,9 @@ find_package(Boost 1.60.0 REQUIRED CONFIG)
 set(BOOST_INC_DIR ${Boost_INCLUDE_DIRS})
 set(BOOST_LIB_DIR ${Boost_LIBRARY_DIRS})
 set(BOOST_LIB ${Boost_LIBRARIES})
-message("-- BOOST_INC_DIR: ${BOOST_INC_DIR}")
-message("-- BOOST_LIB_DIR: ${BOOST_LIB_DIR}")
-message("-- BOOST_LIB: ${BOOST_LIB}")
+message(" -- BOOST_INC_DIR: ${BOOST_INC_DIR} ")
+message(" -- BOOST_LIB_DIR: ${BOOST_LIB_DIR} ")
+message(" -- BOOST_LIB: ${BOOST_LIB} ")
 
 # ANL
 if(NOT DEFINED ANLNEXT_INSTALL)
@@ -103,7 +104,7 @@ set(ANLNEXT_INC_DIR ${ANLNEXT_INSTALL}/include)
 set(ANLNEXT_LIB_DIR ${ANLNEXT_INSTALL}/lib)
 set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
-message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
+message(" -- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL} ")
 
 # SPI
 if(GB_USE_SPI)
@@ -119,17 +120,17 @@ if(GB_USE_SPI)
       PATHS /usr/local/lib)
     set(D2XX_LIB_DIR ${D2XX_LIB})
     set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
-    message("-- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS}")
-    message("-- D2XX_LIB: ${D2XX_LIB}")
+    message(" -- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS} ")
+    message(" -- D2XX_LIB: ${D2XX_LIB} ")
     include_directories(${D2XX_INCLUDE_DIRS})
     find_path(MPSSE_INC_DIR
       NAMES libmpsse_spi.h REQUIRED
       PATHS /usr/local/include)
-    message("-- MPSSE_INC_DIR: ${MPSSE_INC_DIR}")
+    message(" -- MPSSE_INC_DIR: ${MPSSE_INC_DIR} ")
     find_library(MPSSE_LIB
       NAMES libmpsse.so libmpsse.dylib REQUIRED
       PATHS /usr/local/lib)
-    message("-- MPSSE_LIB: ${MPSSE_LIB}")
+    message(" -- MPSSE_LIB: ${MPSSE_LIB} ")
     include_directories(${MPSSE_INC_DIR})
   endif(GB_USE_FT232H)
 
@@ -139,20 +140,20 @@ if(GB_USE_SPI)
   find_library(VERSALOGIC_LIB
     NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
     PATHS /usr/local/lib)
-  message("-- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR}")
-  message("-- VERSALOGIC_LIB: ${VERSALOGIC_LIB}")
+  message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+  message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
 endif(GB_USE_SPI)
 
 # ## Waveforms ###
 if(GB_USE_WAVEFORMS)
   set(WAVEFORMS_LIB dwf)
-  message("-- WAVEFORMS_LIB: ${WAVEFORMS_LIB}")
+  message(" -- WAVEFORMS_LIB: ${WAVEFORMS_LIB} ")
 endif(GB_USE_WAVEFORMS)
 
 # ## ICM20948 ###
 if(GB_USE_ICM20948)
   set(ICM20948_LIB ICM20948 I2C)
-  message("-- ICM20948_LIB: ${ICM20948_LIB}")
+  message(" -- ICM20948_LIB: ${ICM20948_LIB} ")
 endif(GB_USE_ICM20948)
 
 # ## HSQUICKLOOK ###
@@ -163,12 +164,12 @@ if(GB_USE_HSQUICKLOOK)
   find_library(HSQUICKLOOK_LIB
     NAMES HSQuickLookAnalyzer
     PATHS $ENV{HSQUICKLOOK_INSTALL}/lib /usr/local/lib $ENV{HOME}/lib)
-  message("-- HSQUICKLOOK_INC_DIR: ${HSQUICKLOOK_INC_DIR}")
-  message("-- HSQUICKLOOK_LIB: ${HSQUICKLOOK_LIB}")
+  message(" -- HSQUICKLOOK_INC_DIR: ${HSQUICKLOOK_INC_DIR} ")
+  message(" -- HSQUICKLOOK_LIB: ${HSQUICKLOOK_LIB} ")
 
   find_package(mongocxx REQUIRED)
   set(MONGODB_LIB mongo::mongocxx_shared)
-  message("-- MONGODB_LIB: ${MONGODB_LIB}")
+  message(" -- MONGODB_LIB: ${MONGODB_LIB} ")
 endif(GB_USE_HSQUICKLOOK)
 
 # ## ROOT ###
@@ -180,10 +181,10 @@ if(GB_USE_ROOT)
   set(ROOT_LIB_DIR ${ROOT_LIBRARY_DIR})
   set(ROOT_LIB ${ROOT_LIBRARIES})
   list(APPEND CMAKE_INSTALL_RPATH ${ROOT_LIBRARY_DIR})
-  message("-- ROOTSYS = ${ROOTSYS}")
-  message("-- ROOT_INC_DIR = ${ROOT_INC_DIR}")
-  message("-- ROOT_LIB_DIR = ${ROOT_LIB_DIR}")
-  message("-- ROOT libraries = ${ROOT_LIB}")
+  message(" -- ROOTSYS = ${ROOTSYS} ")
+  message(" -- ROOT_INC_DIR = ${ROOT_INC_DIR} ")
+  message(" -- ROOT_LIB_DIR = ${ROOT_LIB_DIR} ")
+  message(" -- ROOT libraries = ${ROOT_LIB} ")
 endif(GB_USE_ROOT)
 
 # ## MYSQL ###
@@ -192,9 +193,9 @@ if(GB_USE_MYSQL)
   set(MYSQL_INC_DIR ${MYSQL_CONCPP_INCLUDE_DIR})
   set(MYSQL_LIB_DIR ${MYSQL_CONCPP_RUNTIME_LIBRARY_DIR})
   set(MYSQL_LIB mysqlcppconnx)
-  message(STATUS "MYSQL_LIB_DIR: ${MYSQL_INC_DIR}")
-  message(STATUS "MYSQL_LIB_DIR: ${MYSQL_LIB_DIR}")
-  message(STATUS "MYSQL_LIB: ${MYSQL_LIB}")
+  message(STATUS " MYSQL_LIB_DIR: ${MYSQL_INC_DIR} ")
+  message(STATUS " MYSQL_LIB_DIR: ${MYSQL_LIB_DIR} ")
+  message(STATUS " MYSQL_LIB: ${MYSQL_LIB} ")
 endif(GB_USE_MYSQL)
 
 find_package(PkgConfig REQUIRED)
