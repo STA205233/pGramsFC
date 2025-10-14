@@ -40,7 +40,7 @@ public:
   int controlDIO(int cs, bool value);
   int controlFPGAGPIO(int cs, bool value);
   int WriteFPGARegister(unsigned long reg, unsigned char data);
-  int WriteFPGARegisterOneChannel(unsigned long reg, in gpioId, unsigned char data);
+  int WriteFPGARegisterOneChannel(unsigned long reg, int gpioId, bool data);
   int ReadFPGARegister(unsigned long reg, unsigned char *data);
   int ReadFPGARegisterOneChannel(unsigned long reg, int gpioId, bool *value);
 };

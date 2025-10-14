@@ -179,6 +179,10 @@ int BayCatControl::controlDIO(const int cs, const bool value) {
       return -1;
     }
     std::cout << "Channel " << cs << " output: " << static_cast<int>(direction) << std::endl;
+    if (direction != DIO_OUTPUT){
+      std::cerr << "VSL_DIOGEtChannelDirection failed: " << "no effects" << std::endl;
+      return -1;
+    }
   }
   unsigned char value_ = 0;
   if (value) {
@@ -233,12 +237,17 @@ int BayCatControl::Write(int cs, const uint8_t *writeBuffer, unsigned int size) 
 }
 int BayCatControl::controlFPGAGPIO(const int cs, const bool value) {
   bool direction = false;
-  unsigned char direction_char;
+  unsigned char direction_char = 0;
   const int gpio_id = cs - 16;
-  ReadFPGARegisterOneChannel(DIR_GPIO, gpio_id, &direction);
   ReadFPGARegister(DIR_GPIO, &direction_char);
-  std::cout << "CS " << cs << " direction: " << static_cast<int>(direction) << std::endl;
+  std::cout << "CS " << cs << " direction: " << static_cast<int>(direction_char) << std::endl;
+  direction = false;
+  WriteFPGARegisterOneChannel(DIR_GPIO, gpio_id, direction);
+  ReadFPGARegister(DIR_GPIO, &direction_char);
+  std::cout << "CS " << cs << " direction: " << static_cast<int>(direction_char) << std::endl;
   unsigned char out = 32;
+  ReadFPGARegister(AUX_OUT, &out);
+  std::cout << "AUX_OUT: " << static_cast<int>(out) << std::endl;
   WriteFPGARegisterOneChannel(AUX_OUT, gpio_id, value);
   ReadFPGARegister(AUX_OUT, &out);
   std::cout << "AUX_OUT: " << static_cast<int>(out) << std::endl;
@@ -282,21 +291,20 @@ int BayCatControl::ReadFPGARegisterOneChannel(const unsigned long reg, const int
     *value = static_cast<bool>((value_raw >> gpioId) & 0x1);
   return result;
 }
-int BayCatControl::WriteFPGARegisterOneChannel(const unsigned long reg, const int gpioId, bool *value) {
-  if (!value){
-    return -1;
-  }
+int BayCatControl::WriteFPGARegisterOneChannel(const unsigned long reg, const int gpioId, bool value) {
   unsigned char value_raw = 0;
   const int status_read = ReadFPGARegister(reg, &value_raw);
-  if (status_read != 0){
+  if (status_read != 0) {
     return status_read;
   }
-  if(*value){
+  std::cout << static_cast<int>(value_raw) << std::endl;
+  if (value) {
     value_raw |= (1 << gpioId);
   }
   else {
     value_raw &= ~(1 << gpioId);
   }
+  std::cout << static_cast<int>(value_raw) << std::endl;
   const int status_write = WriteFPGARegister(reg, value_raw);
   return status_write;
 }
