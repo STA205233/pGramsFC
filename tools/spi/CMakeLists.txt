@@ -42,12 +42,26 @@ find_library(MPSSE_LIB
   NAMES libmpsse.so libmpsse.dylib REQUIRED
   PATHS /usr/local/lib)
 message("-- MPSSE_LIB: ${MPSSE_LIB}")
-include_directories(${MPSSE_INC_DIR})
+
+find_path(VERSALOGIC_INC_DIR
+  NAMES VL_OSALib.h REQUIRED
+  PATHS /usr/local/include)
+find_library(VERSALOGIC_LIB
+  NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+  PATHS /usr/local/lib)
+message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+
+include_directories(
+  ${MPSSE_INC_DIR}
+  ${VERSALOGIC_INC_DIR}
+)
 add_executable(${MY_LIBRARY} main.cc)
 target_link_libraries(${MY_LIBRARY}
   GBCore
   ${D2XX_LIB}
   ${MPSSE_LIB}
+  ${VERSALOGIC_INC_DIR}
 )
 target_link_directories(${MY_LIBRARY} PRIVATE
   $ENV{HOME}/lib

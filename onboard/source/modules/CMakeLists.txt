@@ -10,6 +10,7 @@ include_directories(
   ${PIGPIO_INC_DIR}
   ${HSQUICKLOOK_INC_DIR}
   ${MYSQL_INC_DIR}
+  ${VERSALOGIC_INC_DIR}
   )
 
 link_directories(
