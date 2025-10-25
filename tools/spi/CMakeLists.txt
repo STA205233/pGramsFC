@@ -74,3 +74,10 @@ target_include_directories(${MY_LIBRARY} PRIVATE
   ${MPSSE_INC_DIR}
   ${D2XX_INCLUDE_DIRS}
 )
+
+add_executable(simple_test
+  simple_test.cc
+)
+target_link_libraries(simple_test
+  ${VERSALOGIC_LIB}
+)
