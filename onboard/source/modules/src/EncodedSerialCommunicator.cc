@@ -41,8 +41,9 @@ int EncodedSerialCommunicator::SendComAndGetData(const std::string &command, std
     return 0;
   }
   const int ret = esc_->ReadDataUntilSpecificStr(data, "\r");
-  if (chatter_ > 0){
+  if (chatter_ > 0) {
     std::cout << "data: " << data << std::endl;
+    std::cout << "ret: " << ret << std::endl;
   }
   return ret;
 }

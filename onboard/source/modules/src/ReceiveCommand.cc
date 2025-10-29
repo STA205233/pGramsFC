@@ -1,24 +1,28 @@
 #include "ReceiveCommand.hh"
+#include "CommunicationCodes.hh"
+#include "TerminalColoring.hh"
 #include <chrono>
 #include <thread>
-
 using namespace anlnext;
-
-namespace gramsballoon {
-
+using namespace pgrams::communication;
+namespace gramsballoon::pgrams {
+inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, const std::string &module_id) {
+  std::cerr << module_id << termutil::red << "[error]" << termutil::reset << "ShutdownSystem module is not enabled." << std::endl;
+  if (sendtelemetry) {
+    sendtelemetry->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+  }
+  return false;
+}
 ReceiveCommand::ReceiveCommand() {
-  TPCHVControllerModuleName_ = "ControlHighVoltage_TPC";
-  PMTHVControllerModuleName_ = "ControlHighVoltage_PMT";
   binaryFilenameBase_ = "Command";
   topic_ = "command";
-  comdef_ = std::make_shared<CommandDefinition>();
+  comdef_ = std::make_shared<CommunicationFormat>();
+  commandSaver_ = std::make_shared<CommunicationSaver<std::vector<uint8_t>>>();
 }
 
 ReceiveCommand::~ReceiveCommand() = default;
 
 ANLStatus ReceiveCommand::mod_define() {
-  define_parameter("TPC_HVController_module_name", &mod_class::TPCHVControllerModuleName_);
-  define_parameter("PMT_HVController_module_name", &mod_class::PMTHVControllerModuleName_);
   define_parameter("timeout_sec", &mod_class::timeoutSec_);
   define_parameter("save_command", &mod_class::saveCommand_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
@@ -34,31 +38,18 @@ ANLStatus ReceiveCommand::mod_initialize() {
   if (exist_module(send_telem_md)) {
     get_module_NC(send_telem_md, &sendTelemetry_);
   }
-
+#ifdef USE_SYSTEM_MODULES
   const std::string shutdown_system_md = "ShutdownSystem";
   if (exist_module(shutdown_system_md)) {
     get_module_NC(shutdown_system_md, &shutdownSystem_);
   }
-
-  const std::string read_wf_md = "ReadWaveform";
-  if (exist_module(read_wf_md)) {
-    get_module_NC(read_wf_md, &readWaveform_);
-  }
-
-  if (exist_module(TPCHVControllerModuleName_)) {
-    get_module_NC(TPCHVControllerModuleName_, &TPCHVController_);
-  }
-
-  if (exist_module(PMTHVControllerModuleName_)) {
-    get_module_NC(PMTHVControllerModuleName_, &PMTHVController_);
-  }
-
+#endif
   const std::string run_id_manager_md = "RunIDManager";
   if (exist_module(run_id_manager_md)) {
     get_module_NC(run_id_manager_md, &runIDManager_);
   }
 
-  const std::string mosq_md = "MosquittoManager";
+  const std::string mosq_md = "ComMosquittoManager";
   if (exist_module(mosq_md)) {
     get_module_NC(mosq_md, &mosquittoManager_);
   }
@@ -66,8 +57,8 @@ ANLStatus ReceiveCommand::mod_initialize() {
     std::cerr << "Error in ReceiveCommand::mod_initialize: MosquittoManager module not found." << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
-      return AS_ERROR;
     }
+    return AS_ERROR;
   }
   // communication
   mosq_ = mosquittoManager_->getMosquittoIO();
@@ -75,11 +66,28 @@ ANLStatus ReceiveCommand::mod_initialize() {
     std::cerr << "MosquittoIO is nullptr" << std::endl;
     return AS_ERROR;
   }
-  const int sub_result = mosq_->subscribe(NULL, topic_.c_str(), qos_);
+  const int sub_result = mosq_->Subscribe(topic_, qos_);
   if (sub_result != 0) {
     std::cerr << "Error in ReceiveCommand::mod_initialize: Subscribing MQTT failed. Error Message: " << mosqpp::strerror(sub_result) << std::endl;
     if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::RECEIVE_COMMAND_SERIAL_COMMUNICATION_ERROR);
+      sendTelemetry_->getErrorManager()->setError(ErrorType::MQTT_COM_ERROR);
+    }
+  }
+
+  if (exist_module("TelemMosquittoManager")) {
+    get_module_NC("TelemMosquittoManager", &telemetryMosquittoManager_);
+  }
+  else {
+    std::cerr << "Error in ReceiveCommand::mod_initialize: TelemMosquittoManager module not found." << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+    }
+  }
+  if (saveCommand_) {
+    commandSaver_->setBinaryFilenameBase(binaryFilenameBase_);
+    if (runIDManager_) {
+      commandSaver_->setRunID(runIDManager_->RunID());
+      commandSaver_->setTimeStampStr(runIDManager_->TimeStampStr());
     }
   }
   return AS_OK;
@@ -108,7 +116,7 @@ ANLStatus ReceiveCommand::mod_analyze() {
     return AS_OK;
   }
   const bool applied = applyCommand(command_payload);
-  writeCommandToFile(!applied, command_payload);
+  commandSaver_->writeCommandToFile(!applied, command_payload);
   if (!applied) {
     commandRejectCount_++;
     if (sendTelemetry_) {
@@ -134,7 +142,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       std::cout << static_cast<int>(command[i]) << std::endl;
     }
   }
-  const bool status = comdef_->setCommand(command);
+  const bool status = comdef_->setData(command);
   if (!status) {
     return false;
   }
@@ -150,246 +158,150 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       std::cout << "arguments[" << i << "]: " << arguments[i] << std::endl;
     }
   }
-  if (code == 100 && argc == 0) {
-    if (sendTelemetry_ != nullptr) {
-      bool isOndemand = false;
-      if (readWaveform_ != nullptr) {
-        isOndemand |= readWaveform_->getOndemand();
-      }
-      if (isOndemand || sendTelemetry_->TelemetryType() == 2 || sendTelemetry_->WfDivisionCounter() > 0) {
-        return false;
-      }
 
-      sendTelemetry_->setTelemetryType(static_cast<int>(TelemetryType::Status));
-      return true;
-    }
+  if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy1) && argc == 0) {
+    std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Dummy0 command received." << std::endl;
+    return true;
   }
-
-  if (code == 101 && argc == 0) {
-    if (sendTelemetry_ != nullptr) {
-      sendTelemetry_->getErrorManager()->resetError();
-      return true;
-    }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy2) && argc == 1) {
+    std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Dummy1 command received. Argument: " << arguments[0] << std::endl;
+    return true;
   }
-
-  if (code == 102 && argc == 0) {
-    if (shutdownSystem_ != nullptr) {
-      shutdownSystem_->setShutdown(true);
-      return true;
-    }
-  }
-
-  if (code == 103 && argc == 0) {
-    if (shutdownSystem_ != nullptr) {
-      shutdownSystem_->setReboot(true);
-      return true;
-    }
-  }
-
-  if (code == 104 && argc == 0) {
-    if (shutdownSystem_ != nullptr) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Prepare_Shutdown) && argc == 0) {
+#ifdef USE_SYSTEM_MODULES
+    if (shutdownSystem_) {
       shutdownSystem_->setPrepareShutdown(true);
-      return true;
     }
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::SHUTDOWN_REJECTED);
+        return false;
+      }
+    }
+    return true;
+#else
+    return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
+#endif
   }
-
-  if (code == 105 && argc == 0) {
-    if (shutdownSystem_ != nullptr) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Exec_Shutdown) && argc == 0) {
+#ifdef USE_SYSTEM_MODULES
+    if (shutdownSystem_) {
+      shutdownSystem_->setShutdown(true);
+    }
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::SHUTDOWN_REJECTED);
+        return false;
+      }
+    }
+    return true;
+#else
+    return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Prepare_Restart) && argc == 0) {
+#ifdef USE_SYSTEM_MODULES
+    if (shutdownSystem_) {
       shutdownSystem_->setPrepareReboot(true);
-      return true;
     }
-  }
-
-  if (code == 198 && argc == 1) {
-    if (shutdownSystem_ != nullptr) {
-      shutdownSystem_->setPrepareSoftwareStop(true);
-      shutdownSystem_->setExitStatus(arguments[0]);
-      return true;
-    }
-  }
-
-  if (code == 199 && argc == 0) {
-    if (shutdownSystem_ != nullptr) {
-      shutdownSystem_->setSoftwareStop(true);
-      return true;
-    }
-  }
-
-  if (code == 201 && argc == 0) {
-    if (readWaveform_ != nullptr) {
-      readWaveform_->setStartReading(true);
-      return true;
-    }
-  }
-
-  if (code == 202 && argc == 0) {
-    if (readWaveform_ != nullptr) {
-      readWaveform_->setStartReading(false);
-      return true;
-    }
-  }
-
-  if (code == 203 && argc == 1) {
-    if (readWaveform_ != nullptr) {
-      readWaveform_->setTrigMode(static_cast<int>(arguments[0]));
-      return true;
-    }
-  }
-
-  if (code == 204 && argc == 2) {
-    if (readWaveform_ != nullptr) {
-      readWaveform_->setTrigDevice(static_cast<int>(arguments[0]));
-      readWaveform_->setTrigChannel(static_cast<int>(arguments[1]));
-      return true;
-    }
-  }
-
-  if (code == 205 && argc == 3) {
-    if (readWaveform_ != nullptr) {
-      const int device = static_cast<int>(arguments[0]);
-      const int channel = static_cast<int>(arguments[1]);
-      const double v = static_cast<double>(arguments[2]) * 1E-3;
-      const int index = device * 2 + channel;
-      readWaveform_->setADCOffset(index, v);
-      return true;
-    }
-  }
-
-  if (code == 206 && argc == 0) {
-    if (TPCHVController_ != nullptr) {
-      TPCHVController_->setExec(true);
-      return true;
-    }
-  }
-
-  if (code == 207 && argc == 1) {
-    if (TPCHVController_ != nullptr) {
-      const double v = static_cast<double>(arguments[0]) * 1E-3;
-      const bool status = TPCHVController_->setNextVoltage(v);
-      if (!status) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::TPC_HV_INVALID_VOLTAGE);
-      }
-      return status;
-    }
-  }
-
-  if (code == 208 && argc == 0) {
-    if (PMTHVController_ != nullptr) {
-      PMTHVController_->setExec(true);
-      return true;
-    }
-  }
-
-  if (code == 209 && argc == 1) {
-    if (PMTHVController_ != nullptr) {
-      const double v = static_cast<double>(arguments[0]) * 1E-3;
-      const bool status = PMTHVController_->setNextVoltage(v);
-      if (!status) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::PMT_HV_INVALID_VOLTAGE);
-      }
-      return status;
-    }
-  }
-
-  if (code == 210 && argc == 0) {
-    if (readWaveform_ != nullptr) {
-      if (!(readWaveform_->StartReading())) {
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::REBOOT_REJECTED);
         return false;
       }
-      if (readWaveform_->getOndemand() || sendTelemetry_->TelemetryType() == 2 || sendTelemetry_->WfDivisionCounter() > 0) {
+    }
+    return true;
+#else
+    return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Exec_Restart) && argc == 0) {
+#ifdef USE_SYSTEM_MODULES
+    if (shutdownSystem_) {
+      shutdownSystem_->setReboot(true);
+    }
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::REBOOT_REJECTED);
         return false;
       }
-      readWaveform_->setOndemand(true);
-      return true;
     }
+    return true;
+#else
+    return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
+#endif
   }
-
-  if (code == 211 && argc == 1) {
-    if (readWaveform_ != nullptr) {
-      const double v = static_cast<double>(arguments[0]) * 1E-3;
-      readWaveform_->setTrigLevel(v);
-      return true;
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
-  }
-
-  if (code == 212 && argc == 1) {
-    if (readWaveform_ != nullptr) {
-      const double v = static_cast<double>(arguments[0]) * 1E-3;
-      readWaveform_->setTrigPosition(v);
-      return true;
-    }
-  }
-
-  if (code == 301 && argc == 1) {
-    if (TPCHVController_ != nullptr) {
-      const double v = static_cast<double>(arguments[0]) * 1E-3;
-      TPCHVController_->setUpperLimitVoltage(v);
-      return true;
-    }
-  }
-
-  if (code == 302 && argc == 1) {
-    if (PMTHVController_ != nullptr) {
-      const double v = static_cast<double>(arguments[0]) * 1E-3;
-      PMTHVController_->setUpperLimitVoltage(v);
-      return true;
-    }
-  }
-
-  if (code == 900 && argc == 0) {
+    // TODO: Implement emergency DAQ shutdown procedure
     return true;
   }
-
-  if (code == 901 && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Reset_Error) && argc == 0) {
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->resetError();
+      if (chatter_ >= 1) {
+        std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Reset Error command received. All errors cleared." << std::endl;
+      }
+    }
     return true;
   }
-
-  if (code == 902 && argc == 0) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Link) && argc == 1) {
+    if (telemetryMosquittoManager_) {
+      CommunicationLinkType link_type;
+      if (arguments[0] == 0) {
+        link_type = CommunicationLinkType::IRIDIUM;
+      }
+      else if (arguments[0] == 1) {
+        link_type = CommunicationLinkType::STARLINK;
+      }
+      else {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Invalid link type argument received: " << arguments[0] << std::endl;
+        return false;
+      }
+      telemetryMosquittoManager_->setLinkType(link_type);
+      if (chatter_ >= 1) {
+        std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Set Link command received. Link type set to " << static_cast<int>(link_type) << std::endl;
+      }
+    }
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": MosquittoManager module not found." << std::endl;
+      sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      return false;
+    }
     return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_ON) && argc == 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Index: " << arguments[0] << std::endl;
+    }
+    // TODO: Implement handling
+    return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_OFF) && argc == 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Index: " << arguments[0] << std::endl;
+    }
+    //TODO: Implement handling
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_Set_Voltage) && argc == 2) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
+    }
+    //TODO: Implement handling
+    return true;
+  }
+  else {
+    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
+    return false;
   }
 
   return false;
 }
 
-void ReceiveCommand::writeCommandToFile(bool failed, const std::vector<uint8_t> &command) {
-  int type = 1;
-  std::string type_str = "";
-  if (failed) {
-    type = 0;
-  }
-  if (type == 1) type_str = "normal";
-  if (type == 0) type_str = "failed";
-
-  const bool app = true;
-  if (fileIDmp_.find(type) == fileIDmp_.end()) {
-    fileIDmp_[type] = std::pair<int, int>(0, 0);
-  }
-  else if (fileIDmp_[type].second == numCommandPerFile_) {
-    fileIDmp_[type].first++;
-    fileIDmp_[type].second = 0;
-  }
-
-  int run_id = 0;
-  std::string time_stamp_str = "YYYYMMDDHHMMSS";
-  if (runIDManager_) {
-    run_id = runIDManager_->RunID();
-    time_stamp_str = runIDManager_->TimeStampStr();
-  }
-  std::ostringstream id_sout;
-  id_sout << std::setfill('0') << std::right << std::setw(6) << fileIDmp_[type].first;
-  const std::string id_str = id_sout.str();
-  std::ostringstream run_id_sout;
-  run_id_sout << std::setfill('0') << std::right << std::setw(6) << run_id;
-  const std::string run_id_str = run_id_sout.str();
-  const std::string filename = binaryFilenameBase_ + "_" + run_id_str + "_" + time_stamp_str + "_" + type_str + "_" + id_str + ".dat";
-
-  if (!failed) {
-    comdef_->writeFile(filename, app);
-  }
-  else {
-    writeVectorToBinaryFile(filename, app, command);
-  }
-  fileIDmp_[type].second++;
-}
-
-} /* namespace gramsballoon */
+} // namespace gramsballoon::pgrams

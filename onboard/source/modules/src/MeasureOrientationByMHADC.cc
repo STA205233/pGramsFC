@@ -42,7 +42,7 @@ ANLStatus MeasureOrientationByMHADC::mod_analyze() {
     if (byte < 0) {
       std::cerr << "MeasureOrientationByMHADC::mod_analyze: SendComAndGetData failed" << std::endl;
       if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::RTD_SERIAL_COMMUNICATION_ERROR);
+        sendTelemetry_->getErrorManager()->setError(ErrorType::OTHER_ERRORS);
       }
       continue;
     }

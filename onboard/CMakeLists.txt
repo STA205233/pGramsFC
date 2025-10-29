@@ -21,17 +21,21 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(USE_RUBY ON)
+set(GB_SOCKET_CLIENT OFF)
 set(MY_LIBRARY GRAMSBalloon)
+set(cxx_definitions)
 
 # set(RASPI ON)
 find_package(Ruby 3.0 REQUIRED)
 
 # ## options
 # # library options
-option(GB_USE_PIGPIO "enable PIGPIO" OFF)
-option(GB_USE_WAVEFORMS "enable waveforms" OFF)
-option(GB_USE_ICM20948 "enable ICM20948" OFF)
-option(GB_USE_RASPISYS "enable raspi system control" OFF)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(GB_USE_SYSTEM_MODULES ON)
+else()
+  set(GB_USE_SYSTEM_MODULES OFF)
+endif()
+message("-- GB_USE_SYSTEM_MODULES: ${GB_USE_SYSTEM_MODULES}")
 option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
 option(GB_APT_RUBY "installed ruby via apt" OFF)
 option(GB_USE_ROOT "enable root" OFF)
@@ -40,7 +44,6 @@ option(GB_USE_MYSQL "enable mysql" OFF)
 # # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
 option(GB_INSTALL_CMAKE_FILES "install all cmake files" ON)
-option(GB_DEMO_MODE "demo mode" ON)
 set(INSTALL_HEADERS ${GB_INSTALL_HEADERS})
 set(INSTALL_CMAKE_FILES ${GB_INSTALL_CMAKE_FILES})
 
@@ -49,24 +52,11 @@ option(GB_MAC "shortcut" OFF)
 
 if(GB_MAC)
   message("-- GB_MAC is set")
-  set(GB_USE_PIGPIO OFF)
-  set(GB_USE_WAVEFORMS OFF)
-  set(GB_USE_ICM20948 OFF)
-  set(GB_USE_RASPISYS OFF)
-  set(GB_USE_HSQUICKLOOK ON)
+  set(GB_USE_HSQUICKLOOK OFF)
   set(GB_APT_RUBY OFF)
   set(GB_USE_ROOT ON)
 endif(GB_MAC)
 
-if(GB_DEMO_MODE)
-  message("-- GB_DEMO_MODE is set")
-  set(GB_USE_PIGPIO OFF)
-  set(GB_USE_WAVEFORMS OFF)
-  set(GB_USE_ICM20948 OFF)
-  set(GB_USE_RASPISYS OFF)
-  set(GB_APT_RUBY OFF)
-  add_compile_definitions("GB_DEMO_MODE")
-endif(GB_DEMO_MODE)
 
 if(GB_APT_RUBY)
   set(RUBY_CONFIG_FILE_DIR /usr/include/arm-linux-gnueabihf/ruby-2.7.0)
@@ -79,6 +69,10 @@ endif(GB_USE_ROOT)
 if(GB_USE_HSQUICKLOOK)
   add_compile_definitions("USE_HSQUICKLOOK")
 endif(GB_USE_HSQUICKLOOK)
+
+if(GB_USE_SYSTEM_MODULES)
+  add_compile_definitions("USE_SYSTEM_MODULES")
+endif(GB_USE_SYSTEM_MODULES)
 
 # ## External libraries
 # ## BOOST ###
@@ -105,35 +99,6 @@ set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
 message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
-# ## PIGPIO ###
-if(GB_USE_PIGPIO)
-  set(PIGPIO_INSTALL_PREFIX /home/grams/software/pigpio/util)
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PIGPIO_INSTALL_PREFIX})
-  find_package(pigpio REQUIRED)
-  set(PIGPIO_INC_DIR ${pigpio_INCLUDE_DIRS})
-  set(PIGPIO_LIB_DIR ${pigpio_LIBRARY_DIRS})
-  set(PIGPIO_LIB ${pigpio_LIBRARIES})
-  message("-- PIGPIO_INC_DIR: ${PIGPIO_INC_DIR}")
-  message("-- PIGPIO_LIB_DIR: ${PIGPIO_LIB_DIR}")
-  message("-- PIGPIO_LIB: ${PIGPIO_LIB}")
-  set(PIGPIO_LIB_DAEMON pigpiod_if2)
-  message("-- PIGPIO_LIB_DAEMON: ${PIGPIO_LIB_DAEMON}")
-  set(PIGPIO_LIB_RT rt)
-  message("-- PIGPIO_LIB_RT: ${PIGPIO_LIB_RT}")
-  set(BME68x_LIB GBBME68x)
-endif(GB_USE_PIGPIO)
-
-# ## Waveforms ###
-if(GB_USE_WAVEFORMS)
-  set(WAVEFORMS_LIB dwf)
-  message("-- WAVEFORMS_LIB: ${WAVEFORMS_LIB}")
-endif(GB_USE_WAVEFORMS)
-
-# ## ICM20948 ###
-if(GB_USE_ICM20948)
-  set(ICM20948_LIB ICM20948 I2C)
-  message("-- ICM20948_LIB: ${ICM20948_LIB}")
-endif(GB_USE_ICM20948)
 
 # ## HSQUICKLOOK ###
 if(GB_USE_HSQUICKLOOK)
@@ -177,6 +142,7 @@ if(GB_USE_MYSQL)
   message(STATUS "MYSQL_LIB: ${MYSQL_LIB}")
 endif(GB_USE_MYSQL)
 
+# Mosquitto
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp REQUIRED)
 set(MOSQUITTO_LIB PkgConfig::Mosquitto)

@@ -11,8 +11,9 @@
 #include "SendTelemetry.hh"
 
 namespace gramsballoon {
-class SendTelemetry;
 namespace pgrams {
+class SendTelemetry;
+
 class MeasureTemperatureWithRTDSensorByArduino: public MeasureTemperatureWithRTDSensor {
   DEFINE_ANL_MODULE(MeasureTemperatureWithRTDSensorByArduino, 1.0);
   ENABLE_PARALLEL_RUN();

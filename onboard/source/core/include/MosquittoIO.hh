@@ -5,9 +5,12 @@
 #include <deque>
 #include <iostream>
 #include <memory>
+#include <memory_resource>
 #include <stdint.h>
 #include <string>
 #include <vector>
+#define GB_MOSQUITTOIO_ALL_BINARY 1 // This is switch for handling vector<uint8_t> as binary.
+//#undef GB_MOSQUITTOIO_ALL_BINARY
 
 namespace gramsballoon::pgrams {
 namespace mqtt {
@@ -30,6 +33,8 @@ public:
     host_ = host;
     port_ = port;
     keepAlive_ = keepAlive;
+    memResource_ = std::make_unique<std::pmr::synchronized_pool_resource>();
+    allocatorMosq_ = std::make_unique<std::pmr::polymorphic_allocator<mqtt::mosquitto_message<V>>>(memResource_.get());
   }
   virtual ~MosquittoIO();
   int Connect();
@@ -54,6 +59,7 @@ private:
   using mosqpp::mosquittopp::connect;
   using mosqpp::mosquittopp::disconnect;
   using mosqpp::mosquittopp::publish;
+  using mosqpp::mosquittopp::subscribe;
   std::deque<std::shared_ptr<mqtt::mosquitto_message<V>>> payLoad_;
   std::string host_;
   std::vector<std::string> topicSub_;
@@ -61,6 +67,8 @@ private:
   int keepAlive_;
   int verbose_ = 0;
   bool connected_ = false;
+  std::unique_ptr<std::pmr::synchronized_pool_resource> memResource_ = nullptr;
+  std::unique_ptr<std::pmr::polymorphic_allocator<mqtt::mosquitto_message<V>>> allocatorMosq_ = nullptr;
 };
 template <typename V>
 int MosquittoIO<V>::Publish(const V &message, const std::string &topic, int qos) {
@@ -104,6 +112,9 @@ int MosquittoIO<V>::Disconnect() {
   if (ret == 0) {
     connected_ = false;
   }
+  payLoad_.clear();
+  memResource_.reset();
+  allocatorMosq_.reset();
   return ret;
 }
 template <typename V>
@@ -139,7 +150,23 @@ void MosquittoIO<V>::on_publish(int mid) {
 }
 template <typename V>
 void MosquittoIO<V>::on_message(const mosquitto_message *message) {
-  auto m_sptr = std::make_shared<mqtt::mosquitto_message<V>>();
+  bool found = false;
+  for (const auto &topic: topicSub_) {
+    if (message->topic && std::string(message->topic) == topic) {
+      if (verbose_ > 1) {
+        std::cout << "Received message on subscribed topic: " << topic << std::endl;
+      }
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    if (verbose_ > 1) {
+      std::cout << "Received message on non-subscribed topic: " << (message->topic ? message->topic : "null") << std::endl;
+    }
+    return;
+  }
+  auto m_sptr = std::allocate_shared<mqtt::mosquitto_message<V>>(*allocatorMosq_);
   m_sptr->mid = message->mid;
   m_sptr->qos = message->qos;
   m_sptr->retain = message->retain;

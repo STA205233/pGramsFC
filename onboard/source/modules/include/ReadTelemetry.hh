@@ -1,13 +1,14 @@
 #ifndef ReadTelemetry_H
 #define ReadTelemetry_H 1
+#if 0
 
-#include <anlnext/BasicModule.hh>
 #include "ReceiveTelemetry.hh"
+#include <anlnext/BasicModule.hh>
 #include <fstream>
 
 namespace gramsballoon {
 
-class ReadTelemetry : public ReceiveTelemetry {
+class ReadTelemetry: public pgrams::ReceiveTelemetry {
   DEFINE_ANL_MODULE(ReadTelemetry, 1.0);
 
 public:
@@ -21,7 +22,7 @@ public:
   anlnext::ANLStatus mod_finalize() override;
 
   uint8_t readOneByte();
-  
+
 private:
   std::vector<std::string> filenames_;
   int fileIndex_ = 0;
@@ -31,4 +32,5 @@ private:
 };
 
 } // namespace gramsballoon
+#endif // This module is currently disabled
 #endif // ReadTelemetry_H

@@ -5,12 +5,10 @@
 #include "anlnext/BasicModule.hh"
 #include <regex>
 #include <string>
-
-namespace gramsballoon {
-class SendTelemetry;
-} // namespace gramsballoon
+#ifdef NOT_USED_MODULE
 
 namespace gramsballoon::pgrams {
+class SendTelemetry;
 class GetCompressorData: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(GetCompressorData, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -52,4 +50,5 @@ private:
   int chatter_ = 0;
 };
 } // namespace gramsballoon::pgrams
+#endif // NOT_USED
 #endif //GRAMSBalloon_GetCompressorData_hh

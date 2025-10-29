@@ -1,70 +1,71 @@
 #ifndef InterpretTelemetry_H
 #define InterpretTelemetry_H 1
 
-#include <anlnext/BasicModule.hh>
-#include <thread>
-#include <chrono>
-#include "TelemetryDefinition.hh"
-#include "ReceiveTelemetry.hh"
+#include "BaseTelemetryDefinition.hh"
 #include "ErrorManager.hh"
+#include "ReceiveTelemetry.hh"
+#include <anlnext/BasicModule.hh>
+#include <chrono>
+#include <thread>
 #ifdef USE_ROOT
-#include "PlotWaveform.hh"
 #endif // USE_ROOT
 #ifdef USE_HSQUICKLOOK
 #include "PushToMongoDB.hh"
 #endif // USE_HSQUICKLOOK
-namespace gramsballoon {
-
+namespace gramsballoon::pgrams {
 class ReceiveTelemetry;
-class PlotWaveform;
+class BaseTelemetryDefinition;
 #ifdef USE_HSQUICKLOOK
 class PushToMongoDB;
 #endif // USE_HSQUICKLOOK
 
-class InterpretTelemetry : public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(InterpretTelemetry, 1.0);
+/**
+ * Module for interpretation of telemetry
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-**-**
+ * @date 2025-09-20 Shota Arai| Comparatible to different type of telemetry. (v2.0)
+ */
+template <typename TelemType>
+class InterpretTelemetry: public anlnext::BasicModule {
+  DEFINE_ANL_MODULE(InterpretTelemetry<TelemType>, 2.0);
+  ENABLE_PARALLEL_RUN();
 
 public:
   InterpretTelemetry();
-  virtual ~InterpretTelemetry();
+  virtual ~InterpretTelemetry() = default;
 
 protected:
   InterpretTelemetry(const InterpretTelemetry &r) = default;
-  
+
 public:
   anlnext::ANLStatus mod_define() override;
   anlnext::ANLStatus mod_initialize() override;
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  void writeTelemetryToFile(bool failed);
-  void updateRunIDFile();
+  std::shared_ptr<const ErrorManager> getErrorManager() const { return singleton_self()->errorManager_; }
+  int CurrentTelemetryType() { return singleton_self()->currentTelemetryType_; }
 
-  TelemetryDefinition* Telemdef() { return telemdef_.get(); }
-  std::shared_ptr<const ErrorManager> getErrorManager() const { return errorManager_; }
-  int CurrentTelemetryType() { return currentTelemetryType_; }
-  
 private:
-  std::shared_ptr<TelemetryDefinition> telemdef_;
-  ReceiveTelemetry* receiver_ = nullptr;
+  void updateRunIDFile();
+  bool interpret(const std::string &telemetryStr);
+  std::shared_ptr<TelemType> telemetry_ = nullptr;
+  pgrams::ReceiveTelemetry *receiver_ = nullptr;
   std::shared_ptr<ErrorManager> errorManager_ = nullptr;
-#ifdef USE_ROOT
-  PlotWaveform* plotter_ = nullptr;
-#endif // USE_ROOT
 #ifdef USE_HSQUICKLOOK
-  PushToMongoDB* pusher_ = nullptr;
+  PushToMongoDB *pusher_ = nullptr;
 #endif // USE_HSQUICKLOOK
+  std::shared_ptr<CommunicationSaver<std::string>> telemetrySaver_ = nullptr;
   int currentTelemetryType_ = 0;
   std::map<int, std::pair<int, int>> fileIDmp_;
   bool saveTelemetry_ = true;
   std::string binaryFilenameBase_ = "";
   int numTelemPerFile_ = 100;
-  std::string timeStampStr_ = "";
   int chatter_ = 0;
   std::string runIDFilename_;
   int currentRunID_ = -1;
   std::string receiverModuleName_;
 };
 
-} // namespace gramsballoon
+} // namespace gramsballoon::pgrams
 #endif // InterpretTelemetry_H

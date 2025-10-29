@@ -2,6 +2,7 @@
 #include "CommandSaver.hh"
 #include "CommandSender.hh"
 #include <cstdint>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -29,21 +30,11 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::ifstream ifs("../source/network.cfg");
-  if (!ifs) {
-    std::cout << "Failed to open network.cfg" << std::endl;
-    return 1;
-  }
-  std::string host;
-  std::string port_str;
-  std::string username;
-  std::string password;
+  std::string host = std::getenv("PGRAMS_MOSQUITTO_HOST");
+  std::string port_str = std::getenv("PGRAMS_MOSQUITTO_PORT");
+  std::string username = std::getenv("PGRAMS_MOSQUITTO_USER");
+  std::string password = std::getenv("PGRAMS_MOSQUITTO_PASSWD");
 
-  getline(ifs, host, '\n');
-  getline(ifs, port_str, '\n');
-  getline(ifs, username, '\n');
-  getline(ifs, password, '\n');
-  ifs.close();
   const int port = std::stoi(port_str);
   std::cout << "Host: " << host << std::endl;
   std::cout << "Port: " << port << std::endl;

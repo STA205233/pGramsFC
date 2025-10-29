@@ -6,6 +6,8 @@ using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus Sleep::mod_define() {
   define_parameter("sleep_sec", &mod_class::sleep_sec);
+  set_parameter_description("Sleep time");
+  set_parameter_unit(1.0, "sec");
   return AS_OK;
 }
 ANLStatus Sleep::mod_analyze() {

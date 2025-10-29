@@ -29,7 +29,7 @@ public:
 
 private:
   int chatter_ = 0;
-  InterpretTelemetry *interpreter_ = nullptr;
+  InterpretHKTelemetry *interpreter_ = nullptr;
   std::string password_ = "test";
   std::string database_ = "pgrams";
   std::string user_ = "test";
