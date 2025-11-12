@@ -32,11 +32,14 @@ if(GB_USE_SPI)
     src/BME680IO.cc
     src/MAX31865IO.cc
     src/SlowADCIO.cc
-    src/BayCatControl.cc
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
   )
-
+  if (GB_USE_BAYCAT_SPI)
+    list(APPEND GB_SPI_CORE_CLASSES
+      src/BayCatSPIIO.cc
+    )
+  endif(GB_USE_BAYCAT_SPI)
   if(GB_USE_FT232H)
     list(APPEND GB_SPI_CORE_CLASSES
       src/FT232HIO.cc

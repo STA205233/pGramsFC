@@ -1,13 +1,20 @@
 #include "SPIManager.hh"
+#ifdef USE_FT232H
 #include "FT232HIO.hh"
+#endif
+
+#ifdef USE_BAYCAT_SPI
 #include "BayCatControl.hh"
+#endif
 using namespace anlnext;
 using namespace gramsballoon;
 
 namespace gramsballoon::pgrams {
 
 SPIManager::SPIManager() {
+#ifdef USE_BAYCAT_SPI
   interface_ = std::make_shared<BayCatControl>();
+#endif
 }
 
 SPIManager::~SPIManager() {

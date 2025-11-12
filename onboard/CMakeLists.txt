@@ -28,7 +28,7 @@ find_package(Ruby 3.0 REQUIRED)
 
 # ## options
 # # library options
-option(GB_USE_SPI "enable SPI" ON)
+option(GB_USE_BAYCAT_SPI " enable BayCat SPI " ON)
 option(GB_USE_FT232H "enable FT232H" ON)
 option(GB_USE_WAVEFORMS " enable waveforms " OFF)
 option(GB_USE_ICM20948 " enable ICM20948 " OFF)
@@ -69,6 +69,11 @@ if(GB_DEMO_MODE)
   add_compile_definitions(" GB_DEMO_MODE ")
 endif(GB_DEMO_MODE)
 
+if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
+  set(GB_USE_SPI ON)
+else()
+  set(GB_USE_SPI OFF)
+endif()
 if(GB_APT_RUBY)
   set(RUBY_CONFIG_FILE_DIR /usr/include/arm-linux-gnueabihf/ruby-2.7.0)
 endif(GB_APT_RUBY)
@@ -132,16 +137,19 @@ if(GB_USE_SPI)
       PATHS /usr/local/lib)
     message(" -- MPSSE_LIB: ${MPSSE_LIB} ")
     include_directories(${MPSSE_INC_DIR})
+    add_compile_definitions("USE_FT232H")
   endif(GB_USE_FT232H)
-
+  if (GB_USE_BAYCAT_SPI)
   find_path(VERSALOGIC_INC_DIR
     NAMES VL_OSALib.h REQUIRED
     PATHS /usr/local/include)
   find_library(VERSALOGIC_LIB
     NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
     PATHS /usr/local/lib)
+  add_compile_definitions("USE_BAYCAT_SPI")
   message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
   message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+  endif(GB_USE_BAYCAT_SPI)
 endif(GB_USE_SPI)
 
 # ## Waveforms ###
