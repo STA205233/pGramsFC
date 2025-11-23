@@ -296,6 +296,11 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     //TODO: Implement handling
     return true;
   }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": ORC Set LED State command received. LED Index: " << arguments[0] << ", State: " << arguments[1] << std::endl;
+    }
+  }
   else {
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
     return false;

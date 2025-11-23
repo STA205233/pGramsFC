@@ -4,6 +4,11 @@
 #include <memory>
 #include <unordered_map>
 namespace gramsballoon::pgrams {
+/**
+ * @brief A virtual class for Telemetry order mapping
+ * @author Shota Arai
+ * @date 2025-10-22 | Shota Arai | Created
+ */
 class VHKTelemetryMapping {
 protected:
   typedef void (HubHKTelemetry::*Setter)(uint16_t);
