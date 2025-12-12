@@ -120,7 +120,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
       std::cerr << module_id() << "::mod_analyze: Communication is dead. No data received for " << deadCommunicationTime_ << " ms." << std::endl;
     }
     if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+      sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, false));
     }
     lastReceivedTime_ = now;
   }

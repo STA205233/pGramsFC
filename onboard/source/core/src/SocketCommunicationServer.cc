@@ -6,7 +6,8 @@ void SigPipeHander(int) {
 }
 SocketCommunication::SocketCommunication(int port) {
   if (!ioContext_) {
-    ioContext_ = std::make_shared<boost::asio::io_context>();
+    //ioContext_ = std::make_shared<boost::asio::io_context>();
+    failed_->store(true, std::memory_order_release);
   }
   socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
   acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
@@ -16,25 +17,25 @@ SocketCommunication::SocketCommunication(int port) {
   sockMutex_ = std::make_shared<std::mutex>();
 }
 SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context> ioContext, int port) : ioContext_(ioContext) {
+  failed_ = std::make_shared<std::atomic<bool>>(false);
   if (!ioContext_) {
-    ioContext_ = std::make_shared<boost::asio::io_context>();
+    failed_->store(true, std::memory_order_release);
   }
   socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
   acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
       *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-  failed_ = std::make_shared<std::atomic<bool>>(false);
   stopped_ = std::make_shared<std::atomic<bool>>(false);
   sockMutex_ = std::make_shared<std::mutex>();
 }
 SocketCommunication::~SocketCommunication() {
   if (socket_) {
+    stopped_->store(true, std::memory_order_release);
     socket_->close();
+    socket_.reset();
   }
   if (acceptor_) {
     acceptor_->close();
-  }
-  if (ioContext_) {
-    ioContext_->stop();
+    acceptor_.reset();
   }
 }
 void SocketCommunication::accept() {
@@ -74,6 +75,9 @@ void SocketCommunication::accept() {
   });
 }
 int SocketCommunication::send(const void* buf, size_t n){
+  if (stopped_->load(std::memory_order_acquire)){
+    return 0;
+  }
   std::lock_guard<std::mutex> lock(*sockMutex_);
   if (socketAccepted_) {
     boost::system::error_code errorcode;
@@ -81,6 +85,7 @@ int SocketCommunication::send(const void* buf, size_t n){
       const auto ret = boost::asio::write(*socketAccepted_, boost::asio::buffer(buf, n), errorcode);
       if (errorcode) {
         std::cerr << "Error in SocketCommunication: " << errorcode.message() << std::endl;
+        failed_->store(true, std::memory_order_release);
         return errorcode.value();
       }
       if (ret == 0) {

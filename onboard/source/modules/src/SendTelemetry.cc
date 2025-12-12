@@ -16,7 +16,7 @@ ANLStatus SendTelemetry::mod_define() {
   define_parameter("save_telemetry", &mod_class::saveTelemetry_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_telem_per_file", &mod_class::numTelemPerFile_);
-  define_parameter("sleep_for_msec", &mod_class::sleepms_);
+  define_parameter("minimum_send_time", &mod_class::minimumSendTime_);
   define_parameter("topic", &mod_class::pubTopic_);
   define_parameter("starlink_topic", &mod_class::starlinkTopic_);
   define_parameter("qos", &mod_class::qos_);
@@ -71,6 +71,10 @@ ANLStatus SendTelemetry::mod_analyze() {
     std::cout << module_id() << ": mosq_ is nullptr" << std::endl;
     return AS_OK;
   }
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastSendTime_).count() < minimumSendTime_) {
+    return AS_OK;
+  }
+  lastSendTime_ = std::chrono::steady_clock::now();
   telemdef_->setCurrentTime();
   telemdef_->setIndex(telemIndex_);
   telemdef_->setRunID(runIDManager_->RunID());
@@ -78,7 +82,9 @@ ANLStatus SendTelemetry::mod_analyze() {
   telemIndex_++;
   telemdef_->update();
   telemdef_->construct(telemetryStr_);
-  std::cout << module_id() << ":telelemetry is " << telemetryStr_ << std::endl;
+  if (chatter_ > 2) {
+    std::cout << module_id() << ":telelemetry is " << telemetryStr_ << std::endl;
+  }
   int status;
   if (mosquittoManager_->getLinkType() == CommunicationLinkType::STARLINK) {
     status = mosq_->Publish(telemetryStr_, starlinkTopic_, qos_);
@@ -99,14 +105,13 @@ ANLStatus SendTelemetry::mod_analyze() {
     telemetrySaver_->writeCommandToFile(failed, telemetryStr_);
   }
 
-  if (chatter_ >= 1) {
+  if (chatter_ > 3) {
     std::cout << (int)telemetryStr_.size() << std::endl;
     for (int i = 0; i < (int)telemetryStr_.size(); i++) {
       std::cout << i << " " << static_cast<int>(telemetryStr_[i]) << std::endl;
     }
   }
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(sleepms_));
   return AS_OK;
 }
 
@@ -199,7 +204,9 @@ void SendTelemetry::setHKTelemetry() {
       telemdef_->setStorageSize(getComputerStatus_->CapacityFree() / toMB);
       telemdef_->setRamUsage(getComputerStatus_->MemoryUsage() / kBtoMB);
     }
-    telemdef_->print(std::cout);
+    if (chatter_ > 1) {
+      telemdef_->print(std::cout);
+    }
   }
 #endif
 }

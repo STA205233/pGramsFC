@@ -97,7 +97,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   const size_t acksz = singleton_self()->ackBuffer_.size();
   if (acksz != ack_n) {
     std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement size mismatch. Expected: " << ack_n << ", Received: " << acksz << std::endl;
-    return -acksz;
+    return -ack_n;
   }
   bool failed = false;
   for (size_t i = 0; i < acksz; ++i) {

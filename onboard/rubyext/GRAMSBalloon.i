@@ -151,7 +151,6 @@ class PassTelemetry: public anlnext::BasicModule {
 public:
   PassTelemetry();
 };
-template <typename TelemType>
 class InterpretTelemetry : public anlnext::BasicModule
 {
 public:
@@ -197,6 +196,3 @@ public:
 } // namespace GRAMSBalloon
 %template(TelemMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::string>;
 %template(ComMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::vector<uint8_t>>;
-%template(InterpretHKTelemetry) gramsballoon::pgrams::InterpretTelemetry<gramsballoon::pgrams::HubHKTelemetry>;
-%template(InterpretBaseTelemetry)
-gramsballoon::pgrams::InterpretTelemetry<gramsballoon::pgrams::BaseTelemetryDefinition>;

@@ -110,6 +110,9 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
       const int send_result = socketCommunicationManager_->sendAndWaitForAck(heartbeat_->Command(), heartbeatAck_->Command());
       if (send_result < 0) {
         std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending heartbeat is failed" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqFormatErrorType(subsystem_, true));
+        }
       }
       else if (chatter_ > 1) {
         std::cout << "Sent heartbeat" << std::endl;

@@ -17,7 +17,7 @@
 1. Install Boost, CMake, ruby, SWIG, and mosquitto.
 
    `sudo apt install libboost-all-dev ruby-3.0-dev swig mosquitto` (ubuntu/debian)
-   
+
    `brew install boost ruby swig mosquitto` (Mac, via Homebrew)
 
    Note: For installing mosquitto into ubuntu/debian, you may need to build from source instead of using apt. Mosquitto library on the hub computer is installed by building from source.
@@ -128,16 +128,16 @@
     `make install`
 
 5. Check GRAMSBalloon installation
+    <a name="check_gramsballoon"></a>
 
     Before running the example, you need to specify the mosquitto broker information by environment variables:
 
-    `export PGRAMS_MOSQUITTO_HOST=your_mosquitto_broker_address`
-
-    `export PGRAMS_MOSQUITTO_PORT=your_mosquitto_broker_port`
-
-    `export PGRAMS_MOSQUITTO_USER=your_mosquitto_username`
-
-    `export PGRAMS_MOSQUITTO_PASSWD=your_mosquitto_password`
+    ```zsh
+    export PGRAMS_MOSQUITTO_HOST=your_mosquitto_broker_address
+    export PGRAMS_MOSQUITTO_PORT=your_mosquitto_broker_port
+    export PGRAMS_MOSQUITTO_USER=your_mosquitto_username
+    export PGRAMS_MOSQUITTO_PASSWD=your_mosquitto_password
+    ```
 
     And, you have to run mosquitto broker somewhere (locally or on another PC).
 
@@ -149,7 +149,7 @@
 
    ### A. DAQ Computer communication example (for onboard system)
 
-      Before running this example, you may need to change the serial port setting by modifying `pGramsFC/settings/network.cfg`
+      Before running this example, you may need to change the serial port setting by modifying [network.cfg](../settings/network.cfg)
 
       This file is written like below:
 
@@ -187,3 +187,31 @@
       `cd interpret_telemetry`
 
       `./interpret_telemetry.rb`
+
+   ### C. Send Command example (for ground system)
+
+    Command sending software is different from the main software. You need to build it separately. The software requires Boost and Mosquitto libraries.
+
+    `cd (source)/(to)/(pGramsFC)/command_sender/`
+
+    `mkdir build && cd build`
+
+    `cmake ..`
+
+    `make`
+
+    Then, run the executable. Currently only raw command sending is supported for pGRAMS:
+
+    `./send_command_raw (subsystem_name) (command code in decimal) (parameter1 in decimal) (parameter2 in decimal) ...`
+
+    Subsystem name should be same as specified in [network.cfg](../settings/network.cfg). CRC and Argc are automatically calculated and added to the command.
+
+    Example (Sending command code 0x64 (100 in decimal) with arguments 57, 2 to the Orchestrator subsystem):
+
+    `./send_command_raw Orchestrator 100 57 2`
+
+    NOTE: Please make sure that the MQTT broker is running and its IP address, port, username, and password are correctly set in the environment variables before running the examples.
+
+    If you have MQTT-Explorer, you can monitor the topics and messages being sent and received. (The command is sent in binary format, so you may not be able to read it directly, but you can confirm that the message is being sent.)
+
+    ![MQTT-Explorer](MQTT-Explorer.png)
