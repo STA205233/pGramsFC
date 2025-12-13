@@ -220,4 +220,5 @@ bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
   else {
     return false;
   }
+}
 } // namespace gramsballoon::pgrams
