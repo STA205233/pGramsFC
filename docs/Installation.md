@@ -188,7 +188,7 @@
 
       `./interpret_telemetry.rb`
 
-   ### C. Send Command example (for ground system)
+   ### C. Send Command example (for ground system) - Raw command sending
 
     Command sending software is different from the main software. You need to build it separately. The software requires Boost and Mosquitto libraries.
 
@@ -211,6 +211,25 @@
     `./send_command_raw Orchestrator 100 57 2`
 
     NOTE: Please make sure that the MQTT broker is running and its IP address, port, username, and password are correctly set in the environment variables before running the examples.
+
+   ### D. Send Command example (for ground system) - More user-friendly command sending
+
+    (Added at 2025-12-13)
+    A more user-friendly command sending software is also provided. This software allows you to send commands by specifying command name and parameters.
+
+    Compile the software as follows (same as before):
+    `cd (source)/(to)/(pGramsFC)/command_sender/`
+
+    `mkdir build && cd build`
+
+    `cmake ..`
+
+    `make`
+
+    send_command_(subsystem) executables corresponding to each subsystem are created (e.g., send_command_orc). Subsystem names are {"orc": Orchestrator, "tpc": Columbia Readout system, "tof": ToF readout, "pdu": PDU, "hub": hub computer}.
+    Then, run the executable as follows:
+
+    `./send_command_(subsystem) (command_name) (parameter1) (parameter2) ...`
 
     If you have MQTT-Explorer, you can monitor the topics and messages being sent and received. (The command is sent in binary format, so you may not be able to read it directly, but you can confirm that the message is being sent.)
 
