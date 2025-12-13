@@ -21,6 +21,11 @@ enum class Subsystem : uint16_t {
   TOF = 4,
   UNKNOWN = 255
 };
+/**
+ * @brief A class for base telemetry definition
+ * @author Shota Arai
+ * @date 2025-xx-xx | Shota Arai | Created
+ */
 class BaseTelemetryDefinition {
 public:
   BaseTelemetryDefinition(bool instantiateContents);

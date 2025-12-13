@@ -27,6 +27,13 @@ public:
   anlnext::ANLStatus mod_initialize() override;
   anlnext::ANLStatus mod_analyze() override;
 
+  void setEmergencyDaqShutdown(const bool val) {
+    singleton_self()->emergencyDaqShutdownReceived_ = val;
+  }
+  bool EmergencyDaqShutdown() const {
+    return singleton_self()->emergencyDaqShutdownReceived_;
+  }
+
 private:
   SocketCommunicationManager *socketCommunicationManager_ = nullptr;
   std::string socketCommunicationManagerName_ = "SocketCommunicationManager";
@@ -45,6 +52,9 @@ private:
   std::shared_ptr<CommunicationFormat> heartbeatAck_ = nullptr;
   std::shared_ptr<CommunicationFormat> currentCommand_ = nullptr;
   std::shared_ptr<CommunicationFormat> commandAck_ = nullptr;
+
+  bool emergencyDaqShutdownReceived_ = false;
+  bool makeDAQEmergencyShutdownCommand();
 };
 } // namespace gramsballoon::pgrams
 #endif //GRAMSBalloon_SendCommandToDAQComputer_hh

@@ -8,8 +8,7 @@
 #include <sys/time.h>
 #include <vector>
 /**
- * A class to define the command format for the pGRAMS system.
- *
+ * @brief A class to define the command format for the pGRAMS system.
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-25
  * @date 2025-03-11 | Modified to fit the pGRAMS command format.

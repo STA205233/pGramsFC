@@ -24,10 +24,10 @@ class PushToMongoDB;
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-**-**
  * @date 2025-09-20 Shota Arai| Comparatible to different type of telemetry. (v2.0)
+ * @date 2025-11-17 Shota Arai| Refactoring
  */
-template <typename TelemType>
 class InterpretTelemetry: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(InterpretTelemetry<TelemType>, 2.0);
+  DEFINE_ANL_MODULE(InterpretTelemetry, 2.0);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -49,9 +49,10 @@ public:
 private:
   void updateRunIDFile();
   bool interpret(const std::string &telemetryStr);
-  std::shared_ptr<TelemType> telemetry_ = nullptr;
+  std::shared_ptr<BaseTelemetryDefinition> telemetry_ = nullptr;
   pgrams::ReceiveTelemetry *receiver_ = nullptr;
   std::shared_ptr<ErrorManager> errorManager_ = nullptr;
+  std::string telemetryTypeStr_ = "HK";
 #ifdef USE_HSQUICKLOOK
   PushToMongoDB *pusher_ = nullptr;
 #endif // USE_HSQUICKLOOK

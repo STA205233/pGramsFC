@@ -13,6 +13,7 @@
 #include "CommunicationSaver.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
+#include "SendCommandToDAQComputer.hh"
 #include "SendTelemetry.hh"
 #include "ShutdownSystem.hh"
 #include <anlnext/BasicModule.hh>
@@ -28,6 +29,7 @@ template <typename T>
 class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
+class SendCommandToDAQComputer;
 
 class ReceiveCommand: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveCommand, 1.0);
@@ -77,6 +79,8 @@ private:
   int timeoutSec_ = 2;
 
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> commandSaver_ = nullptr;
+  std::vector<SendCommandToDAQComputer *> sendCommandToDAQComputers_;
+  std::vector<std::string> sendCommandToDAQComputerNames_;
 };
 
 } // namespace pgrams
