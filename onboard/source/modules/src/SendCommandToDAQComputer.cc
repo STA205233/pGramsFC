@@ -75,6 +75,28 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
     return AS_OK;
   }
+  if (EmergencyDaqShutdown()) {
+    if (chatter_ > 0) {
+      std::cout << module_id() << ": Emergency DAQ shutdown received. Skipping sending commands to DAQ computer." << std::endl;
+    }
+    const bool exists_command = makeDAQEmergencyShutdownCommand();
+    if (exists_command) {
+      if (chatter_ > 0) {
+        std::cout << module_id() << ": Sending emergency DAQ shutdown command." << std::endl;
+      }
+      const int send_result = socketCommunicationManager_->sendAndWaitForAck(currentCommand_->Command(), commandAck_->Command());
+      if (send_result < 0) {
+        std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending emergency DAQ shutdown command is failed" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+        }
+      }
+      else if (chatter_ > 0) {
+        std::cout << "Sent emergency DAQ shutdown command" << std::endl;
+      }
+    }
+    return AS_OK;
+  }
   auto m_sptr = distributeCommand_->getAndPopPayload();
   if (sc->isConnected()) {
     if (chatter_ > 2) {
@@ -173,4 +195,29 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
   }
   return AS_OK;
 }
+bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
+  if (!currentCommand_) {
+    currentCommand_ = std::make_shared<CommunicationFormat>();
+  }
+  if (subsystem_ == Subsystem::ORC) {
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::ORC_Shutdown_All_DAQ));
+    currentCommand_->setArgc(0);
+    currentCommand_->update();
+    return true;
+  }
+  else if (subsystem_ == Subsystem::COL) {
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::COL_Stop_Run));
+    currentCommand_->setArgc(0);
+    currentCommand_->update();
+    return true;
+  }
+  else if (subsystem_ == Subsystem::TOF) {
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::TOF_Stop_DAQ));
+    currentCommand_->setArgc(0);
+    currentCommand_->update();
+    return true;
+  }
+  else {
+    return false;
+  }
 } // namespace gramsballoon::pgrams
