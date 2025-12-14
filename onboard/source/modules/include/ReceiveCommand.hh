@@ -1,10 +1,4 @@
-/**
- * Receive commands from ground.
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-01
- * @date 2024-11-28 Shota Arai| Modified for pGRAMS telemetry and command system.
- */
+
 
 #ifndef ReceiveCommand_H
 #define ReceiveCommand_H 1
@@ -30,9 +24,16 @@ class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
 class SendCommandToDAQComputer;
-
+/**
+ * Receive commands from ground.
+ *
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-03-01
+ * @date 2024-11-28 Shota Arai| Modified for pGRAMS telemetry and command system.
+ * @date 2025-12-14 Shota Arai| Added access to SendCommandToDAQComputer modules and emergency DAQ shutdown feature. (v1.1)
+ */
 class ReceiveCommand: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(ReceiveCommand, 1.0);
+  DEFINE_ANL_MODULE(ReceiveCommand, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:

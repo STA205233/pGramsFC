@@ -147,6 +147,7 @@ if(GB_USE_MYSQL)
   message(STATUS "MYSQL_LIB_DIR: ${MYSQL_INC_DIR}")
   message(STATUS "MYSQL_LIB_DIR: ${MYSQL_LIB_DIR}")
   message(STATUS "MYSQL_LIB: ${MYSQL_LIB}")
+  list(APPEND cxx_definitions "-DUSE_MYSQL")
 endif(GB_USE_MYSQL)
 
 # Mosquitto

@@ -1,6 +1,7 @@
 #ifndef GRAMSBalloon_BaseTelemetryDefinition_hh
 #define GRAMSBalloon_BaseTelemetryDefinition_hh 1
 #include "CommunicationFormat.hh"
+#include "DBFieldSink.hh"
 #include "fstream"
 #include <cstdint>
 #include <ctime>
@@ -25,6 +26,7 @@ enum class Subsystem : uint16_t {
  * @brief A class for base telemetry definition
  * @author Shota Arai
  * @date 2025-xx-xx | Shota Arai | Created
+ * @date 2025-12-14 | Shota Arai | Added DB serialization functions
  */
 class BaseTelemetryDefinition {
 public:
@@ -74,6 +76,9 @@ public:
   void setType(Subsystem s) {
     constructed_ = false;
     subsystem_ = s;
+  }
+  Subsystem getType() const {
+    return subsystem_;
   }
   void construct(std::string &outStr);
   void construct();
@@ -131,6 +136,13 @@ public:
     stream.write(outss_.str().c_str(), outss_.str().size());
     return stream;
   }
+
+  /**
+   * @brief Initialize DB table structure (setting column names and types...)
+   * @param sink DBFieldSink object
+   */
+  virtual void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const;
+  virtual void serialize(DBFieldSink *sink) const;
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_BaseTelemetryDefinition_hh

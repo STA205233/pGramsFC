@@ -11,8 +11,15 @@ class SendTelemetry;
 class SocketCommunicationManager;
 class DistributeCommand;
 
+/**
+ * Module for sending command to DAQ computer via SocketCommunicationManager.
+ *
+ * @author Shota Arai
+ * @date 2025-**-** | First design
+ * @date 2025-12-14 | Shota Arai | Added emergency DAQ shutdown command
+ */
 class SendCommandToDAQComputer: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.0);
+  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:
