@@ -5,14 +5,16 @@ void SigPipeHander(int) {
   std::cout << "Caught SIGPIPE!" << std::endl;
 }
 SocketCommunication::SocketCommunication(int port) {
+  failed_ = std::make_shared<std::atomic<bool>>(false);
   if (!ioContext_) {
     //ioContext_ = std::make_shared<boost::asio::io_context>();
     failed_->store(true, std::memory_order_release);
   }
-  socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
-  acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
+  else {
+    socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
+    acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
       *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
-  failed_ = std::make_shared<std::atomic<bool>>(false);
+  }
   stopped_ = std::make_shared<std::atomic<bool>>(true);
   sockMutex_ = std::make_shared<std::mutex>();
 }
@@ -21,9 +23,11 @@ SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context
   if (!ioContext_) {
     failed_->store(true, std::memory_order_release);
   }
+  else {
   socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
   acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
       *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+  }
   stopped_ = std::make_shared<std::atomic<bool>>(false);
   sockMutex_ = std::make_shared<std::mutex>();
 }

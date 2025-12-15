@@ -66,7 +66,7 @@ class MyApp < ANL::ANLApp
           save_telemetry: false,
           binary_filename_base: "telemetry_test",
           num_telem_per_file: 1000,
-          chatter: 0,
+          chatter: 2,
     )
     chain GRAMSBalloon::RunIDManager
     with_parameters(

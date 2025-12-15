@@ -42,6 +42,9 @@ public:
     return singleton_self()->socketCommunication_.get();
   }
   int sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n);
+    int send(const uint8_t *buf, size_t n) {
+    return singleton_self()->socketCommunication_->send(buf, n);
+  }
   inline int sendAndWaitForAck(const std::vector<uint8_t> &data, const std::vector<uint8_t> &ack) {
     return sendAndWaitForAck(data.data(), data.size(), ack.data(), ack.size());
   }

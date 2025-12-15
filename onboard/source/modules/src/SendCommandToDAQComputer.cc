@@ -189,6 +189,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     //  std::cout << "Sent data from " << m_sptr->topic << std::endl;
     //  std::cout << "Payload size: " << send_result << std::endl;
     //}
+    socketCommunicationManager_->send(&m_sptr->payload[0], m_sptr->payload.size());
     return AS_OK;
   }
   currentCommand_->interpret();
