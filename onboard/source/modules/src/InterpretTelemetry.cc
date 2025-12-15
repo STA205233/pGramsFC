@@ -66,7 +66,7 @@ ANLStatus InterpretTelemetry::mod_analyze() {
     return AS_OK;
   }
 
-  currentTelemetryType_ = 0;
+  currentTelemetryType_ = 1;
   const auto &telemetry = receiver_->Telemetry();
   const bool status = interpret(telemetry);
   const bool failed = !status;

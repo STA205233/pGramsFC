@@ -22,12 +22,17 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
+    #subsystems = ["Orchestrator"]
+    subsystems = ["TPC", "TOF", "Orchestrator"]
+    subsystemInts = {"Hub" => 0, "TPC" => 2, "QM"=> 3,"TOF" => 4, "Orchestrator" => 1}
+    sendCommandToDAQComputer_names = []
+    subsystems.each do |subsystem|
+      sendCommandToDAQComputer_names << "SendCommandToDAQComputer_" + subsystem
+    end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 100, qos: 0, binary_filename_base: "command_test") do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 100, qos: 0, binary_filename_base: "command_test", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
       m.set_singleton(0)
     end
-    subsystems = ["Orchestrator"]
-    #subsystems = ["TPC", "TOF", "Orchestrator"]
     subsystems.each do |subsystem|
       chain GRAMSBalloon::SocketCommunicationManager, "SocketCommunicationManager_" + subsystem
       with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["comport"].to_i, timeout: 100, chatter: 
@@ -43,7 +48,7 @@ class MyApp < ANL::ANLApp
         m.set_singleton(0)
       end
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", chatter: 0)
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 4)
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
         with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: 1000,chatter: 0)
       chain GRAMSBalloon::DividePacket, "DividePacket_#{subsystem}"
@@ -59,7 +64,6 @@ class MyApp < ANL::ANLApp
           starlink_topic: @inifile["Hub"]["teltopic"],
           qos:0,
           save_telemetry: false,
-          sleep_for_msec: 0,
           binary_filename_base: "telemetry_test",
           num_telem_per_file: 1000,
           chatter: 0,

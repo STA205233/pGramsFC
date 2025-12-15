@@ -44,7 +44,9 @@ std::string get_topic(const std::string &subsystem_name, const std::string &inif
     std::cerr << "No topic found for subsystem " << mapped_name << std::endl;
     return "";
   }
-  return topic_opt.get();
+  std::string str = topic_opt.get();
+  str.erase(std::remove(str.begin(), str.end(), '\"'), str.end());
+  return str;
 }
 
 int main(int argc, char *argv[]) {

@@ -431,7 +431,8 @@ void HubHKTelemetry::update() {
 std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "HubHKTelemetry" << std::endl;
   stream << "index: " << getContents()->Code() << ", Argc(): " << getContents()->Argc() << std::endl;
-  stream << "Data: ";
+  stream << "Data: " << std::endl;
+  BaseTelemetryDefinition::print(stream);
   stream << "RunID_: " << RunID() << "\n";
   stream << "lastCommandIndexHub_: " << lastCommandIndexHub_ << ", lastCommandIndexOrc_: " << lastCommandIndexOrc_
          << ", lastCommandIndexTPC_: " << lastCommandIndexTPC_ << ", lastCommandIndexTOF_: " << lastCommandIndexTOF_

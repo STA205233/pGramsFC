@@ -24,11 +24,11 @@ class MyApp < ANL::ANLApp
       with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}", chatter: 2, telemetry_type: "Base")
     end
     chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_HK"
-    with_parameters(topic: "Hub_Telemetry", chatter: 0)
+    with_parameters(topic: @inifile["Hub"]["iridiumteltopic"], chatter: 0)
     chain GRAMSBalloon::InterpretTelemetry, "InterpretHKTelemetry"
-    with_parameters(receiver_module_name: "ReceiveTelemetry_HK", run_ID_filename: ENV["HOME"] + "/settings/run_id/run_id_ground.txt", save_telemetry: true, num_telem_per_file: 1000, chatter: 2, telemetry_type: "HK")
+    with_parameters(receiver_module_name: "ReceiveTelemetry_HK", run_ID_filename: ENV["HOME"] + "/settings/run_id/run_id_ground.txt", save_telemetry: false, num_telem_per_file: 1000, chatter: 2, telemetry_type: "HK")
     chain GRAMSBalloon::PushToMySQL
-    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "pgrams", check_exist: true, chatter: 0)
+    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "pgrams", check_exist: true, chatter: 4)
   end
 end
 

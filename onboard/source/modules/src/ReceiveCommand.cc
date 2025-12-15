@@ -89,6 +89,7 @@ ANLStatus ReceiveCommand::mod_initialize() {
     SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
     if (exist_module(name)) {
       get_module_NC(name, &sendCommandToDAQComputer);
+      sendCommandToDAQComputers_.push_back(sendCommandToDAQComputer);
     }
     else {
       std::cerr << "Error in ReceiveCommand::mod_initialize: SendCommandToDAQComputer module " << name << " not found." << std::endl;
@@ -172,6 +173,10 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     for (int i = 0; i < argc; i++) {
       std::cout << "arguments[" << i << "]: " << arguments[i] << std::endl;
     }
+  }
+  if (sendTelemetry_) {
+    sendTelemetry_->setLastComIndex(Subsystem::HUB, commandIndex_);
+    sendTelemetry_->setLastComCode(Subsystem::HUB, code);
   }
 
   if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy1) && argc == 0) {
