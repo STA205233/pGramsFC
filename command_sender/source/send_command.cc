@@ -54,6 +54,11 @@ int main(int argc, char *argv[]) {
     std::cout << "Usage: send_command <command name> <arg list>" << std::endl;
     return 0;
   }
+  const int result_init = mosqpp::lib_init();
+  if (result_init != 0) {
+    std::cerr << "Initialization failed" << std::endl;
+    return -1;
+  }
 
   const std::string name(argv[1]);
   std::vector<int32_t> arg_array;
@@ -100,12 +105,6 @@ int main(int argc, char *argv[]) {
   std::cout << "Username: " << username << std::endl;
   std::cout << "Password: " << password << std::endl;
   CommandSender sender(host, port);
-  const int result = sender.open_mosquitto();
-  if (result != 0) {
-    std::cout << strerror(result) << std::endl;
-    std::cout << "Mosquitto connection error -> exit" << std::endl;
-    return result;
-  }
   if (username != "" && password != "") {
     const int auth_result = sender.authentication(username, password);
     if (auth_result != 0) {
@@ -113,6 +112,12 @@ int main(int argc, char *argv[]) {
       std::cout << "Authentication error -> exit" << std::endl;
       return auth_result;
     }
+  }
+  const int result = sender.open_mosquitto();
+  if (result != 0) {
+    std::cout << strerror(result) << std::endl;
+    std::cout << "Mosquitto connection error -> exit" << std::endl;
+    return result;
   }
 #ifdef SUBSYSTEM_NAME
   const std::string ini_filename = "../../settings/network.cfg";
@@ -135,6 +140,6 @@ int main(int argc, char *argv[]) {
 #endif
 
   sender.close_mosquitto();
-
+  mosqpp::lib_cleanup(); 
   return 0;
 }
