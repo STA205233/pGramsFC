@@ -70,13 +70,31 @@ int main(int argc, char *argv[]) {
     std::cout << "Command exception caught: " << e.print() << std::endl;
     return 1;
   }
-
-  std::string host = std::getenv("PGRAMS_MOSQUITTO_HOST");
-  std::string port_str = std::getenv("PGRAMS_MOSQUITTO_PORT");
-  std::string username = std::getenv("PGRAMS_MOSQUITTO_USER");
-  std::string password = std::getenv("PGRAMS_MOSQUITTO_PASSWD");
-
-  const int port = std::stoi(port_str);
+  std::string host;
+  if (const char* host__ = std::getenv("PGRAMS_MOSQUITTO_HOST")) {
+     host = host__;
+  }
+  else {
+    std::cerr << "host is not set" << std::endl;
+    return -1;
+  }
+  int port = 0;
+  if (const char* port__ = std::getenv("PGRAMS_MOSQUITTO_PORT")) {
+    port = std::stoi(port__);
+  }
+  else {
+    std::cerr << "port is not set" << std::endl;
+    return -1;
+  }
+  std::string username = "";
+  if (const char *username__ = std::getenv("PGRAMS_MOSQUITTO_USER")) {
+    username = username__;
+  }
+  std::string password = "";
+  if (const char *password__ = std::getenv("PGRAMS_MOSQUITTO_PASSWD")) {
+    password = password__;
+  }
+  
   std::cout << "Host: " << host << std::endl;
   std::cout << "Port: " << port << std::endl;
   std::cout << "Username: " << username << std::endl;
