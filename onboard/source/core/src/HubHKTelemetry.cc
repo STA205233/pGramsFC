@@ -416,10 +416,10 @@ void HubHKTelemetry::update() {
   setArguments(70, CompileData(spare_[9], spare_[10]));
   static_assert(NUM_TOF_BIAS % 2 == 0, "NUM_TOF_BIAS is expected to be even.");
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(71 + i, CompileData(tofBiasVoltage_[2 * i + 1], tofBiasVoltage_[2 * i + 2]));
+    setArguments(71 + i, CompileData(tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]));
   }
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(71 + NUM_TOF_BIAS / 2 + i, CompileData(tofBiasSetting_[2 * i + 1], tofBiasSetting_[2 * i + 2]));
+    setArguments(71 + NUM_TOF_BIAS / 2 + i, CompileData(tofBiasSetting_[2 * i], tofBiasSetting_[2 * i + 1]));
   }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
     setArguments(71 + NUM_TOF_BIAS + i, hubComputerErrorFlags_[i]);
