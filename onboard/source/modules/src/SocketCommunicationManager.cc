@@ -81,6 +81,11 @@ ANLStatus SocketCommunicationManager::mod_finalize() {
   return AS_OK;
 }
 int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n) {
+  //Flush stale data
+  std::vector<uint8_t> dummy;
+  while (singleton_self()->socketCommunication_->receive(dummy, true) > 0) {}
+  singleton_self()->ackBuffer_.clear();
+
   const int send_result = singleton_self()->socketCommunication_->send(buf, n);
   if (send_result < 0) {
     return send_result;
@@ -93,7 +98,17 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     std::cout << std::endl;
   }
   singleton_self()->ackBuffer_.clear();
-  singleton_self()->receive(singleton_self()->ackBuffer_);
+  //singleton_self()->receive(singleton_self()->ackBuffer_);
+
+  // Retry loop to wait for the ACK ---
+  int max_retries = 10;
+  while (singleton_self()->ackBuffer_.size() < ack_n && max_retries-- > 0) {
+    singleton_self()->receive(singleton_self()->ackBuffer_);
+    if (singleton_self()->ackBuffer_.size() < ack_n) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+  }
+
   const size_t acksz = singleton_self()->ackBuffer_.size();
   if (acksz != ack_n) {
     std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement size mismatch. Expected: " << ack_n << ", Received: " << acksz << std::endl;
