@@ -3,8 +3,10 @@
 namespace gramsballoon::pgrams {
 template <>
 int MosquittoIO<std::string>::Publish(const std::string &message, const std::string &topic, int qos) {
-  std::cout << "Publishing message: " << message << std::endl;
-  std::cout << "length: " << message.length() << std::endl;
+  if (verbose_ > 2)
+    std::cout << "Publishing message: " << message << std::endl;
+  if (verbose_ > 1)
+    std::cout << "length: " << message.length() << std::endl;
   return HandleError(publish(NULL, topic.c_str(), message.size(), message.data(), qos));
 }
 template <>

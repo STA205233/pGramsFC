@@ -113,6 +113,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     }
     return AS_OK;
   }
+  if (!distributeCommand_) return AS_OK;
   auto m_sptr = distributeCommand_->getAndPopPayload();
   if (sc->isConnected()) {
     if (chatter_ > 2) {

@@ -339,7 +339,6 @@ void HubHKTelemetry::update() {
   if (!contents) {
     setContents(std::make_shared<CommunicationFormat>());
   }
-  std::cout << "HubHKTelemetry::update(): sampleData_ = " << std::endl;
   setArgc(ARGC);
   setArguments(0, RunID());
   setArguments(1, lastCommandIndexHub_);
