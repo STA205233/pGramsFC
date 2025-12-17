@@ -117,7 +117,11 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     std::cerr << module_id() << "::sendAndWaitForAck: No data is received." << std::endl;
     failed = true;
   }
+  if (chatter_ > 2) {
+    std::cout << "ACK: ";
+  }
   for (size_t i = 0; i < acksz; ++i) {
+    if (chatter_ > 2) std::cout << static_cast<int>(singleton_self()->ackBuffer_[i]) << " ";
     if (singleton_self()->ackBuffer_[i] != ack[i]) {
       std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement data mismatch at " << i << ". Expected: " << static_cast<int>(ack[i]) << ", Received: " << static_cast<int>(singleton_self()->ackBuffer_[i]) << std::endl;
       failed = true;
@@ -126,6 +130,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   if (failed) {
     return -1;
   }
+  if (chatter_ > 2) std::cout << std::endl;
   return send_result;
 }
 int SocketCommunicationManager::receive(std::vector<uint8_t> &data) {
