@@ -4,8 +4,10 @@ from pGramsComSender.GUIgeometry import GUIGeometry
 from pGramsComSender.CommandExecuter import CommandExecuter
 from pGramsComSender.ConfirmationWindow import ConfirmationWindow
 from tkinter import messagebox
+import tkinter.ttk as ttk
 from tkinter.scrolledtext import ScrolledText
 import logging
+import math
 
 
 class TextHandler(logging.Handler):
@@ -46,19 +48,27 @@ class MainWindow(Window):
         bottom_width_ratio = 1.0 - blank_width_ratio
 
         window = super()._getWindow()
-        top_frame = tk.Frame(window, bg="lightgray")
+        top_frame = tk.Frame(window, bg="green")
         top_frame.place(relheight=top_height_ratio, relwidth=top_width_ratio, relx=blank_width_ratio / 2, rely=blank_height_ratio / 2, anchor="nw")
-        self.__label = tk.Label(top_frame, text=f"Select a command to send\nSelected command: {self.__current_command}", font=("Arial", 16,), background="lightgray", fg="black")
+        self.__label = tk.Label(top_frame, text=f"Select a command to send\nSelected command: {self.__current_command}", font=("Arial", 16,), background="lightgray", fg="white", bg="green", )
         self.__label.pack()
 
         mid_left_frame = tk.Frame(window)
         mid_left_frame.place(relheight=mid_height_ratio, relwidth=mid_left_width_ratio, relx=blank_width_ratio / 2, rely=top_height_ratio + blank_height_ratio / 2, anchor="nw")
-        num_commands = len(self.command_list)
-        num_columns = 2
-        num_rows = max(num_commands / num_columns, 20)
-        for cmd in self.command_list[self.current_subsystem]:
-            index = self.command_list[self.current_subsystem].index(cmd)
-            tk.Button(mid_left_frame, text=cmd, command=lambda c=cmd: self._on_command_click(c)).place(relwidth=0.4, relheight=1.0 / num_rows, anchor="nw", relx=(index // num_columns) * 0.4 + 0.1, rely=index % 2 * (1.0 / num_rows))
+
+        self.tabs = ttk.Notebook(mid_left_frame)
+
+        for subsystem in self.command_list.keys():
+            tab = ttk.Frame(self.tabs)
+            num_commands = len(self.command_list[subsystem])
+            num_columns = 2
+            num_rows = max(math.ceil(num_commands / num_columns), 20)
+            for i in range(len(self.command_list[subsystem])):
+                cmd = self.command_list[subsystem][i]
+                ttk.Button(tab, text=cmd, command=lambda c=cmd: self._on_command_click(c)).place(relwidth=0.4, relheight=1.0 / num_rows, anchor="nw", relx=(i % num_columns) * 0.4 + 0.1, rely=(i // num_columns) * (1.0 / num_rows))
+            self.tabs.add(tab, text=subsystem)
+        self.tabs.bind("<<NotebookTabChanged>>", self._on_click_tabs)
+        self.tabs.place(relheight=1.0, relwidth=1.0, relx=0.0, rely=0.0, anchor="nw")
 
         mid_right_frame = tk.Frame(window)
         mid_right_frame.place(relheight=mid_height_ratio, relwidth=mid_right_width_ratio, relx=mid_left_width_ratio + blank_width_ratio / 2, rely=top_height_ratio + blank_height_ratio / 2, anchor="nw")
@@ -105,7 +115,7 @@ class MainWindow(Window):
 
     @staticmethod
     def compile_command(command, args):
-        return f"{command} {args.replace(',', ' ')}"
+        return f"{command.replace(' ', '_').lower()} {args.replace(',', ' ')}"
 
     def reset_command(self):
         self.__current_command = None
@@ -115,13 +125,26 @@ class MainWindow(Window):
 
     def _on_send_command(self):
         args = self.__entry.get()
+        if self.__current_command is None:
+            messagebox.showwarning("No Command Selected", "Please select a command before sending.")
+            return
         command_all = self.compile_command(self.__current_command, args)
         if self.__current_command:
             window = super()._getWindow()
             ConfirmationWindow(window, self.__executer, self.current_subsystem, command_all)
-        else:
-            messagebox.showwarning("No Command Selected", "Please select a command before sending.")
+            self.reset_command()
 
     def run(self):
         window = super()._getWindow()
         window.mainloop()
+
+    def _on_click_tabs(self, event):
+        note = event.widget
+        self.current_subsystem = note.tab(note.select(), "text")
+        self.logger.debug(f"Tab changed: {self.current_subsystem}")
+        tab = event.widget.nametowidget(event.widget.select())
+        for child in tab.winfo_children():
+            try:
+                child.state(['!disabled'])
+            except Exception:
+                pass

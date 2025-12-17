@@ -1,4 +1,5 @@
 import subprocess
+import pathlib
 
 
 class CommandExecuter:
@@ -8,9 +9,9 @@ class CommandExecuter:
 
     def execute_command(self, command_all, subsystem) -> subprocess.CompletedProcess | None:
         try:
-            command_executed = f"{self.executable_prefix}_{subsystem} {command_all}".strip()
+            command_executed = f"{self.executable_prefix}_{subsystem.lower()} {command_all}".strip()
             self.logger.info(f"Executing command: {command_executed}")
-            result = subprocess.run(command_executed, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            result = subprocess.run(command_executed, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=pathlib.Path(f"{self.executable_prefix}_{subsystem}").parent)
             self.logger.info(f"Command executed successfully:\n{result.stdout.decode()}")
             return result
         except subprocess.CalledProcessError as e:
