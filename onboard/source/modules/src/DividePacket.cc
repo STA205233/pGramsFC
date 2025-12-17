@@ -183,5 +183,9 @@ void DividePacket::PushCurrentVector() {
   if (chatter_ > 1) {
     std::cout << "DividePacket::PushCurrentVector: Pushed an Iridium packet. Queue size: " << iridiumPacketQueue_->size() << std::endl;
   }
+  if (chatter_ > 3) {
+    std::cout << "Pushed Packet is: " << std::endl;
+    telem->print(std::cout);
+  }
 }
 } // namespace gramsballoon::pgrams

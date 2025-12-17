@@ -43,16 +43,21 @@ public:
   uint16_t Argc() const { return argc_; }
   const std::vector<int32_t> &Arguments() const { return arguments_; }
   void update();
-  void setCode(uint16_t code) { code_ = code; }
+  void setCode(uint16_t code) {
+    code_ = code;
+    updated_ = false;
+  }
   void setArgc(uint16_t argc) {
     argc_ = argc;
     arguments_.resize(argc_);
+    updated_ = false;
   }
   void setArguments(const std::vector<int32_t> &arguments) {
     setArgc(static_cast<uint16_t>(arguments.size()));
     for (uint16_t i = 0; i < argc_; ++i) {
       arguments_[i] = arguments[i];
     }
+    updated_ = false;
   }
   void setArguments(uint16_t index, int32_t argument) {
     if (index > argc_) {
@@ -60,6 +65,7 @@ public:
       return;
     }
     arguments_[index] = argument;
+    updated_ = false;
   }
   int32_t getArguments(uint16_t index) const {
     if (index < argc_) {
@@ -89,6 +95,7 @@ private:
   uint16_t code_ = 0;
   uint16_t argc_ = 0;
   std::vector<int32_t> arguments_;
+  bool updated_ = false;
 };
 template <typename T>
 inline bool CommunicationFormat::checkHeaderFooter(const T &v) {

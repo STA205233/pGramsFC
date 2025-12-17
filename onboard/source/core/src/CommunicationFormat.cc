@@ -15,6 +15,7 @@ bool CommunicationFormat::setData(const std::vector<uint8_t> &v) {
   }
   command_ = v;
   uint16_t argc = getValue<uint16_t>(6);
+  updated_ = true; // We believe the input
   return validate(v, argc);
 }
 
@@ -24,6 +25,7 @@ bool CommunicationFormat::setData(const std::string &s) {
   }
   command_.assign(s.begin(), s.end());
   uint16_t argc = getValue<uint16_t>(6);
+  updated_ = true; // We believe the input
   return validate(s, argc);
 }
 
@@ -33,6 +35,7 @@ void CommunicationFormat::interpret() {
 
   arguments_.clear();
   getVector<int32_t>(8, static_cast<int>(argc_), arguments_);
+  updated_ = false;
 }
 
 std::ostream &CommunicationFormat::write(std::ostream &stream) {
@@ -92,6 +95,9 @@ void CommunicationFormat::getVector(int index, int num, std::vector<T> &vec) {
   }
 }
 void CommunicationFormat::update() {
+  if (updated_) {
+    return;
+  }
   command_.clear();
   const int argc = arguments_.size();
   argc_ = static_cast<uint16_t>(argc);
@@ -116,5 +122,6 @@ void CommunicationFormat::update() {
   command_.push_back(0xa4);
   command_.push_back(0xd2);
   command_.push_back(0x79);
+  updated_ = true;
 }
 } // namespace gramsballoon::pgrams
