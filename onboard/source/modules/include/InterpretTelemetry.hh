@@ -45,7 +45,7 @@ public:
   anlnext::ANLStatus mod_finalize() override;
 
   std::shared_ptr<const ErrorManager> getErrorManager() const { return singleton_self()->errorManager_; }
-  int CurrentTelemetryType() { return singleton_self()->currentTelemetryType_; }
+  int CurrentTelemetryType() const { return singleton_self()->currentTelemetryType_; }
   std::string_view TelemetryType() {
     return singleton_self()->telemetryTypeStr_;
   }
@@ -58,6 +58,9 @@ public:
     if (singleton_self()->telemetry_) {
       singleton_self()->telemetry_->initializeDBTable(sink, table_name);
     }
+  }
+  const BaseTelemetryDefinition *getTelemetry() const {
+    return telemetry_.get();
   }
 
 private:

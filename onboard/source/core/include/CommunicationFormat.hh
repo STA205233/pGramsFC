@@ -21,7 +21,13 @@ class CommunicationFormat {
 public:
   CommunicationFormat();
 
+  /**
+   * @brief Set data from vector<uint8_t> with validation
+   */
   bool setData(const std::vector<uint8_t> &v);
+  /**
+   * @brief Set data from string with validation
+   */
   bool setData(const std::string &s);
 
   template <typename T>
@@ -73,8 +79,28 @@ public:
     }
     return 0;
   }
-  void setCommand(const std::vector<uint8_t> &command) { command_ = command; }
-  void setCommand(const std::string &command) { command_.assign(command.begin(), command.end()); }
+
+  /**
+   * @brief Set command data directly without validation (use with caution)
+   * @note Do not use this function when you want to interpret data. Use setData() instead.
+   */
+  void setCommand(const std::vector<uint8_t> &command) {
+    updated_ = true;
+    command_ = command;
+  }
+
+  /**
+   * @brief Set command data directly without validation (use with caution)
+   * @note Do not use this function when you want to interpret data. Use setData() instead.
+   */
+  void setCommand(const std::string &command) {
+    command_.assign(command.begin(), command.end());
+    updated_ = true;
+  }
+  /**
+   * @brief Print the command details to the given stream
+   * @note This function is not useful when the command is not interpreted yet.
+   */
   std::ostream &print(std::ostream &stream) {
     stream << "Code: " << static_cast<int>(code_) << std::endl;
     stream << "Argc: " << static_cast<int>(argc_) << std::endl;

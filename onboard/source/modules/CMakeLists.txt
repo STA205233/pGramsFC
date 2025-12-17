@@ -42,6 +42,7 @@ set(GB_MODULES
   #src/MeasureTemperatureWithRTDSensorByMHADC.cc
   src/SendCommandToDAQComputer.cc
   src/SendTelemetry.cc
+  src/SendArrayByMQTT.cc
 )
 
 

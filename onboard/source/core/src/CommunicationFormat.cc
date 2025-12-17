@@ -15,7 +15,6 @@ bool CommunicationFormat::setData(const std::vector<uint8_t> &v) {
   }
   command_ = v;
   uint16_t argc = getValue<uint16_t>(6);
-  updated_ = true; // We believe the input
   return validate(v, argc);
 }
 
@@ -25,7 +24,6 @@ bool CommunicationFormat::setData(const std::string &s) {
   }
   command_.assign(s.begin(), s.end());
   uint16_t argc = getValue<uint16_t>(6);
-  updated_ = true; // We believe the input
   return validate(s, argc);
 }
 

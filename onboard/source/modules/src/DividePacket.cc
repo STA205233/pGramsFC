@@ -183,9 +183,13 @@ void DividePacket::PushCurrentVector() {
   if (chatter_ > 1) {
     std::cout << "DividePacket::PushCurrentVector: Pushed an Iridium packet. Queue size: " << iridiumPacketQueue_->size() << std::endl;
   }
-  if (chatter_ > 3) {
+  if (chatter_ > 3 && telem->getContents()) {
     std::cout << "Pushed Packet is: " << std::endl;
-    telem->print(std::cout);
+    const auto &packet_bytes = telem->getContents()->Command();
+    for (const auto &byte: packet_bytes) {
+      std::cout << static_cast<int>(byte) << " ";
+    }
+    std::cout << std::endl;
   }
 }
 } // namespace gramsballoon::pgrams
