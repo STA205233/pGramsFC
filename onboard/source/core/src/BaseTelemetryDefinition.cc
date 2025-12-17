@@ -145,8 +145,14 @@ bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
     is_success = false;
   }
   try {
-    contents_->setData(c);
-    contents_->interpret();
+    const bool set_data_result = contents_->setData(c);
+    if (!set_data_result) {
+      std::cerr << "BaseTelemetryDefinition::parseJSON error: setdata failed" << std::endl;
+      is_success = false;
+    }
+    else {
+      contents_->interpret();
+    }
   }
   catch (const std::exception &e) {
     std::cerr << "BaseTelemetryDefinition::parseJSON error: command conversion failed: " << e.what() << std::endl;

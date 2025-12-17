@@ -70,15 +70,15 @@ public:
   void setCommand(const std::vector<uint8_t> &command) { command_ = command; }
   void setCommand(const std::string &command) { command_.assign(command.begin(), command.end()); }
   std::ostream &print(std::ostream &stream) {
-    stream << "Code: " << code_ << std::endl;
-    stream << "Argc: " << argc_ << std::endl;
+    stream << "Code: " << static_cast<int>(code_) << std::endl;
+    stream << "Argc: " << static_cast<int>(argc_) << std::endl;
     stream << "Argv: " << std::endl;
     int sz = argc_;
     if (argc_ > 10) {
       sz = 10;
     }
     for (int i = 0; i < sz; i++) {
-      stream << arguments_[i] << " ";
+      stream << static_cast<int>(arguments_[i]) << " ";
     }
     stream << std::endl;
     return stream;

@@ -113,7 +113,7 @@ public:
     stream << "BaseTelemetryDefinition" << std::endl;
     stream << "Time: " << timeStamp_ << std::endl;
     stream << "Index: " << index_ << std::endl;
-    stream << "Subsystem" << static_cast<int>(subsystem_) << std::endl;
+    stream << "Subsystem: " << static_cast<int>(subsystem_) << std::endl;
     return contents_->print(stream);
   }
   template <typename Iter, size_t N = 4>
