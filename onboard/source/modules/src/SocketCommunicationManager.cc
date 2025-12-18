@@ -101,7 +101,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   // Retry loop to wait for the ACK ---
   const int max_retries = 10;
   int entry = 0;
-  while (singleton_self()->ackBuffer_.size() < ack_n && entry < max_entries) {
+  while (singleton_self()->ackBuffer_.size() < ack_n && entry < max_retries) {
     singleton_self()->receive(singleton_self()->ackBuffer_);
     if (singleton_self()->ackBuffer_.size() < ack_n) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
