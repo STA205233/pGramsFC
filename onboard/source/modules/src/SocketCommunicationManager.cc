@@ -74,12 +74,6 @@ ANLStatus SocketCommunicationManager::mod_initialize() {
   return AS_OK;
 }
 ANLStatus SocketCommunicationManager::mod_analyze() {
-  if (socketCommunication_->isFailed()) {
-    auto socket_communication_temp = new SocketCommunication(ioContext_, port_);
-    if (!socket_communication_temp->isFailed()) {
-      socketCommunication_.reset(socket_communication_temp);
-    }
-  }
   return AS_OK;
 }
 ANLStatus SocketCommunicationManager::mod_finalize() {

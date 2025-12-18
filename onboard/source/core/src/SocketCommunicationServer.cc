@@ -38,14 +38,15 @@ SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context
   sockMutex_ = std::make_shared<std::mutex>();
 }
 SocketCommunication::~SocketCommunication() {
-  if (socket_) {
-    stopped_->store(true, std::memory_order_release);
-    socket_->close();
-    socket_.reset();
+  if (!stopped_) {
+    close();
   }
   if (acceptor_) {
     acceptor_->close();
     acceptor_.reset();
+  }
+  if (ioContext_) {
+    ioContext_.reset();
   }
 }
 void SocketCommunication::accept() {

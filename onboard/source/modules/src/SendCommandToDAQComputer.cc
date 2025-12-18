@@ -66,15 +66,7 @@ ANLStatus SendCommandToDAQComputer::mod_initialize() {
   return AS_OK;
 }
 ANLStatus SendCommandToDAQComputer::mod_analyze() {
-  if (!socketCommunicationManager_) {
-    std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
-    return AS_OK;
-  }
-  auto sc = socketCommunicationManager_->getSocketCommunication();
-  if (!sc) {
-    std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
-    return AS_OK;
-  }
+  if (!distributeCommand_) return AS_OK;
   if (EmergencyDaqShutdown()) {
     if (chatter_ > 0) {
       std::cout << module_id() << ": Emergency DAQ shutdown received. Skipping sending commands to DAQ computer." << std::endl;
@@ -83,6 +75,15 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     if (exists_command) {
       if (chatter_ > 0) {
         std::cout << module_id() << ": Sending emergency DAQ shutdown command." << std::endl;
+      }
+      if (!socketCommunicationManager_) {
+        std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
+        return AS_OK;
+      }
+      auto sc = socketCommunicationManager_->getSocketCommunication();
+      if (!sc) {
+        std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
+        return AS_OK;
       }
       if (!sc->isConnected()) {
         if (chatter_ > 1) {
@@ -113,8 +114,25 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     }
     return AS_OK;
   }
-  if (!distributeCommand_) return AS_OK;
   auto m_sptr = distributeCommand_->getAndPopPayload();
+  if (!socketCommunicationManager_) {
+    std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
+    return AS_OK;
+  }
+  auto sc = socketCommunicationManager_->getSocketCommunication();
+  if (!sc) {
+    std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
+    return AS_OK;
+  }
+  if (!sc->isConnected()) {
+    if (chatter_ > 1) {
+      std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
+    }
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+    }
+    failed_ = true;
+  }
   if (sc->isConnected()) {
     if (chatter_ > 2) {
       std::cout << module_id() << ": SocketCommunication is connected." << std::endl;
@@ -176,21 +194,6 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqFormatErrorType(subsystem_, true));
     }
-
-    // TODO: How does we handle this error?
-    //const int send_result = socketCommunicationManager_->sendAndWaitForAck(m_sptr->payload, commandAck_->Command()); // TODO: this depends on telemetry definition.
-    //if (send_result < 0) {
-    //  std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending command is failed" << std::endl;
-    //  failed_ = true;
-    //  if (sendTelemetry_) {
-    //    sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
-    //  }
-    //}
-    //else if (chatter_ > 0) {
-    //  std::cout << "Sent data from " << m_sptr->topic << std::endl;
-    //  std::cout << "Payload size: " << send_result << std::endl;
-    //}
-    socketCommunicationManager_->send(&m_sptr->payload[0], m_sptr->payload.size());
     return AS_OK;
   }
   currentCommand_->interpret();

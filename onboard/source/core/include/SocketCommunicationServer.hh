@@ -64,15 +64,15 @@ public:
   }
   int close() {
     std::lock_guard<std::mutex> lock(*sockMutex_);
+    if (ioContext_) {
+      ioContext_->stop();
+    }
     if (socketAccepted_) {
       socketAccepted_->close();
       socketAccepted_.reset();
     }
     socket_->close();
     stopped_->store(true, std::memory_order_release);
-    if (ioContext_) {
-      ioContext_->stop();
-    }
     return 0;
   }
   std::string getIP() const {
