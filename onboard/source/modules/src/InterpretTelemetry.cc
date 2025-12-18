@@ -6,31 +6,42 @@ using namespace anlnext;
 
 namespace gramsballoon::pgrams {
 
-template <typename TelemType>
-InterpretTelemetry<TelemType>::InterpretTelemetry() {
+InterpretTelemetry::InterpretTelemetry() {
   errorManager_ = std::make_shared<ErrorManager>();
   binaryFilenameBase_ = "Telemetry";
   runIDFilename_ = "/Users/grams/settings/run_id/run_id.txt";
   receiverModuleName_ = "ReceiveTelemetry";
-  telemetry_ = std::make_shared<TelemType>(true);
   telemetrySaver_ = std::make_shared<CommunicationSaver<std::string>>();
 }
 
-template <typename TelemType>
-ANLStatus InterpretTelemetry<TelemType>::mod_define() {
+ANLStatus InterpretTelemetry::mod_define() {
   define_parameter("save_telemetry", &mod_class::saveTelemetry_);
+  set_parameter_description("Switch for saving telemetry");
   define_parameter("num_telem_per_file", &mod_class::numTelemPerFile_);
+  set_parameter_description("number of packet per a file. This parameter is valid only when save_telemetry is true");
   define_parameter("run_ID_filename", &mod_class::runIDFilename_);
+  set_parameter_description("Filename of run id, This paramater is valid only when save_telemetry is true");
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("receiver_module_name", &mod_class::receiverModuleName_);
+  define_parameter("telemetry_type", &mod_class::telemetryTypeStr_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
 
-template <typename TelemType>
-ANLStatus InterpretTelemetry<TelemType>::mod_initialize() {
+ANLStatus InterpretTelemetry::mod_initialize() {
   if (exist_module(receiverModuleName_)) {
     get_module_NC(receiverModuleName_, &receiver_);
+  }
+  if (telemetryTypeStr_ == "HK") {
+    telemetry_ = std::make_shared<HubHKTelemetry>(true);
+  }
+  else if (telemetryTypeStr_ == "Base") {
+    telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
+  }
+
+  else {
+    std::cerr << module_name() << "::mod_initialize: Unknown telemetry type " << telemetryTypeStr_ << std::endl;
+    telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
   }
 #ifdef USE_HSQUICKLOOK
   const std::string pusher_module_name = "PushToMongoDB";
@@ -45,8 +56,7 @@ ANLStatus InterpretTelemetry<TelemType>::mod_initialize() {
   return AS_OK;
 }
 
-template <typename TelemType>
-ANLStatus InterpretTelemetry<TelemType>::mod_analyze() {
+ANLStatus InterpretTelemetry::mod_analyze() {
   if (receiver_ == nullptr) {
     std::cerr << module_name() << "::mod_analyze: Receiver is nullptr" << std::endl;
     return AS_ERROR;
@@ -56,7 +66,7 @@ ANLStatus InterpretTelemetry<TelemType>::mod_analyze() {
     return AS_OK;
   }
 
-  currentTelemetryType_ = 0;
+  currentTelemetryType_ = 1;
   const auto &telemetry = receiver_->Telemetry();
   const bool status = interpret(telemetry);
   const bool failed = !status;
@@ -71,13 +81,11 @@ ANLStatus InterpretTelemetry<TelemType>::mod_analyze() {
   return AS_OK;
 }
 
-template <typename TelemType>
-ANLStatus InterpretTelemetry<TelemType>::mod_finalize() {
+ANLStatus InterpretTelemetry::mod_finalize() {
   return AS_OK;
 }
 
-template <typename TelemType>
-void InterpretTelemetry<TelemType>::updateRunIDFile() {
+void InterpretTelemetry::updateRunIDFile() {
   const std::string time_stamp_str = getTimeStr();
   std::ofstream ofs(runIDFilename_, std::ios::app | std::ios::out);
   ofs << currentRunID_ << " " << time_stamp_str << "\n";
@@ -85,11 +93,10 @@ void InterpretTelemetry<TelemType>::updateRunIDFile() {
   ofs.close();
 }
 
-template <typename TelemType>
-bool InterpretTelemetry<TelemType>::interpret(const std::string &telemetryStr) {
+bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
   if (!telemetry_) return false;
   const bool result = telemetry_->parseJSON(telemetryStr);
-  if constexpr (std::is_same<TelemType, HubHKTelemetry>::value) {
+  if (telemetryTypeStr_ == "HK") {
     if (result && currentRunID_ < 0) {
       currentRunID_ = telemetry_->RunID();
       updateRunIDFile();
@@ -101,18 +108,4 @@ bool InterpretTelemetry<TelemType>::interpret(const std::string &telemetryStr) {
   return result;
 }
 
-template InterpretTelemetry<BaseTelemetryDefinition>::InterpretTelemetry();
-template InterpretTelemetry<HubHKTelemetry>::InterpretTelemetry();
-template ANLStatus InterpretTelemetry<BaseTelemetryDefinition>::mod_define();
-template ANLStatus InterpretTelemetry<HubHKTelemetry>::mod_define();
-template ANLStatus InterpretTelemetry<BaseTelemetryDefinition>::mod_initialize();
-template ANLStatus InterpretTelemetry<HubHKTelemetry>::mod_initialize();
-template ANLStatus InterpretTelemetry<BaseTelemetryDefinition>::mod_analyze();
-template ANLStatus InterpretTelemetry<HubHKTelemetry>::mod_analyze();
-template ANLStatus InterpretTelemetry<BaseTelemetryDefinition>::mod_finalize();
-template ANLStatus InterpretTelemetry<HubHKTelemetry>::mod_finalize();
-template bool InterpretTelemetry<BaseTelemetryDefinition>::interpret(const std::string &);
-template bool InterpretTelemetry<HubHKTelemetry>::interpret(const std::string &);
-template void InterpretTelemetry<BaseTelemetryDefinition>::updateRunIDFile();
-template void InterpretTelemetry<HubHKTelemetry>::updateRunIDFile();
 } // namespace gramsballoon::pgrams

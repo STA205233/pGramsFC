@@ -12,7 +12,7 @@ ANLStatus Sleep::mod_define() {
 }
 ANLStatus Sleep::mod_analyze() {
   if (sleep_sec > 0) {
-    std::cout << "Sleeping for " << sleep_sec << " seconds" << std::endl;
+    //std::cout << "Sleeping for " << sleep_sec << " seconds" << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(sleep_sec));
   }
   return AS_OK;

@@ -34,6 +34,7 @@ ANLStatus MosquittoManager<T>::mod_pre_initialize() {
     std::cerr << "Error in MosquittoManager::mod_pre_initialize: passwd is set but user is empty." << std::endl;
     return AS_ERROR;
   }
+  // FIXME: Must call mosqpp::lib_init and lib_cleanup
   mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
   mosquittoIO_->setVerbose(chatter_);
   return AS_OK;

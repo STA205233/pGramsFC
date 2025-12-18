@@ -25,6 +25,7 @@ ReceiveCommand::~ReceiveCommand() = default;
 ANLStatus ReceiveCommand::mod_define() {
   define_parameter("timeout_sec", &mod_class::timeoutSec_);
   define_parameter("save_command", &mod_class::saveCommand_);
+  define_parameter("SendCommandToDAQComputer_names", &mod_class::sendCommandToDAQComputerNames_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_command_per_file", &mod_class::numCommandPerFile_);
   define_parameter("topic", &mod_class::topic_);
@@ -83,6 +84,21 @@ ANLStatus ReceiveCommand::mod_initialize() {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
     }
   }
+
+  for (const auto &name: sendCommandToDAQComputerNames_) {
+    SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
+    if (exist_module(name)) {
+      get_module_NC(name, &sendCommandToDAQComputer);
+      sendCommandToDAQComputers_.push_back(sendCommandToDAQComputer);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: SendCommandToDAQComputer module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+
   if (saveCommand_) {
     commandSaver_->setBinaryFilenameBase(binaryFilenameBase_);
     if (runIDManager_) {
@@ -157,6 +173,10 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     for (int i = 0; i < argc; i++) {
       std::cout << "arguments[" << i << "]: " << arguments[i] << std::endl;
     }
+  }
+  if (sendTelemetry_) {
+    sendTelemetry_->setLastComIndex(Subsystem::HUB, commandIndex_);
+    sendTelemetry_->setLastComCode(Subsystem::HUB, code);
   }
 
   if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy1) && argc == 0) {
@@ -239,7 +259,11 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
-    // TODO: Implement emergency DAQ shutdown procedure
+    for (auto &sendCommandToDAQComputer: sendCommandToDAQComputers_) {
+      if (sendCommandToDAQComputer) {
+        sendCommandToDAQComputer->setEmergencyDaqShutdown(true);
+      }
+    }
     return true;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Reset_Error) && argc == 0) {

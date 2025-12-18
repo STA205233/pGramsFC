@@ -3,6 +3,12 @@
 #include "BaseTelemetryDefinition.hh"
 #include "ErrorManager.hh"
 namespace gramsballoon::pgrams {
+/**
+ * @brief Hub Housekeeping Telemetry Definition
+ * @author Shota Arai
+ * @date 2025-11-** | Shota Arai | First design
+ * @date 2025-12-15 | Shota Arai | Added serialize and initializeDBTable methods
+ */
 class HubHKTelemetry: public BaseTelemetryDefinition {
 public:
   HubHKTelemetry(bool instantiateContents) : BaseTelemetryDefinition(instantiateContents) {
@@ -13,10 +19,19 @@ public:
   static constexpr size_t NUM_TOF_BIAS = 130;
   static constexpr size_t NUM_RTD_IN_CHAMBER = 7;
   static constexpr size_t NUM_PDU_HV_TEMP = 2;
-  static constexpr size_t NUM_PDU = 6;
+  static constexpr size_t NUM_PDU_SIPM = 6;
   static constexpr size_t ARGC = 207;
   static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
   static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
+  static constexpr size_t NUM_RTD_GONDOLA = 4;
+  static constexpr size_t NUM_RTD_SHAPER_BOARD = 6;
+  static constexpr size_t NUM_PDU_CPU = 7;
+  static constexpr size_t NUM_PDU_TOF_TELEMETRY = 6;
+  static constexpr size_t NUM_SPARE = 11;
+
+public:
+  void serialize(DBFieldSink *sink) const override;
+  void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const override;
 
 private:
   uint16_t lastCommandCodeHub_ = 0;
@@ -31,8 +46,8 @@ private:
   uint32_t lastCommandIndexQM_ = 0;
 
   // PDU
-  std::array<uint16_t, NUM_PDU> pduVolSiPM_ = {0};
-  std::array<uint16_t, NUM_PDU> pduCurSiPM_ = {0};
+  std::array<uint16_t, NUM_PDU_SIPM> pduVolSiPM_ = {0};
+  std::array<uint16_t, NUM_PDU_SIPM> pduCurSiPM_ = {0};
   uint16_t pduCurTPCHV_ = 0;
   std::array<uint16_t, NUM_PDU_HV_TEMP> pduHVTemp_ = {0};
   uint16_t pduComsBoardTemp_ = 0;
@@ -46,7 +61,7 @@ private:
   uint16_t pduChargePreAmpM5VVol_ = 0;
   uint16_t pduChargePreAmpM5VCur_ = 0;
   uint16_t pduChargePreAmpTemp_ = 0;
-  std::array<uint16_t, 6> pduToFTelemetry_ = {0}; // TBD
+  std::array<uint16_t, NUM_PDU_TOF_TELEMETRY> pduToFTelemetry_ = {0}; // TBD
   uint16_t pduCaenNevisP12VVol_ = 0;
   uint16_t pduCaenNevisP12VCur_ = 0;
   uint16_t pduCaenNevisM5VVol_ = 0;
@@ -56,15 +71,14 @@ private:
   uint16_t pduCaenNevisP3V3Cur_ = 0;
   uint16_t pduCaenNevisP3V3Vol_ = 0;
   uint16_t pduWarmTPCShaperPVol_ = 0;
-  uint16_t pduCaenNevisPM5VTempMon_ = 0;
+  uint16_t pduCaenNevisPM5VTemp_ = 0;
   uint16_t pduWarmTPCShaperTemp_ = 0;
   uint16_t pduWarmTPCShaperMVol_ = 0;
   std::array<uint16_t, NUM_PDU_WARM_TPC_SHAPER> pduWarmTPCShaperPCur_ = {0};
   std::array<uint16_t, NUM_PDU_WARM_TPC_SHAPER> pduWarmTPCShaperMCur_ = {0};
-
-  std::array<uint16_t, 7> pduCPUCur_ = {0}; // TBD
+  std::array<uint16_t, NUM_PDU_CPU> pduCPUCur_ = {0}; // TBD
   uint16_t reserved1_ = 0;
-  std::array<uint16_t, 7> pduCPUVol_ = {0}; // TBD
+  std::array<uint16_t, NUM_PDU_CPU> pduCPUVol_ = {0}; // TBD
   uint16_t reserved2_ = 0;
   uint16_t pduTofP5VVol_ = 0;
   uint16_t pduTofP5VCur_ = 0;
@@ -75,14 +89,12 @@ private:
   uint16_t pduMainDCDCTemp_ = 0;
 
   // MHADC
-  static constexpr int NUM_RTD_GONDOLA = 4;
   std::array<uint16_t, NUM_RTD_GONDOLA> rtdGondolaFrame_ = {0};
   uint16_t rtdDaqCrate1_ = 0;
   uint16_t rtdDaqCrate2_ = 0;
   uint16_t rtdDaqCrateBackup_ = 0;
   uint16_t rtdShaperFaradayCage1_ = 0;
   uint16_t rtdShaperFaradayCage2_ = 0;
-  static constexpr int NUM_RTD_SHAPER_BOARD = 6;
   std::array<uint16_t, NUM_RTD_SHAPER_BOARD> rtdShaperBoard_ = {0};
   uint16_t rtdHubComputerLocation1_ = 0;
   uint16_t rtdHubComputerLocation2_ = 0;
@@ -98,7 +110,7 @@ private:
   uint16_t liquidLevelMeter_ = 0;
   uint16_t inclinometer_ = 0;
   std::array<uint16_t, NUM_RTD_IN_CHAMBER> rtdsInsideChamber_ = {0};
-  std::array<uint16_t, 11> spare_ = {0};
+  std::array<uint16_t, NUM_SPARE> spare_ = {0};
 
   //Tof bias
   std::array<uint16_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
@@ -149,34 +161,34 @@ public:
   inline void setLastCommandIndexQM(uint32_t v) { lastCommandIndexQM_ = v; }
   inline uint32_t LastCommandIndexQM() const { return lastCommandIndexQM_; }
 
-  inline void setPduVolSiPM(const std::array<uint16_t, NUM_PDU> &v) { pduVolSiPM_ = v; }
-  inline const std::array<uint16_t, NUM_PDU> &PduVolSiPM() const { return pduVolSiPM_; }
+  inline void setPduVolSiPM(const std::array<uint16_t, NUM_PDU_SIPM> &v) { pduVolSiPM_ = v; }
+  inline const std::array<uint16_t, NUM_PDU_SIPM> &PduVolSiPM() const { return pduVolSiPM_; }
   inline void setPduVolSiPM(size_t idx, uint16_t v) {
-    if (idx >= NUM_PDU) {
+    if (idx >= NUM_PDU_SIPM) {
       std::cerr << "setPduVolSiPM: index out of range: " << idx << std::endl;
       return;
     }
     pduVolSiPM_[idx] = v;
   }
   inline uint16_t PduVolSiPM(size_t idx) const {
-    if (idx >= NUM_PDU) {
+    if (idx >= NUM_PDU_SIPM) {
       std::cerr << "PduVolSiPM: index out of range: " << idx << std::endl;
       return 0;
     }
     return pduVolSiPM_[idx];
   }
 
-  inline void setPduCurSiPM(const std::array<uint16_t, NUM_PDU> &v) { pduCurSiPM_ = v; }
-  inline const std::array<uint16_t, NUM_PDU> &PduCurSiPM() const { return pduCurSiPM_; }
+  inline void setPduCurSiPM(const std::array<uint16_t, NUM_PDU_SIPM> &v) { pduCurSiPM_ = v; }
+  inline const std::array<uint16_t, NUM_PDU_SIPM> &PduCurSiPM() const { return pduCurSiPM_; }
   inline void setPduCurSiPM(size_t idx, uint16_t v) {
-    if (idx >= NUM_PDU) {
+    if (idx >= NUM_PDU_SIPM) {
       std::cerr << "setPduCurSiPM: index out of range: " << idx << std::endl;
       return;
     }
     pduCurSiPM_[idx] = v;
   }
   inline uint16_t PduCurSiPM(size_t idx) const {
-    if (idx >= NUM_PDU) {
+    if (idx >= NUM_PDU_SIPM) {
       std::cerr << "PduCurSiPM: index out of range: " << idx << std::endl;
       return 0;
     }
@@ -280,8 +292,8 @@ public:
   inline void setPduWarmTPCShaperPVol(uint16_t v) { pduWarmTPCShaperPVol_ = v; }
   inline uint16_t PduWarmTPCShaperPVol() const { return pduWarmTPCShaperPVol_; }
 
-  inline void setPduCaenNevisPM5VTempMon(uint16_t v) { pduCaenNevisPM5VTempMon_ = v; }
-  inline uint16_t PduCaenNevisPM5VTempMon() const { return pduCaenNevisPM5VTempMon_; }
+  inline void setPduCaenNevisPM5VTemp(uint16_t v) { pduCaenNevisPM5VTemp_ = v; }
+  inline uint16_t PduCaenNevisPM5VTemp() const { return pduCaenNevisPM5VTemp_; }
 
   inline void setPduWarmTPCShaperTemp(uint16_t v) { pduWarmTPCShaperTemp_ = v; }
   inline uint16_t PduWarmTPCShaperTemp() const { return pduWarmTPCShaperTemp_; }

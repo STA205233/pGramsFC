@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.14)
 
-# CMAKE_MINIMUM_REQUIRED_VERSION(VERSION 3.14)
 
 # ## Initial definition of cmake variables
 set(CMAKE_INSTALL_PREFIX $ENV{HOME} CACHE PATH "install prefix")
@@ -46,6 +45,14 @@ option(GB_INSTALL_HEADERS "install all header files" ON)
 option(GB_INSTALL_CMAKE_FILES "install all cmake files" ON)
 set(INSTALL_HEADERS ${GB_INSTALL_HEADERS})
 set(INSTALL_CMAKE_FILES ${GB_INSTALL_CMAKE_FILES})
+
+set(GB_PGRAMSBALLOON_PATH ".." CACHE PATH "path to pGramsBalloon")
+if(EXISTS "${GB_PGRAMSBALLOON_PATH}/include/CommunicationCodes.hh")
+  message("-- Found pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
+else()
+  message(FATAL_ERROR "-- Could not find pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
+endif()
+set(GB_PGRAMSBALLOON_INC_DIR "${GB_PGRAMSBALLOON_PATH}/include")
 
 # # shortcut options
 option(GB_MAC "shortcut" OFF)
@@ -140,12 +147,15 @@ if(GB_USE_MYSQL)
   message(STATUS "MYSQL_LIB_DIR: ${MYSQL_INC_DIR}")
   message(STATUS "MYSQL_LIB_DIR: ${MYSQL_LIB_DIR}")
   message(STATUS "MYSQL_LIB: ${MYSQL_LIB}")
+  list(APPEND cxx_definitions "-DUSE_MYSQL")
 endif(GB_USE_MYSQL)
 
 # Mosquitto
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp REQUIRED)
 set(MOSQUITTO_LIB PkgConfig::Mosquitto)
+
+
 
 # ## subdirectories
 add_subdirectory(source)

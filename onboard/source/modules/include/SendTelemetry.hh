@@ -81,7 +81,8 @@ private:
   uint32_t telemIndex_ = 0;
   std::string binaryFilenameBase_ = "";
   int numTelemPerFile_ = 1000;
-  int sleepms_ = 500;
+  int minimumSendTime_ = 1000; // in milliseconds
+  std::chrono::steady_clock::time_point lastSendTime_;
   int chatter_ = 0;
   std::string telemetryStr_ = "";
 

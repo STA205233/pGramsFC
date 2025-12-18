@@ -1,5 +1,7 @@
 #include "SocketCommunicationManager.hh"
 #include <sys/select.h>
+#include <chrono>
+#include <thread>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus SocketCommunicationManager::mod_define() {
@@ -81,7 +83,10 @@ ANLStatus SocketCommunicationManager::mod_finalize() {
   return AS_OK;
 }
 int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n) {
-  //Flush stale data
+  if (!singleton_self()->socketCommunication_) {
+    return -1;
+  }
+  
   while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_, true) > 0) {}
   singleton_self()->ackBuffer_.clear();
 
@@ -98,7 +103,6 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   }
   singleton_self()->ackBuffer_.clear();
 
-  // Retry loop to wait for the ACK ---
   const int max_retries = 10;
   int entry = 0;
   while (singleton_self()->ackBuffer_.size() < ack_n && entry < max_retries) {
@@ -115,7 +119,15 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     return -ack_n;
   }
   bool failed = false;
+  if (acksz == 0) {
+    std::cerr << module_id() << "::sendAndWaitForAck: No data is received." << std::endl;
+    failed = true;
+  }
+  if (chatter_ > 2) {
+    std::cout << "ACK: ";
+  }
   for (size_t i = 0; i < acksz; ++i) {
+    if (chatter_ > 2) std::cout << static_cast<int>(singleton_self()->ackBuffer_[i]) << " ";
     if (singleton_self()->ackBuffer_[i] != ack[i]) {
       std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement data mismatch at " << i << ". Expected: " << static_cast<int>(ack[i]) << ", Received: " << static_cast<int>(singleton_self()->ackBuffer_[i]) << std::endl;
       failed = true;
@@ -124,9 +136,13 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   if (failed) {
     return -1;
   }
+  if (chatter_ > 2) std::cout << std::endl;
   return send_result;
 }
 int SocketCommunicationManager::receive(std::vector<uint8_t> &data) {
+  if (!singleton_self()->socketCommunication_) {
+    return -1;
+  }
   const int ret = singleton_self()->socketCommunication_->receive(data);
   if (ret <= 0) {
     return ret;

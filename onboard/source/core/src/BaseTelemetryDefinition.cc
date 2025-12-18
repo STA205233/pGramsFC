@@ -78,6 +78,17 @@ std::string BaseTelemetryDefinition::getTimeString(std::time_t t) {
   std::strftime(buffer, sizeof(buffer), "%m%d%H%M%S", std::localtime(&t));
   return std::string(buffer);
 }
+void BaseTelemetryDefinition::initializeDBTable(DBFieldSink *sink, const std::string &table_name) const {
+  sink->initializeTable(table_name);
+  sink->addField("send_time", static_cast<uint64_t>(timeStamp_));
+  sink->addField("subsystem", static_cast<uint16_t>(subsystem_));
+  sink->addField("telemetry_index", index_);
+}
+void BaseTelemetryDefinition::serialize(DBFieldSink *sink) const {
+  sink->setFieldValue("send_time", static_cast<uint64_t>(timeStamp_));
+  sink->setFieldValue("subsystem", static_cast<uint16_t>(subsystem_));
+  sink->setFieldValue("telemetry_index", index_);
+}
 bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
   bool is_success = true;
   constructed_ = false;
@@ -134,8 +145,14 @@ bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
     is_success = false;
   }
   try {
-    contents_->setData(c);
-    contents_->interpret();
+    const bool set_data_result = contents_->setData(c);
+    if (!set_data_result) {
+      std::cerr << "BaseTelemetryDefinition::parseJSON error: setdata failed" << std::endl;
+      is_success = false;
+    }
+    else {
+      contents_->interpret();
+    }
   }
   catch (const std::exception &e) {
     std::cerr << "BaseTelemetryDefinition::parseJSON error: command conversion failed: " << e.what() << std::endl;

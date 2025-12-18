@@ -75,15 +75,57 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
     return AS_OK;
   }
+  if (EmergencyDaqShutdown()) {
+    if (chatter_ > 0) {
+      std::cout << module_id() << ": Emergency DAQ shutdown received. Skipping sending commands to DAQ computer." << std::endl;
+    }
+    const bool exists_command = makeDAQEmergencyShutdownCommand();
+    if (exists_command) {
+      if (chatter_ > 0) {
+        std::cout << module_id() << ": Sending emergency DAQ shutdown command." << std::endl;
+      }
+      if (!sc->isConnected()) {
+        if (chatter_ > 1) {
+          std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
+        }
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+        }
+        failed_ = true;
+      }
+      else {
+        const int send_result = socketCommunicationManager_->sendAndWaitForAck(currentCommand_->Command(), commandAck_->Command());
+        if (send_result < 0) {
+          std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending emergency DAQ shutdown command is failed" << std::endl;
+          if (sendTelemetry_) {
+            sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+          }
+        }
+        else if (chatter_ > 0) {
+          std::cout << "Sent emergency DAQ shutdown command" << std::endl;
+        }
+      }
+      commandIndex_++;
+      if (sendTelemetry_) {
+        sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
+        sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
+      }
+    }
+    return AS_OK;
+  }
+  if (!distributeCommand_) return AS_OK;
   auto m_sptr = distributeCommand_->getAndPopPayload();
   if (sc->isConnected()) {
     if (chatter_ > 2) {
-      std::cout << "SocketCommunication is connected." << std::endl;
+      std::cout << module_id() << ": SocketCommunication is connected." << std::endl;
     }
   }
-  else {
-    if (chatter_ > 2) {
-      std::cout << "SocketCommunication is not connected." << std::endl;
+  else if (m_sptr) { // Although there is a command to send, the socket is not connected.
+    if (chatter_ > 1) {
+      std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
+    }
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
     }
     failed_ = true;
     m_sptr.reset();
@@ -125,22 +167,38 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
   if (!currentCommand_) {
     currentCommand_ = std::make_shared<CommunicationFormat>();
   }
+  if (!commandAck_) {
+    commandAck_ = std::make_shared<CommunicationFormat>();
+  }
   const bool success = currentCommand_->setData(m_sptr->payload);
   if (!success) {
     std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Setting data to CommunicationFormat failed." << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqFormatErrorType(subsystem_, true));
     }
+
+    // TODO: How does we handle this error?
+    //const int send_result = socketCommunicationManager_->sendAndWaitForAck(m_sptr->payload, commandAck_->Command()); // TODO: this depends on telemetry definition.
+    //if (send_result < 0) {
+    //  std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending command is failed" << std::endl;
+    //  failed_ = true;
+    //  if (sendTelemetry_) {
+    //    sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+    //  }
+    //}
+    //else if (chatter_ > 0) {
+    //  std::cout << "Sent data from " << m_sptr->topic << std::endl;
+    //  std::cout << "Payload size: " << send_result << std::endl;
+    //}
+    socketCommunicationManager_->send(&m_sptr->payload[0], m_sptr->payload.size());
     return AS_OK;
   }
   currentCommand_->interpret();
   if (chatter_ > 1) {
-    std::cout << "Sending command:" << std::endl;
+    std::cout << module_id() << ": Sending command:" << std::endl;
     currentCommand_->print(std::cout);
   }
-  if (!commandAck_) {
-    commandAck_ = std::make_shared<CommunicationFormat>();
-  }
+
   commandAck_->setCode(currentCommand_->Code());
   commandAck_->setArgc(1); // size of the command
   commandAck_->setArguments(0, currentCommand_->Command().size());
@@ -154,23 +212,47 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     }
   }
   else if (chatter_ > 0) {
-    std::cout << "Sent data from " << m_sptr->topic << std::endl;
-    std::cout << "Payload size: " << send_result << std::endl;
+    std::cout << module_id() << ": Sent data from " << m_sptr->topic << std::endl;
+    std::cout << module_id() << ": Payload size: " << send_result << std::endl;
   }
-  else {
-    commandIndex_++;
-    if (sendTelemetry_) {
-      sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
-      sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
-    }
+  commandIndex_++;
+  if (sendTelemetry_) {
+    sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
+    sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
   }
   if (chatter_ > 1) {
-    std::cout << "Payload:" << std::endl;
+    std::cout << module_id() << ": Payload:" << std::endl;
     for (const auto &byte: m_sptr->payload) {
       std::cout << static_cast<int>(byte) << " ";
     }
     std::cout << std::endl;
   }
   return AS_OK;
+}
+bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
+  if (!currentCommand_) {
+    currentCommand_ = std::make_shared<CommunicationFormat>();
+  }
+  if (subsystem_ == Subsystem::ORC) {
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::ORC_Shutdown_All_DAQ));
+    currentCommand_->setArgc(0);
+    currentCommand_->update();
+    return true;
+  }
+  else if (subsystem_ == Subsystem::COL) {
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::COL_Stop_Run));
+    currentCommand_->setArgc(0);
+    currentCommand_->update();
+    return true;
+  }
+  else if (subsystem_ == Subsystem::TOF) {
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::TOF_Stop_DAQ));
+    currentCommand_->setArgc(0);
+    currentCommand_->update();
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 } // namespace gramsballoon::pgrams
