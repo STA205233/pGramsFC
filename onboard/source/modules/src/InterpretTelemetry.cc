@@ -73,6 +73,7 @@ ANLStatus InterpretTelemetry::mod_analyze() {
   if (failed) {
     std::cerr << module_name() << "::mod_analyze Failed to interpret telemetry..." << std::endl;
     telemetrySaver_->writeCommandToFile(failed, telemetry);
+    currentTelemetryType_ = -1;
     return AS_OK;
   }
   if (saveTelemetry_) {
@@ -102,7 +103,7 @@ bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
       updateRunIDFile();
     }
   }
-  if (chatter_ > 0) {
+  if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
   }
   return result;
