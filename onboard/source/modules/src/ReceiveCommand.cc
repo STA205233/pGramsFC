@@ -166,7 +166,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
 
   const uint16_t code = comdef_->Code();
   const uint16_t argc = comdef_->Argc();
-  const std::vector<int32_t> arguments = comdef_->Arguments();
+  const std::vector<uint32_t> arguments = comdef_->Arguments();
   if (chatter_ >= 1) {
     std::cout << "code: " << code << std::endl;
     std::cout << "argc: " << argc << std::endl;

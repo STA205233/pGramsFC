@@ -20,7 +20,7 @@ int MosquittoIO<std::vector<uint8_t>>::Publish(const std::vector<uint8_t> &messa
     std::cout << "Size: " << message.size() << std::endl;
   }
   const int payloadlen = static_cast<int>(message.size());
-  const void *payload = message.empty() ? nullptr: message.data();
+  const void *payload = message.empty() ? nullptr : message.data();
   if (qos < 0 || qos > 2) {
     std::cerr << "MosquittoIO: QoS is incorrect: " << qos << std::endl;
     return HandleError(MOSQ_ERR_INVAL);

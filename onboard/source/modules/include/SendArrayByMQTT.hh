@@ -28,15 +28,15 @@ public:
   anlnext::ANLStatus mod_analyze() override;
 
 private:
-  MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
+  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
   std::string mosquittoManagerName_ = "MosquittoManager";
   const InterpretTelemetry *interpretTelemetry_ = nullptr;
   std::string interpretTelemetryName_ = "InterpretTelemetry";
-  std::vector<uint8_t> data_;
+  std::string data_;
 
   std::string topic_ = "Telemetry_array";
   int qos_ = 0;
-  
+
   int chatter_ = 0;
 };
 } // namespace gramsballoon::pgrams

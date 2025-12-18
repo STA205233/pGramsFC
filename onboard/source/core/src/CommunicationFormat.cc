@@ -32,7 +32,7 @@ void CommunicationFormat::interpret() {
   argc_ = getValue<uint16_t>(6);
 
   arguments_.clear();
-  getVector<int32_t>(8, static_cast<int>(argc_), arguments_);
+  getVector<uint32_t>(8, static_cast<int>(argc_), arguments_);
   updated_ = false;
 }
 

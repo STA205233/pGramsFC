@@ -38,15 +38,17 @@ ANLStatus SendArrayByMQTT::mod_analyze() {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
-  const auto &contents = telemetry->getContents()->Command();
-  data_.assign(contents.begin(), contents.end());
+  const auto &contents = telemetry->getContents()->Arguments();
+  const auto code = telemetry->getContents()->Code();
+  data_.clear();
+  data_ = "{\"code\":";
+  data_.insert(data_.end(), reinterpret_cast<const char *>(&code), reinterpret_cast<const char *>(&code) + sizeof(code));
+  data_ += ",\"argv\":";
+  data_.insert(data_.end(), contents.begin(), contents.end());
+  data_ += "}";
   auto mosquitto_io = mosquittoManager_->getMosquittoIO();
   if (chatter_ > 3) {
-    std::cout << "Sending message to MQTT: ";
-    for (auto d: data_) {
-      std::cout << static_cast<int>(d) << " ";
-    }
-    std::cout << std::endl;
+    std::cout << "Sending message to MQTT: " << data_ << std::endl;
   }
   const int result = mosquitto_io->Publish(data_, topic_, qos_);
   if (result != MOSQ_ERR_SUCCESS) {

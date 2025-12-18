@@ -47,7 +47,7 @@ public:
   void CommandStr(std::string &outStr) const { outStr.assign(command_.begin(), command_.end()); }
   uint16_t Code() const { return code_; }
   uint16_t Argc() const { return argc_; }
-  const std::vector<int32_t> &Arguments() const { return arguments_; }
+  const std::vector<uint32_t> &Arguments() const { return arguments_; }
   void update();
   void setCode(uint16_t code) {
     code_ = code;
@@ -58,14 +58,14 @@ public:
     arguments_.resize(argc_);
     updated_ = false;
   }
-  void setArguments(const std::vector<int32_t> &arguments) {
+  void setArguments(const std::vector<uint32_t> &arguments) {
     setArgc(static_cast<uint16_t>(arguments.size()));
     for (uint16_t i = 0; i < argc_; ++i) {
       arguments_[i] = arguments[i];
     }
     updated_ = false;
   }
-  void setArguments(uint16_t index, int32_t argument) {
+  void setArguments(uint16_t index, uint32_t argument) {
     if (index > argc_) {
       std::cerr << "Error in CommunicationFormat: index(" << index << ") is larger than argc (" << argc_ << ")" << std::endl;
       return;
@@ -73,7 +73,7 @@ public:
     arguments_[index] = argument;
     updated_ = false;
   }
-  int32_t getArguments(uint16_t index) const {
+  uint32_t getArguments(uint16_t index) const {
     if (index < argc_) {
       return arguments_[index];
     }
@@ -120,7 +120,7 @@ private:
   std::vector<uint8_t> command_;
   uint16_t code_ = 0;
   uint16_t argc_ = 0;
-  std::vector<int32_t> arguments_;
+  std::vector<uint32_t> arguments_;
   bool updated_ = false;
 };
 template <typename T>
