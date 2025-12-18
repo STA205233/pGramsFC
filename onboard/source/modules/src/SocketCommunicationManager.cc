@@ -82,8 +82,7 @@ ANLStatus SocketCommunicationManager::mod_finalize() {
 }
 int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n) {
   //Flush stale data
-  std::vector<uint8_t> dummy;
-  while (singleton_self()->socketCommunication_->receive(dummy, true) > 0) {}
+  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_.clear(), true) > 0) {}
   singleton_self()->ackBuffer_.clear();
 
   const int send_result = singleton_self()->socketCommunication_->send(buf, n);
@@ -98,15 +97,16 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     std::cout << std::endl;
   }
   singleton_self()->ackBuffer_.clear();
-  //singleton_self()->receive(singleton_self()->ackBuffer_);
 
   // Retry loop to wait for the ACK ---
-  int max_retries = 10;
-  while (singleton_self()->ackBuffer_.size() < ack_n && max_retries-- > 0) {
+  const int max_retries = 10;
+  int entry = 0
+  while (singleton_self()->ackBuffer_.size() < ack_n && entry < max_entries) {
     singleton_self()->receive(singleton_self()->ackBuffer_);
     if (singleton_self()->ackBuffer_.size() < ack_n) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+    entry++'
   }
 
   const size_t acksz = singleton_self()->ackBuffer_.size();
