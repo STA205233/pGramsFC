@@ -106,7 +106,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     if (singleton_self()->ackBuffer_.size() < ack_n) {
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    entry++'
+    entry++;
   }
 
   const size_t acksz = singleton_self()->ackBuffer_.size();
