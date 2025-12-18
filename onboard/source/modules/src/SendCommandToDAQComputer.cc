@@ -80,12 +80,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
         std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
         return AS_OK;
       }
-      auto sc = socketCommunicationManager_->getSocketCommunication();
-      if (!sc) {
-        std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
-        return AS_OK;
-      }
-      if (!sc->isConnected()) {
+      if (!socketCommunicationManager_->isConnected()) {
         if (chatter_ > 1) {
           std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
         }
@@ -115,16 +110,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     return AS_OK;
   }
   auto m_sptr = distributeCommand_->getAndPopPayload();
-  if (!socketCommunicationManager_) {
-    std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
-    return AS_OK;
-  }
-  auto sc = socketCommunicationManager_->getSocketCommunication();
-  if (!sc) {
-    std::cerr << module_id() << "::mod_analyze SocketCommunication in the SocketCommunicationManager is nullptr." << std::endl;
-    return AS_OK;
-  }
-  if (!sc->isConnected()) {
+  if (!socketCommunicationManager_->isConnected()) {
     if (chatter_ > 1) {
       std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
     }
@@ -132,24 +118,12 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
     }
     failed_ = true;
-  }
-  if (sc->isConnected()) {
-    if (chatter_ > 2) {
-      std::cout << module_id() << ": SocketCommunication is connected." << std::endl;
+    if (m_sptr) {
+      m_sptr.reset();
+      return AS_OK;
     }
   }
-  else if (m_sptr) { // Although there is a command to send, the socket is not connected.
-    if (chatter_ > 1) {
-      std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
-    }
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
-    }
-    failed_ = true;
-    m_sptr.reset();
-    return AS_OK;
-  }
-  if (!m_sptr) {
+  if (!m_sptr) { // No command to send, check heartbeat should be sent.
     auto now = std::chrono::high_resolution_clock::now();
     const bool need_heartbeat = (!lastTime_) || (lastTime_ && (now - *lastTime_) > *durationBetweenHeartbeatChrono_);
     if (!lastTime_) {
@@ -258,4 +232,5 @@ bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
     return false;
   }
 }
+
 } // namespace gramsballoon::pgrams
