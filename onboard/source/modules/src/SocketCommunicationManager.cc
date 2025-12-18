@@ -82,7 +82,7 @@ ANLStatus SocketCommunicationManager::mod_finalize() {
 }
 int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n) {
   //Flush stale data
-  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_.clear(), true) > 0) {}
+  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_, true) > 0) {}
   singleton_self()->ackBuffer_.clear();
 
   const int send_result = singleton_self()->socketCommunication_->send(buf, n);
