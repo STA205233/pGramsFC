@@ -36,6 +36,8 @@ private:
 
   std::string topic_ = "Telemetry_array";
   int qos_ = 0;
+  
+  int chatter_ = 0;
 };
 } // namespace gramsballoon::pgrams
 #endif // GB_SendArrayByMQTT_hh

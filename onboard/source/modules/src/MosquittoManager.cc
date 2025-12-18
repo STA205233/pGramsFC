@@ -68,7 +68,11 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
   }
-  return HandleError(mosquittoIO_->loop(timeout_, 10));
+  const auto result = mosquittoIO_->loop(timeout_, 10);
+  if (result != 0) {
+    return HandleError(mosquittoIO_->Reconnect());
+  }
+  return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_end_run() {

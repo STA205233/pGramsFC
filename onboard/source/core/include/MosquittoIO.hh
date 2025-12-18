@@ -42,6 +42,9 @@ public:
   int Publish(const V &message, const std::string &topic, int qos = 0);
   int Publish(const std::vector<V> &message, const std::string &topic, int qos = 0);
   int Subscribe(const std::string &topic, int qos = 0);
+  int Reconnect() {
+    return reconnect();
+  }
   void on_connect(int rc) override;
   void on_disconnect(int rc) override;
   void on_publish(int mid) override;

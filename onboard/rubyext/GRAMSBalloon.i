@@ -31,6 +31,7 @@
 #include "PushToMySQL.hh"
 #endif
 #include "MosquittoManager.hh"
+#include "SendArrayByMQTT.hh"
 #include "DistributeCommand.hh"
 #include "ReceiveStatusFromDAQComputer.hh"
 #include "DividePacket.hh"
@@ -137,6 +138,11 @@ class MosquittoManager: public anlnext::BasicModule
 {
 public:
   MosquittoManager();
+};
+
+class SendArrayByMQTT: public anlnext::BasicModule {
+public:
+  SendArrayByMQTT();
 };
 
 class DistributeCommand: public anlnext::BasicModule {
