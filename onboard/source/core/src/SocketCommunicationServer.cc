@@ -13,7 +13,7 @@ SocketCommunication::SocketCommunication(int port) {
   else {
     socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
     acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
-      *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+        *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
   }
   stopped_ = std::make_shared<std::atomic<bool>>(true);
   sockMutex_ = std::make_shared<std::mutex>();
@@ -24,9 +24,15 @@ SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context
     failed_->store(true, std::memory_order_release);
   }
   else {
-  socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
-  acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
-      *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+    try {
+      socket_ = std::make_shared<boost::asio::ip::tcp::socket>(*ioContext_);
+      acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
+          *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+    }
+    catch (const boost::system::system_error &e) {
+      std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
+      failed_->store(true, std::memory_order_release);
+    }
   }
   stopped_ = std::make_shared<std::atomic<bool>>(false);
   sockMutex_ = std::make_shared<std::mutex>();
@@ -78,8 +84,8 @@ void SocketCommunication::accept() {
     accept();
   });
 }
-int SocketCommunication::send(const void* buf, size_t n){
-  if (stopped_->load(std::memory_order_acquire)){
+int SocketCommunication::send(const void *buf, size_t n) {
+  if (stopped_->load(std::memory_order_acquire)) {
     return 0;
   }
   std::lock_guard<std::mutex> lock(*sockMutex_);
