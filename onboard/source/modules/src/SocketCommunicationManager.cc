@@ -59,7 +59,7 @@ ANLStatus SocketCommunicationManager::mod_initialize() {
   catch (...) {
     socketCommunication_ = nullptr;
   }
-  if (!socketCommunication_) {
+  if (!socketCommunication_ || (socketCommunication_ && socketCommunication_->isFailed())) {
     std::cerr << module_id() << "::mod_initialize SocketCommunication is not initialized." << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
@@ -74,6 +74,12 @@ ANLStatus SocketCommunicationManager::mod_initialize() {
   return AS_OK;
 }
 ANLStatus SocketCommunicationManager::mod_analyze() {
+  if (socketCommunication_->isFailed()) {
+    auto socket_communication_temp = new SocketCommunication(ioContext_, port_);
+    if (!socket_communication_temp->isFailed()) {
+      socketCommunication_.reset(socket_communication_temp);
+    }
+  }
   return AS_OK;
 }
 ANLStatus SocketCommunicationManager::mod_finalize() {
