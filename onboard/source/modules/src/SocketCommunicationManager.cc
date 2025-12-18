@@ -86,6 +86,10 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   if (!singleton_self()->socketCommunication_) {
     return -1;
   }
+  
+  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_, true) > 0) {}
+  singleton_self()->ackBuffer_.clear();
+
   const int send_result = singleton_self()->socketCommunication_->send(buf, n);
   if (send_result < 0) {
     return send_result;
@@ -98,19 +102,21 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     std::cout << std::endl;
   }
   singleton_self()->ackBuffer_.clear();
-  size_t acksz;
-  for (int i = 0; i < 10; i++) {
+
+  const int max_retries = 10;
+  int entry = 0;
+  while (singleton_self()->ackBuffer_.size() < ack_n && entry < max_retries) {
     singleton_self()->receive(singleton_self()->ackBuffer_);
-    acksz = singleton_self()->ackBuffer_.size();
-    if (acksz == 0) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      continue;
+    if (singleton_self()->ackBuffer_.size() < ack_n) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    if (acksz != ack_n) {
-      std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement size mismatch. Expected: " << ack_n << ", Received: " << acksz << std::endl;
-      return -ack_n;
-    }
-    break;
+    entry++;
+  }
+
+  const size_t acksz = singleton_self()->ackBuffer_.size();
+  if (acksz != ack_n) {
+    std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement size mismatch. Expected: " << ack_n << ", Received: " << acksz << std::endl;
+    return -ack_n;
   }
   bool failed = false;
   if (acksz == 0) {
