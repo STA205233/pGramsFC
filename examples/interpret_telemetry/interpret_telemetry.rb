@@ -18,16 +18,16 @@ class MyApp < ANL::ANLApp
     end
     chain GRAMSBalloon::ComMosquittoManager, "GroundMosquittoManager"
     with_parameters(host: "localhost", port: 1883, keep_alive: 10, chatter: 0, threaded_set: true, device_id: "Ground_hub")
-    subsystems = ["Orchestrator", "TPC", "TOF"]
+    subsystems = ["Orchestrator", "TPC", "TOF", "TPCMonitor"]
     for subsystem in subsystems
       chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_#{subsystem}"
       with_parameters(topic: @inifile[subsystem]["teltopic"], chatter: 0)
       chain GRAMSBalloon::InterpretTelemetry, "InterpretBaseTelemetry_#{subsystem}"
-      with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}", chatter: 2, telemetry_type: "Base")
+      with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}", chatter: 0, telemetry_type: "Base")
       chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_#{subsystem}_Iridium"
-      with_parameters(topic: @inifile[subsystem]["iridiumteltopic"], chatter: 4)
+      with_parameters(topic: @inifile[subsystem]["iridiumteltopic"], chatter: 0)
       chain GRAMSBalloon::InterpretTelemetry, "InterpretBaseTelemetry_#{subsystem}_Iridium"
-      with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}_Iridium", chatter: 2, telemetry_type: "Base")
+      with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}_Iridium", chatter: 0, telemetry_type: "Base")
       chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}_Iridium"
       with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}_Iridium", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
       chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}"
