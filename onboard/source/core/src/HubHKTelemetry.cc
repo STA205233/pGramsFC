@@ -12,6 +12,233 @@ void DivideData(uint32_t srcValue, uint16_t &dest1, uint16_t &dest2) {
   dest1 = static_cast<uint16_t>((srcValue >> 16) & 0xffff);
   dest2 = static_cast<uint16_t>(srcValue & 0xffff);
 }
+
+void HubHKTelemetry::serialize(DBFieldSink *sink) const {
+  if (!sink) {
+    std::cerr << "HubHKTelemetry::serialize: sink is null!" << std::endl;
+    return;
+  }
+  BaseTelemetryDefinition::serialize(sink);
+  sink->setFieldValue("run_id", RunID());
+  sink->setFieldValue("last_command_code_hub", lastCommandCodeHub_);
+  sink->setFieldValue("last_command_index_hub", lastCommandIndexHub_);
+  sink->setFieldValue("last_command_code_orc", lastCommandCodeOrc_);
+  sink->setFieldValue("last_command_index_orc", lastCommandIndexOrc_);
+  sink->setFieldValue("last_command_code_tpc", lastCommandCodeTPC_);
+  sink->setFieldValue("last_command_index_tpc", lastCommandIndexTPC_);
+  sink->setFieldValue("last_command_code_tof", lastCommandCodeTOF_);
+  sink->setFieldValue("last_command_index_tof", lastCommandIndexTOF_);
+  sink->setFieldValue("last_command_code_qm", lastCommandCodeQM_);
+  sink->setFieldValue("last_command_index_qm", lastCommandIndexQM_);
+  for (size_t i = 0; i < NUM_PDU_SIPM; ++i) {
+    sink->setFieldValue("pdu_vol_sipm_" + std::to_string(i), pduVolSiPM_[i]);
+    sink->setFieldValue("pdu_cur_sipm_" + std::to_string(i), pduCurSiPM_[i]);
+  }
+
+  sink->setFieldValue("pdu_cur_tpc_hv", pduCurTPCHV_);
+  for (size_t i = 0; i < NUM_PDU_HV_TEMP; ++i) {
+    sink->setFieldValue("pdu_hv_temp_" + std::to_string(i), pduHVTemp_[i]);
+  }
+
+  sink->setFieldValue("pdu_coms_board_temp", pduComsBoardTemp_);
+  sink->setFieldValue("pdu_sipm_pre_amp_p2v5_vol", pduSiPMPreAmpP2V5Vol_);
+  sink->setFieldValue("pdu_sipm_pre_amp_p2v5_cur", pduSiPMPreAmpP2V5Cur_);
+  sink->setFieldValue("pdu_sipm_pre_amp_m5v_vol", pduSiPMPreAmpM5VVol_);
+  sink->setFieldValue("pdu_sipm_pre_amp_m5v_cur", pduSiPMPreAmpM5VCur_);
+  sink->setFieldValue("pdu_sipm_pre_amp_temp", pduSiPMPreAmpTemp_);
+
+  sink->setFieldValue("pdu_charge_pre_amp_p5v_vol", pduChargePreAmpP5VVol_);
+  sink->setFieldValue("pdu_charge_pre_amp_p5v_cur", pduChargePreAmpP5VCur_);
+  sink->setFieldValue("pdu_charge_pre_amp_m5v_vol", pduChargePreAmpM5VVol_);
+  sink->setFieldValue("pdu_charge_pre_amp_m5v_cur", pduChargePreAmpM5VCur_);
+  sink->setFieldValue("pdu_charge_pre_amp_temp", pduChargePreAmpTemp_);
+  for (size_t i = 0; i < NUM_PDU_TOF_TELEMETRY; ++i) {
+    sink->setFieldValue("pdu_tof_telemetry_" + std::to_string(i), pduToFTelemetry_[i]);
+  }
+
+  sink->setFieldValue("pdu_caen_nevis_p12v_vol", pduCaenNevisP12VVol_);
+  sink->setFieldValue("pdu_caen_nevis_p12v_cur", pduCaenNevisP12VCur_);
+  sink->setFieldValue("pdu_caen_nevis_m5v_vol", pduCaenNevisM5VVol_);
+  sink->setFieldValue("pdu_caen_nevis_m5v_cur", pduCaenNevisM5VCur_);
+  sink->setFieldValue("pdu_caen_nevis_p5v_vol", pduCaenNevisP5VVol_);
+  sink->setFieldValue("pdu_caen_nevis_p5v_cur", pduCaenNevisP5VCur_);
+  sink->setFieldValue("pdu_caen_nevis_p3v3_vol", pduCaenNevisP3V3Vol_);
+  sink->setFieldValue("pdu_caen_nevis_p3v3_cur", pduCaenNevisP3V3Cur_);
+
+  sink->setFieldValue("pdu_warm_tpc_shaper_p_vol", pduWarmTPCShaperPVol_);
+  sink->setFieldValue("pdu_caen_nevis_pm5v_temp", pduCaenNevisPM5VTemp_);
+  sink->setFieldValue("pdu_warm_tpc_shaper_temp", pduWarmTPCShaperTemp_);
+  sink->setFieldValue("pdu_warm_tpc_shaper_m_vol", pduWarmTPCShaperMVol_);
+
+  for (size_t i = 0; i < NUM_PDU_WARM_TPC_SHAPER; ++i) {
+    sink->setFieldValue("pdu_warm_tpc_shaper_p_cur_" + std::to_string(i), pduWarmTPCShaperPCur_[i]);
+    sink->setFieldValue("pdu_warm_tpc_shaper_m_cur_" + std::to_string(i), pduWarmTPCShaperMCur_[i]);
+  }
+
+  for (size_t i = 0; i < NUM_PDU_CPU; ++i) {
+    sink->setFieldValue("pdu_cpu_cur_" + std::to_string(i), pduCPUCur_[i]);
+    sink->setFieldValue("pdu_cpu_vol_" + std::to_string(i), pduCPUVol_[i]);
+  }
+
+  sink->setFieldValue("reserved1", reserved1_);
+  sink->setFieldValue("reserved2", reserved2_);
+  sink->setFieldValue("pdu_tof_p5v_vol", pduTofP5VVol_);
+  sink->setFieldValue("pdu_tof_p5v_cur", pduTofP5VCur_);
+  sink->setFieldValue("pdu_tof_temp", pduTofTemp_);
+  sink->setFieldValue("pdu_tof_bias_p5v0_vol", pduTofBiasP5V0Vol_);
+  sink->setFieldValue("pdu_tof_bias_p5v0_cur", pduTofBiasP5V0Cur_);
+  sink->setFieldValue("pdu_tof_bias_temp", pduTofBiasTemp_);
+  sink->setFieldValue("pdu_main_dcdc_temp", pduMainDCDCTemp_);
+
+  for (size_t i = 0; i < NUM_RTD_GONDOLA; ++i) {
+    sink->setFieldValue("rtd_gondola_frame_" + std::to_string(i), rtdGondolaFrame_[i]);
+  }
+
+  sink->setFieldValue("rtd_daq_crate_1", rtdDaqCrate1_);
+  sink->setFieldValue("rtd_daq_crate_2", rtdDaqCrate2_);
+  sink->setFieldValue("rtd_daq_crate_backup", rtdDaqCrateBackup_);
+  sink->setFieldValue("rtd_shaper_faraday_cage_1", rtdShaperFaradayCage1_);
+  sink->setFieldValue("rtd_shaper_faraday_cage_2", rtdShaperFaradayCage2_);
+
+  for (size_t i = 0; i < NUM_RTD_SHAPER_BOARD; ++i) {
+    sink->setFieldValue("rtd_shaper_board_" + std::to_string(i), rtdShaperBoard_[i]);
+  }
+
+  sink->setFieldValue("rtd_hub_computer_location_1", rtdHubComputerLocation1_);
+  sink->setFieldValue("rtd_hub_computer_location_2", rtdHubComputerLocation2_);
+  sink->setFieldValue("rtd_tof_fpgas", rtdTofFpgas_);
+  sink->setFieldValue("rtd_tof_2", rtdTof2_);
+  sink->setFieldValue("rtd_sealed_enclosure_1_water_tank", rtdSealedEnclosure1WaterTank_);
+  sink->setFieldValue("rtd_sealed_enclosure_location_2", rtdSealedEnclosureLocation2_);
+  sink->setFieldValue("rtd_vacuum_jacket_1", rtdVacuumJacket1_);
+  sink->setFieldValue("rtd_vacuum_jacket_2", rtdVacuumJacket2_);
+  sink->setFieldValue("rtd_vacuum_jacket_3", rtdVacuumJacket3_);
+
+  sink->setFieldValue("pressure_regulator", pressureRegulator_);
+  sink->setFieldValue("pressure_transducer", pressureTransducer_);
+  sink->setFieldValue("liquid_level_meter", liquidLevelMeter_);
+  sink->setFieldValue("inclinometer", inclinometer_);
+
+  for (size_t i = 0; i < NUM_RTD_IN_CHAMBER; ++i) {
+    sink->setFieldValue("rtd_inside_chamber_" + std::to_string(i), rtdsInsideChamber_[i]);
+  }
+
+  for (size_t i = 0; i < NUM_SPARE; ++i) {
+    sink->setFieldValue("spare_" + std::to_string(i), spare_[i]);
+  }
+
+  for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) {
+    sink->setFieldValue("error_flag_" + std::to_string(i), hubComputerErrorFlags_[i]);
+  }
+
+  sink->setFieldValue("storage_size", storageSize_);
+  sink->setFieldValue("cpu_temperature", cpuTemperature_);
+  sink->setFieldValue("ram_usage", ramUsage_);
+}
+void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &table_name) const {
+  BaseTelemetryDefinition::initializeDBTable(sink, table_name);
+  sink->addField("run_id", static_cast<uint32_t>(0));
+  sink->addField("last_command_code_hub", static_cast<uint32_t>(0));
+  sink->addField("last_command_index_hub", static_cast<uint16_t>(0));
+  sink->addField("last_command_code_orc", static_cast<uint32_t>(0));
+  sink->addField("last_command_index_orc", static_cast<uint16_t>(0));
+  sink->addField("last_command_code_tpc", static_cast<uint32_t>(0));
+  sink->addField("last_command_index_tpc", static_cast<uint16_t>(0));
+  sink->addField("last_command_code_tof", static_cast<uint32_t>(0));
+  sink->addField("last_command_index_tof", static_cast<uint16_t>(0));
+  sink->addField("last_command_code_qm", static_cast<uint32_t>(0));
+  sink->addField("last_command_index_qm", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < NUM_PDU_SIPM; i++) {
+    sink->addField("pdu_vol_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
+    sink->addField("pdu_cur_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("pdu_cur_tpc_hv", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < NUM_PDU_HV_TEMP; i++) {
+    sink->addField("pdu_hv_temp_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("pdu_coms_board_temp", static_cast<uint16_t>(0));
+  sink->addField("pdu_sipm_pre_amp_p2v5_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_sipm_pre_amp_p2v5_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_sipm_pre_amp_m5v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_sipm_pre_amp_m5v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_sipm_pre_amp_temp", static_cast<uint16_t>(0));
+  sink->addField("pdu_charge_pre_amp_p5v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_charge_pre_amp_p5v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_charge_pre_amp_m5v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_charge_pre_amp_m5v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_charge_pre_amp_temp", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < 6; i++) {
+    sink->addField("pdu_tof_telemetry_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("pdu_caen_nevis_p12v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_p12v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_m5v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_m5v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_p5v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_p5v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_p3v3_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_p3v3_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_warm_tpc_shaper_p_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_caen_nevis_pm5v_temp", static_cast<uint16_t>(0));
+  sink->addField("pdu_warm_tpc_shaper_temp", static_cast<uint16_t>(0));
+  sink->addField("pdu_warm_tpc_shaper_m_vol", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < NUM_PDU_WARM_TPC_SHAPER; i++) {
+    sink->addField("pdu_warm_tpc_shaper_p_cur_" + std::to_string(i), static_cast<uint16_t>(0));
+    sink->addField("pdu_warm_tpc_shaper_m_cur_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  for (size_t i = 0; i < NUM_PDU_CPU; i++) {
+    sink->addField("pdu_cpu_cur_" + std::to_string(i), static_cast<uint16_t>(0));
+    sink->addField("pdu_cpu_vol_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("reserved1", static_cast<uint16_t>(0));
+  sink->addField("reserved2", static_cast<uint16_t>(0));
+  sink->addField("pdu_tof_p5v_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_tof_p5v_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_tof_temp", static_cast<uint16_t>(0));
+  sink->addField("pdu_tof_bias_p5v0_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_tof_bias_p5v0_cur", static_cast<uint16_t>(0));
+  sink->addField("pdu_tof_bias_temp", static_cast<uint16_t>(0));
+  sink->addField("pdu_main_dcdc_temp", static_cast<uint16_t>(0));
+
+  for (size_t i = 0; i < NUM_RTD_GONDOLA; i++) {
+    sink->addField("rtd_gondola_frame_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("rtd_daq_crate_1", static_cast<uint16_t>(0));
+  sink->addField("rtd_daq_crate_2", static_cast<uint16_t>(0));
+  sink->addField("rtd_daq_crate_backup", static_cast<uint16_t>(0));
+  sink->addField("rtd_shaper_faraday_cage_1", static_cast<uint16_t>(0));
+  sink->addField("rtd_shaper_faraday_cage_2", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < NUM_RTD_SHAPER_BOARD; i++) {
+    sink->addField("rtd_shaper_board_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("rtd_hub_computer_location_1", static_cast<uint16_t>(0));
+  sink->addField("rtd_hub_computer_location_2", static_cast<uint16_t>(0));
+  sink->addField("rtd_tof_fpgas", static_cast<uint16_t>(0));
+  sink->addField("rtd_tof_2", static_cast<uint16_t>(0));
+  sink->addField("rtd_sealed_enclosure_1_water_tank", static_cast<uint16_t>(0));
+  sink->addField("rtd_sealed_enclosure_location_2", static_cast<uint16_t>(0));
+  sink->addField("rtd_vacuum_jacket_1", static_cast<uint16_t>(0));
+  sink->addField("rtd_vacuum_jacket_2", static_cast<uint16_t>(0));
+  sink->addField("rtd_vacuum_jacket_3", static_cast<uint16_t>(0));
+  sink->addField("pressure_regulator", static_cast<uint16_t>(0));
+  sink->addField("pressure_transducer", static_cast<uint16_t>(0));
+  sink->addField("liquid_level_meter", static_cast<uint16_t>(0));
+  sink->addField("inclinometer", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < NUM_RTD_IN_CHAMBER; i++) {
+    sink->addField("rtd_inside_chamber_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  for (size_t i = 0; i < 11; i++) {
+    sink->addField("spare_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+
+  for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
+    sink->addField("error_flag_" + std::to_string(i), static_cast<uint64_t>(0));
+  }
+
+  sink->addField("storage_size", static_cast<uint32_t>(0));
+  sink->addField("cpu_temperature", static_cast<uint16_t>(0));
+  sink->addField("ram_usage", static_cast<uint16_t>(0));
+}
 bool HubHKTelemetry::interpret() {
   auto contents = getContents();
   if (!contents) {
@@ -50,7 +277,7 @@ bool HubHKTelemetry::interpret() {
   DivideData(static_cast<uint32_t>(contents->getArguments(26)), pduCaenNevisM5VCur_, pduCaenNevisP5VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(27)), pduCaenNevisP5VCur_, pduCaenNevisP3V3Vol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(28)), pduCaenNevisP3V3Cur_, pduWarmTPCShaperPVol_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(29)), pduCaenNevisPM5VTempMon_, pduWarmTPCShaperTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(29)), pduCaenNevisPM5VTemp_, pduWarmTPCShaperTemp_);
   DivideData(static_cast<uint32_t>(contents->getArguments(30)), pduWarmTPCShaperMVol_, pduWarmTPCShaperPCur_[0]);
   DivideData(static_cast<uint32_t>(contents->getArguments(31)), pduWarmTPCShaperPCur_[1], pduWarmTPCShaperPCur_[2]);
   DivideData(static_cast<uint32_t>(contents->getArguments(32)), pduWarmTPCShaperPCur_[3], pduWarmTPCShaperPCur_[4]);
@@ -112,7 +339,6 @@ void HubHKTelemetry::update() {
   if (!contents) {
     setContents(std::make_shared<CommunicationFormat>());
   }
-  std::cout << "HubHKTelemetry::update(): sampleData_ = " << std::endl;
   setArgc(ARGC);
   setArguments(0, RunID());
   setArguments(1, lastCommandIndexHub_);
@@ -143,7 +369,7 @@ void HubHKTelemetry::update() {
   setArguments(26, CompileData(pduCaenNevisM5VCur_, pduCaenNevisP5VVol_));
   setArguments(27, CompileData(pduCaenNevisP5VCur_, pduCaenNevisP3V3Vol_));
   setArguments(28, CompileData(pduCaenNevisP3V3Cur_, pduWarmTPCShaperPVol_));
-  setArguments(29, CompileData(pduCaenNevisPM5VTempMon_, pduWarmTPCShaperTemp_));
+  setArguments(29, CompileData(pduCaenNevisPM5VTemp_, pduWarmTPCShaperTemp_));
   setArguments(30, CompileData(pduWarmTPCShaperMVol_, pduWarmTPCShaperPCur_[0]));
   setArguments(31, CompileData(pduWarmTPCShaperPCur_[1], pduWarmTPCShaperPCur_[2]));
   setArguments(32, CompileData(pduWarmTPCShaperPCur_[3], pduWarmTPCShaperPCur_[4]));
@@ -189,10 +415,10 @@ void HubHKTelemetry::update() {
   setArguments(70, CompileData(spare_[9], spare_[10]));
   static_assert(NUM_TOF_BIAS % 2 == 0, "NUM_TOF_BIAS is expected to be even.");
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(71 + i, CompileData(tofBiasVoltage_[2 * i + 1], tofBiasVoltage_[2 * i + 2]));
+    setArguments(71 + i, CompileData(tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]));
   }
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(71 + NUM_TOF_BIAS / 2 + i, CompileData(tofBiasSetting_[2 * i + 1], tofBiasSetting_[2 * i + 2]));
+    setArguments(71 + NUM_TOF_BIAS / 2 + i, CompileData(tofBiasSetting_[2 * i], tofBiasSetting_[2 * i + 1]));
   }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
     setArguments(71 + NUM_TOF_BIAS + i, hubComputerErrorFlags_[i]);
@@ -204,7 +430,8 @@ void HubHKTelemetry::update() {
 std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "HubHKTelemetry" << std::endl;
   stream << "index: " << getContents()->Code() << ", Argc(): " << getContents()->Argc() << std::endl;
-  stream << "Data: ";
+  stream << "Data: " << std::endl;
+  BaseTelemetryDefinition::print(stream);
   stream << "RunID_: " << RunID() << "\n";
   stream << "lastCommandIndexHub_: " << lastCommandIndexHub_ << ", lastCommandIndexOrc_: " << lastCommandIndexOrc_
          << ", lastCommandIndexTPC_: " << lastCommandIndexTPC_ << ", lastCommandIndexTOF_: " << lastCommandIndexTOF_

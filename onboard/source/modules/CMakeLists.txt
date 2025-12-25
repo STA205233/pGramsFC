@@ -6,6 +6,7 @@ include_directories(
   ${BOOST_INC_DIR}
   ${HSQUICKLOOK_INC_DIR}
   ${MYSQL_INC_DIR}
+  ${GB_PGRAMSBALLOON_INC_DIR}
 )
 
 link_directories(
@@ -41,6 +42,7 @@ set(GB_MODULES
   #src/MeasureTemperatureWithRTDSensorByMHADC.cc
   src/SendCommandToDAQComputer.cc
   src/SendTelemetry.cc
+  src/SendArrayByMQTT.cc
 )
 
 

@@ -25,6 +25,7 @@ class PushToMongoDB;
  * @date 2023-**-**
  * @date 2025-09-20 Shota Arai| Comparatible to different type of telemetry. (v2.0)
  * @date 2025-11-17 Shota Arai| Refactoring
+ * @date 2025-12-14 Shota Arai| Added DB serialization functions
  */
 class InterpretTelemetry: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(InterpretTelemetry, 2.0);
@@ -44,7 +45,23 @@ public:
   anlnext::ANLStatus mod_finalize() override;
 
   std::shared_ptr<const ErrorManager> getErrorManager() const { return singleton_self()->errorManager_; }
-  int CurrentTelemetryType() { return singleton_self()->currentTelemetryType_; }
+  int CurrentTelemetryType() const { return singleton_self()->currentTelemetryType_; }
+  std::string_view TelemetryType() {
+    return singleton_self()->telemetryTypeStr_;
+  }
+  void pushToDBSink(DBFieldSink *sink) const {
+    if (singleton_self()->telemetry_) {
+      singleton_self()->telemetry_->serialize(sink);
+    }
+  }
+  void initializeDBTableInSink(DBFieldSink *sink, const std::string &table_name) const {
+    if (singleton_self()->telemetry_) {
+      singleton_self()->telemetry_->initializeDBTable(sink, table_name);
+    }
+  }
+  const BaseTelemetryDefinition *getTelemetry() const {
+    return telemetry_.get();
+  }
 
 private:
   void updateRunIDFile();

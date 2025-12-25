@@ -7,7 +7,6 @@
 namespace gramsballoon::pgrams {
 
 int CommandSender::open_mosquitto() {
-  mosquittoIo_ = std::make_shared<MosquittoIO<std::vector<uint8_t>>>(id_, host_, port_, keepAlive_, true);
   const int status = mosquittoIo_->Connect();
   if (status != 0) {
     std::cerr << "Failed to connect to mosquitto" << std::endl;

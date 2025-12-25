@@ -1,6 +1,12 @@
 #include "CommandBuilder.hh"
+#include "CommunicationCodes.hh"
+#ifndef SUBSYSTEM_NAME
+#define SUBSYSTEM_NAME "DUMMY_SUBSYSTEM"
+#endif
+#include <algorithm>
+#include <cctype>
+#include <iostream>
 #include <tuple>
-
 namespace {
 uint16_t crc_calc(const std::vector<uint8_t> &byte_array) {
   uint16_t crc = 0;
@@ -22,38 +28,104 @@ uint16_t crc_calc(const std::vector<uint8_t> &byte_array) {
 
 namespace gramsballoon {
 
-CommandBuilder::CommandBuilder() {
-  code_map_["get_status"] = CommandProperty{100, 0};
-  code_map_["reset_error"] = CommandProperty{101, 0};
-  code_map_["exec_shutdown"] = CommandProperty{102, 0};
-  code_map_["exec_reboot"] = CommandProperty{103, 0};
-  code_map_["prepare_shutdown"] = CommandProperty{104, 0};
-  code_map_["prepare_reboot"] = CommandProperty{105, 0};
-  code_map_["prepare_software_stop"] = CommandProperty{198, 1};
-  code_map_["exec_software_stop"] = CommandProperty{199, 0};
-  code_map_["start_detector_readout"] = CommandProperty{201, 0};
-  code_map_["stop_detector_readout"] = CommandProperty{202, 0};
-  code_map_["set_trigger_mode"] = CommandProperty{203, 1};
-  code_map_["set_trigger_channel"] = CommandProperty{204, 2};
-  code_map_["set_adc_offset"] = CommandProperty{205, 3};
-  code_map_["exec_tpc_hv_output"] = CommandProperty{206, 0};
-  code_map_["set_tpc_hv"] = CommandProperty{207, 1};
-  code_map_["exec_pmt_hv_output"] = CommandProperty{208, 0};
-  code_map_["set_pmt_hv"] = CommandProperty{209, 1};
-  code_map_["get_waveform"] = CommandProperty{210, 0};
-  code_map_["set_trigger_level"] = CommandProperty{211, 1};
-  code_map_["set_trigger_position"] = CommandProperty{212, 1};
-  code_map_["set_tpc_hv_upper_limit"] = CommandProperty{301, 1};
-  code_map_["set_pmt_hv_upper_limit"] = CommandProperty{302, 1};
-  code_map_["dummy_1"] = CommandProperty{900, 0};
-  code_map_["dummy_2"] = CommandProperty{901, 1};
-  code_map_["dummy_3"] = CommandProperty{902, 0};
-  code_map_["dummy_4"] = CommandProperty{903, 5};
-  code_map_["invalid_command_1"] = CommandProperty{12345, 0};
-  code_map_["Configure"] = CommandProperty{1, 1};
-  code_map_["Start_run"] = CommandProperty{1, 0};
-  code_map_["Stop_run"] = CommandProperty{1, 0};
+void replace_all(std::string &s,
+                 const std::string &from,
+                 const std::string &to) {
+  if (from.empty()) return;
+
+  std::size_t pos = 0;
+  while ((pos = s.find(from, pos)) != std::string::npos) {
+    s.replace(pos, from.length(), to);
+    pos += to.length(); // 無限ループ防止
+  }
 }
+
+void add_code_map(std::map<std::string, CommandProperty> &code_map,
+                  const std::string_view enum_name, const pgrams::communication::CommunicationCodes code,
+                  const int argnum) {
+  CommandProperty property;
+  std::string name = std::string(enum_name);
+  if (name.find(std::string(SUBSYSTEM_NAME) + "_") != 0) {
+    return;
+  }
+  replace_all(name, std::string(SUBSYSTEM_NAME) + "_", "");
+  property.code = static_cast<uint16_t>(code);
+  property.argnum = argnum;
+  std::transform(name.begin(), name.end(), name.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  code_map[name] = property;
+}
+
+#define ADD_CODE_MAP(name, argnum) \
+  add_code_map(code_map_, #name, pgrams::communication::CommunicationCodes::name, argnum);
+
+CommandBuilder::CommandBuilder() {
+  ADD_CODE_MAP(HUB_Emergency_Daq_shutdown, 0);
+  ADD_CODE_MAP(HUB_Prepare_Shutdown, 0);
+  ADD_CODE_MAP(HUB_Exec_Shutdown, 0);
+  ADD_CODE_MAP(HUB_Prepare_Restart, 0);
+  ADD_CODE_MAP(HUB_Exec_Restart, 0);
+  ADD_CODE_MAP(HUB_Reset_Error, 0);
+  ADD_CODE_MAP(HUB_Set_Link, 1);
+  ADD_CODE_MAP(HUB_Dummy1, 0);
+  ADD_CODE_MAP(HUB_Dummy2, 1);
+
+  ADD_CODE_MAP(PDU_Cold_TPC_HV_ON, 1);
+  ADD_CODE_MAP(PDU_Cold_TPC_HV_OFF, 1);
+  ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_ON, 1);
+  ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_OFF, 1);
+  ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_ON, 1);
+  ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_OFF, 1);
+  ADD_CODE_MAP(PDU_Warm_TPC_Shaper_ON, 1);
+  ADD_CODE_MAP(PDU_Warm_TPC_Shaper_OFF, 1);
+  ADD_CODE_MAP(PDU_SiPM_ON, 1);
+  ADD_CODE_MAP(PDU_SiPM_OFF, 1);
+  ADD_CODE_MAP(PDU_CAEN_P3V3_ON, 1);
+  ADD_CODE_MAP(PDU_CAEN_P3V3_OFF, 1);
+  ADD_CODE_MAP(PDU_CAEN_PM5V_ON, 1);
+  ADD_CODE_MAP(PDU_CAEN_PM5V_OFF, 1);
+  ADD_CODE_MAP(PDU_CAEN_P12V_ON, 1);
+  ADD_CODE_MAP(PDU_CAEN_P12V_OFF, 1);
+  ADD_CODE_MAP(PDU_DAQ_CPU_ON, 0);
+  ADD_CODE_MAP(PDU_DAQ_CPU_OFF, 0);
+
+  ADD_CODE_MAP(ORC_Exec_CPU_Restart, 0);
+  ADD_CODE_MAP(ORC_Exec_CPU_Shutdown, 0);
+  ADD_CODE_MAP(ORC_Boot_All_DAQ, 0);
+  ADD_CODE_MAP(ORC_Shutdown_All_DAQ, 0);
+  ADD_CODE_MAP(ORC_CPU_Status, 0);
+
+  ADD_CODE_MAP(COL_Configure, 1);
+  ADD_CODE_MAP(COL_Start_Run, 1);
+  ADD_CODE_MAP(COL_Stop_Run, 0);
+  ADD_CODE_MAP(COL_Boot_DAQ, 0);
+  ADD_CODE_MAP(COL_Boot_Monitor, 0);
+  ADD_CODE_MAP(COL_Query_Hardware_Status, 0);
+
+  ADD_CODE_MAP(TOF_Start_DAQ, 0);
+  ADD_CODE_MAP(TOF_Stop_DAQ, 0);
+  ADD_CODE_MAP(TOF_Reset_DAQ, 0);
+  ADD_CODE_MAP(TOF_Run_Init_System, 0);
+  ADD_CODE_MAP(TOF_Run_Make_Bias_Calib_Table, 0);
+  ADD_CODE_MAP(TOF_Run_Make_Simple_Bias_Set_Table, 0);
+  ADD_CODE_MAP(TOF_Run_Make_Simple_Channel_Map, 0);
+  ADD_CODE_MAP(TOF_Run_Make_Simple_Disc_Set_Table, 0);
+  ADD_CODE_MAP(TOF_Run_Read_Temperature_Sensors, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_QDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_TDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_SiPM_Data, 0);
+  ADD_CODE_MAP(TOF_Run_Process_Threshold_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Process_TDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Singles, 0);
+
+  ADD_CODE_MAP(TOF_Bias_ON, 0);
+  ADD_CODE_MAP(TOF_Bias_OFF, 0);
+  ADD_CODE_MAP(TOF_Bias_Set_Voltage, 1);
+}
+#undef ADD_CODE_MAP
 
 CommandProperty CommandBuilder::get_command_property(const std::string &name) const {
   auto command = code_map_.find(name);

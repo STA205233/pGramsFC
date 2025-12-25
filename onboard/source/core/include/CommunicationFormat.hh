@@ -21,7 +21,13 @@ class CommunicationFormat {
 public:
   CommunicationFormat();
 
+  /**
+   * @brief Set data from vector<uint8_t> with validation
+   */
   bool setData(const std::vector<uint8_t> &v);
+  /**
+   * @brief Set data from string with validation
+   */
   bool setData(const std::string &s);
 
   template <typename T>
@@ -41,44 +47,70 @@ public:
   void CommandStr(std::string &outStr) const { outStr.assign(command_.begin(), command_.end()); }
   uint16_t Code() const { return code_; }
   uint16_t Argc() const { return argc_; }
-  const std::vector<int32_t> &Arguments() const { return arguments_; }
+  const std::vector<uint32_t> &Arguments() const { return arguments_; }
   void update();
-  void setCode(uint16_t code) { code_ = code; }
+  void setCode(uint16_t code) {
+    code_ = code;
+    updated_ = false;
+  }
   void setArgc(uint16_t argc) {
     argc_ = argc;
     arguments_.resize(argc_);
+    updated_ = false;
   }
-  void setArguments(const std::vector<int32_t> &arguments) {
+  void setArguments(const std::vector<uint32_t> &arguments) {
     setArgc(static_cast<uint16_t>(arguments.size()));
     for (uint16_t i = 0; i < argc_; ++i) {
       arguments_[i] = arguments[i];
     }
+    updated_ = false;
   }
-  void setArguments(uint16_t index, int32_t argument) {
+  void setArguments(uint16_t index, uint32_t argument) {
     if (index > argc_) {
       std::cerr << "Error in CommunicationFormat: index(" << index << ") is larger than argc (" << argc_ << ")" << std::endl;
       return;
     }
     arguments_[index] = argument;
+    updated_ = false;
   }
-  int32_t getArguments(uint16_t index) const {
+  uint32_t getArguments(uint16_t index) const {
     if (index < argc_) {
       return arguments_[index];
     }
     return 0;
   }
-  void setCommand(const std::vector<uint8_t> &command) { command_ = command; }
-  void setCommand(const std::string &command) { command_.assign(command.begin(), command.end()); }
+
+  /**
+   * @brief Set command data directly without validation (use with caution)
+   * @note Do not use this function when you want to interpret data. Use setData() instead.
+   */
+  void setCommand(const std::vector<uint8_t> &command) {
+    updated_ = true;
+    command_ = command;
+  }
+
+  /**
+   * @brief Set command data directly without validation (use with caution)
+   * @note Do not use this function when you want to interpret data. Use setData() instead.
+   */
+  void setCommand(const std::string &command) {
+    command_.assign(command.begin(), command.end());
+    updated_ = true;
+  }
+  /**
+   * @brief Print the command details to the given stream
+   * @note This function is not useful when the command is not interpreted yet.
+   */
   std::ostream &print(std::ostream &stream) {
-    stream << "Code: " << code_ << std::endl;
-    stream << "Argc: " << argc_ << std::endl;
+    stream << "Code: " << static_cast<int>(code_) << std::endl;
+    stream << "Argc: " << static_cast<int>(argc_) << std::endl;
     stream << "Argv: " << std::endl;
     int sz = argc_;
     if (argc_ > 10) {
       sz = 10;
     }
     for (int i = 0; i < sz; i++) {
-      stream << arguments_[i] << " ";
+      stream << static_cast<int>(arguments_[i]) << " ";
     }
     stream << std::endl;
     return stream;
@@ -88,7 +120,8 @@ private:
   std::vector<uint8_t> command_;
   uint16_t code_ = 0;
   uint16_t argc_ = 0;
-  std::vector<int32_t> arguments_;
+  std::vector<uint32_t> arguments_;
+  bool updated_ = false;
 };
 template <typename T>
 inline bool CommunicationFormat::checkHeaderFooter(const T &v) {

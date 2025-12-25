@@ -36,7 +36,7 @@ ANLStatus ReceiveTelemetry::mod_analyze() {
   }
   const auto &payload = mosq_->getPayload();
   if (payload.empty()) {
-    if (chatter_ >= 1) {
+    if (chatter_ >= 5) {
       std::cout << "ReceiveTelemetry: No payload" << std::endl;
     }
     valid_ = false;
@@ -44,7 +44,7 @@ ANLStatus ReceiveTelemetry::mod_analyze() {
   }
   const auto &packet = payload.front();
   if (packet->topic != subTopic_) {
-    if (chatter_ >= 1) {
+    if (chatter_ >= 4) {
       std::cout << "ReceiveTelemetry: Received topic (" << payload.front()->topic << ") is different from subscribed topic (" << subTopic_ << ")" << std::endl;
     }
     valid_ = false;
@@ -54,9 +54,11 @@ ANLStatus ReceiveTelemetry::mod_analyze() {
     std::cout << "ReceiveTelemetry Num_packet:" << payload.size() << std::endl;
   }
   if (chatter_ > 3) {
+    std::cout << "payload: ";
     for (size_t i = 0; i < payload[0]->payload.size(); i++) {
-      std::cout << "payload[" << i << "]=" << std::hex << static_cast<unsigned int>(payload[0]->payload[i]) << std::dec << std::endl;
+      std::cout << std::hex << static_cast<unsigned int>((payload[0]->payload[i]) & 0xFF) << std::dec << " ";
     }
+    std::cout << std::endl;
   }
   setTelemetry(packet->payload);
   valid_ = true;

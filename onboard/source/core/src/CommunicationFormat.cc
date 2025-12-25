@@ -32,7 +32,8 @@ void CommunicationFormat::interpret() {
   argc_ = getValue<uint16_t>(6);
 
   arguments_.clear();
-  getVector<int32_t>(8, static_cast<int>(argc_), arguments_);
+  getVector<uint32_t>(8, static_cast<int>(argc_), arguments_);
+  updated_ = false;
 }
 
 std::ostream &CommunicationFormat::write(std::ostream &stream) {
@@ -92,6 +93,9 @@ void CommunicationFormat::getVector(int index, int num, std::vector<T> &vec) {
   }
 }
 void CommunicationFormat::update() {
+  if (updated_) {
+    return;
+  }
   command_.clear();
   const int argc = arguments_.size();
   argc_ = static_cast<uint16_t>(argc);
@@ -116,5 +120,6 @@ void CommunicationFormat::update() {
   command_.push_back(0xa4);
   command_.push_back(0xd2);
   command_.push_back(0x79);
+  updated_ = true;
 }
 } // namespace gramsballoon::pgrams

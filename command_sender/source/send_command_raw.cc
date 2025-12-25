@@ -19,6 +19,12 @@ int main(int argc, char *argv[]) {
   for (int i = 3; i < argc; i++) {
     arg_array.push_back(std::stoi(argv[i]));
   }
+  
+  const int result_init = mosqpp::lib_init();
+  if (result_init != 0) {
+    std::cerr << "Initialization failed" << std::endl;
+    return -1;
+  }
 
   std::vector<uint8_t> command;
   gramsballoon::CommandBuilder command_builder;
@@ -30,23 +36,36 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::string host = std::getenv("PGRAMS_MOSQUITTO_HOST");
-  std::string port_str = std::getenv("PGRAMS_MOSQUITTO_PORT");
-  std::string username = std::getenv("PGRAMS_MOSQUITTO_USER");
-  std::string password = std::getenv("PGRAMS_MOSQUITTO_PASSWD");
-
-  const int port = std::stoi(port_str);
+  std::string host;
+  if (const char* host__ = std::getenv("PGRAMS_MOSQUITTO_HOST")) {
+     host = host__;
+  }
+  else {
+    std::cerr << "host is not set" << std::endl;
+    return -1;
+  }
+  int port = 0;
+  if (const char* port__ = std::getenv("PGRAMS_MOSQUITTO_PORT")) {
+    port = std::stoi(port__);
+  }
+  else {
+    std::cerr << "port is not set" << std::endl;
+    return -1;
+  }
+  std::string username = "";
+  if (const char *username__ = std::getenv("PGRAMS_MOSQUITTO_USER")) {
+    username = username__;
+  }
+  std::string password = "";
+  if (const char *password__ = std::getenv("PGRAMS_MOSQUITTO_PASSWD")) {
+    password = password__;
+  }
+  
   std::cout << "Host: " << host << std::endl;
   std::cout << "Port: " << port << std::endl;
   std::cout << "Username: " << username << std::endl;
   std::cout << "Password: " << password << std::endl;
   CommandSender sender(host, port);
-  const int result = sender.open_mosquitto();
-  if (result != 0) {
-    std::cout << strerror(result) << std::endl;
-    std::cout << "Mosquitto connection error -> exit" << std::endl;
-    return result;
-  }
   if (username != "" && password != "") {
     const int auth_result = sender.authentication(username, password);
     if (auth_result != 0) {
@@ -55,12 +74,18 @@ int main(int argc, char *argv[]) {
       return auth_result;
     }
   }
+  const int result = sender.open_mosquitto();
+  if (result != 0) {
+    std::cout << strerror(result) << std::endl;
+    std::cout << "Mosquitto connection error -> exit" << std::endl;
+    return result;
+  }
   const int length_sent = sender.send(argv[1], command);
   //std::cout << "Length sent: " << length_sent << std::endl;
 
   //gramsballoon::write_command(command, name);
 
   sender.close_mosquitto();
-
+  mosqpp::lib_cleanup(); 
   return 0;
 }

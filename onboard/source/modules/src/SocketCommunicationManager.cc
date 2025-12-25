@@ -1,5 +1,7 @@
 #include "SocketCommunicationManager.hh"
 #include <sys/select.h>
+#include <chrono>
+#include <thread>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus SocketCommunicationManager::mod_define() {
@@ -57,7 +59,7 @@ ANLStatus SocketCommunicationManager::mod_initialize() {
   catch (...) {
     socketCommunication_ = nullptr;
   }
-  if (!socketCommunication_) {
+  if (!socketCommunication_ || (socketCommunication_ && socketCommunication_->isFailed())) {
     std::cerr << module_id() << "::mod_initialize SocketCommunication is not initialized." << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
@@ -81,6 +83,13 @@ ANLStatus SocketCommunicationManager::mod_finalize() {
   return AS_OK;
 }
 int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n) {
+  if (!singleton_self()->socketCommunication_) {
+    return -1;
+  }
+  
+  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_, true) > 0) {}
+  singleton_self()->ackBuffer_.clear();
+
   const int send_result = singleton_self()->socketCommunication_->send(buf, n);
   if (send_result < 0) {
     return send_result;
@@ -93,14 +102,32 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     std::cout << std::endl;
   }
   singleton_self()->ackBuffer_.clear();
-  singleton_self()->receive(singleton_self()->ackBuffer_);
+
+  const int max_retries = 10;
+  int entry = 0;
+  while (singleton_self()->ackBuffer_.size() < ack_n && entry < max_retries) {
+    singleton_self()->receive(singleton_self()->ackBuffer_);
+    if (singleton_self()->ackBuffer_.size() < ack_n) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    entry++;
+  }
+
   const size_t acksz = singleton_self()->ackBuffer_.size();
   if (acksz != ack_n) {
     std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement size mismatch. Expected: " << ack_n << ", Received: " << acksz << std::endl;
     return -ack_n;
   }
   bool failed = false;
+  if (acksz == 0) {
+    std::cerr << module_id() << "::sendAndWaitForAck: No data is received." << std::endl;
+    failed = true;
+  }
+  if (chatter_ > 2) {
+    std::cout << "ACK: ";
+  }
   for (size_t i = 0; i < acksz; ++i) {
+    if (chatter_ > 2) std::cout << static_cast<int>(singleton_self()->ackBuffer_[i]) << " ";
     if (singleton_self()->ackBuffer_[i] != ack[i]) {
       std::cerr << module_id() << "::sendAndWaitForAck: Acknowledgement data mismatch at " << i << ". Expected: " << static_cast<int>(ack[i]) << ", Received: " << static_cast<int>(singleton_self()->ackBuffer_[i]) << std::endl;
       failed = true;
@@ -109,9 +136,13 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   if (failed) {
     return -1;
   }
+  if (chatter_ > 2) std::cout << std::endl;
   return send_result;
 }
 int SocketCommunicationManager::receive(std::vector<uint8_t> &data) {
+  if (!singleton_self()->socketCommunication_) {
+    return -1;
+  }
   const int ret = singleton_self()->socketCommunication_->receive(data);
   if (ret <= 0) {
     return ret;

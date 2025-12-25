@@ -20,7 +20,7 @@ ANLStatus InterpretTelemetry::mod_define() {
   define_parameter("num_telem_per_file", &mod_class::numTelemPerFile_);
   set_parameter_description("number of packet per a file. This parameter is valid only when save_telemetry is true");
   define_parameter("run_ID_filename", &mod_class::runIDFilename_);
-  set_parameter_description("Filename of run id, This paramater is valid only when The")
+  set_parameter_description("Filename of run id, This paramater is valid only when save_telemetry is true");
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("receiver_module_name", &mod_class::receiverModuleName_);
   define_parameter("telemetry_type", &mod_class::telemetryTypeStr_);
@@ -66,13 +66,14 @@ ANLStatus InterpretTelemetry::mod_analyze() {
     return AS_OK;
   }
 
-  currentTelemetryType_ = 0;
+  currentTelemetryType_ = 1;
   const auto &telemetry = receiver_->Telemetry();
   const bool status = interpret(telemetry);
   const bool failed = !status;
   if (failed) {
     std::cerr << module_name() << "::mod_analyze Failed to interpret telemetry..." << std::endl;
     telemetrySaver_->writeCommandToFile(failed, telemetry);
+    currentTelemetryType_ = -1;
     return AS_OK;
   }
   if (saveTelemetry_) {
@@ -102,7 +103,7 @@ bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
       updateRunIDFile();
     }
   }
-  if (chatter_ > 0) {
+  if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
   }
   return result;

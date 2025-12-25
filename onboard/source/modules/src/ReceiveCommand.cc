@@ -25,6 +25,7 @@ ReceiveCommand::~ReceiveCommand() = default;
 ANLStatus ReceiveCommand::mod_define() {
   define_parameter("timeout_sec", &mod_class::timeoutSec_);
   define_parameter("save_command", &mod_class::saveCommand_);
+  define_parameter("SendCommandToDAQComputer_names", &mod_class::sendCommandToDAQComputerNames_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_command_per_file", &mod_class::numCommandPerFile_);
   define_parameter("topic", &mod_class::topic_);
@@ -83,6 +84,21 @@ ANLStatus ReceiveCommand::mod_initialize() {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
     }
   }
+
+  for (const auto &name: sendCommandToDAQComputerNames_) {
+    SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
+    if (exist_module(name)) {
+      get_module_NC(name, &sendCommandToDAQComputer);
+      sendCommandToDAQComputers_.push_back(sendCommandToDAQComputer);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: SendCommandToDAQComputer module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+
   if (saveCommand_) {
     commandSaver_->setBinaryFilenameBase(binaryFilenameBase_);
     if (runIDManager_) {
@@ -150,13 +166,17 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
 
   const uint16_t code = comdef_->Code();
   const uint16_t argc = comdef_->Argc();
-  const std::vector<int32_t> arguments = comdef_->Arguments();
+  const std::vector<uint32_t> arguments = comdef_->Arguments();
   if (chatter_ >= 1) {
     std::cout << "code: " << code << std::endl;
     std::cout << "argc: " << argc << std::endl;
     for (int i = 0; i < argc; i++) {
       std::cout << "arguments[" << i << "]: " << arguments[i] << std::endl;
     }
+  }
+  if (sendTelemetry_) {
+    sendTelemetry_->setLastComIndex(Subsystem::HUB, commandIndex_);
+    sendTelemetry_->setLastComCode(Subsystem::HUB, code);
   }
 
   if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy1) && argc == 0) {
@@ -239,7 +259,11 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
-    // TODO: Implement emergency DAQ shutdown procedure
+    for (auto &sendCommandToDAQComputer: sendCommandToDAQComputers_) {
+      if (sendCommandToDAQComputer) {
+        sendCommandToDAQComputer->setEmergencyDaqShutdown(true);
+      }
+    }
     return true;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Reset_Error) && argc == 0) {
@@ -295,11 +319,6 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     //TODO: Implement handling
     return true;
-  }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
-    if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": ORC Set LED State command received. LED Index: " << arguments[0] << ", State: " << arguments[1] << std::endl;
-    }
   }
   else {
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
