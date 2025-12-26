@@ -11,7 +11,7 @@ class CommandParameter:
         return f"CommandParameter(name={self.name}, description={self.description}, range={self.range})"
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.range}): {self.description}"
+        return f"{self.name} : {self.description}. {self.range}" if self.range else f"{self.name} : {self.description}"
 
     def get_range(self):
         return self.range
@@ -30,16 +30,16 @@ class CommandItem:
         self.description = description
         self.parameters = parameters
 
-    def execute(self, **kwargs):
-        # Placeholder for command execution logic
-        print(f"Executing command '{self.name}' with parameters: {kwargs}")
-
     def __repr__(self) -> str:
         return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters})"
 
     def __str__(self) -> str:
-        param_str = ", ".join([str(param) for param in self.parameters])
-        return f"{self.name}: {self.description} | Parameters: [{param_str}]"
+        str_ = f"{self.name}: {self.description}\nParameters:\n"
+        if self.parameters != []:
+            str_ += f"{'\t'.join([str(param) for param in self.parameters])}"
+        else:
+            str_ += "None"
+        return str_
 
 
 class CommandDefinition:
@@ -68,13 +68,13 @@ class CommandDefinition:
 
 command_collection = CommandDefinition()
 command_collection.add_command("Hub", CommandItem("Dummy1", "A dummy command for testing"))
-command_collection.add_command("Hub", CommandItem("Dummy2", "A dummy command for testing with argument", [CommandParameter("arg1", "An integer argument")]))
+command_collection.add_command("Hub", CommandItem("Dummy2", "A dummy command for testing with argument", [CommandParameter("Arg1", "An integer argument")]))
 command_collection.add_command("Hub", CommandItem("Prepare Shutdown", "Prepare the hub for shutdown"))
 command_collection.add_command("Hub", CommandItem("Exec Shutdown", "Execute the shutdown of the hub"))
 command_collection.add_command("Hub", CommandItem("Prepare Restart", "Prepare the hub for restart"))
 command_collection.add_command("Hub", CommandItem("Exec Restart", "Execute the restart of the hub"))
 command_collection.add_command("Hub", CommandItem("Reset Error", "Reset the error flags in the hub"))
-command_collection.add_command("Hub", CommandItem("Set Link", "Set the link", [CommandParameter("link_state", "Used link, 0: iridium, 1: starlink", range=(0, 1))]))
+command_collection.add_command("Hub", CommandItem("Set Link", "Set the link", [CommandParameter("Link state", "Used link, 0: iridium, 1: starlink", range=(0, 1))]))
 
 # Orchestrator commands
 command_collection.add_command("ORC", CommandItem("Exec CPU Restart", "Execute CPU restart"))
@@ -83,11 +83,29 @@ command_collection.add_command("ORC", CommandItem("Boot All DAQ", "Boot all DAQ 
 command_collection.add_command("ORC", CommandItem("Shutdown All DAQ", "Shutdown all DAQ systems"))
 command_collection.add_command("ORC", CommandItem("CPU Status", "Get the CPU status"))
 
-command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("configuration type", "Configuration type", range=(0, 3))]))
+command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))]))
 command_collection.add_command("TPC", CommandItem("Start Run", "Start data acquisition"))
 command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisition"))
 command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ system"))
 command_collection.add_command("TPC", CommandItem("Boot Monitors", "Boot the monitoring system"))
 command_collection.add_command("TPC", CommandItem("Query Hardware Status", "Query the hardware status"))
 
-command_collection.add_command("Hub", CommandItem("Set Time", "Set the hub time to the current system time", [CommandParameter("epoch time", "Epoch time to set"), CommandParameter("timezone offset", "Timezone offset in hours", range=(-12, 14)), CommandParameter("dst flag", "Daylight saving time flag, 0: no DST, 1: DST", range=(0, 1))]))
+
+command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))
+command_collection.add_command("TOF", CommandItem("Stop DAQ", "Stop data acquisition"))
+command_collection.add_command("TOF", CommandItem("Reset DAQ", "Reset data acquisition system"))
+
+command_collection.add_command("TOF", CommandItem("Run Init System", "Initialize the TOF system"))
+command_collection.add_command("TOF", CommandItem("Run Make Bias Calib Table", ""))
+command_collection.add_command("TOF", CommandItem("Run Make Simple Bias Set Table", ""))
+command_collection.add_command("TOF", CommandItem("Run Make Simple Channel Map", ""))
+command_collection.add_command("TOF", CommandItem("Run Make Simple Disc Set Table", ""))
+command_collection.add_command("TOF", CommandItem("Run Read Temperature Sensors", ""))
+command_collection.add_command("TOF", CommandItem("Run Acquire Threshold Calibration", ""))
+command_collection.add_command("TOF", CommandItem("Run Acquire QDC Calibration", ""))
+command_collection.add_command("TOF", CommandItem("Run Acquire TDC Calibration", ""))
+command_collection.add_command("TOF", CommandItem("Run Acquire SiPM Data", ""))
+
+command_collection.add_command("TOF", CommandItem("Bias ON", "Turn ON the bias voltage"))
+command_collection.add_command("TOF", CommandItem("Bias OFF", "Turn OFF the bias voltage"))
+command_collection.add_command("TOF", CommandItem("Bias Set Voltage", "Set the bias voltage", [CommandParameter("Voltage (V)", "Bias voltage in volts")]))

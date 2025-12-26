@@ -1,4 +1,5 @@
 from pGramsComSender.Window import Window
+from pGramsComSender.LogText import LogView
 import tkinter as tk
 from pGramsComSender.GUIgeometry import GUIGeometry
 from pGramsComSender.CommandExecuter import CommandExecuter
@@ -7,32 +8,44 @@ from pGramsComSender import ToolTip
 from pGramsComSender.NumberEntryGroup import NumberEntryGroup
 from tkinter import messagebox
 import tkinter.ttk as ttk
-from tkinter.scrolledtext import ScrolledText
 import logging
 from pGramsComSender.CommandDefinition import command_collection as command_collection
 
 
 class TextHandler(logging.Handler):
-    def __init__(self, text_widget: tk.Text):
+    def __init__(self, text_widget: LogView):
         super().__init__()
         self.text = text_widget
 
     def emit(self, record: logging.LogRecord):
         msg = self.format(record)
-        self.text.configure(state="normal")
-        self.text.insert("end", msg + "\n")
-        self.text.see("end")
-        self.text.configure(state="disabled")
+        level = self.check_level(msg)
+        self.text.write(msg, tag=level)
+
+    @staticmethod
+    def check_level(msg):
+        if "[DEBUG]" in msg:
+            return "DEBUG"
+        elif "[INFO]" in msg:
+            return "INFO"
+        elif "[WARNING]" in msg:
+            return "WARNING"
+        elif "[ERROR]" in msg:
+            return "ERROR"
+        elif "[CRITICAL]" in msg:
+            return "CRITICAL"
+        else:
+            return "INFO"
 
 
 class MainWindow(Window):
     def __init__(self, root, logger, executable_prefix="") -> None:
-        super().__init__(root, "CommandSender", geometry=GUIGeometry(1000, 700), grab_set=False)
+        super().__init__(root, "CommandSender", geometry=GUIGeometry(1200, 700), grab_set=False)
         self.__current_command = None
         self.logger = logger
         self.__executer = CommandExecuter(logger=logger, executable_prefix=executable_prefix)
         self.__label = None
-        self.current_subsystem = "Hub"  # Currently assuming only one subsystem
+        self.current_subsystem = "Hub"
         self._create_widgets()
 
     def _create_widgets(self):
@@ -69,7 +82,7 @@ class MainWindow(Window):
             for i in range(len(command_collection.commands[subsystem])):
                 cmd = command_collection.commands[subsystem][i]
                 b1 = ttk.Button(tab, text=cmd.name, command=lambda c=cmd: self._on_command_click(c))
-                ToolTip.ToolTip(b1, text=cmd.description)
+                ToolTip.ToolTip(b1, text=str(cmd))
                 b1.pack(fill='both', padx=50, pady=2)
             self.tabs.add(tab, text=subsystem)
         self.tabs.bind("<<NotebookTabChanged>>", self._on_click_tabs)
@@ -77,9 +90,13 @@ class MainWindow(Window):
 
         mid_right_frame = ttk.Frame(window)
         mid_right_frame.place(relheight=mid_height_ratio, relwidth=mid_right_width_ratio, relx=mid_left_width_ratio + blank_width_ratio / 2, rely=top_height_ratio + blank_height_ratio / 2, anchor="nw")
-        self.log = ScrolledText(mid_right_frame, fg="black", font=("Arial", 12), bg="white", )
+        self.log = LogView(mid_right_frame, fg="black", font=("Arial", 12), bg="white", max_lines=500)
+        self.log.tag_config("INFO", foreground="black")
+        self.log.tag_config("DEBUG", foreground="gray")
+        self.log.tag_config("WARNING", foreground="orange")
+        self.log.tag_config("ERROR", foreground="red")
+        self.log.tag_config("CRITICAL", foreground="red", background="black")
 
-        self.logger.setLevel(logging.DEBUG)
         text_handler = TextHandler(self.log)
         text_handler.setFormatter(logging.Formatter(
             "%(asctime)s [%(levelname)s] %(message)s",
@@ -104,6 +121,7 @@ class MainWindow(Window):
         tk.Button(bottom_frame, text="Send", command=self._on_send_command, width=10, bg=bottom_bg).place(relx=0.7, rely=0.3, anchor="w")
         tk.Button(bottom_frame, text="Exit", command=window.quit, width=10, bg=bottom_bg).place(relx=0.7, rely=0.7, anchor="w")
         tk.Button(bottom_frame, text="Reset", command=self.reset_command, width=10, bg=bottom_bg).place(relx=0.85, rely=0.3, anchor="w")
+        self.logger.info("GUI initialized successfully.")
 
     @property
     def current_command(self):
@@ -114,7 +132,7 @@ class MainWindow(Window):
         raise RuntimeError("current_command is read-only")
 
     def _on_command_click(self, command):
-        self.logger.info(f"Command selected: {command.name}")
+        self.logger.debug(f"Command selected: {command.name}")
         self.__current_command = command
         if self.__label:
             self.__label.config(text=f"Select a command to send\nSelected command: {command.name}")
@@ -131,19 +149,21 @@ class MainWindow(Window):
         self.__entry.clear()
 
     def _on_send_command(self):
+        if self.__current_command is None:
+            self.logger.warning("No command selected to send")
+            messagebox.showwarning("No Command Selected", "Please select a command before sending.")
+            return
         try:
             args = self.__entry.get_numbers()
             args_str = ",".join(str(arg) for arg in args)
         except ValueError as e:
+            self.logger.warning(f"Invalid input for command arguments on command {self.__current_command.name}: {e}")
             messagebox.showerror("Invalid Input", str(e))
-            return
-        if self.__current_command is None:
-            messagebox.showwarning("No Command Selected", "Please select a command before sending.")
             return
         command_all = self.compile_command(self.__current_command, args_str)
         if self.__current_command:
             window = super()._getWindow()
-            ConfirmationWindow(window, self.__executer, self.current_subsystem, command_all)
+            ConfirmationWindow(window, self.__executer, self.current_subsystem, command_all, self.logger)
             self.reset_command()
 
     def run(self):

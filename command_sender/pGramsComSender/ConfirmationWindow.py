@@ -5,11 +5,12 @@ from pGramsComSender import GUIgeometry
 
 
 class ConfirmationWindow(pGramsComSender.Window.Window):
-    def __init__(self, root, executer, subsystem, command_all) -> None:
+    def __init__(self, root, executer, subsystem, command_all, logger) -> None:
         super().__init__(root, "Notification", geometry=GUIgeometry.GUIGeometry(300, 150), grab_set=True)
         self.executer = executer
         self.command_all = command_all
         self.subsystem = subsystem
+        self.logger = logger
         self._create_widgets()
 
     def _create_widgets(self):
@@ -24,4 +25,5 @@ class ConfirmationWindow(pGramsComSender.Window.Window):
         window.destroy()
 
     def __do_Cancel(self):
+        self.logger.info("Command sending cancelled by user. Command: " + self.command_all)
         self._getWindow().destroy()
