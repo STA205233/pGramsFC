@@ -1,5 +1,4 @@
 import logging
-import tkinter as tk
 from pGramsComSender import MainWindow
 
 
@@ -8,6 +7,6 @@ class GUIRunner:
         self.root = None
         self.executable_path = executable_prefix
 
-    def run(self, command_list):
+    def run(self):
         logger = logging.getLogger("pGramsComSender")
-        MainWindow.MainWindow(self.root, command_list, logger, executable_prefix=self.executable_path).run()
+        MainWindow.MainWindow(self.root, logger, executable_prefix=self.executable_path).run()
