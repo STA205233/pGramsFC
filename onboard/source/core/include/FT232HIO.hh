@@ -8,7 +8,7 @@ namespace gramsballoon::pgrams {
 class FT232HIO: public SPIInterface {
 private:
 public:
-  FT232HIO() = default;
+  FT232HIO();
   virtual ~FT232HIO() = default;
 
 protected:
@@ -21,20 +21,11 @@ public:
     static constexpr unsigned int SPI_MODE2 = 0x2;
     static constexpr unsigned int SPI_MODE3 = 0x3;
   };
-  int baudrate() const override {
-    if (mpsseController_) { return mpsseController_->getBaudrate(); }
-    else { return 0; }
-  }
-  void setBaudrate(unsigned int baudrate) override {
-    if (mpsseController_) { mpsseController_->setBaudrate(baudrate); }
-  }
-  void setConfigOptions(unsigned int configOptions) override {
-    if (mpsseController_) {
-      mpsseController_->setSPIMode(configOptions & 0x3);
-    }
-  }
   int Open(int channel) override;
   int Close() override {
+    if (!IsOpen()) {
+      return 0;
+    }
     if (mpsseController_) {
       return mpsseController_->close();
     }
@@ -44,6 +35,7 @@ public:
   int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value) override;
+  int updateSetting() override;
 
 private:
   std::shared_ptr<mpsse::MPSSEDeviceManager> mpsseDeviceManager_;

@@ -30,7 +30,10 @@ constexpr uint8_t SET_HIGH_BYTE_STATE_CMD = 0x82;
 constexpr uint8_t GET_HIGH_BYTE_STATE_CMD = 0x83;
 
 constexpr uint8_t LOOPBACK_DISABLE_CMD = 0x85;
+constexpr uint8_t SET_DIVIDER = 0x86;
 constexpr uint8_t SEND_IMMEDIATE_CMD = 0x87;
+
+constexpr uint8_t DISABLE_5_DIVISION = 0x8A;
 } // namespace commands
 namespace spi_masks {
 constexpr uint8_t SPI_WRITE_CLK_FALLING = 0x01;

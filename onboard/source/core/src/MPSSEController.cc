@@ -26,14 +26,25 @@ int MPSSEController::initialize() {
   return 0;
 }
 
+unsigned int MPSSEController::calDivider(unsigned int baudrate) {
+  return (60000000 / (2 * baudrate)) - 1;
+}
+
 int MPSSEController::applySettings() {
+  {
+    const unsigned int divider_setting = calDivider(getBaudrate());
+    uint8_t cmd[] = {commands::DISABLE_5_DIVISION, commands::SET_DIVIDER, static_cast<uint8_t>(divider_setting & 0xFF), static_cast<uint8_t>((divider_setting >> 8) & 0xFF)};
+    const auto status = writeMPSSE(&cmd[0], sizeof(cmd) / sizeof(uint8_t));
+    if (status < 0) {
+      std::cerr << "Changing Baudrate is failed: " << status << std::endl;
+    }
+  }
+  DBG("baudrate is set to " << getBaudrate());
   HANDLE_ERROR(FT_SetLatencyTimer(handle_, latencyTimer_));
   DBG("latencyTimer is set to " << latencyTimer_);
   HANDLE_ERROR(FT_SetTimeouts(handle_, readTimeout_, writeTimeout_));
   DBG("readTimeout is set to " << readTimeout_);
   DBG("writeTimeout is set to " << writeTimeout_);
-  HANDLE_ERROR(FT_SetBaudRate(handle_, getBaudrate()));
-  DBG("baudrate is set to " << getBaudrate());
   setSPIMode(spiMode_);
   return 0;
 }
@@ -143,7 +154,7 @@ int MPSSEController::writeMPSSE(std::vector<uint8_t> &data) {
 int MPSSEController::writeMPSSE(uint8_t *data, unsigned int size) {
 #ifdef SPI_DEBUG
   std::cout << __func__ << " is called with arguments ";
-  for (int i = 0; i < size; i++) {
+  for (unsigned int i = 0; i < size; i++) {
     std::cout << std::hex << static_cast<int>(data[i]) << " " << std::dec;
   }
   std::cout << std::endl;
@@ -176,7 +187,7 @@ int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
   }
 #ifdef SPI_DEBUG
   std::cout << __func__ << " is called with arguments and result: ";
-  for (int i = 0; i < size; i++) {
+  for (unsigned int i = 0; i < size; i++) {
     std::cout << std::hex << static_cast<int>(data[i]) << " " << std::dec;
   }
   std::cout << std::endl;

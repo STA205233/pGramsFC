@@ -20,17 +20,28 @@ public:
 
 protected:
   SPIInterface(const SPIInterface &) = delete;
+  void setIsOpen(bool isOpen) { isOpen_ = isOpen; }
 
 public:
-  virtual int baudrate() const { return 0; }
-  virtual void setBaudrate(unsigned int) {}
-  virtual void setConfigOptions(unsigned int) {}
+  unsigned int Baudrate() const { return baudrate_; }
+  virtual int updateSetting() { return -1; }
+  virtual void setBaudrate(unsigned int baudrate) {
+    baudrate_ = baudrate;
+  }
+  bool IsOpen() const { return isOpen_; }
+  void setConfigOptions(unsigned int configOptions) { configOptions_ = configOptions; }
+  unsigned int ConfigOptions() const { return configOptions_; }
   virtual int Open(int) { return -1; }
   virtual int Close() { return -1; }
   virtual int WriteAfterRead(int, const uint8_t *, int, uint8_t *, int) { return -1; }
   virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *) { return -1; }
   virtual int Write(int, const uint8_t *, unsigned int) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
+
+private:
+  unsigned int baudrate_ = 1000000;
+  unsigned int configOptions_ = 0;
+  bool isOpen_ = false;
 };
 
 } // namespace gramsballoon::pgrams

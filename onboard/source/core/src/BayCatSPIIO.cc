@@ -15,32 +15,37 @@ void BayCatSPIIO::setBaudrate(unsigned int baudrate) {
     std::cerr << "Baudrate " << baudrate << " Hz is not working." << std::endl;
     return;
   }
-  baudrate_ = baudrate;
-  const VL_APIStatusT status = VSL_SPISetFrequency(baudrateList_[baudrate_]);
+  setBaudrate(baudrate);
+}
+int BayCatSPIIO::applyBaudrateSetting() {
+  const VL_APIStatusT status = VSL_SPISetFrequency(baudrateList_[Baudrate()]);
 #ifdef DEBUG_SPI
-  std::cout << "BayCatSPIIO: baudrate_" << baudrate_ << std::endl;
-  std::cout << "BayCatSPIIO: baudrateList_[baudrate_]: " << baudrateList_[baudrate_] << std::endl; //For Debug
+  std::cout << "BayCatSPIIO: baudrate_" << Baudrate()<< std::endl;
+  std::cout << "BayCatSPIIO: baudrateList_[baudrate_]: " << baudrateList_[Baudrate()] << std::endl; //For Debug
 #endif
   if (status != VL_API_OK) {
     std::cerr << "SPISetFrequency failed: " << status << std::endl;
+    return static_cast<int>(status);
   }
+  return 0;
 }
 int BayCatSPIIO::updateSetting() {
-  if (!isOpen_) {
+  if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
+  const auto options = ConfigOptions();
   bool failed = false;
-  const VL_APIStatusT status = VSL_SPISetMode(options_ & SPI_MODE_MASK);
+  const VL_APIStatusT status = VSL_SPISetMode(options & SPI_MODE_MASK);
 #ifdef DEBUG_SPI
-  std::cout << "BayCatSPIIO: options_ & SPI_MODE_MASK: " << (options_ & SPI_MODE_MASK) << std::endl; //For Debug
+  std::cout << "BayCatSPIIO: options_ & SPI_MODE_MASK: " << (options & SPI_MODE_MASK) << std::endl; //For Debug
 #endif
   if (status != VL_API_OK) {
     std::cerr << "SPISetMode failed: " << status << std::endl;
     failed = true;
   }
 
-  const unsigned int shift_direction = (options_ & SPI_SHIFT_DIRECTION_MASK) >> SPI_SHIFT_DIRECTION_OFFSET;
+  const unsigned int shift_direction = (options & SPI_SHIFT_DIRECTION_MASK) >> SPI_SHIFT_DIRECTION_OFFSET;
   if (shift_direction != SPI_DIR_LEFT && shift_direction != SPI_DIR_RIGHT) {
     std::cerr << "ShiftDirection is invalid: " << SPI_DIR_RIGHT << " or " << SPI_DIR_LEFT << " are allowed.";
     failed = false;
@@ -60,11 +65,13 @@ int BayCatSPIIO::updateSetting() {
     std::cerr << "SPISetFrameSize failed: " << status << std::endl;
     failed = true;
   }
+  const int status4 = applyBaudrateSetting();
+  if (status4 != 0) failed = true;
   if (failed) return -1;
   return 0;
 }
 int BayCatSPIIO::Open(int) {
-  if (isOpen_) {
+  if (IsOpen()) {
     return 0;
   }
   const auto status = VSL_Open();
@@ -72,7 +79,7 @@ int BayCatSPIIO::Open(int) {
     std::cerr << "VSL_Open failed: " << status << std::endl;
     return status;
   }
-  isOpen_ = true;
+  setIsOpen(true);
   const auto status_update = updateSetting();
   if (status_update != 0) {
     std::cerr << "updateSetting failed: " << status_update << std::endl;
@@ -81,7 +88,7 @@ int BayCatSPIIO::Open(int) {
   return status;
 }
 int BayCatSPIIO::Close() {
-  if (!isOpen_) {
+  if (!IsOpen()) {
     return 0;
   }
   const auto status = VSL_Close();
@@ -89,11 +96,11 @@ int BayCatSPIIO::Close() {
     std::cerr << "VSL_Close failed: " << status << std::endl;
     return status;
   }
-  isOpen_ = false;
+  setIsOpen(false);
   return status;
 }
 int BayCatSPIIO::WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
-  if (!isOpen_) {
+  if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
@@ -179,7 +186,7 @@ int BayCatSPIIO::controlDIO(const int cs, const bool value) {
       return -1;
     }
     std::cout << "Channel " << cs << " output: " << static_cast<int>(direction) << std::endl;
-    if (direction != DIO_OUTPUT){
+    if (direction != DIO_OUTPUT) {
       std::cerr << "VSL_DIOGEtChannelDirection failed: " << "no effects" << std::endl;
       return -1;
     }
@@ -198,7 +205,7 @@ int BayCatSPIIO::controlDIO(const int cs, const bool value) {
   return 0;
 }
 int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
-  if (!isOpen_) {
+  if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
@@ -254,7 +261,7 @@ int BayCatSPIIO::controlFPGAGPIO(const int cs, const bool value) {
   return 0;
 }
 int BayCatSPIIO::ReadFPGARegister(unsigned long reg, unsigned char *data) {
-  if (!isOpen_) {
+  if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
@@ -270,7 +277,7 @@ int BayCatSPIIO::ReadFPGARegister(unsigned long reg, unsigned char *data) {
   return 0;
 }
 int BayCatSPIIO::WriteFPGARegister(unsigned long reg, unsigned char data) {
-  if (!isOpen_) {
+  if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }

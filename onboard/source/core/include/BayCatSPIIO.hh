@@ -21,28 +21,25 @@ public:
   BayCatSPIIO(const BayCatSPIIO &) = delete;
 
 private:
-  bool isOpen_ = false;
-  unsigned int baudrate_ = 0;
-  unsigned int options_ = 0;
   std::map<int, unsigned int> baudrateList_;
-
 public:
-  int baudrate() const override { return baudrate_; }
+  int updateSetting() override;
   void setBaudrate(unsigned int baudrate) override;
-  void setConfigOptions(unsigned int configOptions) override { options_ = configOptions; }
-  int updateSetting();
   int Open(int channel) override;
   int Close() override;
   int WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
   int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/) override { return -1; }
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value);
-  int controlDIO(int cs, bool value);
-  int controlFPGAGPIO(int cs, bool value);
   int WriteFPGARegister(unsigned long reg, unsigned char data);
   int WriteFPGARegisterOneChannel(unsigned long reg, int gpioId, bool data);
   int ReadFPGARegister(unsigned long reg, unsigned char *data);
   int ReadFPGARegisterOneChannel(unsigned long reg, int gpioId, bool *value);
+
+private:
+  int applyBaudrateSetting();
+  int controlFPGAGPIO(int cs, bool value);
+  int controlDIO(int cs, bool value);
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_BayCatSPIInterface_hh

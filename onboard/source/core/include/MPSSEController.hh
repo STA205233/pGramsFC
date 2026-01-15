@@ -24,6 +24,7 @@ public:
   void setLatencyTimer(UCHAR timer) {
     latencyTimer_ = timer;
   }
+  static unsigned int calDivider(unsigned int baudrate); 
   int applySettings();
   int testConnection();
   void setBaudrate(unsigned int baudrate);

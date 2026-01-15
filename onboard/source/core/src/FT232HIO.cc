@@ -1,9 +1,11 @@
 #include "FT232HIO.hh"
 #include <iostream>
 namespace gramsballoon::pgrams {
-int FT232HIO::Open(int channel) {
+FT232HIO::FT232HIO() {
   mpsseDeviceManager_ = std::make_shared<mpsse::MPSSEDeviceManager>();
   mpsseController_ = std::make_shared<mpsse::MPSSEController>();
+}
+int FT232HIO::Open(int channel) {
   int status = mpsseDeviceManager_->openDevice(channel, *mpsseController_);
   if (status != 0) {
     std::cerr << "FT232HIO::Open: Failed to open device at channel " << channel << std::endl;
@@ -14,6 +16,7 @@ int FT232HIO::Open(int channel) {
     std::cerr << "FT232HIO::Open: Failed to initialize MPSSE controller" << std::endl;
     return status;
   }
+  setIsOpen(true);
   return 0;
 }
 
@@ -63,5 +66,15 @@ int FT232HIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
 }
 int FT232HIO::controlGPIO(int cs, bool value) {
   return mpsseController_->writeGPIO(cs, value);
+}
+int FT232HIO::updateSetting() {
+  const unsigned int baudrate = Baudrate();
+  const unsigned int configOptions = ConfigOptions();
+  if (mpsseController_) {
+    mpsseController_->setSPIMode(configOptions & 0x3);
+    mpsseController_->setBaudrate(baudrate);
+    return mpsseController_->applySettings();
+  }
+  return -1;
 }
 } // namespace gramsballoon::pgrams
