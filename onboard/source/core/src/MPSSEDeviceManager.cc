@@ -42,6 +42,7 @@ int MPSSEDeviceManager::openDevice(int index, MPSSEController &controller) {
     std::cerr << "Failed to open MPSSE device at index " << index << std::endl;
     return -1;
   }
+  DBG("Opened the device");
   controller.setHandle(handle);
   return 0;
 }

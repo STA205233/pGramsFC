@@ -4,7 +4,7 @@
 #endif
 
 #ifdef USE_BAYCAT_SPI
-#include "BayCatControl.hh"
+#include "BayCatSPIIO.hh"
 #endif
 using namespace anlnext;
 using namespace gramsballoon;
@@ -13,7 +13,7 @@ namespace gramsballoon::pgrams {
 
 SPIManager::SPIManager() {
 #ifdef USE_BAYCAT_SPI
-  interface_ = std::make_shared<BayCatControl>();
+  interface_ = std::make_shared<BayCatSPIIO>();
 #endif
 }
 

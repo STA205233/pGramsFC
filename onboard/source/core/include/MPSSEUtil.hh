@@ -1,14 +1,22 @@
 #ifndef GRAMSBalloon_MPSSEUtil_hh
 #define GRAMSBalloon_MPSSEUtil_hh 1
 #include <iostream>
+#define SPI_DEBUG
+#ifdef SPI_DEBUG
+#define DBG(msg) \
+  std::cout << __func__ << " in " << __FILE__ << ":" << __LINE__ << ": " << msg << std::endl;
+#else
+#define DBG(msg)
+#endif
 #ifdef HANDLE_ERROR
 #error "HANDLE_ERROR macro is already defined. Check including files and whether include is put on src file or not. This file is not intended to be included in header files."
 #else
-#define HANDLE_ERROR(status)                                             \
-  if (status != FT_OK) {                                                 \
-    std::cerr << "Error in " << __func__ << ": " << status << std::endl; \
-    return -static_cast<int>(status);                                    \
-  }
+#define HANDLE_ERROR(status)                                                                                      \
+  if (status != FT_OK) {                                                                                               \
+    std::cerr << "Error in " << __func__ << " in " << __FILE__ << ":" << __LINE__ << ": " << status << std::endl; \
+    return -static_cast<int>(status);                                                                             \
+  }                                                                                                               \
+  DBG(__func__ << " is successful")
 #endif
 namespace gramsballoon::pgrams::mpsse {
 namespace commands {

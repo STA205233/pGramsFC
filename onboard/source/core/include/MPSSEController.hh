@@ -13,7 +13,7 @@ namespace gramsballoon::pgrams::mpsse {
 class MPSSEController {
 public:
   MPSSEController() = default;
-  virtual ~MPSSEController() = default;
+  virtual ~MPSSEController();
   int initialize();
   void setReadTimeout(ULONG timeout) {
     readTimeout_ = timeout;
@@ -26,7 +26,7 @@ public:
   }
   int applySettings();
   int testConnection();
-  int setBaudrate(unsigned int baudrate);
+  void setBaudrate(unsigned int baudrate);
   int setSPIMode(int mode, bool byteMode = true, bool msbFirst = true);
   int writeSPI(uint8_t *data, unsigned int size, int cs);
   void setHandle(FT_HANDLE handle) {
@@ -34,7 +34,7 @@ public:
   }
   int readCurrentPinStatus(uint16_t &status);
   int writeGPIO(int pin, bool value);
-  int getBaudrate();
+  unsigned int getBaudrate();
   int write_readSPI(uint8_t *dataToSend, unsigned int size, uint8_t *dataToReceive, int cs);
   int close();
 
@@ -45,6 +45,7 @@ private:
   UCHAR latencyTimer_ = 16; // in milliseconds
   int spiMode_ = 0;
   unsigned int baudrate_ = 9600;
+  bool opened_ = false;
 
   std::vector<uint8_t> cmdBuffer_; //Just to avoid reallocations. It should be refreshed before each use in one function call.
 

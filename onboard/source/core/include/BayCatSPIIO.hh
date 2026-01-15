@@ -2,12 +2,12 @@
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "SPIInterface.hh"
 #define linux 1
-#include "stdbool.h" // This is needed for including VL_OSALib.h
 #include "VL_OSALib.h"
+#include "stdbool.h" // This is needed for including VL_OSALib.h
 #include <map>
 #include <stdint.h>
 namespace gramsballoon::pgrams {
-class BayCatControl: public SPIInterface {
+class BayCatSPIIO: public SPIInterface {
   static constexpr unsigned int SPI_MODE_MASK = 0x3;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_MASK = 0x4;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_OFFSET = 2;
@@ -16,9 +16,9 @@ class BayCatControl: public SPIInterface {
   static constexpr unsigned long AUX_OUT = 0xCA3;
 
 public:
-  BayCatControl();
-  virtual ~BayCatControl() = default;
-  BayCatControl(const BayCatControl &) = delete;
+  BayCatSPIIO();
+  virtual ~BayCatSPIIO() = default;
+  BayCatSPIIO(const BayCatSPIIO &) = delete;
 
 private:
   bool isOpen_ = false;

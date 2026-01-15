@@ -9,8 +9,6 @@ int FT232HIO::Open(int channel) {
     std::cerr << "FT232HIO::Open: Failed to open device at channel " << channel << std::endl;
     return status;
   }
-  mpsseController_->setBaudrate(baudrate());
-  mpsseController_->setSPIMode(configOptions_ & 0x3);
   status = mpsseController_->initialize();
   if (status != 0) {
     std::cerr << "FT232HIO::Open: Failed to initialize MPSSE controller" << std::endl;
@@ -30,7 +28,7 @@ int FT232HIO::WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint
     writeBuffer_.push_back(0);
     readBuffer_.push_back(0);
   }
-  int num_transfered = WriteAndRead(cs, &readBuffer_[0], wsize + rsize, &writeBuffer_[0]);
+  int num_transfered = WriteAndRead(cs, &writeBuffer_[0], wsize + rsize, &readBuffer_[0]);
   if (num_transfered < 0) {
     return num_transfered;
   }
