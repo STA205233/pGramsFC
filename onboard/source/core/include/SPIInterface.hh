@@ -10,7 +10,7 @@
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
- * @date 2025-05-02 | Shota Arai | Modified to use the FT232H, majar refactoring
+ * @date 2025-05-02 | Shota Arai | Modified to use the FT232H, major refactoring
  */
 namespace gramsballoon::pgrams {
 class SPIInterface {

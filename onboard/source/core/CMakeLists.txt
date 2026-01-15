@@ -43,6 +43,8 @@ if(GB_USE_SPI)
   if(GB_USE_FT232H)
     list(APPEND GB_SPI_CORE_CLASSES
       src/FT232HIO.cc
+      src/MPSSEController.cc
+      src/MPSSEDeviceManager.cc
     )
   endif(GB_USE_FT232H)
 endif(GB_USE_SPI)

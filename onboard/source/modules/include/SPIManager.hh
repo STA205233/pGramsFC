@@ -10,7 +10,7 @@
 #define SPIManager_H 1
 
 #include "SPIInterface.hh"
-#include "SPIInterfaceMultiplexer.hh"
+//#include "SPIInterfaceMultiplexer.hh"
 #include "SendTelemetry.hh"
 #include "ftd2xx.h"
 #include "libmpsse_spi.h"
@@ -38,10 +38,10 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  SPIInterfaceMultiplexer *Interface() { return (singleton_self()->interface_).get(); }
+  SPIInterface *Interface() { return (singleton_self()->interface_).get(); }
 
 private:
-  std::shared_ptr<SPIInterfaceMultiplexer> interface_ = nullptr;
+  std::shared_ptr<SPIInterface> interface_ = nullptr;
   int channel_ = 0;
   int baudrate_ = 100000;
   int spiConfigOptions_ = SPI_CONFIG_OPTION_CS_ACTIVELOW | SPI_CONFIG_OPTION_MODE1 | SPI_CONFIG_OPTION_CS_DBUS3;

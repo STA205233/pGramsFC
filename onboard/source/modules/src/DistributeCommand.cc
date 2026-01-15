@@ -10,11 +10,11 @@ void SigPipeHandler(int) {
 }
 namespace gramsballoon::pgrams {
 DistributeCommand::DistributeCommand() {
-  subSystems_ = {
-      {"TPC", SubSystem(-1, 50000, "localhost", "TPC")},
-      {"SiPM", SubSystem(-1, 50001, "localhost", "SiPM")},
-      {"DAQ", SubSystem(-1, 50002, "localhost", "DAQ")},
-      {"TOF", SubSystem(-1, 50003, "localhost", "TOF")}};
+  //subSystems_ = {
+  //    {"TPC", SubSystem(-1, 50000, "localhost", "TPC")},
+  //    {"SiPM", SubSystem(-1, 50001, "localhost", "SiPM")},
+  //    {"DAQ", SubSystem(-1, 50002, "localhost", "DAQ")},
+  //    {"TOF", SubSystem(-1, 50003, "localhost", "TOF")}};
 }
 ANLStatus DistributeCommand::mod_define() {
   define_parameter("chatter", &mod_class::chatter_);
