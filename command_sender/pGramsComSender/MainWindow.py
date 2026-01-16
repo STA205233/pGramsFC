@@ -78,13 +78,13 @@ class MainWindow(Window):
 
         self.tabs = ttk.Notebook(mid_left_frame)
         for subsystem in command_collection.commands.keys():
-            tab = ttk.Frame(self.tabs)
+            tab_container, tab_inner = make_scrollable_tab(self.tabs)
             for i in range(len(command_collection.commands[subsystem])):
                 cmd = command_collection.commands[subsystem][i]
-                b1 = ttk.Button(tab, text=cmd.name, command=lambda c=cmd: self._on_command_click(c))
+                b1 = ttk.Button(tab_inner, text=cmd.name, command=lambda c=cmd: self._on_command_click(c))
                 ToolTip.ToolTip(b1, text=str(cmd))
-                b1.pack(fill='both', padx=50, pady=2)
-            self.tabs.add(tab, text=subsystem)
+                b1.pack(fill="x", padx=50, pady=2)
+            self.tabs.add(tab_container, text=subsystem)
         self.tabs.bind("<<NotebookTabChanged>>", self._on_click_tabs)
         self.tabs.place(relheight=1.0, relwidth=1.0, relx=0.0, rely=0.0, anchor="nw")
 
@@ -180,3 +180,68 @@ class MainWindow(Window):
                 child.state(['!disabled'])
             except Exception:
                 pass
+
+
+def make_scrollable_tab(notebook: ttk.Notebook):
+    tab_container = ttk.Frame(notebook)
+
+    canvas = tk.Canvas(tab_container, highlightthickness=0)
+    vbar = ttk.Scrollbar(tab_container, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=vbar.set)
+
+    vbar.pack(side="right", fill="y")
+    canvas.pack(side="left", fill="both", expand=True)
+
+    inner = ttk.Frame(canvas)
+    window_id = canvas.create_window((0, 0), window=inner, anchor="nw")
+
+    def update_scroll_state():
+        """中身がはみ出る時だけスクロール可能にする"""
+        tab_container.update_idletasks()
+
+        content_h = inner.winfo_reqheight()
+        view_h = canvas.winfo_height()
+
+        # scrollregion は常に最新化
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+        if content_h <= view_h:
+            # はみ出てない → スクロール不要
+            vbar.pack_forget()              # スクロールバー非表示
+            canvas.yview_moveto(0)          # 上に戻す（任意）
+            tab_container._scroll_enabled = False
+        else:
+            # はみ出てる → スクロール必要
+            if not vbar.winfo_ismapped():
+                vbar.pack(side="right", fill="y")
+            tab_container._scroll_enabled = True
+
+    # innerサイズ変更時
+    inner.bind("<Configure>", lambda e: update_scroll_state())
+
+    # canvasサイズ変更時（ウィンドウリサイズなど）
+    def on_canvas_configure(event):
+        canvas.itemconfigure(window_id, width=event.width)
+        update_scroll_state()
+
+    canvas.bind("<Configure>", on_canvas_configure)
+
+    # マウスホイール（必要な時だけ動かす）
+    def on_mousewheel(event):
+        if getattr(tab_container, "_scroll_enabled", False):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def bind_wheel(_):
+        canvas.bind_all("<MouseWheel>", on_mousewheel)
+
+    def unbind_wheel(_):
+        canvas.unbind_all("<MouseWheel>")
+
+    tab_container.bind("<Enter>", bind_wheel)
+    tab_container.bind("<Leave>", unbind_wheel)
+
+    # 初期状態
+    tab_container._scroll_enabled = False
+    tab_container.after(0, update_scroll_state)
+
+    return tab_container, inner
