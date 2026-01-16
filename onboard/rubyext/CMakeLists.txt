@@ -12,6 +12,8 @@ set(RUBY_EXT_INCLUDE_DIRS
   ${HSQUICKLOOK_INC_DIR}
   ${ROOT_INC_DIR}
   ${MYSQL_INC_DIR}
+  ${D2XX_INCLUDE_DIRS}
+  ${VERSALOGIC_INC_DIRS}
   )
 set(RUBY_EXT_LIBRARY_DIRS
   /usr/local/lib
@@ -28,10 +30,16 @@ set(RUBY_EXT_LIBRARIES
   ${MONGODB_LIB}
   ${ROOT_LIB}
   ${MYSQL_LIB}
+  ${D2XX_LIB}
+  ${VERSALOGIC_LIB}
 )
 
 
 ########################################################
+set(cxx_definitions )
+if(GB_USE_SPI)
+  list(APPEND cxx_definitions -DUSE_SPI)
+endif()
 if(GB_USE_SYSTEM_MODULES)
   list(APPEND cxx_definitions -DUSE_SYSTEM_MODULES)
 endif()
@@ -46,6 +54,9 @@ if(GB_USE_MYSQL)
 endif()
 if(GB_MAC)
   list(APPEND cxx_definitions -DGB_MAC)
+endif()
+if(GB_DEMO_MODE)
+  list(APPEND cxx_definitions -DGB_DEMO_MODE)
 endif()
 
 set(SWIG_FLAGS ${cxx_definitions})

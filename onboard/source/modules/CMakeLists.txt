@@ -7,6 +7,8 @@ include_directories(
   ${HSQUICKLOOK_INC_DIR}
   ${MYSQL_INC_DIR}
   ${GB_PGRAMSBALLOON_INC_DIR}
+  ${VERSALOGIC_INC_DIR}
+  ${D2XX_INCLUDE_DIRS}
 )
 
 link_directories(
@@ -45,7 +47,11 @@ set(GB_MODULES
   src/SendArrayByMQTT.cc
 )
 
-
+if(GB_USE_SPI)
+  set(GB_SPI_MODULES
+    src/SPIManager.cc
+  )
+endif(GB_USE_SPI)
 
 if(GB_USE_SYSTEM_MODULES)
   set(GB_SYSTEM_MODULES
@@ -74,11 +80,14 @@ add_library(GBModules SHARED
   ${GB_DEMO_MODULES}
   ${GB_MYSQL_MODULES}
   ${GB_MOSQUITTO_MODULES}
+  ${GB_SPI_MODULES}
 )
 target_link_libraries(GBModules
   GBCore
   ${ANLNEXT_LIB}
   ${ROOT_LIB}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
   ${MONGODB_LIB}
   ${HSQUICKLOOK_LIB}
   ${MYSQL_LIB}
