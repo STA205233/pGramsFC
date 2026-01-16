@@ -187,6 +187,11 @@ int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, u
       controlGPIO(cs, true);
       return -1;
     }
+    if (status_read != VL_API_OK) {
+      std::cerr << "SPIWReadDataFrame failed: " << status_read << std::endl;
+      controlGPIO(cs, true);
+      return -1;
+    }
     readBuffer[i] = read_data;
   }
   controlGPIO(cs, true);

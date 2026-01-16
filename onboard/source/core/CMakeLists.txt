@@ -5,6 +5,7 @@ include_directories(
   ${MPSSE_INC_DIR}
   ${MYSQL_INC_DIR}
   ${GB_PGRAMSBALLOON_INC_DIR}
+  ${VERSALOGIC_INC_DIR}
   )
 
 link_directories(
