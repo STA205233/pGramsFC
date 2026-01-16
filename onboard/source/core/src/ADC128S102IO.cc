@@ -1,6 +1,6 @@
 #include "ADC128S102IO.hh"
 namespace gramsballoon::pgrams {
-float ADC128S102IO::convertVoltage(uint16_t value) {
+float ADC128S102IO::convertVoltage(uint16_t value) const {
   return LSB_ * value + halfLSB_;
 }
 float ADC128S102IO::getCurrentVoltage(int ch) {

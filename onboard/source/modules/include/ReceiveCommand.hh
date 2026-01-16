@@ -5,6 +5,9 @@
 
 #include "CommunicationFormat.hh"
 #include "CommunicationSaver.hh"
+#ifdef USE_SPI
+#include "ControlPDUDAC.hh"
+#endif
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
 #include "SendCommandToDAQComputer.hh"
@@ -24,6 +27,10 @@ class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
 class SendCommandToDAQComputer;
+#ifdef USE_SPI
+class ControlPDUDAC;
+#endif
+
 /**
  * Receive commands from ground.
  *
@@ -72,6 +79,10 @@ private:
   RunIDManager *runIDManager_ = nullptr;
   MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   MosquittoManager<std::string> *telemetryMosquittoManager_ = nullptr;
+  
+#ifdef USE_SPI
+  ControlPDUDAC *controlPDUDAC_ = nullptr;
+#endif
 
   //communication
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;

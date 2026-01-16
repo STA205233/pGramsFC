@@ -50,6 +50,8 @@ set(GB_MODULES
 if(GB_USE_SPI)
   set(GB_SPI_MODULES
     src/SPIManager.cc
+    src/GetPDUADC.cc
+    src/ControlPDUDAC.cc
   )
 endif(GB_USE_SPI)
 

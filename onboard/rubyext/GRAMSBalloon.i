@@ -13,6 +13,8 @@
 #endif
 #ifdef USE_SPI
 #include "SPIManager.hh"
+#include "ControlPDUDAC.hh"
+#include "GetPDUADC.hh"
 #endif
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
@@ -68,6 +70,16 @@ class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
+};
+class GetPDUADC : public anlnext::BasicModule
+{
+public:
+  GetPDUADC();
+};
+class ControlPDUDAC : public anlnext::BasicModule
+{
+public:
+  ControlPDUDAC();
 };
 #endif
 

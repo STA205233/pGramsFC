@@ -130,22 +130,34 @@ int MPSSEController::writeGPIO(int pin, bool value) {
   else {
     status &= ~(1 << (pin + 3)); // Keep high byte
   }
+  return writeGPIORaw(status);
+}
+int MPSSEController::writeGPIORaw(const uint16_t status) {
   cmdBuffer_.clear();
   cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
   cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
-  writeMPSSE(cmdBuffer_);
+  cmdBuffer_.push_back(commands::SET_HIGH_BYTE_STATE_CMD);
+  cmdBuffer_.push_back((status >> 8) & 0xFF);
+  cmdBuffer_.push_back(0xFF); // All high byte pins as output
+  const int write_status = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
-  return 0;
+  return write_status;
+}
+int MPSSEController::writeGPIOMul(const uint32_t state) {
+  uint16_t status;
+  readCurrentPinStatus(status);
+  status = static_cast<uint16_t>(((state << 3) & 0xFFF8) + (status & 0x07));
+  return writeGPIORaw(status);
 }
 
 int MPSSEController::readCurrentPinStatus(uint16_t &status) {
   uint8_t cmd[2] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD}; // Command to read low byte
-  writeMPSSE(cmd, sizeof(cmd));
+  const int write_status = writeMPSSE(cmd, sizeof(cmd));
   uint8_t readData[2] = {0, 0};
-  readMPSSE(readData, sizeof(readData));
+  const int read_status = readMPSSE(readData, sizeof(readData));
   status = static_cast<uint16_t>(readData[0]) | (static_cast<uint16_t>(readData[1]) << 8);
-  return 0;
+  return write_status < 0 ? write_status : read_status;
 }
 
 int MPSSEController::writeMPSSE(std::vector<uint8_t> &data) {

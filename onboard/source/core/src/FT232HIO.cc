@@ -67,6 +67,9 @@ int FT232HIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
 int FT232HIO::controlGPIO(int cs, bool value) {
   return mpsseController_->writeGPIO(cs, value);
 }
+int FT232HIO::controlGPIOMul(const uint32_t state) {
+  return mpsseController_->writeGPIOMul(state);
+}
 int FT232HIO::updateSetting() {
   const unsigned int baudrate = Baudrate();
   const unsigned int configOptions = ConfigOptions();

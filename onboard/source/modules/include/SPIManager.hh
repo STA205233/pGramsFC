@@ -10,7 +10,6 @@
 #define SPIManager_H 1
 
 #include "SPIInterface.hh"
-//#include "SPIInterfaceMultiplexer.hh"
 #include "SendTelemetry.hh"
 #include "ftd2xx.h"
 #include <anlnext/BasicModule.hh>
@@ -37,7 +36,7 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  SPIInterface *Interface() { return (singleton_self()->interface_).get(); }
+  std::shared_ptr<SPIInterface> &Interface() { return (singleton_self()->interface_); }
 
 private:
   std::shared_ptr<SPIInterface> interface_ = nullptr;
@@ -46,6 +45,7 @@ private:
   int spiConfigOptions_ = 0;
   std::vector<int> chipSelectArray_;
   SendTelemetry *sendTelemetry_ = nullptr;
+  std::string interfaceName_ = "BayCat";
   int chatter_ = 0;
 };
 } /* namespace pgrams */

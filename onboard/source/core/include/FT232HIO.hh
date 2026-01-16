@@ -35,6 +35,7 @@ public:
   int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value) override;
+  int controlGPIOMul(const uint32_t state) override;
   int updateSetting() override;
 
 private:

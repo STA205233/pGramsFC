@@ -13,6 +13,13 @@ inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, c
   }
   return false;
 }
+inline bool error_in_spi_not_enabled(SendTelemetry *sendtelemetry, const std::string &module_id) {
+  std::cerr << module_id << termutil::red << "[error]" << termutil::reset << "SPI functionality is not enabled." << std::endl;
+  if (sendtelemetry) {
+    sendtelemetry->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR); // TODO: To be implemented
+  }
+  return false;
+}
 ReceiveCommand::ReceiveCommand() {
   binaryFilenameBase_ = "Command";
   topic_ = "command";
@@ -299,6 +306,77 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       return false;
     }
     return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_SiPM0_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU SiPM0 VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(0, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_SiPM1_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU SiPM1 VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(1, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_SiPM2_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU SiPM2 VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(2, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_SiPM3_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU SiPM3 VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(3, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_SiPM4_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU SiPM4 VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(4, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_SiPM5_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU SiPM5 VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(5, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::PDU_PressureReg_VSET) && argc == 1) {
+#ifdef USE_SPI
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": PDU Pressure Regulator VSET command received. Voltage: " << arguments[0] << std::endl;
+    }
+    controlPDUDAC_->setVoltage(6, arguments[0]);
+#else
+    return error_in_spi_not_enabled(sendTelemetry_, module_id());
+#endif
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_ON) && argc == 1) {
     if (chatter_ >= 1) {

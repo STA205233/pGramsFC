@@ -18,12 +18,11 @@ private:
   uint8_t writeBuffer_[2] = {0, 0};
 
 public:
-  float convertVoltage(uint16_t value);
   float getCurrentVoltage(int ch);
   float convertVoltage(uint16_t value) const;
-  void setSPIInterface(std::shared_ptr<SPIInterface> spiInterface) { spiInterface_ = spiInterface; }
   void setCS(int cs) { cs_ = cs; }
   int getCS() const { return cs_; }
+  void setSPIInterface(const std::shared_ptr<SPIInterface> &spiInterface) { spiInterface_ = spiInterface; }
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_ADC128S102IO_HH

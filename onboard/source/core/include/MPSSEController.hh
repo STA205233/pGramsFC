@@ -24,7 +24,7 @@ public:
   void setLatencyTimer(UCHAR timer) {
     latencyTimer_ = timer;
   }
-  static unsigned int calDivider(unsigned int baudrate); 
+  static unsigned int calDivider(unsigned int baudrate);
   int applySettings();
   int testConnection();
   void setBaudrate(unsigned int baudrate);
@@ -35,6 +35,7 @@ public:
   }
   int readCurrentPinStatus(uint16_t &status);
   int writeGPIO(int pin, bool value);
+  int writeGPIOMul(const uint32_t state);
   unsigned int getBaudrate();
   int write_readSPI(uint8_t *dataToSend, unsigned int size, uint8_t *dataToReceive, int cs);
   int close();
@@ -60,6 +61,7 @@ private:
   int readMPSSE(std::vector<uint8_t> &data, unsigned int size);
   int readMPSSE(uint8_t *data, unsigned int size);
   int disableLoopback();
+  int writeGPIORaw(const uint16_t status);
 };
 } // namespace gramsballoon::pgrams::mpsse
 #endif //GB_ControlMPSSE_hh

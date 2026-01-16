@@ -38,10 +38,30 @@ public:
   virtual int Write(int, const uint8_t *, unsigned int) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
 
+  // Multiplexer versions
+  virtual int controlGPIOMul(const uint32_t /*state*/) { return -1; }
+  int WriteAndReadMul(int channel, const uint8_t *dataToWrite, int writeSize, uint8_t *dataToRead, int readSize) {
+    return multiplexerControl(channel, &SPIInterface::WriteThenRead, dataToWrite, writeSize, dataToRead, readSize);
+  }
+  int WriteMul(int channel, const uint8_t *dataToWrite, unsigned int size) {
+    return multiplexerControl(channel, &SPIInterface::Write, dataToWrite, size);
+  }
+  int WriteThenReadMul(int channel, const uint8_t *dataToWrite, int writeSize, uint8_t *dataToRead, int readSize) {
+    return multiplexerControl(channel, &SPIInterface::WriteThenRead, dataToWrite, writeSize, dataToRead, readSize);
+  }
+
 private:
   unsigned int baudrate_ = 1000000;
   unsigned int configOptions_ = 0;
   bool isOpen_ = false;
+  template <typename T, typename... Args>
+  int multiplexerControl(int channel, T func, Args... args) {
+    if (channel == 0) {
+      return -1;
+    }
+    controlGPIOMul(channel);
+    return (this->*func)(channel, args...);
+  }
 };
 
 } // namespace gramsballoon::pgrams

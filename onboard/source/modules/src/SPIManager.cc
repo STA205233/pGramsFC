@@ -11,11 +11,7 @@ using namespace gramsballoon;
 
 namespace gramsballoon::pgrams {
 
-SPIManager::SPIManager() {
-#ifdef USE_BAYCAT_SPI
-  interface_ = std::make_shared<BayCatSPIIO>();
-#endif
-}
+SPIManager::SPIManager() = default;
 
 SPIManager::~SPIManager() {
   interface_.reset();
@@ -24,6 +20,7 @@ SPIManager::~SPIManager() {
 ANLStatus SPIManager::mod_define() {
   define_parameter("channel", &mod_class::channel_);
   define_parameter("baudrate", &mod_class::baudrate_);
+  define_parameter("spi_interface_type", &mod_class::interfaceName_);
   define_parameter("spi_config_options", &mod_class::spiConfigOptions_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
@@ -34,6 +31,16 @@ ANLStatus SPIManager::mod_initialize() {
   if (exist_module(send_telem_md)) {
     get_module_NC(send_telem_md, &sendTelemetry_);
   }
+#ifdef USE_BAYCAT_SPI
+  if (interfaceName_ == "BayCat") {
+    interface_ = std::make_shared<BayCatSPIIO>();
+  }
+#endif
+#ifdef USE_FT232H
+  if (interfaceName_ == "FT232H") {
+    interface_ = std::make_shared<FT232HIO>();
+  }
+#endif
   interface_->setBaudrate(baudrate_);
   interface_->setConfigOptions(spiConfigOptions_);
   int status = interface_->Open(channel_);
@@ -46,11 +53,14 @@ ANLStatus SPIManager::mod_initialize() {
   return AS_OK;
 }
 
-ANLStatus SPIManager::mod_analyze() {
+ANLStatus SPIManager::mod_analyze() { // TODO: reconnection
   return AS_OK;
 }
 
 ANLStatus SPIManager::mod_finalize() {
+  if (!interface_ || !interface_->IsOpen()) {
+    return AS_OK;
+  }
   int status = interface_->Close();
   if (status != 0) {
     std::cerr << "SPI_CloseChannel failed: status = " << status << std::endl;
