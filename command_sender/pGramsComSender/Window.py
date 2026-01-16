@@ -9,6 +9,7 @@ class Window(abc.ABC):
             self.__window = tk.Tk()
         else:
             self.__window = tk.Toplevel(root)
+        self.__window.resizable(False, False)
         self.__window.title(title)
         self.__window.geometry(geometry())
         if grab_set:
