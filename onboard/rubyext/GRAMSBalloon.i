@@ -11,6 +11,9 @@
 #ifndef GB_MAC
 #include "SendTelemetry.hh"
 #endif
+#ifdef USE_SPI
+#include "SPIManager.hh"
+#endif
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
 #include "ShutdownSystem.hh"
@@ -60,7 +63,6 @@ class Sleep : public anlnext::BasicModule
 public:
   Sleep();
 };
-}
 #ifdef USE_SPI
 class SPIManager : public anlnext::BasicModule
 {
@@ -68,9 +70,6 @@ public:
   SPIManager();
 };
 #endif
-
-
-namespace pgrams {
 
 #ifdef USE_SYSTEM_MODULES
 class GetComputerStatus : public anlnext::BasicModule
@@ -99,19 +98,6 @@ public:
 //public:
 //    DumpSerial();
 //};
-
-namespace pgrams {
-#ifdef USE_SPI
-class MeasureTemperatureWithRTDSensor : public anlnext::BasicModule
-{
-public:
-  MeasureTemperatureWithRTDSensor();
-};
-#endif
-class GetArduinoData: public anlnext::BasicModule {
-public:
-  GetArduinoData();
-};
 
 class GetMHADCData: public anlnext::BasicModule {
 public:

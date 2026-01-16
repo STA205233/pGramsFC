@@ -44,12 +44,12 @@ set(GB_MODULES
   #src/MeasureTemperatureWithRTDSensorByMHADC.cc
   src/SendCommandToDAQComputer.cc
   src/SendTelemetry.cc
+  src/SendArrayByMQTT.cc
 )
 
 if(GB_USE_SPI)
   set(GB_SPI_MODULES
     src/SPIManager.cc
-    src/MeasureTemperatureWithRTDSensor.cc
   )
 endif(GB_USE_SPI)
 

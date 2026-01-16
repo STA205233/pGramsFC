@@ -13,7 +13,6 @@
 //#include "SPIInterfaceMultiplexer.hh"
 #include "SendTelemetry.hh"
 #include "ftd2xx.h"
-#include "libmpsse_spi.h"
 #include <anlnext/BasicModule.hh>
 
 namespace gramsballoon {
@@ -44,7 +43,7 @@ private:
   std::shared_ptr<SPIInterface> interface_ = nullptr;
   int channel_ = 0;
   int baudrate_ = 100000;
-  int spiConfigOptions_ = SPI_CONFIG_OPTION_CS_ACTIVELOW | SPI_CONFIG_OPTION_MODE1 | SPI_CONFIG_OPTION_CS_DBUS3;
+  int spiConfigOptions_ = 0;
   std::vector<int> chipSelectArray_;
   SendTelemetry *sendTelemetry_ = nullptr;
   int chatter_ = 0;
