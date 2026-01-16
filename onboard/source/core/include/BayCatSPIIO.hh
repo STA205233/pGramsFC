@@ -27,8 +27,8 @@ public:
   void setBaudrate(unsigned int baudrate) override;
   int Open(int channel) override;
   int Close() override;
-  int WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
-  int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/) override { return -1; }
+  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
+  int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value);
   int WriteFPGARegister(unsigned long reg, unsigned char data);

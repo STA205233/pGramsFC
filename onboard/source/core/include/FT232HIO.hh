@@ -31,7 +31,7 @@ public:
     }
     return 0;
   }
-  int WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
+  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
   int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
   int controlGPIO(int cs, bool value) override;

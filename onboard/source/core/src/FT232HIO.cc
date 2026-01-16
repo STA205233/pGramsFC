@@ -20,7 +20,7 @@ int FT232HIO::Open(int channel) {
   return 0;
 }
 
-int FT232HIO::WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
   writeBuffer_.clear();
   readBuffer_.clear();
   for (int i = 0; i < wsize; ++i) {

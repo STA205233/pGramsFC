@@ -15,12 +15,12 @@ void BayCatSPIIO::setBaudrate(unsigned int baudrate) {
     std::cerr << "Baudrate " << baudrate << " Hz is not working." << std::endl;
     return;
   }
-  setBaudrate(baudrate);
+  SPIInterface::setBaudrate(baudrate);
 }
 int BayCatSPIIO::applyBaudrateSetting() {
   const VL_APIStatusT status = VSL_SPISetFrequency(baudrateList_[Baudrate()]);
 #ifdef DEBUG_SPI
-  std::cout << "BayCatSPIIO: baudrate_" << Baudrate()<< std::endl;
+  std::cout << "BayCatSPIIO: baudrate_" << Baudrate() << std::endl;
   std::cout << "BayCatSPIIO: baudrateList_[baudrate_]: " << baudrateList_[Baudrate()] << std::endl; //For Debug
 #endif
   if (status != VL_API_OK) {
@@ -66,7 +66,10 @@ int BayCatSPIIO::updateSetting() {
     failed = true;
   }
   const int status4 = applyBaudrateSetting();
-  if (status4 != 0) failed = true;
+  if (status4 != 0) {
+    std::cerr << "Apply Baudrate Setting failed" << std::endl;
+    failed = true;
+  }
   if (failed) return -1;
   return 0;
 }
@@ -99,7 +102,7 @@ int BayCatSPIIO::Close() {
   setIsOpen(false);
   return status;
 }
-int BayCatSPIIO::WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
@@ -157,6 +160,36 @@ int BayCatSPIIO::WriteAfterRead(int cs, const uint8_t *writeBuffer, int wsize, u
     std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
     return -1;
   }
+  return 0;
+}
+int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) {
+  if (!IsOpen()) {
+    std::cerr << "VersaLogic Library is not initialized" << std::endl;
+    return -1;
+  }
+  if (size <= 0) {
+    std::cerr << "Invalid size: size = " << size << std::endl;
+    return -1;
+  }
+  const auto status_cs_low = controlGPIO(cs, false);
+  if (status_cs_low != 0) {
+    std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
+    return -1;
+  }
+  uint32_t write_data = 0;
+  uint32_t read_data = 0;
+  for (int i = 0; i < size; ++i) {
+    write_data = static_cast<uint32_t>(writeBuffer[i]);
+    const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data); // assuming not using VL_SPI_SS0
+    const auto status_read = VSL_SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
+    if (status_write != VL_API_OK) {
+      std::cerr << "SPIWriteDataFrame failed: " << status_write << std::endl;
+      controlGPIO(cs, true);
+      return -1;
+    }
+    readBuffer[i] = read_data;
+  }
+  controlGPIO(cs, true);
   return 0;
 }
 int BayCatSPIIO::controlGPIO(const int cs, const bool value) {

@@ -18,7 +18,7 @@ int MAX31865IO::readReg(uint8_t reg, uint8_t *value, unsigned int length) {
     return MAX31865_BAD;
   }
   reg &= ~MAX31865_WRITE_MSK;
-  const int status = intf_->WriteAfterRead(cs_, &reg, 1, value, length);
+  const int status = intf_->WriteThenRead(cs_, &reg, 1, value, length);
   if (status < 0) {
     return status;
   }
