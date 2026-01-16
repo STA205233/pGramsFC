@@ -6,10 +6,8 @@
 #include "anlnext/BasicModule.hh"
 #include <regex>
 #include <string>
-namespace gramsballoon {
-class SendTelemetry;
-}
 namespace gramsballoon::pgrams {
+class SendTelemetry;
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(MeasureOrientationByMHADC, 1.0);
   ENABLE_PARALLEL_RUN();

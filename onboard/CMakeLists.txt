@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.14)
 
-# CMAKE_MINIMUM_REQUIRED_VERSION(VERSION 3.14)
 
 # ## Initial definition of cmake variables
 set(CMAKE_INSTALL_PREFIX $ENV{HOME} CACHE PATH "install prefix")
@@ -21,7 +20,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(USE_RUBY ON)
+set(GB_SOCKET_CLIENT OFF)
 set(MY_LIBRARY GRAMSBalloon)
+set(cxx_definitions)
 
 # set(RASPI ON)
 find_package(Ruby 3.0 REQUIRED)
@@ -30,44 +31,43 @@ find_package(Ruby 3.0 REQUIRED)
 # # library options
 option(GB_USE_BAYCAT_SPI " enable BayCat SPI " ON)
 option(GB_USE_FT232H "enable FT232H" ON)
-option(GB_USE_WAVEFORMS " enable waveforms " OFF)
-option(GB_USE_ICM20948 " enable ICM20948 " OFF)
-option(GB_USE_RASPISYS " enable raspi system control " OFF)
-option(GB_USE_HSQUICKLOOK " enable hsquicklook " OFF)
-option(GB_APT_RUBY " installed ruby via apt " OFF)
-option(GB_USE_ROOT " enable root " OFF)
-option(GB_USE_MYSQL " enable mysql " OFF)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(GB_USE_SYSTEM_MODULES ON)
+else()
+  set(GB_USE_SYSTEM_MODULES OFF)
+endif()
+message("-- GB_USE_SYSTEM_MODULES: ${GB_USE_SYSTEM_MODULES}")
+option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
+option(GB_APT_RUBY "installed ruby via apt" OFF)
+option(GB_USE_ROOT "enable root" OFF)
+option(GB_USE_MYSQL "enable mysql" OFF)
 
 # # install options
-option(GB_INSTALL_HEADERS " install all header files " ON)
-option(GB_INSTALL_CMAKE_FILES " install all cmake files " ON)
-option(GB_DEMO_MODE " demo mode " ON)
+option(GB_INSTALL_HEADERS "install all header files" ON)
+option(GB_INSTALL_CMAKE_FILES "install all cmake files" ON)
 set(INSTALL_HEADERS ${GB_INSTALL_HEADERS})
 set(INSTALL_CMAKE_FILES ${GB_INSTALL_CMAKE_FILES})
+
+set(GB_PGRAMSBALLOON_PATH ".." CACHE PATH "path to pGramsBalloon")
+if(EXISTS "${GB_PGRAMSBALLOON_PATH}/include/CommunicationCodes.hh")
+  message("-- Found pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
+else()
+  message(FATAL_ERROR "-- Could not find pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
+endif()
+set(GB_PGRAMSBALLOON_INC_DIR "${GB_PGRAMSBALLOON_PATH}/include")
 
 # # shortcut options
 option(GB_MAC " shortcut " OFF)
 
 if(GB_MAC)
+  message("-- GB_MAC is set")
   message(" -- GB_MAC is set ")
-  set(GB_USE_SPI ON)
-  set(GB_USE_WAVEFORMS OFF)
-  set(GB_USE_ICM20948 OFF)
-  set(GB_USE_RASPISYS OFF)
-  set(GB_USE_HSQUICKLOOK ON)
+  set(GB_USE_SPI OFF)
+  set(GB_USE_HSQUICKLOOK OFF)
   set(GB_APT_RUBY OFF)
   set(GB_USE_ROOT ON)
 endif(GB_MAC)
 
-if(GB_DEMO_MODE)
-  message(" -- GB_DEMO_MODE is set ")
-  set(GB_USE_PIGPIO OFF)
-  set(GB_USE_WAVEFORMS OFF)
-  set(GB_USE_ICM20948 OFF)
-  set(GB_USE_RASPISYS OFF)
-  set(GB_APT_RUBY OFF)
-  add_compile_definitions(" GB_DEMO_MODE ")
-endif(GB_DEMO_MODE)
 
 if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
   set(GB_USE_SPI ON)
@@ -85,6 +85,10 @@ endif(GB_USE_ROOT)
 if(GB_USE_HSQUICKLOOK)
   add_compile_definitions(" USE_HSQUICKLOOK ")
 endif(GB_USE_HSQUICKLOOK)
+
+if(GB_USE_SYSTEM_MODULES)
+  add_compile_definitions("USE_SYSTEM_MODULES")
+endif(GB_USE_SYSTEM_MODULES)
 
 # ## External libraries
 # ## BOOST ###
@@ -109,7 +113,7 @@ set(ANLNEXT_INC_DIR ${ANLNEXT_INSTALL}/include)
 set(ANLNEXT_LIB_DIR ${ANLNEXT_INSTALL}/lib)
 set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
-message(" -- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL} ")
+message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
 # SPI
 if(GB_USE_SPI)
@@ -128,15 +132,6 @@ if(GB_USE_SPI)
     message(" -- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS} ")
     message(" -- D2XX_LIB: ${D2XX_LIB} ")
     include_directories(${D2XX_INCLUDE_DIRS})
-    find_path(MPSSE_INC_DIR
-      NAMES libmpsse_spi.h REQUIRED
-      PATHS /usr/local/include)
-    message(" -- MPSSE_INC_DIR: ${MPSSE_INC_DIR} ")
-    find_library(MPSSE_LIB
-      NAMES libmpsse.so libmpsse.dylib REQUIRED
-      PATHS /usr/local/lib)
-    message(" -- MPSSE_LIB: ${MPSSE_LIB} ")
-    include_directories(${MPSSE_INC_DIR})
     add_compile_definitions("USE_FT232H")
   endif(GB_USE_FT232H)
   if (GB_USE_BAYCAT_SPI)
@@ -151,18 +146,6 @@ if(GB_USE_SPI)
   message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
   endif(GB_USE_BAYCAT_SPI)
 endif(GB_USE_SPI)
-
-# ## Waveforms ###
-if(GB_USE_WAVEFORMS)
-  set(WAVEFORMS_LIB dwf)
-  message(" -- WAVEFORMS_LIB: ${WAVEFORMS_LIB} ")
-endif(GB_USE_WAVEFORMS)
-
-# ## ICM20948 ###
-if(GB_USE_ICM20948)
-  set(ICM20948_LIB ICM20948 I2C)
-  message(" -- ICM20948_LIB: ${ICM20948_LIB} ")
-endif(GB_USE_ICM20948)
 
 # ## HSQUICKLOOK ###
 if(GB_USE_HSQUICKLOOK)
@@ -201,14 +184,18 @@ if(GB_USE_MYSQL)
   set(MYSQL_INC_DIR ${MYSQL_CONCPP_INCLUDE_DIR})
   set(MYSQL_LIB_DIR ${MYSQL_CONCPP_RUNTIME_LIBRARY_DIR})
   set(MYSQL_LIB mysqlcppconnx)
-  message(STATUS " MYSQL_LIB_DIR: ${MYSQL_INC_DIR} ")
-  message(STATUS " MYSQL_LIB_DIR: ${MYSQL_LIB_DIR} ")
-  message(STATUS " MYSQL_LIB: ${MYSQL_LIB} ")
+  message(STATUS "MYSQL_LIB_DIR: ${MYSQL_INC_DIR}")
+  message(STATUS "MYSQL_LIB_DIR: ${MYSQL_LIB_DIR}")
+  message(STATUS "MYSQL_LIB: ${MYSQL_LIB}")
+  list(APPEND cxx_definitions "-DUSE_MYSQL")
 endif(GB_USE_MYSQL)
 
+# Mosquitto
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp REQUIRED)
 set(MOSQUITTO_LIB PkgConfig::Mosquitto)
+
+
 
 # ## subdirectories
 add_subdirectory(source)

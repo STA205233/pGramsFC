@@ -16,10 +16,9 @@
 #include <string>
 #include <vector>
 
-namespace gramsballoon {
-class SendTelemetry;
-} // namespace gramsballoon
 namespace gramsballoon::pgrams {
+class SendTelemetry;
+
 class GetArduinoData: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(GetArduinoData, 1.0);
   ENABLE_PARALLEL_RUN();

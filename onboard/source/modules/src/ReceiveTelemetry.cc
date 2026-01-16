@@ -1,16 +1,18 @@
 #include "ReceiveTelemetry.hh"
 using namespace anlnext;
 
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 ANLStatus ReceiveTelemetry::mod_define() {
   define_parameter("topic", &mod_class::subTopic_);
+  set_parameter_description("Topic to subscribe");
   define_parameter("qos", &mod_class::qos_);
+  set_parameter_description("QoS");
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
 
 ANLStatus ReceiveTelemetry::mod_initialize() {
-  const std::string mosq_md = "MosquittoManager";
+  const std::string mosq_md = "TelemMosquittoManager";
   if (exist_module(mosq_md)) {
     get_module_NC(mosq_md, &mosquittoManager_);
   }
@@ -24,6 +26,8 @@ ANLStatus ReceiveTelemetry::mod_initialize() {
     return AS_ERROR;
   }
   mosq_->Subscribe(subTopic_, qos_);
+  telemetry_ = "";
+  valid_ = false;
   return AS_OK;
 }
 ANLStatus ReceiveTelemetry::mod_analyze() {
@@ -32,41 +36,32 @@ ANLStatus ReceiveTelemetry::mod_analyze() {
   }
   const auto &payload = mosq_->getPayload();
   if (payload.empty()) {
-    if (chatter_ >= 1) {
+    if (chatter_ >= 5) {
       std::cout << "ReceiveTelemetry: No payload" << std::endl;
     }
+    valid_ = false;
+    return AS_OK;
+  }
+  const auto &packet = payload.front();
+  if (packet->topic != subTopic_) {
+    if (chatter_ >= 4) {
+      std::cout << "ReceiveTelemetry: Received topic (" << payload.front()->topic << ") is different from subscribed topic (" << subTopic_ << ")" << std::endl;
+    }
+    valid_ = false;
     return AS_OK;
   }
   if (chatter_ >= 1) {
     std::cout << "ReceiveTelemetry Num_packet:" << payload.size() << std::endl;
   }
-  valid_ = false;
-  telemetry_.clear();
-  constexpr int i = 0;
-  const auto &packet = payload[i]->payload;
-  const int sz_packet = packet.size();
-  if (chatter_ >= 1) {
-    std::cout << "size: " << sz_packet << std::endl;
-    std::cout << "packet: ";
-    for (int j = 0; j < sz_packet; j++) {
-      std::cout << static_cast<int>(packet[j]) << ",";
+  if (chatter_ > 3) {
+    std::cout << "payload: ";
+    for (size_t i = 0; i < payload[0]->payload.size(); i++) {
+      std::cout << std::hex << static_cast<unsigned int>((payload[0]->payload[i]) & 0xFF) << std::dec << " ";
     }
     std::cout << std::endl;
   }
-  if (sz_packet < 3) {
-    std::cerr << "Packet size is not correct: sz_packet = " << sz_packet << std::endl;
-  }
-  else if (packet[0] == 0xEB && packet[1] == 0x90 && packet[2] == 0x5B && packet[3] == 0x6A && packet[sz_packet - 4] == 0xC5 && packet[sz_packet - 3] == 0xA4 && packet[sz_packet - 2] == 0xD2 && packet[sz_packet - 1] == 0x79) {
-    for (int j = 0; j < sz_packet; j++) {
-      telemetry_.push_back(packet[j]);
-    }
-    valid_ = true;
-  }
-  else {
-    std::cerr << "Packet header or footer is not correct" << std::endl;
-    std::cerr << "header: " << std::hex << static_cast<int>(packet[0]) << " " << static_cast<int>(packet[1]) << " " << static_cast<int>(packet[2]) << " " << static_cast<int>(packet[3]) << std::endl;
-    std::cerr << "footer: " << std::hex << static_cast<int>(packet[sz_packet - 4]) << " " << static_cast<int>(packet[sz_packet - 3]) << " " << static_cast<int>(packet[sz_packet - 2]) << " " << static_cast<int>(packet[sz_packet - 1]) << std::endl;
-  }
+  setTelemetry(packet->payload);
+  valid_ = true;
   mosq_->popPayloadFront();
   return AS_OK;
 }
@@ -75,4 +70,4 @@ ANLStatus ReceiveTelemetry::mod_finalize() {
   return AS_OK;
 }
 
-} // namespace gramsballoon
+} // namespace gramsballoon::pgrams

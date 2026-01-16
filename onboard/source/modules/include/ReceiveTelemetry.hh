@@ -7,10 +7,9 @@
 #include <deque>
 #include <thread>
 
-namespace gramsballoon {
-namespace pgrams {
+namespace gramsballoon::pgrams {
+template <typename T>
 class MosquittoManager;
-} // namespace pgrams
 
 class ReceiveTelemetry: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveTelemetry, 1.0);
@@ -28,24 +27,26 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  const std::vector<uint8_t> &Telemetry() const { return telemetry_; }
-  std::vector<uint8_t> &Telemetry() { return telemetry_; }
+  auto Telemetry() { return telemetry_; }
+  const auto &Telemetry() const { return telemetry_; }
   bool Valid() { return valid_; }
   void setValid(bool v) { valid_ = v; }
   int Chatter() { return chatter_; }
 
+protected:
+  void setTelemetry(const std::string &v) { telemetry_ = v; }
+
 private:
-  std::vector<uint8_t> telemetry_;
-  int maxTelemetry_ = 32000;
+  std::string telemetry_ = "";
   bool valid_;
 
   // communication
-  pgrams::MosquittoManager *mosquittoManager_ = nullptr;
-  pgrams::MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
+  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  MosquittoIO<std::string> *mosq_ = nullptr;
   int qos_ = 0;
   std::string subTopic_ = "Telemetry";
   int chatter_ = 0;
 };
 
-} // namespace gramsballoon
+} // namespace gramsballoon::pgrams
 #endif // ReceiveTelemetry_H

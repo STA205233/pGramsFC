@@ -3,13 +3,25 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.14)
 project(GRAMSBalloonCommandSender CXX)
 set(PROJECT_VERSION 1.0)
 set(CMAKE_INSTALL_PREFIX $ENV{HOME} CACHE PATH "install prefix")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_BUILD_TYPE DEBUG)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(ANLNEXT_USE_READLINE True)
 
-### boost
-find_package(Boost 1.70.0 REQUIRED COMPONENTS system chrono thread)
+
+set(GB_PGRAMSBALLOON_PATH ".." CACHE PATH "path to pGramsBalloon")
+
+if(EXISTS "${GB_PGRAMSBALLOON_PATH}/include/CommunicationCodes.hh")
+  message("-- Found pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
+else()
+  message(FATAL_ERROR "-- Could not find pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
+endif()
+
+set(GB_PGRAMSBALLOON_INC_DIR "${GB_PGRAMSBALLOON_PATH}/include")
+
+# ## boost
+find_package(Boost 1.70.0 REQUIRED CONFIG)
 set(BOOST_INC_DIR ${Boost_INCLUDE_DIRS})
 set(BOOST_LIB_DIR ${Boost_LIBRARY_DIRS})
 set(BOOST_LIB ${Boost_LIBRARIES})
@@ -24,13 +36,14 @@ if(NOT DEFINED ANLNEXT_INSTALL)
     set(ANLNEXT_INSTALL $ENV{HOME})
   endif()
 endif(NOT DEFINED ANLNEXT_INSTALL)
+
 set(ANLNEXT_INC_DIR ${ANLNEXT_INSTALL}/include)
 set(ANLNEXT_LIB_DIR ${ANLNEXT_INSTALL}/lib)
 set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
 message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
-### READLINE
+# ## READLINE
 if(ANLNEXT_USE_READLINE)
   set(READLINE_LIB readline)
   add_definitions(-DANLNEXT_USE_READLINE)
@@ -49,21 +62,38 @@ include_directories(
   ${READLINE_INC_DIR}
   ${ANLNEXT_INC_DIR}
   ../../onboard/source/core/include
-  )
+  ${GB_PGRAMSBALLOON_INC_DIR}
+)
 
 link_directories(
   ${READLINE_LIB_DIR}
   ${ANLNEXT_LIB_DIR}
-  )
+)
 
-add_executable(send_command send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
-target_link_libraries(send_command ${BOOST_LIB} ${MOSQUITTO_LIB})
+add_executable(send_command_hub send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_compile_definitions(send_command_hub PRIVATE SUBSYSTEM_NAME="HUB")
+add_executable(send_command_pdu send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_compile_definitions(send_command_pdu PRIVATE SUBSYSTEM_NAME="PDU")
+add_executable(send_command_orc send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_compile_definitions(send_command_orc PRIVATE SUBSYSTEM_NAME="ORC")
+add_executable(send_command_tof send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_compile_definitions(send_command_tof PRIVATE SUBSYSTEM_NAME="TOF")
+add_executable(send_command_tpc send_command.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_compile_definitions(send_command_tpc PRIVATE SUBSYSTEM_NAME="COL")
+add_executable(send_command_raw send_command_raw.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc ../../onboard/source/core/src/MosquittoIO.cc)
+target_link_libraries(send_command_hub ${BOOST_LIB} ${MOSQUITTO_LIB})
+target_link_libraries(send_command_pdu ${BOOST_LIB} ${MOSQUITTO_LIB})
+target_link_libraries(send_command_orc ${BOOST_LIB} ${MOSQUITTO_LIB})
+target_link_libraries(send_command_tof ${BOOST_LIB} ${MOSQUITTO_LIB})
+target_link_libraries(send_command_tpc ${BOOST_LIB} ${MOSQUITTO_LIB})
+target_link_libraries(send_command_raw ${BOOST_LIB} ${MOSQUITTO_LIB})
 add_executable(dump_command dump_command.cc CommandBuilder.cc)
-#add_executable(run_command_plan run_command_plan.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc)
 
-#target_link_libraries(run_command_plan
-#  ${Boost_LIBRARIES}
-#  ${READLINE_LIB}
-#  ${ANLNEXT_LIB}
-#  ${MOSQUITTO_LIB}
-#  )
+# add_executable(run_command_plan run_command_plan.cc CommandSender.cc CommandBuilder.cc CommandSaver.cc)
+
+# target_link_libraries(run_command_plan
+# ${Boost_LIBRARIES}
+# ${READLINE_LIB}
+# ${ANLNEXT_LIB}
+# ${MOSQUITTO_LIB}
+# )

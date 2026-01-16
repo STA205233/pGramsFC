@@ -1,137 +1,67 @@
 #include "PushToMySQL.hh"
+#include "HubHKTelemetry.hh"
 #include <algorithm>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus PushToMySQL::mod_define() {
   define_parameter("chatter", &mod_class::chatter_);
   define_parameter("host", &mod_class::host_);
+  set_parameter_description("MySQL server host");
   define_parameter("port", &mod_class::port_);
+  set_parameter_description("MySQL server port");
   define_parameter("user", &mod_class::user_);
+  set_parameter_description("MySQL user name");
   define_parameter("password", &mod_class::password_);
+  set_parameter_description("MySQL user password");
   define_parameter("database", &mod_class::database_);
+  set_parameter_description("MySQL database name");
+  define_parameter("HubHKInterpreter_name", &mod_class::HubHKInterpreterName_);
+  set_parameter_description("Module name of InterpretTelemetry for HubHK");
+  define_parameter("HubHK_table_name", &mod_class::HubHKtableName_);
+  set_parameter_description("Table name for HubHK telemetry data");
   define_parameter("check_exist", &mod_class::checkExist_);
+  set_parameter_description("Check existence of tables and columns before inserting data");
   return AS_OK;
 }
 ANLStatus PushToMySQL::mod_initialize() {
-  if (exist_module("InterpretTelemetry")) {
-    get_module_NC("InterpretTelemetry", &interpreter_);
+  if (exist_module(HubHKInterpreterName_)) {
+    get_module_NC(HubHKInterpreterName_, &HubHKinterpreter_);
   }
   mysqlIO_.SetCheckExist(checkExist_);
   mysqlIO_.Initialize(host_, port_, user_, password_, database_);
-  mysqlIO_.AddTable("chamber");
-  mysqlIO_.AddColumn("chamber", "id");
-  mysqlIO_.AddColumn("chamber", "time");
-  for (int i = 0; i < 6; i++) {
-    mysqlIO_.AddColumn("chamber", (boost::format("rtd%i") % i).str());
+  if (!mysqlIO_.connected()) {
+    std::cerr << module_name() << "::mod_initialize: Failed to connect to MySQL server." << std::endl;
+    return AS_OK;
   }
-  mysqlIO_.AddColumn("chamber", "cp_PR3");
-  mysqlIO_.AddColumn("chamber", "jp_PR3");
-  mysqlIO_.AddColumn("chamber", "cp_PR1");
-  mysqlIO_.AddColumn("chamber", "cp_PR2");
-  mysqlIO_.AddColumn("chamber", "cp_PR4");
-  mysqlIO_.AddColumn("chamber", "cp_PR5");
-  mysqlIO_.AddColumn("chamber", "jp_PR1");
-  mysqlIO_.AddColumn("chamber", "jp_PR2");
-  mysqlIO_.AddColumn("chamber", "jp_PR4");
-  mysqlIO_.AddColumn("chamber", "jp_PR5");
-  mysqlIO_.AddTable("ground");
-  mysqlIO_.AddColumn("ground", "id");
-  mysqlIO_.AddColumn("ground", "time");
-  mysqlIO_.AddColumn("ground", "compressT1");
-  mysqlIO_.AddColumn("ground", "compressT2");
-  mysqlIO_.AddColumn("ground", "compressT3");
-  mysqlIO_.AddColumn("ground", "RP");
-  mysqlIO_.AddTable("error");
-  mysqlIO_.AddColumn("error", "id");
-  mysqlIO_.AddColumn("error", "time");
-  mysqlIO_.AddColumn("error", "PRESS_SERIAL_COMMUNICATION_ERROR");
-  mysqlIO_.AddColumn("error", "RTD_SERIAL_COMMUNICATION_ERROR");
-  mysqlIO_.AddColumn("error", "COMP_SERIAL_COMMUNICATION_ERROR");
-  mysqlIO_.AddColumn("error", "OTHER_ERRORS");
-  mysqlIO_.AddColumn("error", "RTD_DATA_ACQUISITION_ERROR_1");
-  mysqlIO_.AddColumn("error", "RTD_DATA_ACQUISITION_ERROR_2");
-  mysqlIO_.AddColumn("error", "RTD_DATA_ACQUISITION_ERROR_3");
-  mysqlIO_.AddColumn("error", "RTD_DATA_ACQUISITION_ERROR_4");
-  mysqlIO_.AddColumn("error", "RTD_DATA_ACQUISITION_ERROR_5");
-  mysqlIO_.AddColumn("error", "RTD_DATA_ACQUISITION_ERROR_6");
-  mysqlIO_.AddColumn("error", "PRESS_DATA_ACQUISITION_ERROR_JP");
-  mysqlIO_.AddColumn("error", "PRESS_DATA_ACQUISITION_ERROR_CP");
-  mysqlIO_.PrintTableInfo("chamber");
-  mysqlIO_.PrintTableInfo("ground");
-  mysqlIO_.PrintTableInfo("error");
+  mysqlFieldSink_.setMySQLIO(&mysqlIO_);
+  HubHKinterpreter_->initializeDBTableInSink(&mysqlFieldSink_, HubHKtableName_);
+  if (mysqlIO_.CheckTableExistence(HubHKtableName_)) {
+    if (chatter_ > 0) {
+      std::cout << module_name() << "::mod_initialize: Table (" << HubHKtableName_ << ") already exists." << std::endl;
+    }
+  }
+  else {
+    if (chatter_ > 0) {
+      std::cout << module_name() << "::mod_initialize: Table (" << HubHKtableName_ << ") does not exist. Create the table." << std::endl;
+    }
+    mysqlIO_.CreateTable(HubHKtableName_);
+  }
+  mysqlIO_.PrintTableInfo(HubHKtableName_);
   return AS_OK;
 }
 ANLStatus PushToMySQL::mod_analyze() {
-  if (chatter_ > 0) {
-    std::cout << "PushToMySQL::mod_analyze" << std::endl;
-  }
-  if (!interpreter_) {
+  if (!mysqlIO_.connected()) {
     return AS_OK;
   }
-  if (interpreter_->CurrentTelemetryType() != 1) {
+  if (!HubHKinterpreter_) {
+    std::cerr << module_name() << "::mod_analyze: HubHKinterpreter is not set." << std::endl;
     return AS_OK;
   }
-  TelemetryDefinition *telemdef = interpreter_->Telemdef();
-  if (!telemdef) {
+  if (HubHKinterpreter_->CurrentTelemetryType() == 0) { // no received telemetry
     return AS_OK;
   }
-  const std::vector<uint16_t> &chamber_temperature = telemdef->ChamberTemperature();
-  std::cout << "chamber_temperature: ";
-  const int n = chamber_temperature.size();
-  for (int i = 0; i < n; i++) {
-    std::cout << static_cast<float>(chamber_temperature[i]) / 10 << " ";
-  }
-  std::cout << std::endl;
-  //TODO: This conversion should be reconsidered.
-  for (int i = 0; i < n; i++) {
-    mysqlIO_.SetItem("chamber", (boost::format("rtd%i") % i).str(), static_cast<float>(chamber_temperature[i] / 10));
-  }
-  const std::vector<float> &chamber_pressure = telemdef->ChamberPressureNEU();
-  const int n_champress = chamber_pressure.size();
-  std::cout << "chamber pressure: ";
-  for (int i = 0; i < n_champress; i++) {
-    mysqlIO_.SetItem("chamber", (boost::format("cp_PR%i") % (i + 1)).str(), chamber_pressure[i]);
-    std::cout << chamber_pressure[i] << " ";
-  }
-  std::cout << std::endl;
-  const std::vector<float> &jacket_pressure = telemdef->JacketPressureNEU();
-  const int n_jackpress = jacket_pressure.size();
-  std::cout << "jacket pressure: ";
-  for (int i = 0; i < n_jackpress; i++) {
-    mysqlIO_.SetItem("chamber", (boost::format("jp_PR%i") % (i + 1)).str(), jacket_pressure[i]);
-    std::cout << jacket_pressure[i] << " ";
-  }
-  std::cout << std::endl;
-  //// FIXME: How to insert NULL
-  //mysqlIO_.SetItem("chamber", "time", "2024:01:01:00:00:00");
-  const std::vector<int16_t> &compressor_temperature = telemdef->CompressorTemperature();
-  const int n_comptemp = std::min(static_cast<int>(compressor_temperature.size()), 3);
-  std::cout << "compressor temperature: ";
-  for (int i = 0; i < n_comptemp; i++) {
-    mysqlIO_.SetItem("ground", (boost::format("compressT%i") % (i + 1)).str(), compressor_temperature[i]);
-    std::cout << compressor_temperature[i] << " ";
-  }
-  std::cout << std::endl;
-  mysqlIO_.SetItem("ground", "RP", telemdef->CompressorPressure()[0]);
-  //// FIXME: How to insert NULL
-  //mysqlIO_.SetItem("ground", "time", "2024:01:01:00:00:00");
-
-  mysqlIO_.SetItem("error", "PRESS_SERIAL_COMMUNICATION_ERROR", interpreter_->getErrorManager()->ReceiveCommandSerialCommunicationError());
-  mysqlIO_.SetItem("error", "RTD_SERIAL_COMMUNICATION_ERROR", interpreter_->getErrorManager()->RtdSerialCommunicationError());
-  mysqlIO_.SetItem("error", "COMP_SERIAL_COMMUNICATION_ERROR", interpreter_->getErrorManager()->CompSerialCommunicationError());
-  mysqlIO_.SetItem("error", "OTHER_ERRORS", interpreter_->getErrorManager()->OtherErrors());
-  mysqlIO_.SetItem("error", "RTD_DATA_ACQUISITION_ERROR_1", interpreter_->getErrorManager()->RtdDataAquisitionError1());
-  mysqlIO_.SetItem("error", "RTD_DATA_ACQUISITION_ERROR_2", interpreter_->getErrorManager()->RtdDataAquisitionError2());
-  mysqlIO_.SetItem("error", "RTD_DATA_ACQUISITION_ERROR_3", interpreter_->getErrorManager()->RtdDataAquisitionError3());
-  mysqlIO_.SetItem("error", "RTD_DATA_ACQUISITION_ERROR_4", interpreter_->getErrorManager()->RtdDataAquisitionError4());
-  mysqlIO_.SetItem("error", "RTD_DATA_ACQUISITION_ERROR_5", interpreter_->getErrorManager()->RtdDataAquisitionError5());
-  mysqlIO_.SetItem("error", "RTD_DATA_ACQUISITION_ERROR_6", interpreter_->getErrorManager()->RtdDataAquisitionError6());
-  mysqlIO_.SetItem("error", "PRESS_DATA_ACQUISITION_ERROR_JP", interpreter_->getErrorManager()->PressDataAquisitionErrorJp());
-  mysqlIO_.SetItem("error", "PRESS_DATA_ACQUISITION_ERROR_CP", interpreter_->getErrorManager()->PressDataAquisitionErrorCp());
-
-  mysqlIO_.Insert("chamber");
-  mysqlIO_.Insert("ground");
-  mysqlIO_.Insert("error");
+  HubHKinterpreter_->pushToDBSink(&mysqlFieldSink_);
+  mysqlIO_.Insert(HubHKtableName_);
   return AS_OK;
 }
 ANLStatus PushToMySQL::mod_finalize() {

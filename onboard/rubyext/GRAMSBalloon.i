@@ -5,80 +5,44 @@
 #include <string>
 #include "SimpleLoop.hh"
 #include "Sleep.hh"
-#ifdef USE_SPI
-#include "SPIManager.hh"
-#endif
-#ifdef USE_PIGPIO
-#include "GetEnvironmentalData.hh"
-#endif
 #ifndef GB_MAC
 #include "ReceiveCommand.hh"
-#endif
-#ifdef USE_WAVEFORMS
-#include "AnalogDiscoveryManager.hh"
-#endif
-#ifdef USE_WAVEFORMS
-#include "ControlHighVoltage.hh"
-#endif
-#ifdef USE_SPI
-#include "MeasureTemperatureWithRTDSensor.hh"
-#endif
-#ifdef USE_WAVEFORMS
-#include "ReadWaveform.hh"
 #endif
 #ifndef GB_MAC
 #include "SendTelemetry.hh"
 #endif
-#ifdef USE_RASPISYS
-#include "GetRaspiStatus.hh"
-#endif
-#ifdef USE_ICM20948
-#include "MeasureAcceleration.hh"
-#endif
-#include "ReceiveTelemetry.hh"
-#ifdef USE_RASPISYS
+#ifdef USE_SYSTEM_MODULES
+#include "GetComputerStatus.hh"
 #include "ShutdownSystem.hh"
 #endif
+#include "ReceiveTelemetry.hh"
 #include "InterpretTelemetry.hh"
 #ifdef USE_HSQUICKLOOK
 #include "PushToMongoDB.hh"
 #endif
-#ifdef USE_PIGPIO
-#include "GetSlowADCData.hh"
-#endif
 #include "RunIDManager.hh"
 #include "ReadTelemetry.hh"
 #include "DumpSerial.hh"
-#include "GetArduinoData.hh"
 #include "GetMHADCData.hh"
 #include "EncodedSerialCommunicator.hh"
-#include "GetCompressorData.hh"
-#include "GetPressure.hh"
-#include "PressureGaugeManager.hh"
-#ifdef USE_ROOT
-#include "PlotWaveform.hh"
-#endif
+
+
 #ifdef USE_MYSQL
 #include "PushToMySQL.hh"
 #endif
-#ifdef GB_DEMO_MODE
-#include "GBBasicDemoModule.hh"
-#include "ShutdownSystemDemo.hh"
-#include "GetEnvironmentalDataDemo.hh"
-#include "MeasureAccelerationDemo.hh"
-// #include "MeasureTemperatureWithRTDSensorDemo.hh"
-// #include "MeasureTemperatureWithRTDSensorByArduino.hh"
-// #include "MeasureTemperatureWithRTDSensorByMHADC.hh"
-#include "GetRaspiStatusDemo.hh"
-#include "ControlHighVoltageDemo.hh"
-#include "ReadWaveformDemo.hh"
-#include "GetSlowADCDataDemo.hh"
-#endif
 #include "MosquittoManager.hh"
+#include "SendArrayByMQTT.hh"
 #include "DistributeCommand.hh"
+#include "ReceiveStatusFromDAQComputer.hh"
+#include "DividePacket.hh"
+#include "PassTelemetry.hh"
+#include "IoContextManager.hh"
+#include "SendCommandToDAQComputer.hh"
 %}
 
 %include "std_vector.i"
+%include "stdint.i"
+%include "std_string.i"
 %import(module="anlnext/ANL") "anlnext/ruby/ANL.i"
 
 // interface to my modules
@@ -96,6 +60,7 @@ class Sleep : public anlnext::BasicModule
 public:
   Sleep();
 };
+}
 #ifdef USE_SPI
 class SPIManager : public anlnext::BasicModule
 {
@@ -103,82 +68,37 @@ public:
   SPIManager();
 };
 #endif
-}
 
-#ifdef USE_PIGPIO
-class GetEnvironmentalData : public anlnext::BasicModule
+
+namespace pgrams {
+
+#ifdef USE_SYSTEM_MODULES
+class GetComputerStatus : public anlnext::BasicModule
 {
 public:
-  GetEnvironmentalData();
+  GetComputerStatus();
 };
 #endif
-
-#if defined GB_MAC || defined GB_DEMO_MODE
 class ReceiveCommand : public anlnext::BasicModule
 {
 public:
   ReceiveCommand();
 };
-#endif
-
-#ifdef USE_WAVEFORMS
-class AnalogDiscoveryManager : public anlnext::BasicModule
-{
-public:
-  AnalogDiscoveryManager();
-};
-#endif
-
-#ifdef USE_WAVEFORMS
-class ControlHighVoltage : public anlnext::BasicModule
-{
-public:
-  ControlHighVoltage();
-};
-#endif
-
-#ifdef USE_WAVEFORMS
-class ReadWaveform : public anlnext::BasicModule
-{
-public:
-  ReadWaveform();
-};
-#endif
-
-#if defined GB_MAC || defined GB_DEMO_MODE
 class SendTelemetry : public anlnext::BasicModule
 {
 public:
   SendTelemetry();
 };
-#endif
-
-#ifdef USE_RASPISYS
-class GetRaspiStatus : public anlnext::BasicModule
-{
-public:
-  GetRaspiStatus();
-};
-#endif
-
-#ifdef USE_ICM20948
-class MeasureAcceleration :  public anlnext::BasicModule
-{
-public:
-  MeasureAcceleration();
-};
-#endif
-
 class ReceiveTelemetry :  public anlnext::BasicModule
 {
 public:
   ReceiveTelemetry();
 };
 
-class DumpSerial: public anlnext::BasicModule {
-public:
-    DumpSerial();
-};
+//class DumpSerial: public anlnext::BasicModule {
+//public:
+//    DumpSerial();
+//};
 
 namespace pgrams {
 #ifdef USE_SPI
@@ -203,19 +123,21 @@ public:
   EncodedSerialCommunicator();
 };
 
-class GetCompressorData: public anlnext::BasicModule {
+class IoContextManager: public anlnext::BasicModule{
 public:
-  GetCompressorData();
+  IoContextManager();
 };
-
-class GetPressure: public anlnext::BasicModule {
+class ReceiveStatusFromDAQComputer: public anlnext::BasicModule{
 public:
-  GetPressure();
+  ReceiveStatusFromDAQComputer();
 };
-
-class PressureGaugeManager: public EncodedSerialCommunicator{
+class SocketCommunicationManager: public anlnext::BasicModule{
 public:
-  PressureGaugeManager();
+  SocketCommunicationManager();
+};
+class SendCommandToDAQComputer: public anlnext::BasicModule {
+public:
+  SendCommandToDAQComputer();
 };
 #ifdef USE_MYSQL
 class PushToMySQL : public anlnext::BasicModule
@@ -224,7 +146,8 @@ public:
   PushToMySQL();
 };
 #endif
-class MosquittoManager : public anlnext::BasicModule
+template <typename TelemType>
+class MosquittoManager: public anlnext::BasicModule
 {
 public:
   MosquittoManager();
@@ -233,21 +156,35 @@ class DistributeCommand: public anlnext::BasicModule {
 public:
   DistributeCommand();
 };
-} // namespace pgrams
-
-#ifdef USE_RASPISYS
+class DividePacket: public anlnext::BasicModule {
+public:
+  DividePacket();
+};
+class PassTelemetry: public anlnext::BasicModule {
+public:
+  PassTelemetry();
+};
+class InterpretTelemetry : public anlnext::BasicModule
+{
+public:
+  InterpretTelemetry();
+};
+#ifdef USE_SYSTEM_MODULES
 class ShutdownSystem : public anlnext::BasicModule
 {
 public:
   ShutdownSystem();
 };
 #endif
-
-class InterpretTelemetry : public anlnext::BasicModule
+class RunIDManager : public anlnext::BasicModule
 {
 public:
-  InterpretTelemetry();
+  RunIDManager();
 };
+
+} // namespace pgrams
+
+
 
 #ifdef USE_HSQUICKLOOK
 class PushToMongoDB : public anlnext::BasicModule
@@ -257,102 +194,13 @@ public:
 };
 #endif
 
-#ifdef USE_PIGPIO
-class GetSlowADCData : public anlnext::BasicModule
-{
-public:
-  GetSlowADCData();
-};
-#endif
 
-class RunIDManager : public anlnext::BasicModule
-{
-public:
-  RunIDManager();
-};
-
-class ReadTelemetry : public anlnext::BasicModule
-{
-public:
-  ReadTelemetry();
-};
-
-#ifdef USE_ROOT
-class PlotWaveform : public anlnext::BasicModule
-{
-public:
-  PlotWaveform();
-};
-#endif
-#ifdef GB_DEMO_MODE
-class GBBasicDemoModule : public anlnext::BasicModule
-{
-public:
-  GBBasicDemoModule();
-protected:
-  double SampleFromUniformDistribution();
-};
-
-class ShutdownSystem : public anlnext::BasicModule
-{
-public:
-  ShutdownSystem();
-};
-
-class GetEnvironmentalData : public GBBasicDemoModule
-{
-public:
-  GetEnvironmentalData();
-};
-
-class MeasureAcceleration : public GBBasicDemoModule
-{
-public:
-  MeasureAcceleration();
-};
-
-// class MeasureTemperatureWithRTDSensor : public GBBasicDemoModule
-// {
-// public:
-//   MeasureTemperatureWithRTDSensor();
-// };
 namespace pgrams{
-// class MeasureTemperatureWithRTDSensorByArduino: public MeasureTemperatureWithRTDSensor {
-// public:
-//   MeasureTemperatureWithRTDSensorByArduino();
-// };
-
-// class MeasureTemperatureWithRTDSensorByMHADC: public MeasureTemperatureWithRTDSensor {
-// public:
-//   MeasureTemperatureWithRTDSensorByMHADC();
-// };
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
 public:
   MeasureOrientationByMHADC();
 };
 } // namespace pgrams
-class GetRaspiStatus : public GBBasicDemoModule
-{
-public:
-  GetRaspiStatus();
-};
-
-class ControlHighVoltage : public GBBasicDemoModule
-{
-public:
-  ControlHighVoltage();
-};
-
-class ReadWaveform : public GBBasicDemoModule
-{
-public:
-  ReadWaveform();
-};
-
-class GetSlowADCData : public GBBasicDemoModule
-{
-public:
-  GetSlowADCData();
-};
-#endif
 } // namespace GRAMSBalloon
+%template(TelemMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::string>;
+%template(ComMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::vector<uint8_t>>;

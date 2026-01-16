@@ -1,20 +1,19 @@
 #ifndef GRAMSBALOON_PushToMongoDB_H
 #define GRAMSBALOON_PushToMongoDB_H 1
 
+#include "VInterpretTelemetry.hh"
+#include "BaseTelemetryDefinition.hh"
 #include <anlnext/BasicModule.hh>
 #include <hsquicklook/MongoDBClient.hh>
-#include "InterpretTelemetry.hh"
-#include "TelemetryDefinition.hh"
-
 
 namespace gramsballoon {
 
 class MongoDBClient;
 class InterpretTelemetry;
 
-class PushToMongoDB : public anlnext::BasicModule
-{
+class PushToMongoDB: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(PushToMongoDB, 3.0);
+
 public:
   PushToMongoDB();
 
@@ -25,11 +24,11 @@ public:
   void pushHKTelemetry();
   void pushWFTelemetry();
   void pushStatusTelemetry();
-  void pushWaveformImage(const std::vector<std::string>& keys, const std::vector<std::string>& image_filenames);
+  void pushWaveformImage(const std::vector<std::string> &keys, const std::vector<std::string> &image_filenames);
 
 private:
-  hsquicklook::MongoDBClient* mongodbClient_ = nullptr;
-  InterpretTelemetry* interpreter_ = nullptr;
+  hsquicklook::MongoDBClient *mongodbClient_ = nullptr;
+  InterpretTelemetry *interpreter_ = nullptr;
   int chatter_ = 0;
 };
 

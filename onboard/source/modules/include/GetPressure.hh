@@ -6,10 +6,9 @@
 #include <regex>
 #include <vector>
 
-namespace gramsballoon {
-class SendTelemetry;
-} // namespace gramsballoon
 namespace gramsballoon::pgrams {
+class SendTelemetry;
+
 class GetPressure: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(GetPressure, 1.0);
   ENABLE_PARALLEL_RUN();

@@ -12,10 +12,8 @@
 #include <anlnext/BasicModule.hh>
 #include <sys/time.h>
 
-namespace gramsballoon {
-
+namespace gramsballoon::pgrams {
 class SendTelemetry;
-
 class RunIDManager : public anlnext::BasicModule
 {
   DEFINE_ANL_MODULE(RunIDManager, 1.0);
@@ -29,12 +27,12 @@ protected:
 
 public:  
   anlnext::ANLStatus mod_define() override;
-  anlnext::ANLStatus mod_initialize() override;
+  anlnext::ANLStatus mod_pre_initialize() override;
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  int RunID() { return singleton_self()->runID_; }
-  std::string TimeStampStr() { return singleton_self()->timeStampStr_; }
+  int RunID() const { return singleton_self()->runID_; }
+  std::string TimeStampStr() const { return singleton_self()->timeStampStr_; }
 
 private:
   int runID_ = 0;

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<?xml-stylesheet type="text/xsl" href="anlmodules.xsl"?>
+
+<anl_list>
+  <category>pGramsFC modules</category>
+  <anl_module href="module_detail.xml" />
+  <title>pGramsFC/ANL Modules</title>
+  <css href="design_top.css" />
+</anl_list>

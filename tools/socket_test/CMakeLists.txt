@@ -21,6 +21,49 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(socket_test
-  socket_test.cc
+# ## External libraries
+# ## BOOST ###
+find_package(Boost 1.60.0 REQUIRED CONFIG)
+set(BOOST_INC_DIR ${Boost_INCLUDE_DIRS})
+set(BOOST_LIB_DIR ${Boost_LIBRARY_DIRS})
+set(BOOST_LIB ${Boost_LIBRARIES})
+message("-- BOOST_INC_DIR: ${BOOST_INC_DIR}")
+message("-- BOOST_LIB_DIR: ${BOOST_LIB_DIR}")
+message("-- BOOST_LIB: ${BOOST_LIB}")
+# add_executable(socket_test
+# socket_test.cc
+# )
+add_executable(socket_server_test
+  socket_server_test.cc
+)
+
+target_include_directories(socket_server_test
+  PRIVATE
+  ${Boost_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(socket_server_test
+  ${Boost_LIBRARIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_executable(socket_server_test_async
+  socket_server_test_async.cc
+)
+target_include_directories(socket_server_test_async
+  PRIVATE
+  ${Boost_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  $ENV{HOME}/include/GRAMSBalloon
+)
+target_link_directories(socket_server_test_async
+  PRIVATE
+  ${Boost_LIBRARY_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  $ENV{HOME}/lib
+)
+target_link_libraries(socket_server_test_async
+  ${Boost_LIBRARIES}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  GBCore
 )

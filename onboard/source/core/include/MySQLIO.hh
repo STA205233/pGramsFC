@@ -1,21 +1,81 @@
 #ifndef GRAMSBalloon_MySQLIO_hh
 #define GRAMSBalloon_MySQLIO_hh 1
+#include "DBFieldSink.hh"
 #include "mysqlx/xdevapi.h"
 #include <boost/mp11.hpp>
+#include <iostream>
 #include <map>
 #include <optional>
 #include <string>
 #define TRY_AND_CATCH_MYSQL_EXCEPTIONS_BEGIN \
   try {
-#define TRY_AND_CATCH_MYSQL_EXCEPTIONS_END    \
-  }                                           \
-  catch (const mysqlx::Error &e) {            \
-    std::cerr << "Error: " << e << std::endl; \
+#define TRY_AND_CATCH_MYSQL_EXCEPTIONS_END(process) \
+  }                                                 \
+  catch (const mysqlx::Error &e) {                  \
+    std::cerr << "Error: " << e << std::endl;       \
+    process;                                        \
   }
 
-namespace gramsballoon::mysql {
+namespace gramsballoon::pgrams::mysql {
+template <class T>
+struct SqlType;
+template <>
+struct SqlType<uint8_t> {
+  static constexpr const char *value = "TINYINT UNSIGNED";
+};
+template <>
+struct SqlType<int16_t> {
+  static constexpr const char *value = "SMALLINT";
+};
+template <>
+struct SqlType<uint16_t> {
+  static constexpr const char *value = "SMALLINT UNSIGNED";
+};
+template <>
+struct SqlType<int32_t> {
+  static constexpr const char *value = "INT";
+};
+template <>
+struct SqlType<uint32_t> {
+  static constexpr const char *value = "INT UNSIGNED";
+};
+template <>
+struct SqlType<int64_t> {
+  static constexpr const char *value = "BIGINT";
+};
+template <>
+struct SqlType<uint64_t> {
+  static constexpr const char *value = "BIGINT UNSIGNED";
+};
+template <>
+struct SqlType<float> {
+  static constexpr const char *value = "FLOAT";
+};
+template <>
+struct SqlType<double> {
+  static constexpr const char *value = "DOUBLE";
+};
+template <size_t N>
+struct VarChar {
+  static constexpr size_t n = N;
+};
+template <size_t N>
+struct SqlType<VarChar<N>> {
+  static constexpr std::string_view name = "VARCHAR"; // 生成側で (N) を付ける
+};
+template <>
+struct SqlType<std::string> {
+  static constexpr const char *value = SqlType<VarChar<255>>::name.data();
+};
+
 using value_t = mysqlx::Value;
-using table_t = std::map<std::string, std::optional<mysqlx::Value>>;
+using table_t = std::map<std::string, std::pair<std::optional<value_t>, const char *>>; // column_name -> (value, type)
+/**
+ * @brief A class for MySQL I/O operations using MySQL X DevAPI.
+ * @author Shota Arai
+ * @date 2025-02-** | First design
+ * @date 2025-12-14 | Shota Arai | Refactoring to use a MySQLFieldSink class (v2.0)
+ */
 class MySQLIO {
 
 public:
@@ -27,16 +87,47 @@ private:
   std::shared_ptr<mysqlx::Session> session_;
   std::optional<mysqlx::Schema> schema_ = std::nullopt;
   bool checkExist_ = true;
+  bool connected_ = false;
 
 public:
   void Initialize(const std::string &host, const int port, const std::string &user, const std::string &password, const std::string &database);
   void AddTable(const std::string &table_name);
-  void AddColumn(const std::string &table_name, const std::string &col_name);
+  bool CheckTableExistence(const std::string &table_name) {
+    if (!schema_) {
+      std::cerr << "Schema is not initialized" << std::endl;
+      return false;
+    }
+    return schema_->getTable(table_name, false).existsInDatabase();
+  }
+  void CreateTable(const std::string &table_name);
+  template <typename T>
+  void AddColumn(const std::string &table_name, const std::string &col_name) {
+    const auto it = tables_.find(table_name);
+    if (it == tables_.end()) {
+      std::cerr << "Table (" << table_name << ") must be resisgered to MySQLIO before adding column." << std::endl;
+      return;
+    }
+    const auto it2 = it->second.find(col_name);
+    if (it2 != it->second.end()) {
+      std::cerr << col_name << "is already resisgered in Table(" << table_name << ")" << std::endl;
+      return;
+    }
+    it->second.insert(std::make_pair(col_name, std::make_pair(std::nullopt, SqlType<T>::value)));
+  }
   void SetItem(const std::string &table_name, const std::string &col_name, const mysqlx::Value &value);
+  bool hasKeyInTable(const std::string &table_name, const std::string &col_name) {
+    const auto it = tables_.find(table_name);
+    if (it == tables_.end()) {
+      return false;
+    }
+    const auto it2 = it->second.find(col_name);
+    return it2 != it->second.end();
+  }
   void Insert(const std::string &table_name);
   void SetCheckExist(const bool checkExist) { checkExist_ = checkExist; }
   void PrintTableInfo(const std::string &table_name);
+  bool connected() const { return connected_; }
 };
 
-} // namespace gramsballoon::mysql
+} // namespace gramsballoon::pgrams::mysql
 #endif //GRAMSBalloon_MySQLIO_hh

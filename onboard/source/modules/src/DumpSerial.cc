@@ -1,9 +1,10 @@
+#if 0
 #include "DumpSerial.hh"
 #include "DateManager.hh"
 #include <fstream>
 #include <iostream>
 using namespace anlnext;
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 ANLStatus DumpSerial::mod_define() {
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("chatter", &mod_class::chatter_);
@@ -32,9 +33,10 @@ ANLStatus DumpSerial::mod_analyze() {
   if (receiveTelemetry_ == nullptr) {
     return AS_ERROR;
   }
-  const std::vector<uint8_t> &telemetry = receiveTelemetry_->Telemetry();
+  const auto &telemetry = receiveTelemetry_->Telemetry();
+  const auto &vect = telemetry->getContents()->Command();
   if (chatter_ >= 1) {
-    std::cout << "DumpSerial: telemetry size = " << telemetry.size() << std::endl;
+    std::cout << "DumpSerial: telemetry size = " << vect.size() << std::endl;
   }
   if (binaryFilenameBase_.empty()) {
     std::cerr << "DumpSerial: output filename is empty" << std::endl;
@@ -46,7 +48,7 @@ ANLStatus DumpSerial::mod_analyze() {
     std::cerr << "DumpSerial: cannot open file " << binaryFilenameBase_ << std::endl;
     return AS_ERROR;
   }
-  ofs.write(reinterpret_cast<const char *>(telemetry.data()), telemetry.size());
+  ofs.write(reinterpret_cast<const char *>(vect.data()), vect.size());
   ofs.flush();
   ofs.close();
   eventIndex_++;
@@ -64,3 +66,4 @@ std::string DumpSerial::CreateFilename() {
   return filename;
 }
 } // namespace gramsballoon
+#endif
