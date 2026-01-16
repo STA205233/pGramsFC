@@ -29,6 +29,8 @@ find_package(Ruby 3.0 REQUIRED)
 
 # ## options
 # # library options
+option(GB_USE_BAYCAT_SPI " enable BayCat SPI " ON)
+option(GB_USE_FT232H "enable FT232H" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(GB_USE_SYSTEM_MODULES ON)
 else()
@@ -55,26 +57,33 @@ endif()
 set(GB_PGRAMSBALLOON_INC_DIR "${GB_PGRAMSBALLOON_PATH}/include")
 
 # # shortcut options
-option(GB_MAC "shortcut" OFF)
+option(GB_MAC " shortcut " OFF)
 
 if(GB_MAC)
   message("-- GB_MAC is set")
+  message(" -- GB_MAC is set ")
+  set(GB_USE_SPI OFF)
   set(GB_USE_HSQUICKLOOK OFF)
   set(GB_APT_RUBY OFF)
   set(GB_USE_ROOT ON)
 endif(GB_MAC)
 
 
+if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
+  set(GB_USE_SPI ON)
+else()
+  set(GB_USE_SPI OFF)
+endif()
 if(GB_APT_RUBY)
   set(RUBY_CONFIG_FILE_DIR /usr/include/arm-linux-gnueabihf/ruby-2.7.0)
 endif(GB_APT_RUBY)
 
 if(GB_USE_ROOT)
-  add_compile_definitions("USE_ROOT")
+  add_compile_definitions(" USE_ROOT ")
 endif(GB_USE_ROOT)
 
 if(GB_USE_HSQUICKLOOK)
-  add_compile_definitions("USE_HSQUICKLOOK")
+  add_compile_definitions(" USE_HSQUICKLOOK ")
 endif(GB_USE_HSQUICKLOOK)
 
 if(GB_USE_SYSTEM_MODULES)
@@ -87,9 +96,9 @@ find_package(Boost 1.60.0 REQUIRED CONFIG)
 set(BOOST_INC_DIR ${Boost_INCLUDE_DIRS})
 set(BOOST_LIB_DIR ${Boost_LIBRARY_DIRS})
 set(BOOST_LIB ${Boost_LIBRARIES})
-message("-- BOOST_INC_DIR: ${BOOST_INC_DIR}")
-message("-- BOOST_LIB_DIR: ${BOOST_LIB_DIR}")
-message("-- BOOST_LIB: ${BOOST_LIB}")
+message(" -- BOOST_INC_DIR: ${BOOST_INC_DIR} ")
+message(" -- BOOST_LIB_DIR: ${BOOST_LIB_DIR} ")
+message(" -- BOOST_LIB: ${BOOST_LIB} ")
 
 # ANL
 if(NOT DEFINED ANLNEXT_INSTALL)
@@ -106,6 +115,37 @@ set(ANLNEXT_LIB ANLNext)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
 message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
+# SPI
+if(GB_USE_SPI)
+  if(GB_USE_FT232H)
+    find_path(D2XX_INC_DIR
+      NAMES ftd2xx.h REQUIRED
+      PATHS /usr/local/include)
+    find_path(WIN_TYPES_INC_DIR
+      NAMES WinTypes.h REQUIRED
+      PATHS /usr/local/include)
+    find_library(D2XX_LIB
+      NAMES libftd2xx.so libftd2xx.dylib REQUIRED
+      PATHS /usr/local/lib)
+    set(D2XX_LIB_DIR ${D2XX_LIB})
+    set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
+    message(" -- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS} ")
+    message(" -- D2XX_LIB: ${D2XX_LIB} ")
+    include_directories(${D2XX_INCLUDE_DIRS})
+    add_compile_definitions("USE_FT232H")
+  endif(GB_USE_FT232H)
+  if (GB_USE_BAYCAT_SPI)
+  find_path(VERSALOGIC_INC_DIR
+    NAMES VL_OSALib.h REQUIRED
+    PATHS /usr/local/include)
+  find_library(VERSALOGIC_LIB
+    NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+    PATHS /usr/local/lib)
+  add_compile_definitions("USE_BAYCAT_SPI")
+  message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+  message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+  endif(GB_USE_BAYCAT_SPI)
+endif(GB_USE_SPI)
 
 # ## HSQUICKLOOK ###
 if(GB_USE_HSQUICKLOOK)
@@ -115,12 +155,12 @@ if(GB_USE_HSQUICKLOOK)
   find_library(HSQUICKLOOK_LIB
     NAMES HSQuickLookAnalyzer
     PATHS $ENV{HSQUICKLOOK_INSTALL}/lib /usr/local/lib $ENV{HOME}/lib)
-  message("-- HSQUICKLOOK_INC_DIR: ${HSQUICKLOOK_INC_DIR}")
-  message("-- HSQUICKLOOK_LIB: ${HSQUICKLOOK_LIB}")
+  message(" -- HSQUICKLOOK_INC_DIR: ${HSQUICKLOOK_INC_DIR} ")
+  message(" -- HSQUICKLOOK_LIB: ${HSQUICKLOOK_LIB} ")
 
   find_package(mongocxx REQUIRED)
   set(MONGODB_LIB mongo::mongocxx_shared)
-  message("-- MONGODB_LIB: ${MONGODB_LIB}")
+  message(" -- MONGODB_LIB: ${MONGODB_LIB} ")
 endif(GB_USE_HSQUICKLOOK)
 
 # ## ROOT ###
@@ -132,10 +172,10 @@ if(GB_USE_ROOT)
   set(ROOT_LIB_DIR ${ROOT_LIBRARY_DIR})
   set(ROOT_LIB ${ROOT_LIBRARIES})
   list(APPEND CMAKE_INSTALL_RPATH ${ROOT_LIBRARY_DIR})
-  message("-- ROOTSYS = ${ROOTSYS}")
-  message("-- ROOT_INC_DIR = ${ROOT_INC_DIR}")
-  message("-- ROOT_LIB_DIR = ${ROOT_LIB_DIR}")
-  message("-- ROOT libraries = ${ROOT_LIB}")
+  message(" -- ROOTSYS = ${ROOTSYS} ")
+  message(" -- ROOT_INC_DIR = ${ROOT_INC_DIR} ")
+  message(" -- ROOT_LIB_DIR = ${ROOT_LIB_DIR} ")
+  message(" -- ROOT libraries = ${ROOT_LIB} ")
 endif(GB_USE_ROOT)
 
 # ## MYSQL ###

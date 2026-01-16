@@ -11,6 +11,9 @@
 #ifndef GB_MAC
 #include "SendTelemetry.hh"
 #endif
+#ifdef USE_SPI
+#include "SPIManager.hh"
+#endif
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
 #include "ShutdownSystem.hh"
@@ -60,17 +63,13 @@ class Sleep : public anlnext::BasicModule
 public:
   Sleep();
 };
-}
-#ifdef USE_PIGPIO
+#ifdef USE_SPI
 class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
 };
 #endif
-
-
-namespace pgrams {
 
 #ifdef USE_SYSTEM_MODULES
 class GetComputerStatus : public anlnext::BasicModule
@@ -139,12 +138,6 @@ class MosquittoManager: public anlnext::BasicModule
 public:
   MosquittoManager();
 };
-
-class SendArrayByMQTT: public anlnext::BasicModule {
-public:
-  SendArrayByMQTT();
-};
-
 class DistributeCommand: public anlnext::BasicModule {
 public:
   DistributeCommand();
@@ -187,11 +180,6 @@ public:
 };
 #endif
 
-//class ReadTelemetry : public anlnext::BasicModule
-//{
-//public:
-//  ReadTelemetry();
-//};
 
 namespace pgrams{
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
