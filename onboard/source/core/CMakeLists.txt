@@ -29,9 +29,7 @@ set(GB_CORE_CLASSES
 
 if(GB_USE_SPI)
   set(GB_SPI_CORE_CLASSES
-    src/BME680IO.cc
     src/MAX31865IO.cc
-    src/SlowADCIO.cc
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
   )
