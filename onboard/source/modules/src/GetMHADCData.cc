@@ -32,9 +32,9 @@ ANLStatus GetMHADCData::mod_initialize() {
       }
       regs_.push_back(std::regex(pat));
     }
-    if (chatter_ > 0){
+    if (chatter_ > 0) {
       std::cout << std::endl;
-    } 
+    }
   }
   if (exist_module(encodedSerialCommunicatorName_)) {
     get_module_NC(encodedSerialCommunicatorName_, &encodedSerialCommunicator_);
@@ -103,7 +103,10 @@ ANLStatus GetMHADCData::mod_analyze() {
     else {
       for (int i = 0; i < numCh_; i++) {
         if (failed_ch[i]) {
-          //sendTelemetry_->getErrorManager()->setError(ConvertRTDError(i)); // TODO: Define MHADC error
+          const auto err = magic_enum::enum_cast<ErrorType>(static_cast<int>(ErrorType::RTD_GONDOLA_FRAME_1_ERROR) + i);
+          if (sendTelemetry_) {
+            sendTelemetry_->getErrorManager()->setError(err.value_or(ErrorType::OTHER_ERRORS));
+          }
         }
       }
     }
