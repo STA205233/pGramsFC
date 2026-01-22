@@ -24,7 +24,6 @@ set(GB_MODULES
   src/RunIDManager.cc
   src/ReadTelemetry.cc
   src/DumpSerial.cc
-  #src/GetArduinoData.cc
   src/EncodedSerialCommunicator.cc
   src/GetMHADCData.cc
   #src/GetCompressorData.cc
@@ -41,7 +40,6 @@ set(GB_MODULES
   src/DividePacket.cc
   src/PassTelemetry.cc
   src/IoContextManager.cc
-  #src/MeasureTemperatureWithRTDSensorByMHADC.cc
   src/SendCommandToDAQComputer.cc
   src/SendTelemetry.cc
   src/SendArrayByMQTT.cc

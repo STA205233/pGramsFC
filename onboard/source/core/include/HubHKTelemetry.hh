@@ -8,6 +8,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2025-11-** | Shota Arai | First design
  * @date 2025-12-15 | Shota Arai | Added serialize and initializeDBTable methods
+ * @date 2026-01-22 | Shota Arai | Introduce command rejected index and remove TOF bias setting
  */
 class HubHKTelemetry: public BaseTelemetryDefinition {
 public:
@@ -15,12 +16,11 @@ public:
     setType(Subsystem::HUB);
   }
   virtual ~HubHKTelemetry() = default;
-  static constexpr size_t DATA_SIZE = 284;
   static constexpr size_t NUM_TOF_BIAS = 130;
   static constexpr size_t NUM_RTD_IN_CHAMBER = 7;
   static constexpr size_t NUM_PDU_HV_TEMP = 2;
   static constexpr size_t NUM_PDU_SIPM = 6;
-  static constexpr size_t ARGC = 207;
+  static constexpr size_t ARGC = 616 / 4;
   static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
   static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
   static constexpr size_t NUM_RTD_GONDOLA = 4;
@@ -36,14 +36,19 @@ public:
 private:
   uint16_t lastCommandCodeHub_ = 0;
   uint32_t lastCommandIndexHub_ = 0;
+  uint32_t commandRejectedIndexHub_ = 0;
   uint16_t lastCommandCodeOrc_ = 0;
   uint32_t lastCommandIndexOrc_ = 0;
+  uint32_t commandRejectedIndexOrc_ = 0;
   uint16_t lastCommandCodeTPC_ = 0;
   uint32_t lastCommandIndexTPC_ = 0;
+  uint32_t commandRejectedIndexTPC_ = 0;
   uint16_t lastCommandCodeTOF_ = 0;
   uint32_t lastCommandIndexTOF_ = 0;
+  uint32_t commandRejectedIndexTOF_ = 0;
   uint16_t lastCommandCodeQM_ = 0;
   uint32_t lastCommandIndexQM_ = 0;
+  uint32_t commandRejectedIndexQM_ = 0;
 
   // PDU
   std::array<uint16_t, NUM_PDU_SIPM> pduVolSiPM_ = {0};
@@ -114,7 +119,7 @@ private:
 
   //Tof bias
   std::array<uint16_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
-  std::array<uint16_t, NUM_TOF_BIAS> tofBiasSetting_ = {0};
+  //std::array<uint16_t, NUM_TOF_BIAS> tofBiasSetting_ = {0};
 
   //Hub computer
   std::array<uint32_t, NUM_ERROR_FLAGS> hubComputerErrorFlags_ = {0};
@@ -137,11 +142,17 @@ public:
   inline void setLastCommandIndexHub(uint32_t v) { lastCommandIndexHub_ = v; }
   inline uint32_t LastCommandIndexHub() const { return lastCommandIndexHub_; }
 
+  inline void setCommandRejectedIndexHub(uint32_t v) { commandRejectedIndexHub_ = v; }
+  inline uint32_t CommandRejectedIndexHub() const { return commandRejectedIndexHub_; }
+
   inline void setLastCommandCodeOrc(uint16_t v) { lastCommandCodeOrc_ = v; }
   inline uint16_t LastCommandCodeOrc() const { return lastCommandCodeOrc_; }
 
   inline void setLastCommandIndexOrc(uint32_t v) { lastCommandIndexOrc_ = v; }
   inline uint32_t LastCommandIndexOrc() const { return lastCommandIndexOrc_; }
+
+  inline void setCommandRejectedIndexOrc(uint32_t v) { commandRejectedIndexOrc_ = v; }
+  inline uint32_t CommandRejectedIndexOrc() const { return commandRejectedIndexOrc_; }
 
   inline void setLastCommandCodeTPC(uint16_t v) { lastCommandCodeTPC_ = v; }
   inline uint16_t LastCommandCodeTPC() const { return lastCommandCodeTPC_; }
@@ -149,17 +160,26 @@ public:
   inline void setLastCommandIndexTPC(uint32_t v) { lastCommandIndexTPC_ = v; }
   inline uint32_t LastCommandIndexTPC() const { return lastCommandIndexTPC_; }
 
+  inline void setCommandRejectedIndexTPC(uint32_t v) { commandRejectedIndexTPC_ = v; }
+  inline uint32_t CommandRejectedIndexTPC() const { return commandRejectedIndexTPC_; }
+
   inline void setLastCommandCodeTOF(uint16_t v) { lastCommandCodeTOF_ = v; }
   inline uint16_t LastCommandCodeTOF() const { return lastCommandCodeTOF_; }
 
   inline void setLastCommandIndexTOF(uint32_t v) { lastCommandIndexTOF_ = v; }
   inline uint32_t LastCommandIndexTOF() const { return lastCommandIndexTOF_; }
 
+  inline void setCommandRejectedIndexTOF(uint32_t v) { commandRejectedIndexTOF_ = v; }
+  inline uint32_t CommandRejectedIndexTOF() const { return commandRejectedIndexTOF_; }
+
   inline void setLastCommandCodeQM(uint16_t v) { lastCommandCodeQM_ = v; }
   inline uint16_t LastCommandCodeQM() const { return lastCommandCodeQM_; }
 
   inline void setLastCommandIndexQM(uint32_t v) { lastCommandIndexQM_ = v; }
   inline uint32_t LastCommandIndexQM() const { return lastCommandIndexQM_; }
+
+  inline void setCommandRejectedIndexQM(uint32_t v) { commandRejectedIndexQM_ = v; }
+  inline uint32_t CommandRejectedIndexQM() const { return commandRejectedIndexQM_; }
 
   inline void setPduVolSiPM(const std::array<uint16_t, NUM_PDU_SIPM> &v) { pduVolSiPM_ = v; }
   inline const std::array<uint16_t, NUM_PDU_SIPM> &PduVolSiPM() const { return pduVolSiPM_; }
@@ -509,22 +529,22 @@ public:
     return tofBiasVoltage_[idx];
   }
 
-  inline void setTofBiasSetting(const std::array<uint16_t, NUM_TOF_BIAS> &v) { tofBiasSetting_ = v; }
-  inline const std::array<uint16_t, NUM_TOF_BIAS> &TofBiasSetting() const { return tofBiasSetting_; }
-  inline void setTofBiasSetting(size_t idx, uint16_t v) {
-    if (idx >= NUM_TOF_BIAS) {
-      std::cerr << "setTofBiasSetting: index out of range: " << idx << std::endl;
-      return;
-    }
-    tofBiasSetting_[idx] = v;
-  }
-  inline uint16_t TofBiasSetting(size_t idx) const {
-    if (idx >= NUM_TOF_BIAS) {
-      std::cerr << "TofBiasSetting: index out of range: " << idx << std::endl;
-      return 0;
-    }
-    return tofBiasSetting_[idx];
-  }
+  //inline void setTofBiasSetting(const std::array<uint16_t, NUM_TOF_BIAS> &v) { tofBiasSetting_ = v; }
+  //inline const std::array<uint16_t, NUM_TOF_BIAS> &TofBiasSetting() const { return tofBiasSetting_; }
+  //inline void setTofBiasSetting(size_t idx, uint16_t v) {
+  //  if (idx >= NUM_TOF_BIAS) {
+  //    std::cerr << "setTofBiasSetting: index out of range: " << idx << std::endl;
+  //    return;
+  //  }
+  //  tofBiasSetting_[idx] = v;
+  //}
+  //inline uint16_t TofBiasSetting(size_t idx) const {
+  //  if (idx >= NUM_TOF_BIAS) {
+  //    std::cerr << "TofBiasSetting: index out of range: " << idx << std::endl;
+  //    return 0;
+  //  }
+  //  return tofBiasSetting_[idx];
+  //}
 
   inline void setHubComputerErrorFlags(const std::array<uint32_t, NUM_ERROR_FLAGS> &v) { hubComputerErrorFlags_ = v; }
   inline const std::array<uint32_t, NUM_ERROR_FLAGS> &HubComputerErrorFlags() const { return hubComputerErrorFlags_; }
