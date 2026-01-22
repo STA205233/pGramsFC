@@ -33,10 +33,13 @@ int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8
   }
   int num_transfered = WriteAndRead(cs, &writeBuffer_[0], wsize + rsize, &readBuffer_[0]);
   if (num_transfered < 0) {
+    std::cerr << "SPI_ReadWrite: WriteAndRead failed" << std::endl;
+    setIsOpen(false);
     return num_transfered;
   }
   if (num_transfered != (wsize + rsize)) {
     std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
+    setIsOpen(false);
     return -static_cast<int>(FT_OTHER_ERROR);
   }
   for (int i = 0; i < rsize; ++i) {
@@ -46,8 +49,9 @@ int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8
 }
 int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) {
   int num_transfered = mpsseController_->write_readSPI(writeBuffer, size, readBuffer, cs);
-  if (num_transfered != size) {
+  if (num_transfered != static_cast<int>(size)) {
     std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
+    setIsOpen(false);
     return -static_cast<int>(FT_OTHER_ERROR);
   }
   return num_transfered;
@@ -60,15 +64,24 @@ int FT232HIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
   const int num_transfered = mpsseController_->writeSPI(&writeBuffer_[0], size, cs);
   if (num_transfered != static_cast<int>(size)) {
     std::cerr << "SPI_Write: Not all bytes were written" << std::endl;
+    setIsOpen(false);
     return -static_cast<int>(FT_OTHER_ERROR);
   }
   return num_transfered;
 }
 int FT232HIO::controlGPIO(int cs, bool value) {
-  return mpsseController_->writeGPIO(cs, value);
+  if (mpsseController_->writeGPIO(cs, value) != 0) {
+    setIsOpen(false);
+    return -1;
+  }
+  return 0;
 }
 int FT232HIO::controlGPIOMul(const uint32_t state) {
-  return mpsseController_->writeGPIOMul(state);
+  if (mpsseController_->writeGPIOMul(state) != 0) {
+    setIsOpen(false);
+    return -1;
+  }
+  return 0;
 }
 int FT232HIO::updateSetting() {
   const unsigned int baudrate = Baudrate();
@@ -76,8 +89,16 @@ int FT232HIO::updateSetting() {
   if (mpsseController_) {
     mpsseController_->setSPIMode(configOptions & 0x3);
     mpsseController_->setBaudrate(baudrate);
-    return mpsseController_->applySettings();
+    if (mpsseController_->applySettings() != 0) {
+      std::cerr << "FT232HIO::updateSetting: Failed to apply settings" << std::endl;
+      setIsOpen(false);
+      return -1;
+    }
+    return 0;
   }
-  return -1;
+  else {
+    setIsOpen(false);
+    return -1;
+  }
 }
 } // namespace gramsballoon::pgrams

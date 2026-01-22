@@ -31,6 +31,33 @@ ANLStatus SPIManager::mod_initialize() {
   if (exist_module(send_telem_md)) {
     get_module_NC(send_telem_md, &sendTelemetry_);
   }
+
+  return AS_OK;
+}
+
+ANLStatus SPIManager::mod_analyze() {
+  if (!interface_ || interface_->IsOpen()) {
+    return AS_OK;
+  }
+  const int status = connect();
+  if (status != 0) {
+    return AS_ERROR;
+  }
+  return AS_OK;
+}
+
+ANLStatus SPIManager::mod_finalize() {
+  if (!interface_ || !interface_->IsOpen()) {
+    return AS_OK;
+  }
+  int status = interface_->Close();
+  if (status != 0) {
+    std::cerr << "SPI_CloseChannel failed: status = " << status << std::endl;
+  }
+  return AS_OK;
+}
+
+int SPIManager::connect() {
 #ifdef USE_BAYCAT_SPI
   if (interfaceName_ == "BayCat") {
     interface_ = std::make_shared<BayCatSPIIO>();
@@ -43,32 +70,20 @@ ANLStatus SPIManager::mod_initialize() {
 #endif
   interface_->setBaudrate(baudrate_);
   interface_->setConfigOptions(spiConfigOptions_);
-  int status = interface_->Open(channel_);
+  const int status = interface_->Open(channel_);
   if (status != 0) {
     std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
     if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
+      if (interfaceName_ == "BayCat") {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR_BAYCAT);
+      }
+      else if (interfaceName_ == "FT232H") {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR_FT232H);
+      }
     }
+    return status;
   }
-  return AS_OK;
-}
-
-ANLStatus SPIManager::mod_analyze() { // TODO: reconnection
-  return AS_OK;
-}
-
-ANLStatus SPIManager::mod_finalize() {
-  if (!interface_ || !interface_->IsOpen()) {
-    return AS_OK;
-  }
-  int status = interface_->Close();
-  if (status != 0) {
-    std::cerr << "SPI_CloseChannel failed: status = " << status << std::endl;
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
-    }
-  }
-  return AS_OK;
+  return 0;
 }
 
 } // namespace gramsballoon::pgrams

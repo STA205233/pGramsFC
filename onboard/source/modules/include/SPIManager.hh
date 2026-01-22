@@ -37,6 +37,7 @@ public:
   anlnext::ANLStatus mod_finalize() override;
 
   std::shared_ptr<SPIInterface> &Interface() { return (singleton_self()->interface_); }
+  int connect();
 
 private:
   std::shared_ptr<SPIInterface> interface_ = nullptr;

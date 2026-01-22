@@ -7,6 +7,14 @@
 namespace gramsballoon::pgrams {
 class SPIManager;
 class SendTelemetry;
+
+/**
+ * @class ControlPDUDAC
+ * @brief Module to control PDU DAC via SPI
+ * @details This module controls a DAC121S101 DAC via SPI to set voltages for PDU
+ * @author Shota Arai
+ * @date 2026-01-22 | First version (v1.0)
+ */
 class ControlPDUDAC: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ControlPDUDAC, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -26,6 +34,7 @@ public:
   void setVoltage(int channel, float v) {
     channel_ = channel;
     voltage_ = v;
+    changeState_ = true;
   }
 
 private:
@@ -36,6 +45,7 @@ private:
   int channel_ = 0;
   double supplyVoltage_ = 3.3f;
   int chatter_ = 0;
+  bool changeState_ = false;
   float voltage_ = 0.0f;
 };
 } // namespace gramsballoon::pgrams

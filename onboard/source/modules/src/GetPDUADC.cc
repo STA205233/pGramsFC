@@ -3,9 +3,15 @@ using namespace anlnext;
 
 namespace gramsballoon::pgrams {
 ANLStatus GetPDUADC::mod_define() {
+  set_module_description("Module to get PDU ADC readings via SPI");
   define_parameter("SPIManager_name", &mod_class::spiManagerName_);
+  set_parameter_description("Name of the SPIManager module");
   define_parameter("channel", &mod_class::channel_);
+  set_parameter_description("ADC channel (Chip Select)");
   define_parameter("supply_voltage", &mod_class::supplyVoltage_, 1.0, "V");
+  set_parameter_description("Supply voltage for ADC");
+  set_parameter_default_string("3.3");
+  set_parameter_unit(1.0, "V");
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
