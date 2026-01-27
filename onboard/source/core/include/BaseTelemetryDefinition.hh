@@ -22,6 +22,9 @@ enum class Subsystem : uint16_t {
   TOF = 4,
   UNKNOWN = 255
 };
+
+std::ostream &operator<<(std::ostream &os, const Subsystem &subsystem);
+
 /**
  * @brief A class for base telemetry definition
  * @author Shota Arai

@@ -161,4 +161,25 @@ bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
   interpret();
   return is_success;
 }
+std::ostream &operator<<(std::ostream &os, const Subsystem &subsystem) {
+  if (subsystem == Subsystem::HUB) {
+    os << "HUB";
+  }
+  else if (subsystem == Subsystem::ORC) {
+    os << "ORC";
+  }
+  else if (subsystem == Subsystem::COL) {
+    os << "COL";
+  }
+  else if (subsystem == Subsystem::QM) {
+    os << "QM";
+  }
+  else if (subsystem == Subsystem::TOF) {
+    os << "TOF";
+  }
+  else {
+    os << "UNKNOWN";
+  }
+  return os;
+}
 } // namespace gramsballoon::pgrams

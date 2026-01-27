@@ -41,6 +41,7 @@
 #include "PassTelemetry.hh"
 #include "IoContextManager.hh"
 #include "SendCommandToDAQComputer.hh"
+#include "DetectErrorCallbackFromDAQ.hh"
 %}
 
 %include "std_vector.i"
@@ -168,6 +169,12 @@ public:
   RunIDManager();
 };
 
+class SendArrayByMQTT : public anlnext::BasicModule
+{
+public:
+  SendArrayByMQTT();
+};
+
 } // namespace pgrams
 
 
@@ -185,6 +192,11 @@ namespace pgrams{
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
 public:
   MeasureOrientationByMHADC();
+};
+
+class DetectErrorCallbackFromDAQ: public anlnext::BasicModule {
+public:
+  DetectErrorCallbackFromDAQ();
 };
 } // namespace pgrams
 } // namespace GRAMSBalloon

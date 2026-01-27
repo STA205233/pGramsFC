@@ -12,11 +12,11 @@ class MyApp < ANL::ANLApp
       exit 1
     end
     chain GRAMSBalloon::TelemMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_t", time_out: 100) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_t", time_out: 1) do |m|
       m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_c", time_out: 100) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_c", time_out: 1) do |m|
       m.set_singleton(0)
     end
     chain GRAMSBalloon::IoContextManager do |m|
@@ -57,7 +57,11 @@ class MyApp < ANL::ANLApp
         with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink: true, chatter: 0)
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_iridium"
         with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], is_starlink: false, chatter: 0)
-      end
+    end
+    chain GRAMSBalloon::DetectErrorCallbackFromDAQ, "DetectErrorCallbackFromDAQ_TOF"
+    with_parameters(DividePacket_name: "DividePacket_TOF", chatter: 2) do |m|
+      m.set_singleton(0)
+    end
     chain GRAMSBalloon::SendTelemetry
     with_parameters(
           topic: @inifile["Hub"]["iridiumteltopic"],

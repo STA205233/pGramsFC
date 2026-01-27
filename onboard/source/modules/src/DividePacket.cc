@@ -51,6 +51,7 @@ ANLStatus DividePacket::mod_initialize() {
   return AS_OK;
 }
 ANLStatus DividePacket::mod_analyze() {
+  lastPushedPackets_.clear();
   if (!receiveStatusFromDAQComputer_) {
     std::cerr << "ReceiveStatusFromDAQComputer is nullptr." << std::endl;
     return AS_OK;
@@ -126,7 +127,7 @@ ANLStatus DividePacket::mod_analyze() {
     }
     else if (inError_) {
       currentPacket_.push_back(byte);
-      size_t new_sz = currentPacket_.size();
+      const size_t new_sz = currentPacket_.size();
       if (new_sz >= 4 && currentPacket_[new_sz - 4] == 0xC5 && currentPacket_[new_sz - 3] == 0xA4 && currentPacket_[new_sz - 2] == 0xD2 && currentPacket_[new_sz - 1] == 0x79) {
         if (statusSaver_ && saveStatus_) {
           statusSaver_->writeCommandToFile(true, currentPacket_);
@@ -171,6 +172,7 @@ void DividePacket::PushCurrentVector() {
       return;
     }
   }
+  lastPushedPackets_.push_back(telem);
   if (currentCode_ == overwrittenPacketCode_) {
     if (chatter_ > 0) {
       std::cout << "DividePacket::PushCurrentVector: Overwriting packet with code " << overwrittenPacketCode_ << std::endl;

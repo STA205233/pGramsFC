@@ -43,6 +43,7 @@ set(GB_MODULES
   src/SendCommandToDAQComputer.cc
   src/SendTelemetry.cc
   src/SendArrayByMQTT.cc
+  src/DetectErrorCallbackFromDAQ.cc
 )
 
 if(GB_USE_SPI)

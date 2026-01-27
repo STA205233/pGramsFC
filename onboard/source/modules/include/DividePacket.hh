@@ -67,6 +67,12 @@ public:
       return singleton_self()->IsEmptyIridium();
     }
   }
+  bool IsPacketPushed() const {
+    return !singleton_self()->lastPushedPackets_.empty();
+  }
+  const auto &GetLastPushedPackets() const {
+    return singleton_self()->lastPushedPackets_;
+  }
   const std::shared_ptr<BaseTelemetryDefinition> GetLastPacket(bool isStarlink) const {
     if (isStarlink) {
       return singleton_self()->GetLastPacketStarlink();
@@ -88,6 +94,7 @@ private:
   std::shared_ptr<IridiumPacketPool> iridiumPacketQueue_;
   uint16_t overwrittenPacketCode_ = UINT16_MAX;
   std::queue<std::shared_ptr<BaseTelemetryDefinition>> starlinkPacketQueue_;
+  std::vector<std::shared_ptr<BaseTelemetryDefinition>> lastPushedPackets_;
   std::vector<uint8_t> currentPacket_;
   int chatter_ = 0;
   size_t lastPacketSize_ = 0;

@@ -83,18 +83,10 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
     }
     return AS_OK;
   }
-  std::vector<uint8_t> *buffer_for_display = nullptr;
-  if (chatter_ > 1) {
-    buffer_for_display = new std::vector<uint8_t>;
-    buffer_for_display->reserve(MAX_BYTES);
-  }
   const auto now = std::chrono::steady_clock::now();
   const auto result = socketCommunicationManager_->receive(bufTmp_);
   if (result > 0) {
     buffer_.insert(buffer_.end(), bufTmp_.begin(), bufTmp_.begin() + result);
-    if (chatter_ > 1) {
-      buffer_for_display->insert(buffer_for_display->end(), bufTmp_.begin(), bufTmp_.begin() + result);
-    }
     lastReceivedTime_ = now;
     if (saveStatus_) {
       if (statusSaver_) {
@@ -107,13 +99,6 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
   }
   if (chatter_ > 1) {
     std::cout << "Received " << result << " bytes." << std::endl;
-  }
-  if (chatter_ > 2) {
-    std::cout << "Payload:" << std::endl;
-    for (const auto &byte: *buffer_for_display) {
-      std::cout << std::hex << static_cast<int>(byte) << std::dec << " ";
-    }
-    std::cout << std::endl;
   }
   if (lastReceivedTime_ + deadCommunicationTimeChrono_ < now) {
     if (chatter_ > 0) {
