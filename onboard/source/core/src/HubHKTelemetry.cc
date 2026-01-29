@@ -145,19 +145,19 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   sink->addField("run_id", static_cast<uint32_t>(0));
   sink->addField("last_command_code_hub", static_cast<uint32_t>(0));
   sink->addField("last_command_index_hub", static_cast<uint16_t>(0));
-  sink->addField("rejected_command_index_hub", static_cast<uint32_t>(0));
+  sink->addField("command_rejected_index_hub", static_cast<uint32_t>(0));
   sink->addField("last_command_code_orc", static_cast<uint32_t>(0));
   sink->addField("last_command_index_orc", static_cast<uint16_t>(0));
-  sink->addField("rejected_command_index_orc", static_cast<uint32_t>(0));
+  sink->addField("command_rejected_index_orc", static_cast<uint32_t>(0));
   sink->addField("last_command_code_tpc", static_cast<uint32_t>(0));
   sink->addField("last_command_index_tpc", static_cast<uint16_t>(0));
-  sink->addField("rejected_command_index_tpc", static_cast<uint32_t>(0));
+  sink->addField("command_rejected_index_tpc", static_cast<uint32_t>(0));
   sink->addField("last_command_code_tof", static_cast<uint32_t>(0));
   sink->addField("last_command_index_tof", static_cast<uint16_t>(0));
-  sink->addField("rejected_command_index_tof", static_cast<uint32_t>(0));
+  sink->addField("command_rejected_index_tof", static_cast<uint32_t>(0));
   sink->addField("last_command_code_qm", static_cast<uint32_t>(0));
   sink->addField("last_command_index_qm", static_cast<uint16_t>(0));
-  sink->addField("rejected_command_index_qm", static_cast<uint32_t>(0));
+  sink->addField("command_rejected_index_qm", static_cast<uint32_t>(0));
   for (size_t i = 0; i < NUM_PDU_SIPM; i++) {
     sink->addField("pdu_vol_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
     sink->addField("pdu_cur_sipm_" + std::to_string(i), static_cast<uint16_t>(0));

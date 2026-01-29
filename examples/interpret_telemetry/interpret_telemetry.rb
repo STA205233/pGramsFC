@@ -17,7 +17,7 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager, "GroundMosquittoManager"
-    with_parameters(host: "localhost", port: 1883, keep_alive: 10, chatter: 0, threaded_set: true, device_id: "Ground_hub")
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 0, threaded_set: true, device_id: "Ground_hub")
     subsystems = ["Orchestrator", "TPC", "TOF", "TPCMonitor"]
     for subsystem in subsystems
       chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_#{subsystem}"
@@ -40,7 +40,7 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK"
       with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
     chain GRAMSBalloon::PushToMySQL
-    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], port: ENV["PGRAMS_MYSQL_PORT"].to_i, database: "pgrams", check_exist: true, chatter: 0)
+    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk", check_exist: true, chatter: 0)
   end
 end
 
