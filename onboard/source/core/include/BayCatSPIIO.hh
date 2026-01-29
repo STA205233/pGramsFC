@@ -2,8 +2,8 @@
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "SPIInterface.hh"
 #define linux 1
-#include "VL_OSALib.h"
 #include "stdbool.h" // This is needed for including VL_OSALib.h
+#include "VL_OSALib.h"
 #include <map>
 #include <stdint.h>
 namespace gramsballoon::pgrams {
