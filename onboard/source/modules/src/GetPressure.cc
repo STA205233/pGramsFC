@@ -65,7 +65,7 @@ ANLStatus GetPressure::mod_analyze() {
       if (byte_read < 0) {
         std::cerr << "Error in GetPressure::mod_analyze: byte_read = " << byte_read << std::endl;
         if (sendTelemetry_) {
-          sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_SERIAL_COMMUNICATION_ERROR);
+          //sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_SERIAL_COMMUNICATION_ERROR);
         }
         pressure_[i] = 0;
         continue;
@@ -104,10 +104,10 @@ ANLStatus GetPressure::mod_analyze() {
     if (!successes[i]) {
       if (sendTelemetry_) {
         if (type_ == "jp") {
-          sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_JP);
+          //sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_JP);
         }
         else if (type_ == "cp") {
-          sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_CP);
+          //sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_CP);
         }
       }
     }

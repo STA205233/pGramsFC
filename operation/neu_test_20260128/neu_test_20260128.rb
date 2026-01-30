@@ -24,45 +24,45 @@ class MyApp < ANL::ANLApp
     end
     subsystems = ["Orchestrator"]
     #subsystems = ["TPC", "TOF", "Orchestrator"]
+    subsystem_overwritten={"TPC"=>0, "QM"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "QM"=> 3,"TOF" => 4, "Orchestrator" => 1}
     sendCommandToDAQComputer_names = []
     subsystems.each do |subsystem|
       sendCommandToDAQComputer_names << "SendCommandToDAQComputer_" + subsystem
     end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 100, qos: 0, binary_filename_base: "command_test", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command_test", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
       m.set_singleton(0)
     end
     subsystems.each do |subsystem|
       chain GRAMSBalloon::SocketCommunicationManager, "SocketCommunicationManager_" + subsystem
-      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["comport"].to_i, timeout: 100, chatter: 
-      1000) do |m|
+      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["comport"].to_i, timeout: 100, chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::SocketCommunicationManager, "SocketCommunicationManager_#{subsystem}_rsv"
-      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["telport"].to_i, timeout: 100, chatter: 1000) do |m|
+      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["telport"].to_i, timeout: 100, chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::DistributeCommand, "DistributeCommand_#{subsystem}"
-      with_parameters(topic: @inifile[subsystem]["comtopic"], chatter: 2) do |m|
+      with_parameters(topic: @inifile[subsystem]["comtopic"], chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 4)
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0)
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: 1000,chatter: 0)
+        with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: 5000,chatter: 100)
       chain GRAMSBalloon::DividePacket, "DividePacket_#{subsystem}"
-        with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: [64], overwritten_packet_code: 331, chatter: 10)
+        with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: [], overwritten_packet_code: subsystem_overwritten[subsystem], chatter: 100)
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_starlink"
-        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink: true, chatter: 0)
+        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: true, chatter: 100)
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_iridium"
-        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], is_starlink: false, chatter: 0)
-    end
-    chain GRAMSBalloon::GetComputerStatus
-    # chain GRAMSBalloon::DetectErrorCallbackFromDAQ, "DetectErrorCallbackFromDAQ_TOF"
-    # with_parameters(DividePacket_name: "DividePacket_TOF", chatter: 2) do |m|
-    #   m.set_singleton(0)
-    # end
+        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: false, chatter: 100)
+      # chain GRAMSBalloon::DetectErrorCallbackFromDAQ, "DetectErrorCallbackFromDAQ_#{subsystem}"
+      # with_parameters(DividePacket_name: "DividePacket_#{subsystem}", chatter: 2) do |m|
+        # m.set_singleton(0)
+      # end
+      end
+      chain GRAMSBalloon::GetComputerStatus
     chain GRAMSBalloon::SendTelemetry
     with_parameters(
           topic: @inifile["Hub"]["iridiumteltopic"],

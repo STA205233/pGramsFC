@@ -42,6 +42,8 @@
 #include "IoContextManager.hh"
 #include "SendCommandToDAQComputer.hh"
 #include "DetectErrorCallbackFromDAQ.hh"
+#include "PressureGaugeManager.hh"
+#include "GetPressure.hh"
 %}
 
 %include "std_vector.i"
@@ -197,6 +199,17 @@ public:
 class DetectErrorCallbackFromDAQ: public anlnext::BasicModule {
 public:
   DetectErrorCallbackFromDAQ();
+};
+
+class PressureGaugeManager: public anlnext::BasicModule
+{
+public:
+  PressureGaugeManager();
+};
+
+class GetPressure: public anlnext::BasicModule {
+public:
+  GetPressure();
 };
 } // namespace pgrams
 } // namespace GRAMSBalloon

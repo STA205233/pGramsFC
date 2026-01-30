@@ -63,9 +63,9 @@ ANLStatus DividePacket::mod_analyze() {
     }
     const auto byte = receiveStatusFromDAQComputer_->PopAndGetOneByte();
     const auto sz = currentPacket_.size();
-    if (chatter_ > 3) {
-      std::cout << "byte: " << std::hex << static_cast<int>(byte) << std::dec << std::endl;
-    }
+    //if (chatter_ > 3) {
+    //  std::cout << "byte: " << std::hex << static_cast<int>(byte) << std::dec << std::endl;
+    //}
     if (byte == 0xEB && sz == 0) {
       currentPacket_.push_back(byte);
     }
@@ -162,17 +162,16 @@ void DividePacket::PushCurrentVector() {
   telem->setIndex(index_);
   telem->setType(subsystem_);
   telem->update();
+  lastPushedPackets_.push_back(telem);
   for (const auto &code: starlinkCode_) {
     if (currentCode_ == code) {
       starlinkPacketQueue_.push(telem);
       if (chatter_ > 1) {
         std::cout << "DividePacket::PushCurrentVector: Pushed a Starlink packet. Queue size: " << starlinkPacketQueue_.size() << std::endl;
       }
-
       return;
     }
   }
-  lastPushedPackets_.push_back(telem);
   if (currentCode_ == overwrittenPacketCode_) {
     if (chatter_ > 0) {
       std::cout << "DividePacket::PushCurrentVector: Overwriting packet with code " << overwrittenPacketCode_ << std::endl;

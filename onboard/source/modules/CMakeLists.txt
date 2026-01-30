@@ -27,7 +27,7 @@ set(GB_MODULES
   src/EncodedSerialCommunicator.cc
   src/GetMHADCData.cc
   #src/GetCompressorData.cc
-  #src/GetPressure.cc
+  src/GetPressure.cc
   src/PressureGaugeManager.cc
   src/InterpretTelemetry.cc
   src/Sleep.cc

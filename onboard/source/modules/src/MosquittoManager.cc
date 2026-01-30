@@ -68,9 +68,11 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
   }
-  const auto result = mosquittoIO_->loop(timeout_, 10);
-  if (result != 0) {
-    return HandleError(mosquittoIO_->Reconnect());
+  for (int i = 0; i < 10; i++){
+    const auto result = mosquittoIO_->loop(timeout_, 10);
+    if (result != 0) {
+      return HandleError(mosquittoIO_->Reconnect());
+    }
   }
   return AS_OK;
 }
