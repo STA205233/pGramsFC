@@ -27,10 +27,10 @@
 namespace gramsballoon {
 
 class MeasureTemperatureWithRTDSensor;
-class ReceiveCommand;
 class RunIDManager;
 } // namespace gramsballoon
 namespace gramsballoon::pgrams {
+class ReceiveCommand;
 class GetMHADCData;
 class GetPressure;
 template <typename T>
@@ -89,9 +89,13 @@ private:
   // access to other classes
   ReceiveCommand *receiveCommand_ = nullptr;
   RunIDManager *runIDManager_ = nullptr;
-  pgrams::MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  //const DistributeCommand *distributeCommandTPC_ = nullptr;
+  //const DistributeCommand *distributeCommandTOF_ = nullptr;
+  //const DistributeCommand *distributeCommandQM_ = nullptr;
+  //const DistributeCommand *distributeCommandORC_ = nullptr;
 
-  pgrams::MosquittoIO<std::string> *mosq_ = nullptr;
+  MosquittoIO<std::string> *mosq_ = nullptr;
   std::string pubTopic_ = "telemetry";
   std::string starlinkTopic_ = "StarlinkTelemetry";
   int qos_ = 0;

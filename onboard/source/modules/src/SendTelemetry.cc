@@ -192,6 +192,11 @@ void SendTelemetry::setHKTelemetry() {
       }
     }
   }
+  if (receiveCommand_) {
+    const auto v = receiveCommand_->CommandRejectCount();
+    telemdef_->setCommandRejectedIndexHub(v);
+  }
+  
 #ifdef USE_SYSTEM_MODULES
   {
     if (getComputerStatus_ == nullptr) {
