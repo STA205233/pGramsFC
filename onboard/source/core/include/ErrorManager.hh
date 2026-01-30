@@ -99,7 +99,7 @@ enum class ErrorType {
   //SPI_OPEN_ERROR_BAYCAT = 101,
   TOF_DAQ_COMMAND_ERROR = 102,
 
-  OTHER_ERRORS = 254,
+  OTHER_ERRORS = 127,
 };
 class ErrorManager {
 public:
