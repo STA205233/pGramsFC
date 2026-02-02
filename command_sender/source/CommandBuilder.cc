@@ -88,19 +88,26 @@ CommandBuilder::CommandBuilder() {
   //ADD_CODE_MAP(PDU_CAEN_P12V_OFF, 1);
   //ADD_CODE_MAP(PDU_DAQ_CPU_ON, 0);
   //ADD_CODE_MAP(PDU_DAQ_CPU_OFF, 0);
-
   ADD_CODE_MAP(ORC_Exec_CPU_Restart, 0);
   ADD_CODE_MAP(ORC_Exec_CPU_Shutdown, 0);
   ADD_CODE_MAP(ORC_Boot_All_DAQ, 0);
   ADD_CODE_MAP(ORC_Shutdown_All_DAQ, 0);
-  ADD_CODE_MAP(ORC_CPU_Status, 0);
+  ADD_CODE_MAP(ORC_Start_Computer_Status, 0);
+  ADD_CODE_MAP(ORC_Stop_Computer_Status, 0);
+  ADD_CODE_MAP(ORC_Init_PCIe_Driver, 0);
+  ADD_CODE_MAP(ORC_Boot_Monitor, 0);
+  ADD_CODE_MAP(ORC_Shutdown_Monitor, 0);
+  ADD_CODE_MAP(ORC_Boot_Tof_Daq, 0);
+  ADD_CODE_MAP(ORC_Shutdown_Tof_Daq, 0);
 
   ADD_CODE_MAP(COL_Configure, 1);
-  ADD_CODE_MAP(COL_Start_Run, 1);
+  ADD_CODE_MAP(COL_Start_Run, 0);
   ADD_CODE_MAP(COL_Stop_Run, 0);
+  ADD_CODE_MAP(COL_Reset_Run, 0);
   ADD_CODE_MAP(COL_Boot_DAQ, 0);
   ADD_CODE_MAP(COL_Boot_Monitor, 0);
-  ADD_CODE_MAP(COL_Query_Hardware_Status, 0);
+  ADD_CODE_MAP(COL_Query_LB_Data, 0);
+  ADD_CODE_MAP(COL_Query_Event_Data, 0);
 
   ADD_CODE_MAP(TOF_Start_DAQ, 0);
   ADD_CODE_MAP(TOF_Stop_DAQ, 0);
@@ -112,14 +119,17 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Run_Make_Simple_Disc_Set_Table, 0);
   ADD_CODE_MAP(TOF_Run_Read_Temperature_Sensors, 0);
   ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_QDC_Calibration, 0);
   ADD_CODE_MAP(TOF_Run_Acquire_TDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_QDC_Calibration, 0);
   ADD_CODE_MAP(TOF_Run_Acquire_SiPM_Data, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration_BN, 0);
+  ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration_D, 0);
   ADD_CODE_MAP(TOF_Run_Process_Threshold_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
   ADD_CODE_MAP(TOF_Run_Process_TDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Raw, 0);
   ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Singles, 0);
+  ADD_CODE_MAP(TOF_Run_Process_TOF_Coin_Evt_QA, 0);
 
   ADD_CODE_MAP(TOF_Bias_ON, 0);
   ADD_CODE_MAP(TOF_Bias_OFF, 0);
