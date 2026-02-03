@@ -121,7 +121,8 @@ command_collection.add_command("TOF", CommandItem("Run Process TDC Calibration",
 command_collection.add_command("TOF", CommandItem("Run Process QDC Calibration", ""))
 command_collection.add_command("TOF", CommandItem("Run Convert Raw To Raw", ""))
 command_collection.add_command("TOF", CommandItem("Run Convert Raw To Singles", ""))
-command_collection.add_command("TOF", CommandItem("Run Process TOF Coin Evt QA", ""))
+command_collection.add_command("TOF", CommandItem("Run Process Coin Evt QA", ""))
+command_collection.add_command("TOF", CommandItem("Run Convert Stg1 To Stg2", ""))
 
 
 command_collection.add_command("TOF", CommandItem("Bias ON", "Turn ON the bias voltage"))

@@ -47,7 +47,7 @@ private:
   std::string interpretTelemetryName_ = "InterpretTelemetry";
   uint8_t statusCode_;
   TOF_STATUS status_;
-  uint8_t command_;
+  uint16_t command_;
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_TreatToFCallback_hh

@@ -36,6 +36,7 @@ ANLStatus TreatToFCallback::mod_initialize() {
   }
   mysqlFieldSink_.setMySQLIO(&mysqlIO_);
   interpretTelemetry_->initializeDBTableInSink(&mysqlFieldSink_, tableName_);
+  mysqlFieldSink_.addField("command", static_cast<uint16_t>(0));
   mysqlFieldSink_.addField("status", static_cast<uint32_t>(0));
   mysqlFieldSink_.addField("status_name", "UNKNOWN");
   if (mysqlIO_.CheckTableExistence(tableName_)) {
@@ -70,6 +71,7 @@ ANLStatus TreatToFCallback::mod_analyze() {
   telemetry->serialize(&mysqlFieldSink_);
   command_ = args[0];
   statusCode_ = args[1];
+  mysqlFieldSink_.setFieldValue("command", command_);
   mysqlFieldSink_.setFieldValue("status", statusCode_);
   if (statusCode_ == static_cast<uint32_t>(TOF_STATUS::SUCCESS)) {
     status_ = TOF_STATUS::SUCCESS;

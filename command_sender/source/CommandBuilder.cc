@@ -129,7 +129,8 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
   ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Raw, 0);
   ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Singles, 0);
-  ADD_CODE_MAP(TOF_Run_Process_TOF_Coin_Evt_QA, 0);
+  ADD_CODE_MAP(TOF_Run_Convert_Stg1_To_Stg2, 0);
+  ADD_CODE_MAP(TOF_Run_Process_Coin_Evt_QA, 0);
 
   ADD_CODE_MAP(TOF_Bias_ON, 0);
   ADD_CODE_MAP(TOF_Bias_OFF, 0);
