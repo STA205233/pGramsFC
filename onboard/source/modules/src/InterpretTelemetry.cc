@@ -1,4 +1,5 @@
 #include "InterpretTelemetry.hh"
+#include "CommunicationCodes.hh"
 #include "DateManager.hh"
 #include "HubHKTelemetry.hh"
 #include <sstream>
@@ -103,6 +104,8 @@ bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
       updateRunIDFile();
     }
   }
+  if (telemetry_->getContents()->Code() == static_cast<uint16_t>(::pgrams::communication::CommunicationCodes::TOF_Callback))
+    currentTelemetryType_ = 2;
   if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
   }

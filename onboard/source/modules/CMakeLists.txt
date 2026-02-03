@@ -68,6 +68,7 @@ endif(GB_USE_HSQUICKLOOK)
 if(GB_USE_MYSQL)
   set(GB_MYSQL_MODULES
     src/PushToMySQL.cc
+    src/TreatToFCallback.cc
   )
 endif(GB_USE_MYSQL)
 

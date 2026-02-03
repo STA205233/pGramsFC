@@ -29,9 +29,9 @@
 #include "GetMHADCData.hh"
 #include "EncodedSerialCommunicator.hh"
 
-
 #ifdef USE_MYSQL
 #include "PushToMySQL.hh"
+#include "TreatToFCallback.hh"
 #endif
 #include "MosquittoManager.hh"
 #include "SendArrayByMQTT.hh"
@@ -133,6 +133,10 @@ class PushToMySQL : public anlnext::BasicModule
 {
 public:
   PushToMySQL();
+};
+class TreatToFCallback: public anlnext::BasicModule {
+public:
+  TreatToFCallback();
 };
 #endif
 template <typename TelemType>

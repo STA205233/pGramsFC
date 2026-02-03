@@ -74,7 +74,7 @@ private:
   PushToMongoDB *pusher_ = nullptr;
 #endif // USE_HSQUICKLOOK
   std::shared_ptr<CommunicationSaver<std::string>> telemetrySaver_ = nullptr;
-  int currentTelemetryType_ = 0;
+  int currentTelemetryType_ = 0; // 1: normal, 2: tof callback
   std::map<int, std::pair<int, int>> fileIDmp_;
   bool saveTelemetry_ = true;
   std::string binaryFilenameBase_ = "";
