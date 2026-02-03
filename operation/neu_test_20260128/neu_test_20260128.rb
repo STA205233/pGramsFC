@@ -22,8 +22,14 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
-    subsystems = ["Orchestrator"]
-    #subsystems = ["TPC", "TOF", "Orchestrator"]
+    chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter:100, timeout_sec: 10, timeout_usec: 10)
+    chain GRAMSBalloon::GetMHADCData
+    with_parameters(channel_per_section: 6, num_section: 8, chatter: 100, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
+      m.set_singleton(0)
+    end
+    # subsystems = ["Orchestrator"]
+    subsystems = ["TPC", "TOF", "Orchestrator"]
     subsystem_overwritten={"TPC"=>0, "QM"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "QM"=> 3,"TOF" => 4, "Orchestrator" => 1}
     sendCommandToDAQComputer_names = []
@@ -48,7 +54,7 @@ class MyApp < ANL::ANLApp
         m.set_singleton(0)
       end
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0)
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 60000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0)
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
         with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: 5000,chatter: 100)
       chain GRAMSBalloon::DividePacket, "DividePacket_#{subsystem}"

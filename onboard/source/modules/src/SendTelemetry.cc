@@ -50,6 +50,7 @@ ANLStatus SendTelemetry::mod_initialize() {
     return AS_ERROR;
   }
   telemdef_ = std::make_shared<HubHKTelemetry>(true);
+  mhadcMapping_->setHKTelemetry(telemdef_);
   if (saveTelemetry_) {
     telemetrySaver_ = std::make_shared<CommunicationSaver<std::string>>();
   }
@@ -176,6 +177,7 @@ void SendTelemetry::getHKModules() {
 void SendTelemetry::setHKTelemetry() {
   if (!telemdef_) {
     telemdef_ = std::make_shared<HubHKTelemetry>(true);
+    mhadcMapping_->setHKTelemetry(telemdef_);
   }
   for (int i = 0; i < static_cast<int>(HubHKTelemetry::NUM_ERROR_FLAGS); i++) {
     telemdef_->setHubComputerErrorFlags(i, errorManager_->ErrorCode(i));
