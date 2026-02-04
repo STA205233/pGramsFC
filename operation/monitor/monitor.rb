@@ -46,15 +46,17 @@ class MyApp < ANL::ANLApp
     with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
     chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK_Starlink"
     with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry_Starlink", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
-      
+    
+    chain GRAMSBalloon::MySQLManager
+    with_parameters(host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk")
     chain GRAMSBalloon::PushToMySQL
-    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk", check_exist: true, chatter: 0)
+    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry", chatter: 0)
     chain GRAMSBalloon::PushToMySQL, "PushToMySQL_Starlink"
-    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry_Starlink", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk", check_exist: true, chatter: 0)
+    with_parameters(HubHKInterpreter_name: "InterpretHKTelemetry_Starlink", chatter: 0)
     chain GRAMSBalloon::TreatToFCallback,"TreatToFCallback_Iridium"
-    with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_TOF_Iridium", table_name: "ToFCallback", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk", check_exist: true, chatter: 0)
+    with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_TOF_Iridium", table_name: "ToFCallback",chatter: 0)
     chain GRAMSBalloon::TreatToFCallback, "TreatToFCallback_Starlink"
-    with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_TOF", table_name: "ToFCallback", host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk", check_exist: true, chatter: 0)
+    with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_TOF", table_name: "ToFCallback", chatter: 0)
   end
 end
 

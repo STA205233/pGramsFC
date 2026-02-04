@@ -5,6 +5,7 @@ ANLStatus TreatToFCallback::mod_define() {
   define_parameter("chatter", &mod_class::chatter_);
   define_parameter("table_name", &mod_class::tableName_);
   set_parameter_description("Table name for HubHK telemetry data");
+  define_parameter("InterpretTelemetry_name", &mod_class::interpretTelemetryName_);
   return AS_OK;
 }
 ANLStatus TreatToFCallback::mod_initialize() {
