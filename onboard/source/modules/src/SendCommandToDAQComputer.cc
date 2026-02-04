@@ -12,6 +12,7 @@ ANLStatus SendCommandToDAQComputer::mod_define() {
   set_parameter_description("Duration between heartbeat in ms");
   set_parameter_unit(1.0, "ms");
   define_parameter("subsystem", &mod_class::subsystemInt_);
+  set_parameter_description("Subsystem enum value");
   define_parameter("chatter", &mod_class::chatter_);
   set_parameter_description("Chatter level");
   return AS_OK;
@@ -62,7 +63,7 @@ ANLStatus SendCommandToDAQComputer::mod_initialize() {
     heartbeatAck_->update();
   }
 
-  failed_ = false;
+  //failed_ = false;
   return AS_OK;
 }
 ANLStatus SendCommandToDAQComputer::mod_analyze() {
@@ -87,7 +88,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
         if (sendTelemetry_) {
           sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
         }
-        failed_ = true;
+        //failed_ = true;
       }
       else {
         const int send_result = socketCommunicationManager_->sendAndWaitForAck(currentCommand_->Command(), commandAck_->Command());
@@ -117,7 +118,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
     }
-    failed_ = true;
+    //failed_ = true;
     if (m_sptr) {
       m_sptr.reset();
       return AS_OK;
@@ -170,6 +171,11 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     }
     return AS_OK;
   }
+  commandIndex_++;
+  if (sendTelemetry_) {
+    sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
+    sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
+  }
   currentCommand_->interpret();
   if (chatter_ > 1) {
     std::cout << module_id() << ": Sending command:" << std::endl;
@@ -183,19 +189,16 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
   const int send_result = socketCommunicationManager_->sendAndWaitForAck(m_sptr->payload, commandAck_->Command()); // TODO: this depends on telemetry definition.
   if (send_result < 0) {
     std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending command is failed" << std::endl;
-    failed_ = true;
+    //failed_ = true;
+    commandRejectCount_++;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+      sendTelemetry_->setCommandRejectedIndex(subsystem_, commandRejectCount_);
     }
   }
   else if (chatter_ > 0) {
     std::cout << module_id() << ": Sent data from " << m_sptr->topic << std::endl;
     std::cout << module_id() << ": Payload size: " << send_result << std::endl;
-  }
-  commandIndex_++;
-  if (sendTelemetry_) {
-    sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
-    sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
   }
   if (chatter_ > 1) {
     std::cout << module_id() << ": Payload:" << std::endl;

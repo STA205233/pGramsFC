@@ -17,8 +17,12 @@ ANLStatus SendTelemetry::mod_define() {
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_telem_per_file", &mod_class::numTelemPerFile_);
   define_parameter("minimum_send_time", &mod_class::minimumSendTime_);
+  set_parameter_description("Minimum time interval between telemetry sending");
+  set_parameter_unit(1.0, "ms");
   define_parameter("topic", &mod_class::pubTopic_);
+  set_parameter_description("MQTT topic for telemetry publishing via Iridium");
   define_parameter("starlink_topic", &mod_class::starlinkTopic_);
+  set_parameter_description("MQTT topic for telemetry publishing via Starlink");
   define_parameter("qos", &mod_class::qos_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
@@ -152,6 +156,24 @@ void SendTelemetry::setLastComCode(Subsystem subsystem, uint16_t v) {
   }
   else {
     std::cerr << "SendTelemetry::setLastComCode: Unknown subsystem" << std::endl;
+  }
+}
+
+void SendTelemetry::setCommandRejectedIndex(Subsystem subsystem, uint32_t v) {
+  if (subsystem == Subsystem::ORC) {
+    telemdef_->setCommandRejectedIndexOrc(v);
+  }
+  else if (subsystem == Subsystem::HUB) {
+    telemdef_->setCommandRejectedIndexHub(v);
+  }
+  else if (subsystem == Subsystem::QM) {
+    telemdef_->setCommandRejectedIndexQM(v);
+  }
+  else if (subsystem == Subsystem::TOF) {
+    telemdef_->setCommandRejectedIndexTOF(v);
+  }
+  else {
+    std::cerr << "SendTelemetry::setCommandRejectedIndex: Unknown subsystem" << std::endl;
   }
 }
 

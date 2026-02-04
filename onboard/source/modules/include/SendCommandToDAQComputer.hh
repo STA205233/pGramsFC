@@ -17,9 +17,10 @@ class DistributeCommand;
  * @author Shota Arai
  * @date 2025-**-** | First design
  * @date 2025-12-14 | Shota Arai | Added emergency DAQ shutdown command
+ * @date 2026-02-04 | Shota Arai | Added command reject count (v1.2)
  */
 class SendCommandToDAQComputer: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.1);
+  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.2);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -47,7 +48,6 @@ public:
 private:
   SocketCommunicationManager *socketCommunicationManager_ = nullptr;
   std::string socketCommunicationManagerName_ = "SocketCommunicationManager";
-  bool failed_ = false;
   int chatter_ = 0;
   DistributeCommand *distributeCommand_ = nullptr;
   std::string distributeCommandName_ = "DistributeCommand";
