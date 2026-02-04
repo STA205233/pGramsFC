@@ -7,15 +7,16 @@
 #include <cstdint>
 namespace gramsballoon::pgrams {
 class InterpretTelemetry;
-
+class MySQLManager;
 /**
  * Module for treating ToF callback data and storing it into MySQL database.
  *
  * @author Shota Arai
  * @date 2026-02-03 | Shota Arai | First design
+ * @date 2026-02-04 | Shota Arai | Refactored to use MySQLManager (v2.0)
  */
 class TreatToFCallback: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(TreatToFCallback, 1.0);
+  DEFINE_ANL_MODULE(TreatToFCallback, 2.0);
   ENABLE_PARALLEL_RUN();
 
   enum class TOF_STATUS : uint32_t {

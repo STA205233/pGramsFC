@@ -16,9 +16,10 @@ class MySQLFieldSink;
  * @author Shota Arai
  * @date 2025-**-** | First design
  * @date 2025-12-14 | Shota Arai | Refactoring (v2.0)
+ * @date 2026-02-04 | Shota Arai | Use MySQLManager (v3.0)
  */
 class PushToMySQL: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(PushToMySQL, 2.0);
+  DEFINE_ANL_MODULE(PushToMySQL, 3.0);
   ENABLE_PARALLEL_RUN();
 
 public:

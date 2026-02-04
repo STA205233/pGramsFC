@@ -8,6 +8,12 @@ namespace gramsballoon::pgrams {
 namespace mysql {
 class MySQLIO;
 }
+/**
+ * Module for managing MySQL database connection.
+ *
+ * @author Shota Arai
+ * @date 2026-02-04 | First design
+ */
 class MySQLManager: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(MySQLManager, 1.0);
   ENABLE_PARALLEL_RUN();
