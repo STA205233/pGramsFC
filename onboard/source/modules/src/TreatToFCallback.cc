@@ -3,19 +3,6 @@ using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus TreatToFCallback::mod_define() {
   define_parameter("chatter", &mod_class::chatter_);
-  define_parameter("host", &mod_class::host_);
-  set_parameter_description("MySQL server host");
-  define_parameter("port", &mod_class::port_);
-  set_parameter_description("MySQL server port");
-  define_parameter("user", &mod_class::user_);
-  set_parameter_description("MySQL user name");
-  define_parameter("password", &mod_class::password_);
-  set_parameter_description("MySQL user password");
-  define_parameter("database", &mod_class::database_);
-  set_parameter_description("MySQL database name");
-  define_parameter("InterpretTelemetry_name", &mod_class::interpretTelemetryName_);
-  define_parameter("check_exist", &mod_class::checkExist_);
-  set_parameter_description("Check existence of tables and columns before inserting data");
   define_parameter("table_name", &mod_class::tableName_);
   set_parameter_description("Table name for HubHK telemetry data");
   return AS_OK;
@@ -28,18 +15,20 @@ ANLStatus TreatToFCallback::mod_initialize() {
     std::cerr << module_id() << ": " << interpretTelemetryName_ << "doesn't exists" << std::endl;
     return AS_QUIT_ALL_ERROR;
   }
-  mysqlIO_.SetCheckExist(checkExist_);
-  mysqlIO_.Initialize(host_, port_, user_, password_, database_);
-  if (!mysqlIO_.connected()) {
-    std::cerr << module_id() << "::mod_initialize: Failed to connect to MySQL server." << std::endl;
-    return AS_OK;
+  if (exist_module("MySQLManager")) {
+    get_module_NC("MySQLManager", &mysqlManager_);
   }
-  mysqlFieldSink_.setMySQLIO(&mysqlIO_);
+  else {
+    std::cerr << module_id() << "::mod_initialize MySQLManager module is not found." << std::endl;
+    return AS_QUIT_ERROR;
+  }
+  auto mysqlIO = mysqlManager_->getMySQLIO();
+  mysqlFieldSink_.setMySQLIO(mysqlIO);
   interpretTelemetry_->initializeDBTableInSink(&mysqlFieldSink_, tableName_);
   mysqlFieldSink_.addField("command", static_cast<uint16_t>(0));
   mysqlFieldSink_.addField("status", static_cast<uint32_t>(0));
   mysqlFieldSink_.addField("status_name", "UNKNOWN");
-  if (mysqlIO_.CheckTableExistence(tableName_)) {
+  if (mysqlIO->CheckTableExistence(tableName_)) {
     if (chatter_ > 0) {
       std::cout << module_id() << "::mod_initialize: Table (" << tableName_ << ") already exists." << std::endl;
     }
@@ -48,9 +37,9 @@ ANLStatus TreatToFCallback::mod_initialize() {
     if (chatter_ > 0) {
       std::cout << module_id() << "::mod_initialize: Table (" << tableName_ << ") does not exist. Create the table." << std::endl;
     }
-    mysqlIO_.CreateTable(tableName_);
+    mysqlIO->CreateTable(tableName_);
   }
-  mysqlIO_.PrintTableInfo(tableName_);
+  mysqlIO->PrintTableInfo(tableName_);
   return AS_OK;
 }
 ANLStatus TreatToFCallback::mod_analyze() {
@@ -59,6 +48,10 @@ ANLStatus TreatToFCallback::mod_analyze() {
     return AS_ERROR;
   }
   if (interpretTelemetry_->CurrentTelemetryType() != 2) {
+    return AS_OK;
+  }
+  auto mysqlIO = mysqlManager_->getMySQLIO();
+  if (!mysqlIO->connected()) {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
@@ -89,7 +82,7 @@ ANLStatus TreatToFCallback::mod_analyze() {
     status_ = TOF_STATUS::UNKNOWN;
     mysqlFieldSink_.setFieldValue("status_name", "Unknown");
   }
-  mysqlIO_.Insert(tableName_);
+  mysqlIO->Insert(tableName_);
   return AS_OK;
 }
 } // namespace gramsballoon::pgrams

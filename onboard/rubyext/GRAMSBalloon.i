@@ -138,6 +138,10 @@ class TreatToFCallback: public anlnext::BasicModule {
 public:
   TreatToFCallback();
 };
+class MySQLManager: public anlnext::BasicModule {
+public:
+  MySQLManager();
+};
 #endif
 template <typename TelemType>
 class MosquittoManager: public anlnext::BasicModule

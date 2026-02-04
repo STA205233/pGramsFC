@@ -2,9 +2,8 @@
 #define GRAMSBalloon_PushToMySQL_hh 1
 #include "InterpretTelemetry.hh"
 #include "MySQLFieldSink.hh"
-#include "MySQLIO.hh"
+#include "MySQLManager.hh"
 #include "anlnext/BasicModule.hh"
-#include "mysqlx/xdevapi.h"
 #include <string>
 #include <vector>
 
@@ -41,13 +40,8 @@ private:
   std::string HubHKInterpreterName_ = "InterpretTelemetry";
   std::string HubHKtableName_ = "HubHK";
 
-  std::string password_ = "test";
-  std::string database_ = "pgrams";
-  std::string user_ = "test";
-  int port_ = 33060;
-  std::string host_ = "localhost";
-  bool checkExist_ = true;
-  mysql::MySQLIO mysqlIO_;
+  MySQLManager *mysqlManager_ = nullptr;
+
   MySQLFieldSink mysqlFieldSink_;
 };
 } // namespace pgrams

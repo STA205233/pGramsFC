@@ -2,12 +2,18 @@
 #define GRAMSBalloon_TreatToFCallback_hh 1
 #include "InterpretTelemetry.hh"
 #include "MySQLFieldSink.hh"
-#include "MySQLIO.hh"
+#include "MySQLManager.hh"
 #include "anlnext/BasicModule.hh"
 #include <cstdint>
 namespace gramsballoon::pgrams {
 class InterpretTelemetry;
 
+/**
+ * Module for treating ToF callback data and storing it into MySQL database.
+ *
+ * @author Shota Arai
+ * @date 2026-02-03 | Shota Arai | First design
+ */
 class TreatToFCallback: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(TreatToFCallback, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -34,14 +40,7 @@ public:
 private:
   int chatter_ = 0;
   std::string tableName_ = "HubHK";
-
-  std::string password_ = "test";
-  std::string database_ = "pgrams";
-  std::string user_ = "test";
-  int port_ = 33060;
-  std::string host_ = "localhost";
-  bool checkExist_ = true;
-  mysql::MySQLIO mysqlIO_;
+  MySQLManager *mysqlManager_ = nullptr;
   MySQLFieldSink mysqlFieldSink_;
   const InterpretTelemetry *interpretTelemetry_ = nullptr;
   std::string interpretTelemetryName_ = "InterpretTelemetry";

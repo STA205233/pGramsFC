@@ -40,6 +40,9 @@ public:
   bool EmergencyDaqShutdown() const {
     return singleton_self()->emergencyDaqShutdownReceived_;
   }
+  uint16_t CommandRejectCount() const {
+    return singleton_self()->commandRejectCount_;
+  }
 
 private:
   SocketCommunicationManager *socketCommunicationManager_ = nullptr;
@@ -59,6 +62,8 @@ private:
   std::shared_ptr<CommunicationFormat> heartbeatAck_ = nullptr;
   std::shared_ptr<CommunicationFormat> currentCommand_ = nullptr;
   std::shared_ptr<CommunicationFormat> commandAck_ = nullptr;
+
+  uint16_t commandRejectCount_ = 0;
 
   bool emergencyDaqShutdownReceived_ = false;
   bool makeDAQEmergencyShutdownCommand();
