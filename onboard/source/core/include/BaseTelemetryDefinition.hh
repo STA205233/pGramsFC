@@ -2,6 +2,7 @@
 #define GRAMSBalloon_BaseTelemetryDefinition_hh 1
 #include "CommunicationFormat.hh"
 #include "DBFieldSink.hh"
+#include "magic_enum.hpp"
 #include "fstream"
 #include <cstdint>
 #include <ctime>

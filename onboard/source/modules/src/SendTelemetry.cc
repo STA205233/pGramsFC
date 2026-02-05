@@ -125,6 +125,7 @@ ANLStatus SendTelemetry::mod_finalize() {
 }
 
 void SendTelemetry::setLastComIndex(Subsystem subsystem, uint32_t v) {
+  std::cout << "subsystem: " << static_cast<int>(subsystem) << "last Com index: " << v << std::endl;
   if (subsystem == Subsystem::ORC) {
     telemdef_->setLastCommandIndexOrc(v);
   }
@@ -137,11 +138,15 @@ void SendTelemetry::setLastComIndex(Subsystem subsystem, uint32_t v) {
   else if (subsystem == Subsystem::TOF) {
     telemdef_->setLastCommandIndexTOF(v);
   }
+  else if (subsystem == Subsystem::COL) {
+    telemdef_->setLastCommandIndexTPC(v);
+  }
   else {
     std::cerr << "SendTelemetry::setLastComIndex: Unknown subsystem" << std::endl;
   }
 }
 void SendTelemetry::setLastComCode(Subsystem subsystem, uint16_t v) {
+  std::cout << "subsystem: " << static_cast<int>(subsystem) << "last Com code: " << v << std::endl;
   if (subsystem == Subsystem::ORC) {
     telemdef_->setLastCommandCodeOrc(v);
   }
@@ -153,6 +158,9 @@ void SendTelemetry::setLastComCode(Subsystem subsystem, uint16_t v) {
   }
   else if (subsystem == Subsystem::TOF) {
     telemdef_->setLastCommandCodeTOF(v);
+  }
+    else if (subsystem == Subsystem::COL) {
+    telemdef_->setLastCommandCodeTPC(v);
   }
   else {
     std::cerr << "SendTelemetry::setLastComCode: Unknown subsystem" << std::endl;
@@ -171,6 +179,9 @@ void SendTelemetry::setCommandRejectedIndex(Subsystem subsystem, uint32_t v) {
   }
   else if (subsystem == Subsystem::TOF) {
     telemdef_->setCommandRejectedIndexTOF(v);
+  }
+  else if (subsystem == Subsystem::COL) {
+    telemdef_->setCommandRejectedIndexTPC(v);
   }
   else {
     std::cerr << "SendTelemetry::setCommandRejectedIndex: Unknown subsystem" << std::endl;

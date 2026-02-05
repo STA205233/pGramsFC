@@ -172,11 +172,11 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     return AS_OK;
   }
   commandIndex_++;
+  currentCommand_->interpret();
   if (sendTelemetry_) {
     sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
     sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
   }
-  currentCommand_->interpret();
   if (chatter_ > 1) {
     std::cout << module_id() << ": Sending command:" << std::endl;
     currentCommand_->print(std::cout);
