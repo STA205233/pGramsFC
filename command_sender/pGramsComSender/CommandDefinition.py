@@ -96,7 +96,7 @@ command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisi
 command_collection.add_command("TPC", CommandItem("Reset Run", ""))
 command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ system"))
 command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
-command_collection.add_command("TPC", CommandItem("Query LB Data", "Query the hardware status"))
+command_collection.add_command("TPC", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
 command_collection.add_command("TPC", CommandItem("Query Event Data", ""))
 
 
