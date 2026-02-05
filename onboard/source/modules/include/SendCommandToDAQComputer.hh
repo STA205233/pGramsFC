@@ -18,9 +18,10 @@ class DistributeCommand;
  * @date 2025-**-** | First design
  * @date 2025-12-14 | Shota Arai | Added emergency DAQ shutdown command
  * @date 2026-02-04 | Shota Arai | Added command reject count (v1.2)
+ * @date 2026-02-05 | Shota Arai | Refactored for better readability (v1.3)
  */
 class SendCommandToDAQComputer: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.2);
+  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.3);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -67,6 +68,8 @@ private:
 
   bool emergencyDaqShutdownReceived_ = false;
   bool makeDAQEmergencyShutdownCommand();
+  void performDAQEmergencyShutdown();
+  void sendHeartbeatIfNeeded();
 };
 } // namespace gramsballoon::pgrams
 #endif //GRAMSBalloon_SendCommandToDAQComputer_hh

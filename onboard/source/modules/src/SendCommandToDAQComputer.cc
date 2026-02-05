@@ -74,42 +74,11 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     }
     const bool exists_command = makeDAQEmergencyShutdownCommand();
     if (exists_command) {
-      if (chatter_ > 0) {
-        std::cout << module_id() << ": Sending emergency DAQ shutdown command." << std::endl;
-      }
-      if (!socketCommunicationManager_) {
-        std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
-        return AS_OK;
-      }
-      if (!socketCommunicationManager_->isConnected()) {
-        if (chatter_ > 1) {
-          std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
-        }
-        if (sendTelemetry_) {
-          sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
-        }
-        //failed_ = true;
-      }
-      else {
-        const int send_result = socketCommunicationManager_->sendAndWaitForAck(currentCommand_->Command(), commandAck_->Command());
-        if (send_result < 0) {
-          std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending emergency DAQ shutdown command is failed" << std::endl;
-          if (sendTelemetry_) {
-            sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
-          }
-        }
-        else if (chatter_ > 0) {
-          std::cout << "Sent emergency DAQ shutdown command" << std::endl;
-        }
-      }
-      commandIndex_++;
-      if (sendTelemetry_) {
-        sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
-        sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
-      }
+      performDAQEmergencyShutdown();
     }
     return AS_OK;
   }
+
   auto m_sptr = distributeCommand_->getAndPopPayload();
   if (!socketCommunicationManager_->isConnected()) {
     if (chatter_ > 1) {
@@ -125,35 +94,7 @@ ANLStatus SendCommandToDAQComputer::mod_analyze() {
     }
   }
   if (!m_sptr) { // No command to send, check heartbeat should be sent.
-    auto now = std::chrono::high_resolution_clock::now();
-    const bool need_heartbeat = (!lastTime_) || (lastTime_ && (now - *lastTime_) > *durationBetweenHeartbeatChrono_);
-    if (!lastTime_) {
-      lastTime_ = std::make_shared<std::chrono::time_point<std::chrono::high_resolution_clock>>(now);
-    }
-    if (need_heartbeat) {
-      heartbeat_->setArguments(0, heartbeat_->getArguments(0) + 1);
-      heartbeat_->update();
-      if (chatter_ > 1) {
-        std::cout << "Sending heartbeat (index: " << heartbeat_->getArguments(0) << ")" << std::endl;
-      }
-      if (chatter_ > 2) {
-        for (const auto &byte: heartbeat_->Command()) {
-          std::cout << std::hex << static_cast<int>(byte) << std::dec << " ";
-        }
-        std::cout << std::endl;
-      }
-      const int send_result = socketCommunicationManager_->sendAndWaitForAck(heartbeat_->Command(), heartbeatAck_->Command());
-      if (send_result < 0) {
-        std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending heartbeat is failed" << std::endl;
-        if (sendTelemetry_) {
-          sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqFormatErrorType(subsystem_, true));
-        }
-      }
-      else if (chatter_ > 1) {
-        std::cout << "Sent heartbeat" << std::endl;
-      }
-      *lastTime_ = now;
-    }
+    sendHeartbeatIfNeeded();
     return AS_OK;
   }
 
@@ -233,6 +174,75 @@ bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
   }
   else {
     return false;
+  }
+}
+
+void SendCommandToDAQComputer::performDAQEmergencyShutdown() {
+  if (chatter_ > 0) {
+    std::cout << module_id() << ": Sending emergency DAQ shutdown command." << std::endl;
+  }
+  if (!socketCommunicationManager_) {
+    std::cerr << module_id() << "::mod_analyze SocketCommunicationManager is nullptr." << std::endl;
+    return;
+  }
+  if (!socketCommunicationManager_->isConnected()) {
+    if (chatter_ > 1) {
+      std::cout << module_id() << ": SocketCommunication is not connected." << std::endl;
+    }
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+    }
+    //failed_ = true;
+  }
+  else {
+    const int send_result = socketCommunicationManager_->sendAndWaitForAck(currentCommand_->Command(), commandAck_->Command());
+    if (send_result < 0) {
+      std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending emergency DAQ shutdown command is failed" << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
+      }
+    }
+    else if (chatter_ > 0) {
+      std::cout << "Sent emergency DAQ shutdown command" << std::endl;
+    }
+  }
+  commandIndex_++;
+  if (sendTelemetry_) {
+    sendTelemetry_->setLastComIndex(subsystem_, commandIndex_);
+    sendTelemetry_->setLastComCode(subsystem_, currentCommand_->Code());
+  }
+  return;
+}
+
+void SendCommandToDAQComputer::sendHeartbeatIfNeeded() {
+  auto now = std::chrono::high_resolution_clock::now();
+  const bool need_heartbeat = (!lastTime_) || (lastTime_ && (now - *lastTime_) > *durationBetweenHeartbeatChrono_);
+  if (!lastTime_) {
+    lastTime_ = std::make_shared<std::chrono::time_point<std::chrono::high_resolution_clock>>(now);
+  }
+  if (need_heartbeat) {
+    heartbeat_->setArguments(0, heartbeat_->getArguments(0) + 1);
+    heartbeat_->update();
+    if (chatter_ > 1) {
+      std::cout << "Sending heartbeat (index: " << heartbeat_->getArguments(0) << ")" << std::endl;
+    }
+    if (chatter_ > 2) {
+      for (const auto &byte: heartbeat_->Command()) {
+        std::cout << std::hex << static_cast<int>(byte) << std::dec << " ";
+      }
+      std::cout << std::endl;
+    }
+    const int send_result = socketCommunicationManager_->sendAndWaitForAck(heartbeat_->Command(), heartbeatAck_->Command());
+    if (send_result < 0) {
+      std::cerr << "Error in " << module_id() << "::mod_analyze: " << "Sending heartbeat is failed" << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqFormatErrorType(subsystem_, true));
+      }
+    }
+    else if (chatter_ > 1) {
+      std::cout << "Sent heartbeat" << std::endl;
+    }
+    *lastTime_ = now;
   }
 }
 
