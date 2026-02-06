@@ -4,12 +4,17 @@ import tkinter as tk
 class NumberEntryGroup(tk.Frame):
     def __init__(self, master, **kwargs):
         super().__init__(master)
+        self.maximum_numbers_displayed = 100000
 
         self.vars: list[tk.StringVar] = []
         self.entries: list[tk.Entry] = []
 
         self._vcmd = (self.register(self._validate_int), "%P")
         self.kwargs = kwargs
+        
+    def config(self, **kwargs):
+        for entry in self.entries:
+            entry.config(**kwargs)
 
     def set_count(self, n: int, *, clear=True):
         self.clear()
@@ -49,6 +54,11 @@ class NumberEntryGroup(tk.Frame):
                 raise ValueError(f"Number {i} is not input")
             nums.append(int(s))
         return nums
+
+    def set_numbers(self, numbers: list[int], clear=False):
+        self.set_count(min(len(numbers), self.maximum_numbers_displayed), clear=clear)
+        for v, num in zip(self.vars, numbers):
+            v.set(str(num))
 
     def clear(self):
         for w in self.winfo_children():

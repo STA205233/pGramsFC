@@ -25,13 +25,14 @@ class CommandParameter:
 
 
 class CommandItem:
-    def __init__(self, name: str, description: str, parameters: list[CommandParameter] = []):
+    def __init__(self, name: str, description: str, parameters: list[CommandParameter] = [], file_loadable: bool = False):
         self.name = name
         self.description = description
         self.parameters = parameters
-
+        self.file_loadable = file_loadable
+    
     def __repr__(self) -> str:
-        return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters})"
+        return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters}, file_loadable={self.file_loadable})"
 
     def __str__(self) -> str:
         str_ = f"{self.name}: {self.description}\nParameters:\n"
@@ -40,7 +41,7 @@ class CommandItem:
         else:
             str_ += "None"
         return str_
-
+    
 
 class CommandDefinition:
     def __init__(self):
@@ -92,7 +93,7 @@ command_collection.add_command("ORC", CommandItem("Boot TPC DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown TPC DAQ", ""))
 
 
-command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))]))
+command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))], file_loadable=True))
 command_collection.add_command("TPC", CommandItem("Start Run", "Start data acquisition"))
 command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisition"))
 command_collection.add_command("TPC", CommandItem("Reset Run", ""))

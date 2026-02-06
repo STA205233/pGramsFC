@@ -1,12 +1,14 @@
 from pGramsComSender.Window import Window
+from enum import Enum
 from pGramsComSender.LogText import LogView
+from pGramsComSender.ArgumentFileLoader import ArgumentFileLoader
 import tkinter as tk
 from pGramsComSender.GUIgeometry import GUIGeometry
 from pGramsComSender.CommandExecuter import CommandExecuter
 from pGramsComSender.ConfirmationWindow import ConfirmationWindow
 from pGramsComSender import ToolTip
 from pGramsComSender.NumberEntryGroup import NumberEntryGroup
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 import tkinter.ttk as ttk
 import logging
 from pGramsComSender.CommandDefinition import command_collection as command_collection
@@ -39,6 +41,9 @@ class TextHandler(logging.Handler):
 
 
 class MainWindow(Window):
+    class ArgumentMode(Enum):
+        Manual = 1
+        File = 2
     def __init__(self, root, logger, executable_prefix="") -> None:
         super().__init__(root, "CommandSender", geometry=GUIGeometry(1200, 700), grab_set=False)
         self.__current_command = None
@@ -46,6 +51,8 @@ class MainWindow(Window):
         self.__executer = CommandExecuter(logger=logger, executable_prefix=executable_prefix)
         self.__label = None
         self.current_subsystem = "Hub"
+        self.argument_loader = ArgumentFileLoader()
+        self.__arg_mode = self.ArgumentMode.Manual
         self._create_widgets()
 
     def _create_widgets(self):
@@ -119,8 +126,9 @@ class MainWindow(Window):
         self.__entry = NumberEntryGroup(bottom_subframe, bg="white", fg="black", font=("Arial", 16), cursor="xterm")
         self.__entry.pack(fill="both", expand=True)
         tk.Button(bottom_frame, text="Send", command=self._on_send_command, width=10, bg=bottom_bg).place(relx=0.7, rely=0.3, anchor="w")
-        tk.Button(bottom_frame, text="Exit", command=window.quit, width=10, bg=bottom_bg).place(relx=0.7, rely=0.7, anchor="w")
-        tk.Button(bottom_frame, text="Reset", command=self.reset_command, width=10, bg=bottom_bg).place(relx=0.85, rely=0.3, anchor="w")
+        tk.Button(bottom_frame, text="Load from file", command=self._on_load_from_file, width=10, bg=bottom_bg).place(relx=0.7, rely=0.7, anchor="w")
+        tk.Button(bottom_frame, text="Exit", command=window.quit, width=10, bg=bottom_bg).place(relx=0.85, rely=0.3, anchor="w")
+        tk.Button(bottom_frame, text="Reset", command=self.reset_command, width=10, bg=bottom_bg).place(relx=0.85, rely=0.7, anchor="w")
         self.logger.info("GUI initialized successfully.")
 
     @property
@@ -130,6 +138,26 @@ class MainWindow(Window):
     @current_command.setter
     def current_command(self, command):
         raise RuntimeError("current_command is read-only")
+    
+    def _on_load_from_file(self):
+        if self.__current_command is None:
+            self.logger.warning("No command selected to load arguments for")
+            messagebox.showwarning("No Command Selected", "Please select a command before loading arguments from file.")
+            return
+        if not self.__current_command.file_loadable:
+            self.logger.warning(f"Selected command {self.__current_command.name} does not support loading arguments from file")
+            messagebox.showwarning("Command Not Loadable", f"The selected command '{self.__current_command.name}' does not support loading arguments from file.")
+            return
+        filepath = filedialog.askopenfilename(title="Select argument file", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        if filepath:
+            try:
+                args = self.argument_loader.load(filepath)
+                self.__entry.set_numbers(args[:10])
+                self.__entry.config(state=tk.DISABLED)
+                self.__arg_mode = self.ArgumentMode.File
+            except Exception as e:
+                self.logger.error(f"Failed to load arguments from file: {e}")
+                messagebox.showerror("File Load Error", f"Failed to load arguments from file:\n{e}")
 
     def _on_command_click(self, command):
         self.logger.debug(f"Command selected: {command.name}")
@@ -138,12 +166,17 @@ class MainWindow(Window):
             self.__label.config(text=f"Select a command to send\nSelected command: {command.name}")
         self.__entry.set_count(len(command.parameters), clear=True)
 
-    @staticmethod
-    def compile_command(command, args):
-        return f"{command.name.replace(' ', '_').lower()} {args.replace(',', ' ')}"
+    def compile_command(self, command, args):
+        if self.__arg_mode == self.ArgumentMode.File:
+            suffix = "_file"
+        else:
+            suffix = ""
+        return f"{command.name.replace(' ', '_').lower()}{suffix} {args.replace(',', ' ')}"
 
     def reset_command(self):
         self.__current_command = None
+        self.__entry.config(state=tk.NORMAL)
+        self.__arg_mode = self.ArgumentMode.Manual
         if self.__label:
             self.__label.config(text=f"Select a command to send\nSelected command: {self.__current_command.name if self.__current_command else 'None'}")
         self.__entry.clear()
@@ -154,7 +187,7 @@ class MainWindow(Window):
             messagebox.showwarning("No Command Selected", "Please select a command before sending.")
             return
         try:
-            args = self.__entry.get_numbers()
+            args = self.get_arguments()
             args_str = ",".join(str(arg) for arg in args)
         except ValueError as e:
             self.logger.warning(f"Invalid input for command arguments on command {self.__current_command.name}: {e}")
@@ -180,6 +213,13 @@ class MainWindow(Window):
                 child.state(['!disabled'])
             except Exception:
                 pass
+    
+    def get_arguments(self):
+        if self.__arg_mode == self.ArgumentMode.Manual:
+            return self.__entry.get_numbers()
+        elif self.__arg_mode == self.ArgumentMode.File:
+            return self.argument_loader.args
+            
 
 
 def make_scrollable_tab(notebook: ttk.Notebook):

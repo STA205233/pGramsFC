@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     command = command_builder.make_byte_array(name, arg_array);
   }
   catch (gramsballoon::CommandException &e) {
-    std::cout << "Command exception caught: " << e.print() << std::endl;
+    std::cerr << "Command exception caught: " << e.print() << std::endl;
     return 1;
   }
   std::string host;

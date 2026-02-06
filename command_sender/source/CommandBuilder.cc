@@ -70,24 +70,32 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(HUB_Dummy1, 0);
   ADD_CODE_MAP(HUB_Dummy2, 1);
 
-  //ADD_CODE_MAP(PDU_Cold_TPC_HV_ON, 1);
-  //ADD_CODE_MAP(PDU_Cold_TPC_HV_OFF, 1);
-  //ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_ON, 1);
-  //ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_OFF, 1);
-  //ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_ON, 1);
-  //ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_OFF, 1);
-  //ADD_CODE_MAP(PDU_Warm_TPC_Shaper_ON, 1);
-  //ADD_CODE_MAP(PDU_Warm_TPC_Shaper_OFF, 1);
-  //ADD_CODE_MAP(PDU_SiPM_ON, 1);
-  //ADD_CODE_MAP(PDU_SiPM_OFF, 1);
-  //ADD_CODE_MAP(PDU_CAEN_P3V3_ON, 1);
-  //ADD_CODE_MAP(PDU_CAEN_P3V3_OFF, 1);
-  //ADD_CODE_MAP(PDU_CAEN_PM5V_ON, 1);
-  //ADD_CODE_MAP(PDU_CAEN_PM5V_OFF, 1);
-  //ADD_CODE_MAP(PDU_CAEN_P12V_ON, 1);
-  //ADD_CODE_MAP(PDU_CAEN_P12V_OFF, 1);
-  //ADD_CODE_MAP(PDU_DAQ_CPU_ON, 0);
-  //ADD_CODE_MAP(PDU_DAQ_CPU_OFF, 0);
+  ADD_CODE_MAP(PDU_Cold_TPC_HV_ON, 0);
+  ADD_CODE_MAP(PDU_Cold_TPC_HV_OFF, 0);
+  ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_ON, 0);
+  ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_OFF, 0);
+  ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_ON, 0);
+  ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_OFF, 0);
+  ADD_CODE_MAP(PDU_Warm_TPC_Shaper_ON, 0);
+  ADD_CODE_MAP(PDU_Warm_TPC_Shaper_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_OFF, 0);
+  ADD_CODE_MAP(PDU_CAEN_P3V3_ON, 0);
+  ADD_CODE_MAP(PDU_CAEN_P3V3_OFF, 0);
+  ADD_CODE_MAP(PDU_CAEN_PM5V_ON, 0);
+  ADD_CODE_MAP(PDU_CAEN_PM5V_OFF, 0);
+  ADD_CODE_MAP(PDU_CAEN_P12V_ON, 0);
+  ADD_CODE_MAP(PDU_CAEN_P12V_OFF, 0);
+  ADD_CODE_MAP(PDU_DAQ_CPU_ON, 0);
+  ADD_CODE_MAP(PDU_DAQ_CPU_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM0_VSET, 1);
+  ADD_CODE_MAP(PDU_SiPM1_VSET, 1);
+  ADD_CODE_MAP(PDU_SiPM2_VSET, 1);
+  ADD_CODE_MAP(PDU_SiPM3_VSET, 1);
+  ADD_CODE_MAP(PDU_SiPM4_VSET, 1);
+  ADD_CODE_MAP(PDU_SiPM5_VSET, 1);
+  ADD_CODE_MAP(PDU_PressureReg_VSET, 1);
+
   ADD_CODE_MAP(ORC_Exec_CPU_Restart, 0);
   ADD_CODE_MAP(ORC_Exec_CPU_Shutdown, 0);
   ADD_CODE_MAP(ORC_Boot_All_DAQ, 0);
@@ -103,6 +111,7 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(ORC_Shutdown_Tpc_Daq, 0);
 
   ADD_CODE_MAP(TPC_Configure, 1);
+  add_code_map(code_map_, "TPC_Configure_File", pgrams::communication::CommunicationCodes::TPC_Configure, 90);
   ADD_CODE_MAP(TPC_Start_Run, 0);
   ADD_CODE_MAP(TPC_Stop_Run, 0);
   ADD_CODE_MAP(TPC_Reset_Run, 0);
