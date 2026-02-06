@@ -1,14 +1,6 @@
 #include "MosquittoManager.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {
-template <typename TelemType>
-MosquittoManager<TelemType>::~MosquittoManager() {
-  if (doInitialize_) {
-    mosqpp::lib_cleanup();
-  }
-  mosquittoIO_.reset();
-}
-
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_define() {
   define_parameter("host", &mod_class::host_);

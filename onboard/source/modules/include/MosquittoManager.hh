@@ -37,7 +37,12 @@ class MosquittoManager: public anlnext::BasicModule {
 
 public:
   MosquittoManager() = default;
-  virtual ~MosquittoManager();
+  virtual ~MosquittoManager() {
+    if (doInitialize_) { 
+      mosqpp::lib_cleanup();
+    }
+    mosquittoIO_.reset();
+  }
 
 protected:
   MosquittoManager(const MosquittoManager<TelemType> &r) = default;
