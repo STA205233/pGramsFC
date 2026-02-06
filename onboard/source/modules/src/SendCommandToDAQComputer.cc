@@ -46,7 +46,7 @@ ANLStatus SendCommandToDAQComputer::mod_initialize() {
   durationBetweenHeartbeatChrono_ = std::make_shared<std::chrono::milliseconds>(durationBetweenHeartbeat_);
   heartbeat_ = std::make_shared<CommunicationFormat>();
   if (heartbeat_) {
-    heartbeat_->setCode(castCommandCode(CommunicationCodes::COM_HeartBeat));
+    heartbeat_->setCode(to_u16(CommunicationCodes::COM_HeartBeat));
     heartbeat_->setArgc(1); // index of the heartbeat
     heartbeat_->setArguments(0, -1);
     heartbeat_->update();
@@ -57,7 +57,7 @@ ANLStatus SendCommandToDAQComputer::mod_initialize() {
   }
   heartbeatAck_ = std::make_shared<CommunicationFormat>();
   if (heartbeatAck_) {
-    heartbeatAck_->setCode(castCommandCode(CommunicationCodes::COM_HeartBeat));
+    heartbeatAck_->setCode(to_u16(CommunicationCodes::COM_HeartBeat));
     heartbeatAck_->setArgc(1); // index of the heartbeat
     heartbeatAck_->setArguments(0, heartbeat_->Command().size());
     heartbeatAck_->update();
@@ -155,19 +155,19 @@ bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
     currentCommand_ = std::make_shared<CommunicationFormat>();
   }
   if (subsystem_ == Subsystem::ORC) {
-    currentCommand_->setCode(castCommandCode(CommunicationCodes::ORC_Shutdown_All_DAQ));
+    currentCommand_->setCode(to_u16(CommunicationCodes::ORC_Shutdown_All_DAQ));
     currentCommand_->setArgc(0);
     currentCommand_->update();
     return true;
   }
   else if (subsystem_ == Subsystem::COL) {
-    currentCommand_->setCode(castCommandCode(CommunicationCodes::TPC_Stop_Run));
+    currentCommand_->setCode(to_u16(CommunicationCodes::TPC_Stop_Run));
     currentCommand_->setArgc(0);
     currentCommand_->update();
     return true;
   }
   else if (subsystem_ == Subsystem::TOF) {
-    currentCommand_->setCode(castCommandCode(CommunicationCodes::TOF_Stop_DAQ));
+    currentCommand_->setCode(to_u16(CommunicationCodes::TOF_Stop_DAQ));
     currentCommand_->setArgc(0);
     currentCommand_->update();
     return true;

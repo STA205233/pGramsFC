@@ -38,7 +38,7 @@ ANLStatus DetectErrorCallbackFromDAQ::mod_analyze() {
     if (!packet) {
       continue;
     }
-    if (packet->getContents()->Code() == castCommandCode(CommunicationCodes::CMN_Command_Error)) {
+    if (packet->getContents()->Code() == to_u16(CommunicationCodes::CMN_Command_Error)) {
       std::cout << "Detected DAQ Error Callback packet code: " << static_cast<int>(packet->getContents()->Code()) << "from " << packet->getType() << std::endl;
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_DAQ_COMMAND_ERROR);

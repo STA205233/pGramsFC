@@ -1,4 +1,5 @@
 #include "SendTelemetry.hh"
+#include "CommunicationCodes.hh"
 
 using namespace anlnext;
 
@@ -81,6 +82,7 @@ ANLStatus SendTelemetry::mod_analyze() {
   }
   lastSendTime_ = std::chrono::steady_clock::now();
   telemdef_->setCurrentTime();
+  telemdef_->getContentsNC()->setCode(::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal));
   telemdef_->setIndex(telemIndex_);
   telemdef_->setRunID(runIDManager_->RunID());
   setHKTelemetry();
@@ -159,7 +161,7 @@ void SendTelemetry::setLastComCode(Subsystem subsystem, uint16_t v) {
   else if (subsystem == Subsystem::TOF) {
     telemdef_->setLastCommandCodeTOF(v);
   }
-    else if (subsystem == Subsystem::COL) {
+  else if (subsystem == Subsystem::COL) {
     telemdef_->setLastCommandCodeTPC(v);
   }
   else {

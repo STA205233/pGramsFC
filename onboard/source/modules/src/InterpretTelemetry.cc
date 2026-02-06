@@ -98,8 +98,10 @@ void InterpretTelemetry::updateRunIDFile() {
 bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
   if (!telemetry_) return false;
   const bool result = telemetry_->parseJSON(telemetryStr);
-  if (telemetryTypeStr_ == "HK") {
-    if (result && currentRunID_ < 0) {
+  if (!result) return false;
+  
+  if (telemetryTypeStr_ == "HK" && telemetry_->getContents()->Code() == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal)) {
+    if (currentRunID_ < 0) {
       currentRunID_ = telemetry_->RunID();
       updateRunIDFile();
     }
@@ -109,7 +111,7 @@ bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
   if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
   }
-  return result;
+  return true;
 }
 
 } // namespace gramsballoon::pgrams
