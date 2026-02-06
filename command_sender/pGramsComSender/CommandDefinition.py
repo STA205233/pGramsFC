@@ -88,6 +88,8 @@ command_collection.add_command("ORC", CommandItem("Boot Monitor", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown Monitor", ""))
 command_collection.add_command("ORC", CommandItem("Boot ToF DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown ToF DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Boot TPC DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Shutdown TPC DAQ", ""))
 
 
 command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))]))
@@ -96,8 +98,8 @@ command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisi
 command_collection.add_command("TPC", CommandItem("Reset Run", ""))
 command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ system"))
 command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
-command_collection.add_command("TPC", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
-command_collection.add_command("TPC", CommandItem("Query Event Data", ""))
+command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "",[CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
 
 
 command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))

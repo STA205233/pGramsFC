@@ -99,15 +99,17 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(ORC_Shutdown_Monitor, 0);
   ADD_CODE_MAP(ORC_Boot_Tof_Daq, 0);
   ADD_CODE_MAP(ORC_Shutdown_Tof_Daq, 0);
+  ADD_CODE_MAP(ORC_Boot_Tpc_Daq, 0);
+  ADD_CODE_MAP(ORC_Shutdown_Tpc_Daq, 0);
 
-  ADD_CODE_MAP(COL_Configure, 1);
-  ADD_CODE_MAP(COL_Start_Run, 0);
-  ADD_CODE_MAP(COL_Stop_Run, 0);
-  ADD_CODE_MAP(COL_Reset_Run, 0);
-  ADD_CODE_MAP(COL_Boot_DAQ, 0);
-  ADD_CODE_MAP(COL_Boot_Monitor, 0);
-  ADD_CODE_MAP(COL_Query_LB_Data, 0);
-  ADD_CODE_MAP(COL_Query_Event_Data, 0);
+  ADD_CODE_MAP(TPC_Configure, 1);
+  ADD_CODE_MAP(TPC_Start_Run, 0);
+  ADD_CODE_MAP(TPC_Stop_Run, 0);
+  ADD_CODE_MAP(TPC_Reset_Run, 0);
+  ADD_CODE_MAP(TPC_Boot_DAQ, 0);
+  ADD_CODE_MAP(TPC_Boot_Monitor, 0);
+  ADD_CODE_MAP(TPCMonitor_Query_LB_Data, 4);
+  ADD_CODE_MAP(TPCMonitor_Query_Event_Data, 4);
 
   ADD_CODE_MAP(TOF_Start_DAQ, 0);
   ADD_CODE_MAP(TOF_Stop_DAQ, 0);

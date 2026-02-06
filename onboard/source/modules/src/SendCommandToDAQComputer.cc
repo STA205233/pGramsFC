@@ -161,7 +161,7 @@ bool SendCommandToDAQComputer::makeDAQEmergencyShutdownCommand() {
     return true;
   }
   else if (subsystem_ == Subsystem::COL) {
-    currentCommand_->setCode(castCommandCode(CommunicationCodes::COL_Stop_Run));
+    currentCommand_->setCode(castCommandCode(CommunicationCodes::TPC_Stop_Run));
     currentCommand_->setArgc(0);
     currentCommand_->update();
     return true;

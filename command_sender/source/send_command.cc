@@ -21,8 +21,11 @@ std::string mapping_subsystem_name(const std::string &subsystem_name) {
   else if (subsystem_name == "TOF") {
     return "TOF";
   }
-  else if (subsystem_name == "COL") {
+  else if (subsystem_name == "TPC") {
     return "TPC";
+  }
+  else if (subsystem_name == "TPCMonitor") {
+    return "TPCMonitor";
   }
   else {
     return "DUMMY_SUBSYSTEM";
@@ -76,15 +79,15 @@ int main(int argc, char *argv[]) {
     return 1;
   }
   std::string host;
-  if (const char* host__ = std::getenv("PGRAMS_MOSQUITTO_HOST")) {
-     host = host__;
+  if (const char *host__ = std::getenv("PGRAMS_MOSQUITTO_HOST")) {
+    host = host__;
   }
   else {
     std::cerr << "host is not set" << std::endl;
     return -1;
   }
   int port = 0;
-  if (const char* port__ = std::getenv("PGRAMS_MOSQUITTO_PORT")) {
+  if (const char *port__ = std::getenv("PGRAMS_MOSQUITTO_PORT")) {
     port = std::stoi(port__);
   }
   else {
@@ -99,7 +102,7 @@ int main(int argc, char *argv[]) {
   if (const char *password__ = std::getenv("PGRAMS_MOSQUITTO_PASSWD")) {
     password = password__;
   }
-  
+
   std::cout << "Host: " << host << std::endl;
   std::cout << "Port: " << port << std::endl;
   std::cout << "Username: " << username << std::endl;
@@ -140,6 +143,6 @@ int main(int argc, char *argv[]) {
 #endif
 
   sender.close_mosquitto();
-  mosqpp::lib_cleanup(); 
+  mosqpp::lib_cleanup();
   return 0;
 }
