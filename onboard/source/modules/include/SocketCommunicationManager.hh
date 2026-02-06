@@ -1,10 +1,3 @@
-/**
- * Module for managing the socket communication.
- *
- * @author Shota Arai
- * @date 2025-03-24 | first draft
- *
- */
 #ifndef GRAMSBalloon_SocketCommunicationManager_hh
 #define GRAMSBalloon_SocketCommunicationManager_hh 1
 #include "IoContextManager.hh"
@@ -20,7 +13,15 @@ enum class AcknowledgementType {
   NONE = 2
 };
 class IoContextManager;
+class SocketCommunication;
 
+/**
+ * Module for managing the socket communication.
+ *
+ * @author Shota Arai
+ * @date 2025-03-24 | first draft
+ *
+*/
 class SocketCommunicationManager: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(SocketCommunicationManager, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -42,6 +43,9 @@ public:
     return singleton_self()->socketCommunication_.get();
   }
   int sendAndWaitForAck(const uint8_t *buf, size_t n, const uint8_t *ack, size_t ack_n);
+  std::vector<uint8_t> getAckBuffer() const {
+    return singleton_self()->ackBuffer_;
+  }
   int send(const uint8_t *buf, size_t n) {
     return singleton_self()->socketCommunication_->send(buf, n);
   }

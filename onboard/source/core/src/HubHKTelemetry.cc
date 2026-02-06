@@ -22,14 +22,19 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
   sink->setFieldValue("run_id", RunID());
   sink->setFieldValue("last_command_code_hub", lastCommandCodeHub_);
   sink->setFieldValue("last_command_index_hub", lastCommandIndexHub_);
+  sink->setFieldValue("command_rejected_index_hub", commandRejectedIndexHub_);
   sink->setFieldValue("last_command_code_orc", lastCommandCodeOrc_);
   sink->setFieldValue("last_command_index_orc", lastCommandIndexOrc_);
+  sink->setFieldValue("command_rejected_index_orc", commandRejectedIndexOrc_);
   sink->setFieldValue("last_command_code_tpc", lastCommandCodeTPC_);
   sink->setFieldValue("last_command_index_tpc", lastCommandIndexTPC_);
+  sink->setFieldValue("command_rejected_index_tpc", commandRejectedIndexTPC_);
   sink->setFieldValue("last_command_code_tof", lastCommandCodeTOF_);
   sink->setFieldValue("last_command_index_tof", lastCommandIndexTOF_);
+  sink->setFieldValue("command_rejected_index_tof", commandRejectedIndexTOF_);
   sink->setFieldValue("last_command_code_qm", lastCommandCodeQM_);
   sink->setFieldValue("last_command_index_qm", lastCommandIndexQM_);
+  sink->setFieldValue("command_rejected_index_qm", commandRejectedIndexQM_);
   for (size_t i = 0; i < NUM_PDU_SIPM; ++i) {
     sink->setFieldValue("pdu_vol_sipm_" + std::to_string(i), pduVolSiPM_[i]);
     sink->setFieldValue("pdu_cur_sipm_" + std::to_string(i), pduCurSiPM_[i]);
@@ -140,14 +145,19 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   sink->addField("run_id", static_cast<uint32_t>(0));
   sink->addField("last_command_code_hub", static_cast<uint32_t>(0));
   sink->addField("last_command_index_hub", static_cast<uint16_t>(0));
+  sink->addField("command_rejected_index_hub", static_cast<uint32_t>(0));
   sink->addField("last_command_code_orc", static_cast<uint32_t>(0));
   sink->addField("last_command_index_orc", static_cast<uint16_t>(0));
+  sink->addField("command_rejected_index_orc", static_cast<uint32_t>(0));
   sink->addField("last_command_code_tpc", static_cast<uint32_t>(0));
   sink->addField("last_command_index_tpc", static_cast<uint16_t>(0));
+  sink->addField("command_rejected_index_tpc", static_cast<uint32_t>(0));
   sink->addField("last_command_code_tof", static_cast<uint32_t>(0));
   sink->addField("last_command_index_tof", static_cast<uint16_t>(0));
+  sink->addField("command_rejected_index_tof", static_cast<uint32_t>(0));
   sink->addField("last_command_code_qm", static_cast<uint32_t>(0));
   sink->addField("last_command_index_qm", static_cast<uint16_t>(0));
+  sink->addField("command_rejected_index_qm", static_cast<uint32_t>(0));
   for (size_t i = 0; i < NUM_PDU_SIPM; i++) {
     sink->addField("pdu_vol_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
     sink->addField("pdu_cur_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
@@ -324,14 +334,16 @@ bool HubHKTelemetry::interpret() {
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
     DivideData(static_cast<uint32_t>(contents->getArguments(71 + i)), tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]);
   }
-  for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    DivideData(static_cast<uint32_t>(contents->getArguments(71 + NUM_TOF_BIAS / 2 + i)), tofBiasSetting_[2 * i], tofBiasSetting_[2 * i + 1]);
-  }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
-    hubComputerErrorFlags_[i] = static_cast<uint32_t>(contents->getArguments(71 + NUM_TOF_BIAS + i));
+    hubComputerErrorFlags_[i] = static_cast<uint32_t>(contents->getArguments(71 + NUM_TOF_BIAS / 2 + i));
   }
-  storageSize_ = contents->getArguments(71 + NUM_TOF_BIAS + NUM_ERROR_FLAGS);
-  DivideData(static_cast<uint32_t>(contents->getArguments(72 + NUM_TOF_BIAS + NUM_ERROR_FLAGS)), cpuTemperature_, ramUsage_);
+  storageSize_ = contents->getArguments(71 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
+  DivideData(static_cast<uint32_t>(contents->getArguments(72 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS)), cpuTemperature_, ramUsage_);
+  commandRejectedIndexHub_ = contents->getArguments(73 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
+  commandRejectedIndexOrc_ = contents->getArguments(74 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
+  commandRejectedIndexTPC_ = contents->getArguments(75 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
+  commandRejectedIndexTOF_ = contents->getArguments(76 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
+  commandRejectedIndexQM_ = contents->getArguments(77 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
   return true;
 }
 void HubHKTelemetry::update() {
@@ -417,14 +429,16 @@ void HubHKTelemetry::update() {
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
     setArguments(71 + i, CompileData(tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]));
   }
-  for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(71 + NUM_TOF_BIAS / 2 + i, CompileData(tofBiasSetting_[2 * i], tofBiasSetting_[2 * i + 1]));
-  }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
-    setArguments(71 + NUM_TOF_BIAS + i, hubComputerErrorFlags_[i]);
+    setArguments(71 + NUM_TOF_BIAS / 2 + i, hubComputerErrorFlags_[i]);
   }
-  setArguments(71 + NUM_TOF_BIAS + NUM_ERROR_FLAGS, storageSize_);
-  setArguments(72 + NUM_TOF_BIAS + NUM_ERROR_FLAGS, CompileData(cpuTemperature_, ramUsage_));
+  setArguments(71 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, storageSize_);
+  setArguments(72 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, CompileData(cpuTemperature_, ramUsage_));
+  setArguments(73 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexHub_);
+  setArguments(74 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexOrc_);
+  setArguments(75 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexTPC_);
+  setArguments(76 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexTOF_);
+  setArguments(77 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexQM_);
   BaseTelemetryDefinition::update();
 }
 std::ostream &HubHKTelemetry::print(std::ostream &stream) {
@@ -439,6 +453,9 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "lastCommandCodeHub_: " << lastCommandCodeHub_ << ", lastCommandCodeOrc_: " << lastCommandCodeOrc_
          << ", lastCommandCodeTPC_: " << lastCommandCodeTPC_ << ", lastCommandCodeTOF_: " << lastCommandCodeTOF_
          << ", lastCommandCodeQM_: " << lastCommandCodeQM_ << "\n";
+  stream << "commandRejectedIndexHub_: " << commandRejectedIndexHub_ << ", commandRejectedIndexOrc_: " << commandRejectedIndexOrc_
+         << ", commandRejectedIndexTPC_: " << commandRejectedIndexTPC_ << ", commandRejectedIndexTOF_: " << commandRejectedIndexTOF_
+         << ", commandRejectedIndexQM_: " << commandRejectedIndexQM_ << "\n";
 
   {
     const size_t n = sizeof(pduVolSiPM_) / sizeof(pduVolSiPM_[0]);
@@ -524,8 +541,9 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   {
     const size_t n = sizeof(rtdShaperBoard_) / sizeof(rtdShaperBoard_[0]);
     stream << "rtdShaperBoard: ";
-    for (size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i) {
       stream << rtdShaperBoard_[i] << (i + 1 < n ? ", " : "\n");
+    }
   }
   stream << "rtdHubComputerLocation2_: " << rtdHubComputerLocation2_ << ", rtdTofFpgas_: " << rtdTofFpgas_ << "\n";
   stream << "rtdTof2_: " << rtdTof2_ << ", rtdSealedEnclosure1WaterTank_: " << rtdSealedEnclosure1WaterTank_ << "\n";
@@ -538,28 +556,28 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   {
     const size_t n = sizeof(rtdsInsideChamber_) / sizeof(rtdsInsideChamber_[0]);
     stream << "rtdsInsideChamber_: ";
-    for (size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i) {
       stream << rtdsInsideChamber_[i] << (i + 1 < n ? ", " : "\n");
+    }
   }
 
   {
     const size_t n = sizeof(spare_) / sizeof(spare_[0]);
     stream << "spare_: ";
-    for (size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i) {
       stream << spare_[i] << (i + 1 < n ? ", " : "\n");
+    }
   }
 
   stream << "tofBiasVoltage_: ";
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i)
+  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
     stream << tofBiasVoltage_[i] << (i + 1 < NUM_TOF_BIAS ? ", " : "\n");
-
-  stream << "tofBiasSetting_: ";
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i)
-    stream << tofBiasSetting_[i] << (i + 1 < NUM_TOF_BIAS ? ", " : "\n");
+  }
 
   stream << "hubComputerErrorFlags_: ";
-  for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i)
+  for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) {
     stream << hubComputerErrorFlags_[i] << (i + 1 < NUM_ERROR_FLAGS ? ", " : "\n");
+  }
 
   stream << "storageSize_: " << storageSize_ << ", cpuTemperature_: " << cpuTemperature_ << ", ramUsage_: " << ramUsage_ << "\n";
   return stream;

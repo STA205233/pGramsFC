@@ -8,7 +8,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_define() {
   set_parameter_description("Name of SocketCommunicationManager");
   define_parameter("chatter", &mod_class::chatter_);
   define_parameter("dead_communication_time", &mod_class::deadCommunicationTime_);
-  set_parameter_description("Time in milliseconds to consider the communication dead if no data is received.");
+  set_parameter_description("Time in milliseconds to consider the communication dead if no data is received. If 0 is specified, assumes no dead communication time.");
   set_parameter_unit(1.0, "ms");
   define_parameter("save_status", &mod_class::saveStatus_);
   set_parameter_description("Whether to save the received status to a binary file.");
@@ -83,18 +83,10 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
     }
     return AS_OK;
   }
-  std::vector<uint8_t> *buffer_for_display = nullptr;
-  if (chatter_ > 1) {
-    buffer_for_display = new std::vector<uint8_t>;
-    buffer_for_display->reserve(MAX_BYTES);
-  }
   const auto now = std::chrono::steady_clock::now();
   const auto result = socketCommunicationManager_->receive(bufTmp_);
   if (result > 0) {
     buffer_.insert(buffer_.end(), bufTmp_.begin(), bufTmp_.begin() + result);
-    if (chatter_ > 1) {
-      buffer_for_display->insert(buffer_for_display->end(), bufTmp_.begin(), bufTmp_.begin() + result);
-    }
     lastReceivedTime_ = now;
     if (saveStatus_) {
       if (statusSaver_) {
@@ -108,14 +100,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
   if (chatter_ > 1) {
     std::cout << "Received " << result << " bytes." << std::endl;
   }
-  if (chatter_ > 2) {
-    std::cout << "Payload:" << std::endl;
-    for (const auto &byte: *buffer_for_display) {
-      std::cout << std::hex << static_cast<int>(byte) << std::dec << " ";
-    }
-    std::cout << std::endl;
-  }
-  if (lastReceivedTime_ + deadCommunicationTimeChrono_ < now) {
+  if ((deadCommunicationTime_ > 0) && (lastReceivedTime_ + deadCommunicationTimeChrono_ < now)) {
     if (chatter_ > 0) {
       std::cerr << module_id() << "::mod_analyze: Communication is dead. No data received for " << deadCommunicationTime_ << " ms." << std::endl;
     }

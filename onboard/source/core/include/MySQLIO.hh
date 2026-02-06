@@ -21,39 +21,57 @@ template <class T>
 struct SqlType;
 template <>
 struct SqlType<uint8_t> {
-  static constexpr const char *value = "TINYINT UNSIGNED";
+  static std::string name() {
+    return "TINYINT UNSIGNED";
+  }
 };
 template <>
 struct SqlType<int16_t> {
-  static constexpr const char *value = "SMALLINT";
+  static std::string name() {
+    return "SMALLINT";
+  }
 };
 template <>
 struct SqlType<uint16_t> {
-  static constexpr const char *value = "SMALLINT UNSIGNED";
+  static std::string name() {
+    return "SMALLINT UNSIGNED";
+  }
 };
 template <>
 struct SqlType<int32_t> {
-  static constexpr const char *value = "INT";
+  static std::string name() {
+    return "INT";
+  }
 };
 template <>
 struct SqlType<uint32_t> {
-  static constexpr const char *value = "INT UNSIGNED";
+  static std::string name() {
+    return "INT UNSIGNED";
+  }
 };
 template <>
 struct SqlType<int64_t> {
-  static constexpr const char *value = "BIGINT";
+  static std::string name() {
+    return "BIGINT";
+  }
 };
 template <>
 struct SqlType<uint64_t> {
-  static constexpr const char *value = "BIGINT UNSIGNED";
+  static std::string name() {
+    return "BIGINT UNSIGNED";
+  }
 };
 template <>
 struct SqlType<float> {
-  static constexpr const char *value = "FLOAT";
+  static std::string name() {
+    return "FLOAT";
+  }
 };
 template <>
 struct SqlType<double> {
-  static constexpr const char *value = "DOUBLE";
+  static std::string name() {
+    return "DOUBLE";
+  }
 };
 template <size_t N>
 struct VarChar {
@@ -61,15 +79,19 @@ struct VarChar {
 };
 template <size_t N>
 struct SqlType<VarChar<N>> {
-  static constexpr std::string_view name = "VARCHAR"; // 生成側で (N) を付ける
+  static std::string name() {
+    return "VARCHAR(" + std::to_string(N) + ")";
+  }
 };
 template <>
 struct SqlType<std::string> {
-  static constexpr const char *value = SqlType<VarChar<255>>::name.data();
+  static std::string name() {
+    return SqlType<VarChar<255>>::name();
+  }
 };
 
 using value_t = mysqlx::Value;
-using table_t = std::map<std::string, std::pair<std::optional<value_t>, const char *>>; // column_name -> (value, type)
+using table_t = std::map<std::string, std::pair<std::optional<value_t>, std::string>>; // column_name -> (value, type)
 /**
  * @brief A class for MySQL I/O operations using MySQL X DevAPI.
  * @author Shota Arai
@@ -112,7 +134,7 @@ public:
       std::cerr << col_name << "is already resisgered in Table(" << table_name << ")" << std::endl;
       return;
     }
-    it->second.insert(std::make_pair(col_name, std::make_pair(std::nullopt, SqlType<T>::value)));
+    it->second.insert(std::make_pair(col_name, std::make_pair(std::nullopt, SqlType<T>::name())));
   }
   void SetItem(const std::string &table_name, const std::string &col_name, const mysqlx::Value &value);
   bool hasKeyInTable(const std::string &table_name, const std::string &col_name) {

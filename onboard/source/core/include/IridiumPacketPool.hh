@@ -22,7 +22,7 @@ public:
   void pop();
   bool empty() const {
     if (overwrittenPacket_) {
-      return true;
+      return false;
     }
     return packetQueue_.empty();
   }

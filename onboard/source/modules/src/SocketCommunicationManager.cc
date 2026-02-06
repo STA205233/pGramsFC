@@ -1,6 +1,6 @@
 #include "SocketCommunicationManager.hh"
-#include <sys/select.h>
 #include <chrono>
+#include <sys/select.h>
 #include <thread>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
@@ -86,7 +86,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   if (!singleton_self()->socketCommunication_) {
     return -1;
   }
-  
+
   while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_, true) > 0) {}
   singleton_self()->ackBuffer_.clear();
 

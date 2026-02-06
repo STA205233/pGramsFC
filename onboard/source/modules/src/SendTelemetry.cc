@@ -1,4 +1,5 @@
 #include "SendTelemetry.hh"
+#include "CommunicationCodes.hh"
 
 using namespace anlnext;
 
@@ -17,8 +18,12 @@ ANLStatus SendTelemetry::mod_define() {
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_telem_per_file", &mod_class::numTelemPerFile_);
   define_parameter("minimum_send_time", &mod_class::minimumSendTime_);
+  set_parameter_description("Minimum time interval between telemetry sending");
+  set_parameter_unit(1.0, "ms");
   define_parameter("topic", &mod_class::pubTopic_);
+  set_parameter_description("MQTT topic for telemetry publishing via Iridium");
   define_parameter("starlink_topic", &mod_class::starlinkTopic_);
+  set_parameter_description("MQTT topic for telemetry publishing via Starlink");
   define_parameter("qos", &mod_class::qos_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
@@ -50,6 +55,7 @@ ANLStatus SendTelemetry::mod_initialize() {
     return AS_ERROR;
   }
   telemdef_ = std::make_shared<HubHKTelemetry>(true);
+  mhadcMapping_->setHKTelemetry(telemdef_);
   if (saveTelemetry_) {
     telemetrySaver_ = std::make_shared<CommunicationSaver<std::string>>();
   }
@@ -76,6 +82,7 @@ ANLStatus SendTelemetry::mod_analyze() {
   }
   lastSendTime_ = std::chrono::steady_clock::now();
   telemdef_->setCurrentTime();
+  telemdef_->getContentsNC()->setCode(::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal));
   telemdef_->setIndex(telemIndex_);
   telemdef_->setRunID(runIDManager_->RunID());
   setHKTelemetry();
@@ -120,6 +127,7 @@ ANLStatus SendTelemetry::mod_finalize() {
 }
 
 void SendTelemetry::setLastComIndex(Subsystem subsystem, uint32_t v) {
+  std::cout << "subsystem: " << static_cast<int>(subsystem) << "last Com index: " << v << std::endl;
   if (subsystem == Subsystem::ORC) {
     telemdef_->setLastCommandIndexOrc(v);
   }
@@ -132,11 +140,15 @@ void SendTelemetry::setLastComIndex(Subsystem subsystem, uint32_t v) {
   else if (subsystem == Subsystem::TOF) {
     telemdef_->setLastCommandIndexTOF(v);
   }
+  else if (subsystem == Subsystem::COL) {
+    telemdef_->setLastCommandIndexTPC(v);
+  }
   else {
     std::cerr << "SendTelemetry::setLastComIndex: Unknown subsystem" << std::endl;
   }
 }
 void SendTelemetry::setLastComCode(Subsystem subsystem, uint16_t v) {
+  std::cout << "subsystem: " << static_cast<int>(subsystem) << "last Com code: " << v << std::endl;
   if (subsystem == Subsystem::ORC) {
     telemdef_->setLastCommandCodeOrc(v);
   }
@@ -149,8 +161,32 @@ void SendTelemetry::setLastComCode(Subsystem subsystem, uint16_t v) {
   else if (subsystem == Subsystem::TOF) {
     telemdef_->setLastCommandCodeTOF(v);
   }
+  else if (subsystem == Subsystem::COL) {
+    telemdef_->setLastCommandCodeTPC(v);
+  }
   else {
     std::cerr << "SendTelemetry::setLastComCode: Unknown subsystem" << std::endl;
+  }
+}
+
+void SendTelemetry::setCommandRejectedIndex(Subsystem subsystem, uint32_t v) {
+  if (subsystem == Subsystem::ORC) {
+    telemdef_->setCommandRejectedIndexOrc(v);
+  }
+  else if (subsystem == Subsystem::HUB) {
+    telemdef_->setCommandRejectedIndexHub(v);
+  }
+  else if (subsystem == Subsystem::QM) {
+    telemdef_->setCommandRejectedIndexQM(v);
+  }
+  else if (subsystem == Subsystem::TOF) {
+    telemdef_->setCommandRejectedIndexTOF(v);
+  }
+  else if (subsystem == Subsystem::COL) {
+    telemdef_->setCommandRejectedIndexTPC(v);
+  }
+  else {
+    std::cerr << "SendTelemetry::setCommandRejectedIndex: Unknown subsystem" << std::endl;
   }
 }
 
@@ -176,6 +212,7 @@ void SendTelemetry::getHKModules() {
 void SendTelemetry::setHKTelemetry() {
   if (!telemdef_) {
     telemdef_ = std::make_shared<HubHKTelemetry>(true);
+    mhadcMapping_->setHKTelemetry(telemdef_);
   }
   for (int i = 0; i < static_cast<int>(HubHKTelemetry::NUM_ERROR_FLAGS); i++) {
     telemdef_->setHubComputerErrorFlags(i, errorManager_->ErrorCode(i));
@@ -192,6 +229,11 @@ void SendTelemetry::setHKTelemetry() {
       }
     }
   }
+  if (receiveCommand_) {
+    const auto v = receiveCommand_->CommandRejectCount();
+    telemdef_->setCommandRejectedIndexHub(v);
+  }
+  
 #ifdef USE_SYSTEM_MODULES
   {
     if (getComputerStatus_ == nullptr) {

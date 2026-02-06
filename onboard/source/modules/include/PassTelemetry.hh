@@ -31,7 +31,7 @@ private:
   MosquittoManager<std::string> *mosquittoManager_ = nullptr;
   std::string mosquittoManagerName_ = "TelemMosquittoManager";
   DividePacket *dividePacket_ = nullptr;
-  bool isStarlink_ = true;
+  bool isStarlinkOnly_ = true;
   std::string dividePacketName_ = "DividePacket";
   std::string outStr_ = "";
   int chatter_ = 0;

@@ -29,9 +29,9 @@
 #include "GetMHADCData.hh"
 #include "EncodedSerialCommunicator.hh"
 
-
 #ifdef USE_MYSQL
 #include "PushToMySQL.hh"
+#include "TreatToFCallback.hh"
 #endif
 #include "MosquittoManager.hh"
 #include "SendArrayByMQTT.hh"
@@ -41,6 +41,9 @@
 #include "PassTelemetry.hh"
 #include "IoContextManager.hh"
 #include "SendCommandToDAQComputer.hh"
+#include "DetectErrorCallbackFromDAQ.hh"
+#include "PressureGaugeManager.hh"
+#include "GetPressure.hh"
 %}
 
 %include "std_vector.i"
@@ -131,6 +134,14 @@ class PushToMySQL : public anlnext::BasicModule
 public:
   PushToMySQL();
 };
+class TreatToFCallback: public anlnext::BasicModule {
+public:
+  TreatToFCallback();
+};
+class MySQLManager: public anlnext::BasicModule {
+public:
+  MySQLManager();
+};
 #endif
 template <typename TelemType>
 class MosquittoManager: public anlnext::BasicModule
@@ -168,6 +179,12 @@ public:
   RunIDManager();
 };
 
+class SendArrayByMQTT : public anlnext::BasicModule
+{
+public:
+  SendArrayByMQTT();
+};
+
 } // namespace pgrams
 
 
@@ -185,6 +202,22 @@ namespace pgrams{
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
 public:
   MeasureOrientationByMHADC();
+};
+
+class DetectErrorCallbackFromDAQ: public anlnext::BasicModule {
+public:
+  DetectErrorCallbackFromDAQ();
+};
+
+class PressureGaugeManager: public anlnext::BasicModule
+{
+public:
+  PressureGaugeManager();
+};
+
+class GetPressure: public anlnext::BasicModule {
+public:
+  GetPressure();
 };
 } // namespace pgrams
 } // namespace GRAMSBalloon

@@ -25,13 +25,14 @@ class CommandParameter:
 
 
 class CommandItem:
-    def __init__(self, name: str, description: str, parameters: list[CommandParameter] = []):
+    def __init__(self, name: str, description: str, parameters: list[CommandParameter] = [], file_loadable: bool = False):
         self.name = name
         self.description = description
         self.parameters = parameters
-
+        self.file_loadable = file_loadable
+    
     def __repr__(self) -> str:
-        return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters})"
+        return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters}, file_loadable={self.file_loadable})"
 
     def __str__(self) -> str:
         str_ = f"{self.name}: {self.description}\nParameters:\n"
@@ -40,7 +41,7 @@ class CommandItem:
         else:
             str_ += "None"
         return str_
-
+    
 
 class CommandDefinition:
     def __init__(self):
@@ -81,14 +82,25 @@ command_collection.add_command("ORC", CommandItem("Exec CPU Restart", "Execute C
 command_collection.add_command("ORC", CommandItem("Exec CPU Shutdown", "Execute CPU shutdown"))
 command_collection.add_command("ORC", CommandItem("Boot All DAQ", "Boot all DAQ systems"))
 command_collection.add_command("ORC", CommandItem("Shutdown All DAQ", "Shutdown all DAQ systems"))
-command_collection.add_command("ORC", CommandItem("CPU Status", "Get the CPU status"))
+command_collection.add_command("ORC", CommandItem("Start Computer Status", "Get the CPU status"))
+command_collection.add_command("ORC", CommandItem("Stop Computer Status", "Stop the CPU status"))
+command_collection.add_command("ORC", CommandItem("Init PCIe Driver", ""))
+command_collection.add_command("ORC", CommandItem("Boot Monitor", ""))
+command_collection.add_command("ORC", CommandItem("Shutdown Monitor", ""))
+command_collection.add_command("ORC", CommandItem("Boot ToF DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Shutdown ToF DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Boot TPC DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Shutdown TPC DAQ", ""))
 
-command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))]))
+
+command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))], file_loadable=True))
 command_collection.add_command("TPC", CommandItem("Start Run", "Start data acquisition"))
 command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisition"))
+command_collection.add_command("TPC", CommandItem("Reset Run", ""))
 command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ system"))
-command_collection.add_command("TPC", CommandItem("Boot Monitors", "Boot the monitoring system"))
-command_collection.add_command("TPC", CommandItem("Query Hardware Status", "Query the hardware status"))
+command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
+command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "",[CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
 
 
 command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))
@@ -105,6 +117,16 @@ command_collection.add_command("TOF", CommandItem("Run Acquire Threshold Calibra
 command_collection.add_command("TOF", CommandItem("Run Acquire QDC Calibration", ""))
 command_collection.add_command("TOF", CommandItem("Run Acquire TDC Calibration", ""))
 command_collection.add_command("TOF", CommandItem("Run Acquire SiPM Data", ""))
+command_collection.add_command("TOF", CommandItem("Run Acquire Threshold Calibration BN", ""))
+command_collection.add_command("TOF", CommandItem("Run Acquire Threshold Calibration D", ""))
+command_collection.add_command("TOF", CommandItem("Run Process Threshold Calibration", ""))
+command_collection.add_command("TOF", CommandItem("Run Process TDC Calibration", ""))
+command_collection.add_command("TOF", CommandItem("Run Process QDC Calibration", ""))
+command_collection.add_command("TOF", CommandItem("Run Convert Raw To Raw", ""))
+command_collection.add_command("TOF", CommandItem("Run Convert Raw To Singles", ""))
+command_collection.add_command("TOF", CommandItem("Run Process Coin Evt QA", ""))
+command_collection.add_command("TOF", CommandItem("Run Convert Stg1 To Stg2", ""))
+
 
 command_collection.add_command("TOF", CommandItem("Bias ON", "Turn ON the bias voltage"))
 command_collection.add_command("TOF", CommandItem("Bias OFF", "Turn OFF the bias voltage"))

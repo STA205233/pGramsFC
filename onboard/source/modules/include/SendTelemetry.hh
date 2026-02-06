@@ -1,11 +1,3 @@
-/**
- * Module for Sending telemetry.
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-25
- * @date 2025-**-** | v2.0
- * @date 2025-09-20 | Json-wrapped telemetry. (v3.0)
- */
 
 #ifndef SendTelemetry_H
 #define SendTelemetry_H 1
@@ -27,15 +19,14 @@
 namespace gramsballoon {
 
 class MeasureTemperatureWithRTDSensor;
-class ReceiveCommand;
 class RunIDManager;
 } // namespace gramsballoon
 namespace gramsballoon::pgrams {
+class ReceiveCommand;
 class GetMHADCData;
 class GetPressure;
 template <typename T>
 class MosquittoManager;
-class DistributeCommand;
 class BaseTelemetryDefinition;
 class HubHKtelemetry;
 class ErrorManager;
@@ -44,8 +35,17 @@ class CommunicationSaver;
 class MHADCMapping;
 class GetComputerStatus;
 
+/**
+ * Module for Sending telemetry.
+ *
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-03-25
+ * @date 2025-**-** | v2.0
+ * @date 2025-09-20 | Json-wrapped telemetry. (v3.0)
+ * @date 2026-02-04 | Add command rejected index for each subsystem. (v3.2)
+ */
 class SendTelemetry: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SendTelemetry, 3.1);
+  DEFINE_ANL_MODULE(SendTelemetry, 3.2);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -66,6 +66,7 @@ public:
 
   void setLastComIndex(Subsystem subsystem, uint32_t v);
   void setLastComCode(Subsystem subsystem, uint16_t v);
+  void setCommandRejectedIndex(Subsystem subsystem, uint32_t v);
 
   ErrorManager *getErrorManager() { return (singleton_self()->errorManager_).get(); }
 
@@ -89,9 +90,9 @@ private:
   // access to other classes
   ReceiveCommand *receiveCommand_ = nullptr;
   RunIDManager *runIDManager_ = nullptr;
-  pgrams::MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
 
-  pgrams::MosquittoIO<std::string> *mosq_ = nullptr;
+  MosquittoIO<std::string> *mosq_ = nullptr;
   std::string pubTopic_ = "telemetry";
   std::string starlinkTopic_ = "StarlinkTelemetry";
   int qos_ = 0;

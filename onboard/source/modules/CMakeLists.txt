@@ -24,11 +24,10 @@ set(GB_MODULES
   src/RunIDManager.cc
   src/ReadTelemetry.cc
   src/DumpSerial.cc
-  #src/GetArduinoData.cc
   src/EncodedSerialCommunicator.cc
   src/GetMHADCData.cc
   #src/GetCompressorData.cc
-  #src/GetPressure.cc
+  src/GetPressure.cc
   src/PressureGaugeManager.cc
   src/InterpretTelemetry.cc
   src/Sleep.cc
@@ -41,10 +40,10 @@ set(GB_MODULES
   src/DividePacket.cc
   src/PassTelemetry.cc
   src/IoContextManager.cc
-  #src/MeasureTemperatureWithRTDSensorByMHADC.cc
   src/SendCommandToDAQComputer.cc
   src/SendTelemetry.cc
   src/SendArrayByMQTT.cc
+  src/DetectErrorCallbackFromDAQ.cc
 )
 
 if(GB_USE_SPI)
@@ -69,6 +68,8 @@ endif(GB_USE_HSQUICKLOOK)
 if(GB_USE_MYSQL)
   set(GB_MYSQL_MODULES
     src/PushToMySQL.cc
+    src/TreatToFCallback.cc
+    src/MySQLManager.cc
   )
 endif(GB_USE_MYSQL)
 

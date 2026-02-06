@@ -7,9 +7,10 @@ namespace gramsballoon::pgrams {
 ANLStatus GetPressure::mod_define() {
   define_parameter("channel", &mod_class::channel_);
   define_parameter("EncodedSerialCommunicator_name", &mod_class::encodedSerialCommunicatorName_);
-  define_parameter("sleep_for_msec", &mod_class::sleepForMsec_);
+  define_parameter("sleep_for_usec", &mod_class::sleepForUsec_);
   define_parameter("type", &mod_class::type_);
   define_parameter("num_trials", &mod_class::num_trials_);
+  define_parameter("num_sent_command_per_trial", &mod_class::numSentCommandPerTrial_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -60,12 +61,15 @@ ANLStatus GetPressure::mod_analyze() {
       if (chatter_ > 0) {
         std::cout << "Sent Command: " << commands_[i] << std::endl;
       }
-      std::this_thread::sleep_for(std::chrono::milliseconds(sleepForMsec_));
-      const int byte_read = encodedSerialCommunicator_->SendComAndGetData(commands_[i], dat, sleepForMsec_);
+      int byte_read = -1;
+      for (int k = 0; k < numSentCommandPerTrial_; k++) {
+        std::this_thread::sleep_for(std::chrono::microseconds(sleepForUsec_));
+        byte_read = encodedSerialCommunicator_->SendComAndGetData(commands_[i], dat, sleepForUsec_);
+      }
       if (byte_read < 0) {
         std::cerr << "Error in GetPressure::mod_analyze: byte_read = " << byte_read << std::endl;
         if (sendTelemetry_) {
-          sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_SERIAL_COMMUNICATION_ERROR);
+          //sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_SERIAL_COMMUNICATION_ERROR);
         }
         pressure_[i] = 0;
         continue;
@@ -104,10 +108,10 @@ ANLStatus GetPressure::mod_analyze() {
     if (!successes[i]) {
       if (sendTelemetry_) {
         if (type_ == "jp") {
-          sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_JP);
+          //sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_JP);
         }
         else if (type_ == "cp") {
-          sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_CP);
+          //sendTelemetry_->getErrorManager()->setError(ErrorType::PRESS_DATA_AQUISITION_ERROR_CP);
         }
       }
     }

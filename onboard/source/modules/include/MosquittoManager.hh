@@ -7,7 +7,7 @@
 #include <string>
 
 namespace gramsballoon::pgrams {
-enum class CommunicationLinkType : int32_t {
+enum class CommunicationLinkType : uint32_t {
   IRIDIUM = 0,
   STARLINK = 1,
 };
@@ -18,6 +18,7 @@ class SendTelemetry;
  * @author Shota Arai
  * @date 2024-**-** Shota Arai| First implementation.
  * @date 2025-09-20 Shota Arai| Changed to template class to handle different types of telemetry. (v2.0)
+ * @date 2026-02-05 Shota Arai| Added doInitialize parameter to control mosqpp::lib_init and lib_cleanup calls. (v2.1)
 **/
 
 template <typename T>
@@ -36,7 +37,12 @@ class MosquittoManager: public anlnext::BasicModule {
 
 public:
   MosquittoManager() = default;
-  virtual ~MosquittoManager() = default;
+  virtual ~MosquittoManager() {
+    if (doInitialize_) { 
+      mosqpp::lib_cleanup();
+    }
+    mosquittoIO_.reset();
+  }
 
 protected:
   MosquittoManager(const MosquittoManager<TelemType> &r) = default;
@@ -68,6 +74,7 @@ private:
   int keepAlive_ = 60;
   int chatter_ = 0;
   int timeout_ = 10;
+  bool doInitialize_ = false;
   bool threadedSet_ = true;
   anlnext::ANLStatus HandleError(int error_code);
   CommunicationLinkType linkType_ = CommunicationLinkType::IRIDIUM;

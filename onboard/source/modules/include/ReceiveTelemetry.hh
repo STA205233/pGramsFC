@@ -38,7 +38,7 @@ protected:
 
 private:
   std::string telemetry_ = "";
-  bool valid_;
+  bool valid_ = false;
 
   // communication
   MosquittoManager<std::string> *mosquittoManager_ = nullptr;

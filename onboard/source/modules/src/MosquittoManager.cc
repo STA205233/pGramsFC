@@ -13,6 +13,7 @@ ANLStatus MosquittoManager<T>::mod_define() {
   define_parameter("user", &mod_class::user_);
   define_parameter("password", &mod_class::passwd_);
   define_parameter("device_id", &mod_class::deviceId_);
+  define_parameter("do_initialize", &mod_class::doInitialize_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -34,7 +35,13 @@ ANLStatus MosquittoManager<T>::mod_pre_initialize() {
     std::cerr << "Error in MosquittoManager::mod_pre_initialize: passwd is set but user is empty." << std::endl;
     return AS_ERROR;
   }
-  // FIXME: Must call mosqpp::lib_init and lib_cleanup
+  if (doInitialize_) {
+    const auto result = mosqpp::lib_init();
+    if (result != MOSQ_ERR_SUCCESS) {
+      std::cerr << "Error in MosquittoManager::mod_pre_initialize: mosqpp::lib_init failed. Error Message: " << mosqpp::strerror(result) << std::endl;
+      return AS_ERROR;
+    }
+  }
   mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
   mosquittoIO_->setVerbose(chatter_);
   return AS_OK;
@@ -68,9 +75,11 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
   }
-  const auto result = mosquittoIO_->loop(timeout_, 10);
-  if (result != 0) {
-    return HandleError(mosquittoIO_->Reconnect());
+  for (int i = 0; i < 10; i++) {
+    const auto result = mosquittoIO_->loop(timeout_, 10);
+    if (result != 0) {
+      return HandleError(mosquittoIO_->Reconnect());
+    }
   }
   return AS_OK;
 }

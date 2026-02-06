@@ -15,7 +15,7 @@ class ConfirmationWindow(pGramsComSender.Window.Window):
 
     def _create_widgets(self):
         window = super()._getWindow()
-        tk.Label(window, text=f"Command to send\n{self.command_all}\nConfirm?").pack()
+        tk.Label(window, text=f"Command to send to {self.subsystem}\n{self.command_all}\nConfirm?").pack()
         tk.Button(window, text="OK", command=lambda: self.__do_OK(self.subsystem, self.command_all)).pack()
         tk.Button(window, text="Cancel", command=self.__do_Cancel).pack()
 

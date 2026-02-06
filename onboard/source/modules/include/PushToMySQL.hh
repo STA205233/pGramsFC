@@ -2,9 +2,8 @@
 #define GRAMSBalloon_PushToMySQL_hh 1
 #include "InterpretTelemetry.hh"
 #include "MySQLFieldSink.hh"
-#include "MySQLIO.hh"
+#include "MySQLManager.hh"
 #include "anlnext/BasicModule.hh"
-#include "mysqlx/xdevapi.h"
 #include <string>
 #include <vector>
 
@@ -17,9 +16,10 @@ class MySQLFieldSink;
  * @author Shota Arai
  * @date 2025-**-** | First design
  * @date 2025-12-14 | Shota Arai | Refactoring (v2.0)
+ * @date 2026-02-04 | Shota Arai | Use MySQLManager (v3.0)
  */
 class PushToMySQL: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(PushToMySQL, 2.0);
+  DEFINE_ANL_MODULE(PushToMySQL, 3.0);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -41,13 +41,8 @@ private:
   std::string HubHKInterpreterName_ = "InterpretTelemetry";
   std::string HubHKtableName_ = "HubHK";
 
-  std::string password_ = "test";
-  std::string database_ = "pgrams";
-  std::string user_ = "test";
-  int port_ = 33060;
-  std::string host_ = "localhost";
-  bool checkExist_ = true;
-  mysql::MySQLIO mysqlIO_;
+  MySQLManager *mysqlManager_ = nullptr;
+
   MySQLFieldSink mysqlFieldSink_;
 };
 } // namespace pgrams

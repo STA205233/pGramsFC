@@ -1,10 +1,3 @@
-/**
- * Module for receiving from DAQ computers.
- *
- * @author Shota Arai
- * @date 2025-03-24 | First design
- *
- */
 #ifndef GB_ReceiveStatusFromDAQComputer_hh
 #define GB_ReceiveStatusFromDAQComputer_hh 1
 #include "CommunicationFormat.hh"
@@ -18,8 +11,16 @@
 namespace gramsballoon::pgrams {
 class SendTelemetry;
 class SocketCommunicationManager;
+
+/**
+  * Module for receiving from DAQ computers.
+  *
+  * @author Shota Arai
+  * @date 2025-03-24 | First design
+  * @date 2026-02-05 | Disabling Dead Communication time if 0 is specified.
+  */
 class ReceiveStatusFromDAQComputer: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(ReceiveStatusFromDAQComputer, 1.0);
+  DEFINE_ANL_MODULE(ReceiveStatusFromDAQComputer, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:

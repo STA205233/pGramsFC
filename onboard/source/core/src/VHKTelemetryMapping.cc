@@ -2,6 +2,7 @@
 namespace gramsballoon::pgrams {
 void VHKTelemetryMapping::setValue(int index, uint16_t value) {
   if (!hubHkTelemetry_) {
+    std::cerr << "VHKTelemetryMapping: HubHKTelemetry is not set" << std::endl;
     return;
   }
   HubHKSetterResult setter;

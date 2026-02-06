@@ -17,9 +17,11 @@ class DistributeCommand;
  * @author Shota Arai
  * @date 2025-**-** | First design
  * @date 2025-12-14 | Shota Arai | Added emergency DAQ shutdown command
+ * @date 2026-02-04 | Shota Arai | Added command reject count (v1.2)
+ * @date 2026-02-05 | Shota Arai | Refactored for better readability and error handling (v1.3)
  */
 class SendCommandToDAQComputer: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.1);
+  DEFINE_ANL_MODULE(SendCommandToDAQComputer, 1.3);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -40,11 +42,13 @@ public:
   bool EmergencyDaqShutdown() const {
     return singleton_self()->emergencyDaqShutdownReceived_;
   }
+  uint16_t CommandRejectCount() const {
+    return singleton_self()->commandRejectCount_;
+  }
 
 private:
   SocketCommunicationManager *socketCommunicationManager_ = nullptr;
   std::string socketCommunicationManagerName_ = "SocketCommunicationManager";
-  bool failed_ = false;
   int chatter_ = 0;
   DistributeCommand *distributeCommand_ = nullptr;
   std::string distributeCommandName_ = "DistributeCommand";
@@ -60,8 +64,12 @@ private:
   std::shared_ptr<CommunicationFormat> currentCommand_ = nullptr;
   std::shared_ptr<CommunicationFormat> commandAck_ = nullptr;
 
+  uint16_t commandRejectCount_ = 0;
+
   bool emergencyDaqShutdownReceived_ = false;
   bool makeDAQEmergencyShutdownCommand();
+  void performDAQEmergencyShutdown();
+  void sendHeartbeatIfNeeded();
 };
 } // namespace gramsballoon::pgrams
 #endif //GRAMSBalloon_SendCommandToDAQComputer_hh

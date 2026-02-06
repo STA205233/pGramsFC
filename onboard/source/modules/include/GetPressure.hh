@@ -22,14 +22,15 @@ public:
   const std::vector<float> &Pressure() const { return singleton_self()->pressure_; }
 
 private:
-  static constexpr int MAX_PRESSURE_NUM = 3;
+  static constexpr int MAX_PRESSURE_NUM = 5;
   EncodedSerialCommunicator *encodedSerialCommunicator_ = nullptr;
   std::string encodedSerialCommunicatorName_ = "EncodedSerialCommunicator";
   std::vector<float> pressure_;
   SendTelemetry *sendTelemetry_ = nullptr;
   int channel_ = 0;
-  int sleepForMsec_ = 500;
+  int sleepForUsec_ = 500;
   std::vector<std::string> commands_;
+  int numSentCommandPerTrial_ = 5;
   int num_trials_ = 10;
   std::regex reg_;
   std::string type_ = "jp";
