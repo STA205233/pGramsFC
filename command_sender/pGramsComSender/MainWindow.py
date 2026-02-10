@@ -51,7 +51,7 @@ class MainWindow(Window):
         self.__executer = CommandExecuter(logger=logger, executable_prefix=executable_prefix)
         self.__label = None
         self.current_subsystem = "Hub"
-        self.argument_loader = ArgumentFileLoader()
+        self.argument_loader = ArgumentFileLoader(logger)
         self.__arg_mode = self.ArgumentMode.Manual
         self._create_widgets()
 

@@ -111,7 +111,7 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(ORC_Shutdown_Tpc_Daq, 0);
 
   ADD_CODE_MAP(TPC_Configure, 1);
-  add_code_map(code_map_, "TPC_Configure_File", pgrams::communication::CommunicationCodes::TPC_Configure, 90);
+  add_code_map(code_map_, "TPC_Configure_File", pgrams::communication::CommunicationCodes::TPC_Configure, 98);
   ADD_CODE_MAP(TPC_Start_Run, 0);
   ADD_CODE_MAP(TPC_Stop_Run, 0);
   ADD_CODE_MAP(TPC_Reset_Run, 0);
