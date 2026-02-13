@@ -1,0 +1,16 @@
+[Unit]
+Description = Onboard Software for pGRAMS Experiment
+After=network-online.target
+
+[Service]
+EnvironmentFile = /etc/pGRAMS/pGramsFC.env
+ExecStart = /bin/bash ${PGRAMS_SHELL_DIR}/starter.sh start
+ExecStop = /bin/bash ${PGRAMS_SHELL_DIR}/starter.sh stop
+Restart = no
+Type = simple
+StandardOutput=journal
+StandardError=journal
+TimeoutStopSec=10
+
+[Install]
+WantedBy = multi-user.target
