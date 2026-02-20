@@ -183,14 +183,14 @@ public:
 
   inline void setPduVolSiPM(const std::array<uint16_t, NUM_PDU_SIPM> &v) { pduVolSiPM_ = v; }
   inline const std::array<uint16_t, NUM_PDU_SIPM> &PduVolSiPM() const { return pduVolSiPM_; }
-  inline void setPduVolSiPM(size_t idx, uint16_t v) {
+  inline void setPduVolSiPM(int idx, uint16_t v) {
     if (idx >= NUM_PDU_SIPM) {
       std::cerr << "setPduVolSiPM: index out of range: " << idx << std::endl;
       return;
     }
     pduVolSiPM_[idx] = v;
   }
-  inline uint16_t PduVolSiPM(size_t idx) const {
+  inline uint16_t PduVolSiPM(int idx) const {
     if (idx >= NUM_PDU_SIPM) {
       std::cerr << "PduVolSiPM: index out of range: " << idx << std::endl;
       return 0;
@@ -200,14 +200,14 @@ public:
 
   inline void setPduCurSiPM(const std::array<uint16_t, NUM_PDU_SIPM> &v) { pduCurSiPM_ = v; }
   inline const std::array<uint16_t, NUM_PDU_SIPM> &PduCurSiPM() const { return pduCurSiPM_; }
-  inline void setPduCurSiPM(size_t idx, uint16_t v) {
+  inline void setPduCurSiPM(int idx, uint16_t v) {
     if (idx >= NUM_PDU_SIPM) {
       std::cerr << "setPduCurSiPM: index out of range: " << idx << std::endl;
       return;
     }
     pduCurSiPM_[idx] = v;
   }
-  inline uint16_t PduCurSiPM(size_t idx) const {
+  inline uint16_t PduCurSiPM(int idx) const {
     if (idx >= NUM_PDU_SIPM) {
       std::cerr << "PduCurSiPM: index out of range: " << idx << std::endl;
       return 0;
@@ -220,14 +220,14 @@ public:
 
   inline void setPduHVTemp(const std::array<uint16_t, NUM_PDU_HV_TEMP> &v) { pduHVTemp_ = v; }
   inline const std::array<uint16_t, NUM_PDU_HV_TEMP> &PduHVTemp() const { return pduHVTemp_; }
-  inline void setPduHVTemp(size_t idx, uint16_t v) {
+  inline void setPduHVTemp(int idx, uint16_t v) {
     if (idx >= NUM_PDU_HV_TEMP) {
       std::cerr << "setPduHVTemp: index out of range: " << idx << std::endl;
       return;
     }
     pduHVTemp_[idx] = v;
   }
-  inline uint16_t PduHVTemp(size_t idx) const {
+  inline uint16_t PduHVTemp(int idx) const {
     if (idx >= NUM_PDU_HV_TEMP) {
       std::cerr << "PduHVTemp: index out of range: " << idx << std::endl;
       return 0;
@@ -270,14 +270,14 @@ public:
 
   inline void setPduToFTelemetry(const std::array<uint16_t, 6> &v) { pduToFTelemetry_ = v; }
   inline const std::array<uint16_t, 6> &PduToFTelemetry() const { return pduToFTelemetry_; }
-  inline void setPduToFTelemetry(size_t idx, uint16_t v) {
+  inline void setPduToFTelemetry(int idx, uint16_t v) {
     if (idx >= 6) {
       std::cerr << "setPduToFTelemetry: index out of range: " << idx << std::endl;
       return;
     }
     pduToFTelemetry_[idx] = v;
   }
-  inline uint16_t PduToFTelemetry(size_t idx) const {
+  inline uint16_t PduToFTelemetry(int idx) const {
     if (idx >= 6) {
       std::cerr << "PduToFTelemetry: index out of range: " << idx << std::endl;
       return 0;
@@ -323,14 +323,14 @@ public:
 
   inline void setPduWarmTPCShaperPCur(const std::array<uint16_t, NUM_PDU_WARM_TPC_SHAPER> &v) { pduWarmTPCShaperPCur_ = v; }
   inline const std::array<uint16_t, NUM_PDU_WARM_TPC_SHAPER> &PduWarmTPCShaperPCur() const { return pduWarmTPCShaperPCur_; }
-  inline void setPduWarmTPCShaperPCur(size_t idx, uint16_t v) {
+  inline void setPduWarmTPCShaperPCur(int idx, uint16_t v) {
     if (idx >= NUM_PDU_WARM_TPC_SHAPER) {
       std::cerr << "setPduWarmTPCShaperPCur: index out of range: " << idx << std::endl;
       return;
     }
     pduWarmTPCShaperPCur_[idx] = v;
   }
-  inline uint16_t PduWarmTPCShaperPCur(size_t idx) const {
+  inline uint16_t PduWarmTPCShaperPCur(int idx) const {
     if (idx >= NUM_PDU_WARM_TPC_SHAPER) {
       std::cerr << "PduWarmTPCShaperPCur: index out of range: " << idx << std::endl;
       return 0;
@@ -340,14 +340,14 @@ public:
 
   inline void setPduWarmTPCShaperMCur(const std::array<uint16_t, NUM_PDU_WARM_TPC_SHAPER> &v) { pduWarmTPCShaperMCur_ = v; }
   inline const std::array<uint16_t, NUM_PDU_WARM_TPC_SHAPER> &PduWarmTPCShaperMCur() const { return pduWarmTPCShaperMCur_; }
-  inline void setPduWarmTPCShaperMCur(size_t idx, uint16_t v) {
+  inline void setPduWarmTPCShaperMCur(int idx, uint16_t v) {
     if (idx >= NUM_PDU_WARM_TPC_SHAPER) {
       std::cerr << "setPduWarmTPCShaperMCur: index out of range: " << idx << std::endl;
       return;
     }
     pduWarmTPCShaperMCur_[idx] = v;
   }
-  inline uint16_t PduWarmTPCShaperMCur(size_t idx) const {
+  inline uint16_t PduWarmTPCShaperMCur(int idx) const {
     if (idx >= NUM_PDU_WARM_TPC_SHAPER) {
       std::cerr << "PduWarmTPCShaperMCur: index out of range: " << idx << std::endl;
       return 0;
@@ -357,14 +357,14 @@ public:
 
   inline void setPduCPUCur(const std::array<uint16_t, 7> &v) { pduCPUCur_ = v; }
   inline const std::array<uint16_t, 7> &PduCPUCur() const { return pduCPUCur_; }
-  inline void setPduCPUCur(size_t idx, uint16_t v) {
+  inline void setPduCPUCur(int idx, uint16_t v) {
     if (idx >= 7) {
       std::cerr << "setPduCPUCur: index out of range: " << idx << std::endl;
       return;
     }
     pduCPUCur_[idx] = v;
   }
-  inline uint16_t PduCPUCur(size_t idx) const {
+  inline uint16_t PduCPUCur(int idx) const {
     if (idx >= 7) {
       std::cerr << "PduCPUCur: index out of range: " << idx << std::endl;
       return 0;
@@ -377,14 +377,14 @@ public:
 
   inline void setPduCPUVol(const std::array<uint16_t, 7> &v) { pduCPUVol_ = v; }
   inline const std::array<uint16_t, 7> &PduCPUVol() const { return pduCPUVol_; }
-  inline void setPduCPUVol(size_t idx, uint16_t v) {
+  inline void setPduCPUVol(int idx, uint16_t v) {
     if (idx >= 7) {
       std::cerr << "setPduCPUVol: index out of range: " << idx << std::endl;
       return;
     }
     pduCPUVol_[idx] = v;
   }
-  inline uint16_t PduCPUVol(size_t idx) const {
+  inline uint16_t PduCPUVol(int idx) const {
     if (idx >= 7) {
       std::cerr << "PduCPUVol: index out of range: " << idx << std::endl;
       return 0;

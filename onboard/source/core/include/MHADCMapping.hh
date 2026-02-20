@@ -11,7 +11,7 @@ public:
   virtual ~MHADCMapping() = default;
 
 protected:
-  bool getSetter(int index, HubHKSetterResult &setter);
+  bool getSetter(int index, HubHKSetterResult &setter) override;
 };
 } // namespace gramsballoon::pgrams
 #endif //GB_MHADCMapping_hh
