@@ -19,17 +19,19 @@ public:
   BayCatSPIIO();
   virtual ~BayCatSPIIO() = default;
   BayCatSPIIO(const BayCatSPIIO &) = delete;
+  virtual int MaximumCh() { return 24; } // TODO: Set actual value
 
 private:
   std::map<int, unsigned int> baudrateList_;
+
 public:
   int updateSetting() override;
   void setBaudrate(unsigned int baudrate) override;
   int Open(int channel) override;
   int Close() override;
-  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
-  int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/) override;
-  int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
+  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize, bool csControl) override;
+  int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/, bool csControl) override;
+  int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int controlGPIO(int cs, bool value);
   int WriteFPGARegister(unsigned long reg, unsigned char data);
   int WriteFPGARegisterOneChannel(unsigned long reg, int gpioId, bool data);

@@ -26,16 +26,24 @@ ANLStatus SPIManager::mod_define() {
   return AS_OK;
 }
 ANLStatus SPIManager::mod_pre_initialize() {
+  std::shared_ptr<SPIInterface> base_interface = nullptr;
+  interface_ = std::make_shared<SPIInterfaceMultiplexer>();
   if (spiControlType_ == "baycat") {
-    interface_ = std::make_shared<SPIInterfaceMultiplexer<BayCatSPIIO>>();
+#ifdef USE_BAYCAT_SPI
+    base_interface = std::make_shared<BayCatSPIIO>();
+#else
+    std::cerr << "BayCat SPI control type is not supported in this build." << std::endl;
+    return AS_ERROR;
+#endif
   }
   else if (spiControlType_ == "ft232h") {
-    interface_ = std::make_shared<SPIInterfaceMultiplexer<FT232HIO>>();
+    base_interface = std::make_shared<FT232HIO>();
   }
   else {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
     return AS_ERROR;
   }
+  interface_->setBaseInterface(std::move(base_interface));
   return AS_OK;
 }
 ANLStatus SPIManager::mod_initialize() {

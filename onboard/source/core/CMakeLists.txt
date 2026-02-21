@@ -30,9 +30,12 @@ set(GB_CORE_CLASSES
 
 if(GB_USE_SPI)
   set(GB_SPI_CORE_CLASSES
+    src/SPIInterfaceMultiplexer.cc
     src/MAX31865IO.cc
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
+    src/VCSMapping.cc
+    src/PDUTelemetryCS.cc
   )
   if (GB_USE_BAYCAT_SPI)
     list(APPEND GB_SPI_CORE_CLASSES

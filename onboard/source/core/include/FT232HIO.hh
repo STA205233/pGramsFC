@@ -10,9 +10,10 @@ private:
 public:
   FT232HIO();
   virtual ~FT232HIO() = default;
+  virtual int MaximumCh() override { return 8; } // TODO: Set actual value
 
 protected:
-  FT232HIO(const SPIInterface &) = delete;
+  FT232HIO(const FT232HIO &) = delete;
 
 public:
   struct config {
@@ -29,11 +30,12 @@ public:
     if (mpsseController_) {
       return mpsseController_->close();
     }
+    setIsOpen(false);
     return 0;
   }
-  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
-  int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) override;
-  int Write(int cs, const uint8_t *writeBuffer, unsigned int size) override;
+  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize, bool csControl) override;
+  int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) override;
+  int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int controlGPIO(int cs, bool value) override;
   int updateSetting() override;
 

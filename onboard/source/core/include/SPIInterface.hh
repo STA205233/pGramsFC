@@ -33,10 +33,11 @@ public:
   unsigned int ConfigOptions() const { return configOptions_; }
   virtual int Open(int) { return -1; }
   virtual int Close() { return -1; }
-  virtual int WriteThenRead(int, const uint8_t *, int, uint8_t *, int) { return -1; }
-  virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *) { return -1; }
-  virtual int Write(int, const uint8_t *, unsigned int) { return -1; }
+  virtual int WriteThenRead(int, const uint8_t *, int, uint8_t *, int, bool = true) { return -1; }
+  virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *, bool = true) { return -1; }
+  virtual int Write(int, const uint8_t *, unsigned int, bool = true) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
+  virtual int MaximumCh() { return 0; }
 
 private:
   unsigned int baudrate_ = 1000000;

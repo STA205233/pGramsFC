@@ -37,10 +37,10 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  SPIInterface *Interface() { return (singleton_self()->interface_).get(); }
+  SPIInterfaceMultiplexer *Interface() { return singleton_self()->interface_.get(); }
 
 private:
-  std::shared_ptr<SPIInterface> interface_ = nullptr;
+  std::shared_ptr<SPIInterfaceMultiplexer> interface_ = nullptr;
   std::string spiControlType_ = "baycat"; // "baycat" or "ft232h"
   int channel_ = 0;
   int baudrate_ = 100000;

@@ -29,7 +29,7 @@ public:
   int applySetting();
   float getCurrentVoltage() const;
   float convertVoltage(uint16_t value) const;
-  void setSPIInterface(std::shared_ptr<SPIInterface> spiInterface) { spiInterface_ = spiInterface; }
+  void setSPIInterface(SPIInterface *spiInterface) { spiInterface_ = spiInterface; }
   void setCS(int cs) { cs_ = cs; }
   int getCS() const { return cs_; }
 
@@ -41,7 +41,7 @@ private:
   static constexpr uint16_t MODE_MASK = MODE_MASK_IN_UPPER_BYTE << 4;
   static constexpr uint16_t DATABIT_MASK = (static_cast<uint16_t>(DATABIT_MASK_IN_UPPER_BYTE) << 8) | static_cast<uint16_t>(DATABIT_MASK_IN_LOWER_BYTE);
   int cs_ = 0; // Chip Select
-  std::shared_ptr<SPIInterface> spiInterface_ = nullptr;
+  SPIInterface *spiInterface_ = nullptr;
   uint8_t settingData_[2] = {0, 0}; // 16 bits
   uint8_t extractOperationModeBit() {
     return (settingData_[0] >> 4) & MODE_MASK_IN_UPPER_BYTE;
