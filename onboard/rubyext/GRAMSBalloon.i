@@ -13,6 +13,8 @@
 #endif
 #ifdef USE_SPI
 #include "SPIManager.hh"
+#include "GetPDUInfo.hh"
+#include "ControlPDU.hh"
 #endif
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
@@ -71,6 +73,16 @@ class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
+};
+class GetPDUInfo : public anlnext::BasicModule
+{
+public:
+  GetPDUInfo();
+};
+class ControlPDU : public anlnext::BasicModule
+{
+public:
+  ControlPDU();
 };
 #endif
 

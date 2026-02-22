@@ -141,9 +141,9 @@ if(GB_USE_SPI)
   find_library(VERSALOGIC_LIB
     NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
     PATHS /usr/local/lib)
-  add_compile_definitions("USE_BAYCAT_SPI")
-  message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
-  message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+    add_compile_definitions("USE_BAYCAT_SPI")
+    message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+    message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
   endif(GB_USE_BAYCAT_SPI)
 endif(GB_USE_SPI)
 

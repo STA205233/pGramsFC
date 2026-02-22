@@ -16,18 +16,18 @@ public:
     setType(Subsystem::HUB);
   }
   virtual ~HubHKTelemetry() = default;
-  static constexpr size_t NUM_TOF_BIAS = 130;
-  static constexpr size_t NUM_RTD_IN_CHAMBER = 7;
-  static constexpr size_t NUM_PDU_HV_TEMP = 2;
-  static constexpr size_t NUM_PDU_SIPM = 6;
-  static constexpr size_t ARGC = 616 / 4;
-  static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
-  static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
-  static constexpr size_t NUM_RTD_GONDOLA = 4;
-  static constexpr size_t NUM_RTD_SHAPER_BOARD = 6;
-  static constexpr size_t NUM_PDU_CPU = 7;
-  static constexpr size_t NUM_PDU_TOF_TELEMETRY = 6;
-  static constexpr size_t NUM_SPARE = 11;
+  static constexpr int NUM_TOF_BIAS = 130;
+  static constexpr int NUM_RTD_IN_CHAMBER = 7;
+  static constexpr int NUM_PDU_HV_TEMP = 2;
+  static constexpr int NUM_PDU_SIPM = 6;
+  static constexpr int ARGC = 616 / 4;
+  static constexpr int NUM_PDU_WARM_TPC_SHAPER = 6;
+  static constexpr int NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
+  static constexpr int NUM_RTD_GONDOLA = 4;
+  static constexpr int NUM_RTD_SHAPER_BOARD = 6;
+  static constexpr int NUM_PDU_CPU = 7;
+  static constexpr int NUM_PDU_TOF_TELEMETRY = 6;
+  static constexpr int NUM_SPARE = 11;
 
 public:
   void serialize(DBFieldSink *sink) const override;

@@ -28,13 +28,13 @@ protected:
   SPIInterfaceMultiplexer(const SPIInterfaceMultiplexer &) = delete;
 
 private:
-  std::shared_ptr<VCSMapping> csMapping_ = nullptr;
+  std::unique_ptr<VCSMapping> csMapping_ = nullptr;
   std::shared_ptr<SPIInterface> baseInterface_ = nullptr;
 
 public:
   void setBaseInterface(std::shared_ptr<SPIInterface> &&baseInterface) { baseInterface_ = baseInterface; }
 
-  void setMappingChipSelect(std::shared_ptr<VCSMapping> &mapping) { csMapping_ = mapping; }
+  void setMappingChipSelect(std::unique_ptr<VCSMapping> &&mapping) { csMapping_ = std::move(mapping); }
   std::optional<uint32_t> getMappingChipSelect(int multiplexerChannel) const;
 
   int controlGPIO(int cs, bool value) override;

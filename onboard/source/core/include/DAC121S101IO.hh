@@ -21,7 +21,7 @@ enum class DAC121S101Mode : uint8_t {
 };
 class DAC121S101IO {
 public:
-  DAC121S101IO(double supply_voltage_in_V) : supplyVoltageInV_(supply_voltage_in_V) {}
+  DAC121S101IO(double supply_voltage_in_V = 3.3) : supplyVoltageInV_(supply_voltage_in_V) {}
   virtual ~DAC121S101IO() = default;
 
   void setVoltage(float voltage);
@@ -30,6 +30,7 @@ public:
   float getCurrentVoltage() const;
   float convertVoltage(uint16_t value) const;
   void setSPIInterface(SPIInterface *spiInterface) { spiInterface_ = spiInterface; }
+  bool isSPIInterfaceSet() const { return spiInterface_ != nullptr; }
   void setCS(int cs) { cs_ = cs; }
   int getCS() const { return cs_; }
 

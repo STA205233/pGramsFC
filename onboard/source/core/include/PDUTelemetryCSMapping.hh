@@ -11,8 +11,10 @@ namespace gramsballoon::pgrams {
  */
 class PDUTelemetryCSMapping: public VCSMapping {
 public:
-  PDUTelemetryCSMapping() = default;
-  ~PDUTelemetryCSMapping() = default;
+  PDUTelemetryCSMapping() : VCSMapping() {
+    registerMapping();
+  }
+  virtual ~PDUTelemetryCSMapping() = default;
 
 protected:
   void registerMapping() override;

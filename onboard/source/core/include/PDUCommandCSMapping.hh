@@ -10,8 +10,10 @@ namespace gramsballoon::pgrams {
  */
 class PDUCommandCSMapping: public VCSMapping {
 public:
-  PDUCommandCSMapping() = default;
-  ~PDUCommandCSMapping() = default;
+  PDUCommandCSMapping() : VCSMapping() {
+    registerMapping();
+  }
+  virtual ~PDUCommandCSMapping() = default;
 
 protected:
   void registerMapping() override;

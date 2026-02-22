@@ -35,7 +35,8 @@ if(GB_USE_SPI)
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
     src/VCSMapping.cc
-    src/PDUTelemetryCS.cc
+    src/PDUTelemetryCSMapping.cc
+    src/PDUCommandCSMapping.cc
   )
   if (GB_USE_BAYCAT_SPI)
     list(APPEND GB_SPI_CORE_CLASSES

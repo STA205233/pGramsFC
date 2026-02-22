@@ -11,7 +11,7 @@ namespace gramsballoon::pgrams {
 class PDUMapping: public VHKTelemetryMapping {
 public:
   PDUMapping() = default;
-  ~PDUMapping() = default;
+  virtual ~PDUMapping() = default;
 
 protected:
   bool getSetter(int index, HubHKSetterResult &setter) override;

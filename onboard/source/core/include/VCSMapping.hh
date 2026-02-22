@@ -13,9 +13,10 @@ namespace gramsballoon::pgrams {
 class VCSMapping {
 public:
   VCSMapping() = default;
-  ~VCSMapping() = default;
+  virtual ~VCSMapping() = default;
   std::optional<uint32_t> getChipSelect(int multiplexerChannel) const;
   void setChipSelect(int multiplexerChannel, uint32_t chipSelect);
+  int MaximumCh() const { return static_cast<int>(csMapping_.size()); }
 
 protected:
   virtual void registerMapping() = 0;

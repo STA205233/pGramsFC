@@ -6,22 +6,27 @@
 namespace gramsballoon::pgrams {
 class ADC128S102IO {
 public:
-  ADC128S102IO(float supply_voltage_in_V) : LSB_(supply_voltage_in_V / 4096), halfLSB_(LSB_ * 0.5) {}
+  ADC128S102IO(float supply_voltage_in_V = 3.3) : LSB_(supply_voltage_in_V / 4096), halfLSB_(LSB_ * 0.5) {}
   virtual ~ADC128S102IO() = default;
+  static constexpr int MaxChannelsPerADC() { return 8; }
 
 private:
-  std::shared_ptr<SPIInterface> spiInterface_ = nullptr;
+  SPIInterface *spiInterface_ = nullptr;
   int cs_ = 0;
   float LSB_ = 3.3 / 4096;
   float halfLSB_ = LSB_ * 0.5;
   uint8_t readBuffer_[2] = {0, 0};
   uint8_t writeBuffer_[2] = {0, 0};
+  int errorCode_ = 0;
 
 public:
   float convertVoltage(uint16_t value);
   float getCurrentVoltage(int ch);
   float convertVoltage(uint16_t value) const;
-  void setSPIInterface(std::shared_ptr<SPIInterface> spiInterface) { spiInterface_ = spiInterface; }
+  int getErrorCode() const { return errorCode_; }
+  bool isError() const { return errorCode_ != 0; }
+  void setSPIInterface(SPIInterface *spiInterface) { spiInterface_ = spiInterface; }
+  bool isSPIInterfaceSet() const { return spiInterface_ != nullptr; }
   void setCS(int cs) { cs_ = cs; }
   int getCS() const { return cs_; }
 };
