@@ -1,0 +1,9 @@
+export ANLNEXT_INSTALL="/home/user"
+export RUBYLIB=${ANLNEXT_INSTALL}/lib/ruby:${RUBYLIB}
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib/"
+export LD_LIBRARY_PATH=${ANLNEXT_INSTALL}/lib:${LD_LIBRARY_PATH}
+
+export PGRAMS_MOSQUITTO_HOST="localhost"
+export PGRAMS_MOSQUITTO_USER="user"
+export PGRAMS_MOSQUITTO_PASSWD="password"
+export PGRAMS_MOSQUITTO_PORT="1883"
