@@ -1,6 +1,6 @@
 #ifndef GB_MosquittoIO_hh
 #define GB_MosquittoIO_hh 1
-#include "mosquitto/libmosquittopp.h"
+#include "mosquittopp.h"
 #include <cstring>
 #include <deque>
 #include <iostream>

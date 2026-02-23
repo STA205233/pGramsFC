@@ -219,7 +219,7 @@ void SendTelemetry::setHKTelemetry() {
   }
   {
     if (getMhadcData_ == nullptr) {
-      std::cerr << "SendTelemetry::setHKTelemetry: getMhadcData_ is nullptr" << std::endl;
+      ;
     }
     else {
       const int num_ch = getMhadcData_->NumCH();

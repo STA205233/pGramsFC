@@ -10,7 +10,7 @@ start() {
   exec 3<> "$FIFO"
 
   id=`date "+%Y%m%d%H%M%S"`
-  exec ./neu_test_20260128.rb <&3
+  exec ./neu_test_20260223.rb <&3
   end_status=$?
 }
 
