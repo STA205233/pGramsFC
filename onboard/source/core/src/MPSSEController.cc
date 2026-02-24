@@ -76,6 +76,13 @@ int MPSSEController::setSPIMode(int mode, bool byteMode, bool msbFirst) {
 }
 
 int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
+#ifdef SPI_DEBUG
+  std::cout << __func__ << " is called with arguments ";
+  for (unsigned int i = 0; i < size; i++) {
+    std::cout << std::hex << static_cast<int>(data[i]) << " " << std::dec;
+  }
+  std::cout << std::endl;
+#endif
   uint16_t status;
   readCurrentPinStatus(status);
   status &= ~(1 << (cs + 3)); // Keep high byte
@@ -98,6 +105,13 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
 }
 
 int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8_t *dataToReceive, int cs) {
+#ifdef SPI_DEBUG
+  std::cout << __func__ << " is called with arguments ";
+  for (unsigned int i = 0; i < size; i++) {
+    std::cout << std::hex << static_cast<int>(dataToSend[i]) << " " << std::dec;
+  }
+  std::cout << std::endl;
+#endif
   uint16_t status;
   readCurrentPinStatus(status);
   status &= ~(1 << (cs + 3)); // Keep high byte
