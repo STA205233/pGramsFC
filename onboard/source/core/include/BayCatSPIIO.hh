@@ -29,7 +29,7 @@ public:
   void setBaudrate(unsigned int baudrate) override;
   int Open(int channel) override;
   int Close() override;
-  int WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize, bool csControl) override;
+  int WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) override;
   int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/, bool csControl) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int controlGPIO(int cs, bool value);

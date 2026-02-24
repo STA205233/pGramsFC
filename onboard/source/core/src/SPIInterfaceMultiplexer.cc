@@ -20,7 +20,7 @@ int SPIInterfaceMultiplexer::Write(int cs, const uint8_t *writeBuffer, unsigned 
 }
 
 int SPIInterfaceMultiplexer::WriteThenRead(
-    int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize, bool csControl) {
+    int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) {
   return executeFunction(cs, csControl, [&](int mappedCs) {
     return baseInterface_ ? baseInterface_->WriteThenRead(mappedCs, writeBuffer, wsize, readBuffer, rsize, false) : -1;
   });
