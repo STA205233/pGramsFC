@@ -99,9 +99,13 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
   status |= (1 << (cs + 3)); // Keep high byte
   cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
-  writeMPSSE(cmdBuffer_);
+  const int status = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
-  return 0;
+  if (status < 0) {
+    std::cerr << "SPI_Write is failed: " << status << std::endl;
+    return status;
+  }
+  return static_cast<int>(size);
 }
 
 int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8_t *dataToReceive, int cs) {
@@ -130,8 +134,12 @@ int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8
   cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(commands::SEND_IMMEDIATE_CMD);
-  writeMPSSE(cmdBuffer_);
+  const int status = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
+  if (status < 0) {
+    std::cerr << "SPI_Write_Read is failed: " << status << std::endl;
+    return status;
+  }
   return readMPSSE(dataToReceive, size);
 }
 
