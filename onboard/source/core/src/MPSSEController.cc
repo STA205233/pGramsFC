@@ -162,7 +162,7 @@ int MPSSEController::writeGPIO(int pin, bool value) {
 }
 
 int MPSSEController::readCurrentPinStatus(uint16_t &status) {
-  uint8_t cmd[2] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD}; // Command to read low byte
+  uint8_t cmd[3] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD, commands::SEND_IMMEDIATE_CMD}; // Command to read low byte
   writeMPSSE(cmd, sizeof(cmd));
   uint8_t readData[2] = {0, 0};
   readMPSSE(readData, sizeof(readData));
@@ -193,17 +193,22 @@ int MPSSEController::readMPSSE(std::vector<uint8_t> &data, unsigned int size) {
   return readMPSSE(data.data(), size);
 }
 int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
-  DWORD numRead = 0;
-  for (int i = 0; i < 100; i++) {
-    DWORD numReadAtOnce = 0;
-    HANDLE_ERROR(FT_Read(handle_, data, static_cast<DWORD>(size), &numReadAtOnce));
-    numRead += numReadAtOnce;
-    if (numRead == size) {
-      break;
+  DWORD total = 0;
+
+  for (int i = 0; i < 100 && total < size; i++) {
+    DWORD n = 0;
+    DWORD remain = static_cast<DWORD>(size - total);
+
+    HANDLE_ERROR(FT_Read(handle_, data + total, remain, &n));
+    total += n;
+
+    if (total < size) {
+      // tight loop を避ける（timeout 0ms だと延々0バイトになりやすい）
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::cout << numRead << std::endl;
   }
-  if (numRead != static_cast<DWORD>(size)) {
+
+  if (total != static_cast<DWORD>(size)) {
     std::cerr << "MPSSEController::readMPSSE: Not all bytes were read" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
   }
@@ -214,7 +219,7 @@ int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
   }
   std::cout << std::endl;
 #endif
-  return static_cast<int>(numRead);
+  return static_cast<int>(total);
 }
 int MPSSEController::testConnection() {
   // Test 1

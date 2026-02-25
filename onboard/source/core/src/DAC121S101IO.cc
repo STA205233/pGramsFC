@@ -2,7 +2,7 @@
 namespace gramsballoon::pgrams {
 void DAC121S101IO::setVoltage(float voltage) {
   // Convert voltage to 12-bit data
-  uint16_t data = static_cast<uint16_t>((voltage / supplyVoltageInV_ * 4096) * DATABIT_MASK);
+  uint16_t data = static_cast<uint16_t>((voltage / supplyVoltageInV_ * 4096) / DATABIT_MASK);
   settingData_[1] = (settingData_[1] & ~DATABIT_MASK_IN_LOWER_BYTE) | (data & DATABIT_MASK);
   settingData_[0] = (settingData_[0] & ~DATABIT_MASK_IN_UPPER_BYTE) | ((data & DATABIT_MASK) >> 8);
 }
