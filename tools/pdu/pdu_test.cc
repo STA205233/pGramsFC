@@ -16,11 +16,11 @@ int main(int argc, char *argv[]) {
   std::string interfaceType = argv[1];
   if (interfaceType == "Baycat") {
     std::cout << "Using BayCatSPIIO interface" << std::endl;
-    spiInterface = std::make_shared<BayCatSPIIO>();
+    spiInterface = std::make_unique<BayCatSPIIO>();
   }
   else if (interfaceType == "FT232H") {
     std::cout << "Using FT232HIO interface" << std::endl;
-    spiInterface = std::make_shared<FT232HIO>();
+    spiInterface = std::make_unique<FT232HIO>();
   }
   else {
     std::cerr << "Invalid interface type: " << interfaceType << ". Use 'FT232H' or 'Baycat'." << std::endl;
@@ -28,19 +28,21 @@ int main(int argc, char *argv[]) {
   }
   dac.setSPIInterface(spiInterface.get());
   dac.setCS(0);
+  spiInterface->Open(0);
   spiInterface->setBaudrate(1000000);
-  spiInterface->setConfigOptions(FT232HIO::config::SPI_MODE0);
+  spiInterface->setConfigOptions(FT232HIO::config::SPI_MODE2);
   spiInterface->updateSetting();
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
   dac.setVoltage(1.0f);
-  const auto applyStatus = dac.applySetting();
-  if (applyStatus != 0) {
-    std::cerr << "Failed to apply DAC setting. Status: " << applyStatus << std::endl;
-    return applyStatus;
-  }
+  std::this_thread::sleep_for(std::chrono::seconds(5));
+  //const auto applyStatus = dac.applySetting();
+  //if (applyStatus != 0) {
+  //  std::cerr << "Failed to apply DAC setting. Status: " << applyStatus << std::endl;
+  //  return applyStatus;
+  //}
   std::cout << "Current Voltage: " << dac.getCurrentVoltage() << " V" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setVoltage(0.0f);
   const auto resetStatus = dac.applySetting();
   if (resetStatus != 0) {

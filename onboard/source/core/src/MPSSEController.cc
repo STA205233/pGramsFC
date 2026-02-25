@@ -45,6 +45,7 @@ int MPSSEController::applySettings() {
   HANDLE_ERROR(FT_SetTimeouts(handle_, readTimeout_, writeTimeout_));
   DBG("readTimeout is set to " << readTimeout_);
   DBG("writeTimeout is set to " << writeTimeout_);
+  FT_Purge(handle_, FT_PURGE_RX | FT_PURGE_TX);
   setSPIMode(spiMode_);
   return 0;
 }
@@ -92,6 +93,7 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(spiWriteCommand_);
   cmdBuffer_.push_back(static_cast<uint8_t>((size - 1) & 0xFF)); // Length LSB
+  cmdBuffer_.push_back(static_cast<uint8_t>(((size - 1) >> 8) & 0xFF)); // Length MSB
   for (unsigned int i = 0; i < size; ++i) {
     cmdBuffer_.push_back(data[i]);
   }
@@ -235,7 +237,7 @@ int MPSSEController::testConnection() {
     std::cerr << "MPSSEController::testConnection: Read failed" << std::endl;
     return read_status;
   }
-  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID && readData[1] != commands::MPSSE_TEST_CMD1) {
+  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID || readData[1] != commands::MPSSE_TEST_CMD1) {
     std::cerr << "MPSSEController::testConnection: Data mismatch. Sent 0xAA, received 0x" << std::hex << static_cast<int>(readData[0]) << std::dec << std::endl;
     return -1;
   }
@@ -254,7 +256,7 @@ int MPSSEController::testConnection() {
     std::cerr << "MPSSEController::testConnection: Read failed" << std::endl;
     return read_status2;
   }
-  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID && readData[1] != commands::MPSSE_TEST_CMD2) {
+  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID || readData[1] != commands::MPSSE_TEST_CMD2) {
     std::cerr << "MPSSEController::testConnection: Data mismatch. Sent 0xAB, received 0x" << std::hex << static_cast<int>(readData[0]) << std::dec << std::endl;
     return -1;
   }
