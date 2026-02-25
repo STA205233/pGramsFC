@@ -11,8 +11,6 @@ void DAC121S101IO::setOperationMode(DAC121S101Mode mode) {
 }
 int DAC121S101IO::applySetting() {
   if (spiInterface_) {
-    settingData_[1] = 0x0F;
-    settingData_[0] = 0xFF;// this is for test
     const int status = spiInterface_->Write(cs_, settingData_, sizeof(settingData_));
     if (status < 0) {
       std::cerr << "DAC1215101IO::applySetting: Cannot write register. Code " << status << std::endl;
