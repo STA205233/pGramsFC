@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <memory_resource>
+#include <stdexcept>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -72,6 +73,7 @@ private:
   bool connected_ = false;
   std::unique_ptr<std::pmr::synchronized_pool_resource> memResource_ = nullptr;
   std::unique_ptr<std::pmr::polymorphic_allocator<mqtt::mosquitto_message<V>>> allocatorMosq_ = nullptr;
+  std::shared_ptr<mqtt::mosquitto_message<V>> allocateMessage();
 };
 template <typename V>
 int MosquittoIO<V>::Publish(const V &message, const std::string &topic, int qos) {
@@ -169,7 +171,11 @@ void MosquittoIO<V>::on_message(const mosquitto_message *message) {
     }
     return;
   }
-  auto m_sptr = std::allocate_shared<mqtt::mosquitto_message<V>>(*allocatorMosq_);
+  auto m_sptr = allocateMessage();
+  if (!m_sptr) {
+    std::cerr << "Failed to allocate message. Message will be dropped." << std::endl;
+    return;
+  }
   m_sptr->mid = message->mid;
   m_sptr->qos = message->qos;
   m_sptr->retain = message->retain;
@@ -210,6 +216,24 @@ int MosquittoIO<V>::HandleError(int error_code) {
     std::cerr << "Error in Mosquitto!: " << mosqpp::strerror(error_code) << std::endl;
   }
   return error_code;
+}
+
+template <typename V>
+inline std::shared_ptr<mqtt::mosquitto_message<V>> MosquittoIO<V>::allocateMessage() {
+  try {
+    std::shared_ptr<mqtt::mosquitto_message<V>> m_sptr = std::allocate_shared<mqtt::mosquitto_message<V>>(*allocatorMosq_);
+    return m_sptr;
+  }
+  catch (const std::exception &e) {
+    std::cerr << "Error in allocating shared_ptr<mqtt::mosquitto_message>: " << e.what() << std::endl;
+    ClearPayload();
+    return nullptr;
+  }
+  catch (...) {
+    std::cerr << "Error in allocating shared_ptr<mqtt::mosquitto_message>: unknown error" << std::endl;
+    ClearPayload();
+    return nullptr;
+  }
 }
 } // namespace gramsballoon::pgrams
 

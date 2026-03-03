@@ -87,7 +87,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
     return -1;
   }
 
-  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_, true) > 0) {}
+  while (singleton_self()->socketCommunication_->receive(singleton_self()->ackBuffer_) > 0) {}
   singleton_self()->ackBuffer_.clear();
 
   const int send_result = singleton_self()->socketCommunication_->send(buf, n);
