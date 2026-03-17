@@ -65,21 +65,13 @@ ANLStatus MosquittoManager<T>::mod_begin_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  for (int i = 0; i < 5; i++) {
-    HandleError(mosquittoIO_->loop(timeout_, 10));
-  }
+  HandleError(mosquittoIO_->loop_start());
   return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
-  }
-  for (int i = 0; i < 10; i++) {
-    const auto result = mosquittoIO_->loop(timeout_, 10);
-    if (result != 0) {
-      return HandleError(mosquittoIO_->Reconnect());
-    }
   }
   return AS_OK;
 }
@@ -88,7 +80,7 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  return HandleError(mosquittoIO_->loop(-1, 10));
+  return HandleError(mosquittoIO_->loop_stop());
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_finalize() {

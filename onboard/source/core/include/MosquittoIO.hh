@@ -57,13 +57,45 @@ public:
   void on_publish(int mid) override;
   void on_message(const struct mosquitto_message *message) override;
   void on_subscribe(int mid, int qos_count, const int *granted_qos) override;
-  const std::deque<std::shared_ptr<mqtt::mosquitto_message<V>>> &getPayload() const { return payLoad_; }
-  void popPayloadFront() { payLoad_.pop_front(); }
+
+  void popPayloadFront() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    payLoad_.pop_front();
+  }
+  std::shared_ptr<mqtt::mosquitto_message<V>> getFrontPayload() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    return payLoad_.front();
+  }
+  bool isPayloadEmpty() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    return payLoad_.empty();
+  }
+  size_t getPayloadSize() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    return payLoad_.size();
+  }
+  void ClearPayload() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    payLoad_.clear();
+  }
+  std::string getFrontTopic() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    if (payLoad_.empty()) {
+      return "";
+    }
+    else {
+      return payLoad_.front()->topic;
+    }
+  }
+  void pushBackPayLoad(std::shared_ptr<mqtt::mosquitto_message<V>> &message) {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    payLoad_.push_back(message);
+  }
+
   std::string getHost() const { return host_; }
   int getPort() const { return port_; }
   static int HandleError(int error_code);
   void setVerbose(int verbose) { verbose_ = verbose; }
-  void ClearPayload() { payLoad_.clear(); }
 
 private:
   using mosqpp::mosquittopp::connect;
@@ -80,6 +112,7 @@ private:
   std::unique_ptr<std::pmr::synchronized_pool_resource> memResource_ = nullptr;
   std::unique_ptr<std::pmr::polymorphic_allocator<mqtt::mosquitto_message<V>>> allocatorMosq_ = nullptr;
   std::shared_ptr<mqtt::mosquitto_message<V>> allocateMessage();
+  std::mutex payloadMutex_;
 };
 template <typename V>
 int MosquittoIO<V>::Publish(const V &message, const std::string &topic, int qos) {
@@ -123,7 +156,7 @@ int MosquittoIO<V>::Disconnect() {
   if (ret == 0) {
     connected_ = false;
   }
-  payLoad_.clear();
+  ClearPayload();
   memResource_.reset();
   allocatorMosq_.reset();
   return ret;
