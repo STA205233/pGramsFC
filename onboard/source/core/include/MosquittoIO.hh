@@ -44,7 +44,13 @@ public:
   int Publish(const std::vector<V> &message, const std::string &topic, int qos = 0);
   int Subscribe(const std::string &topic, int qos = 0);
   int Reconnect() {
-    return reconnect();
+    const auto ret = reconnect();
+    if (ret == 0) {
+      for (const auto &topic: topicSub_) {
+        subscribe(nullptr, topic.c_str(), 0);
+      }
+    }
+    return ret;
   }
   void on_connect(int rc) override;
   void on_disconnect(int rc) override;
@@ -144,6 +150,7 @@ void MosquittoIO<V>::on_disconnect(int rc) {
   }
   else {
     std::cout << "Disconnection failed: error code " << mosqpp::strerror(rc) << std::endl;
+    Reconnect();
   }
 }
 template <typename V>
