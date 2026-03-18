@@ -44,6 +44,10 @@ ANLStatus MosquittoManager<T>::mod_pre_initialize() {
   }
   mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
   mosquittoIO_->setVerbose(chatter_);
+  if (!user_.empty()) {
+    mosquittoIO_->username_pw_set(user_.c_str(), passwd_.c_str());
+  }
+  HandleError(mosquittoIO_->Connect());
   return AS_OK;
 }
 template <typename T>
@@ -51,17 +55,9 @@ ANLStatus MosquittoManager<T>::mod_initialize() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  if (!user_.empty()) {
-    mosquittoIO_->username_pw_set(user_.c_str(), passwd_.c_str());
-  }
-  HandleError(mosquittoIO_->Connect());
+
   if (exist_module("SendTelemetry")) {
     get_module_NC("SendTelemetry", &sendTelemetry_);
-  }
-  if (doInitialize_) {
-    std::thread([this] {
-      mosquittoIO_->loop_forever();
-    }).detach();
   }
   return AS_OK;
 }
@@ -76,6 +72,9 @@ template <typename T>
 ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
+  }
+  for (int i = 0; i < 10; i++) {
+    mosquittoIO_->loop(0);
   }
   return AS_OK;
 }

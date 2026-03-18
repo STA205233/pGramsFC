@@ -218,7 +218,7 @@ void MosquittoIO<V>::on_message(const mosquitto_message *message) {
   m_sptr->payloadlen = message->payloadlen;
   V temp = *static_cast<V *>(message->payload);
   m_sptr->payload = static_cast<V>(temp);
-  payLoad_.push_back(m_sptr);
+  pushBackPayLoad(m_sptr);
   if (verbose_ < 3) {
     return;
   }
