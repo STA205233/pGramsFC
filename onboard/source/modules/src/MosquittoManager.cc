@@ -58,6 +58,11 @@ ANLStatus MosquittoManager<T>::mod_initialize() {
   if (exist_module("SendTelemetry")) {
     get_module_NC("SendTelemetry", &sendTelemetry_);
   }
+  if (doInitialize_) {
+    std::thread([this] {
+      mosquittoIO_->loop_forever();
+    }).detach();
+  }
   return AS_OK;
 }
 template <typename T>
@@ -65,7 +70,6 @@ ANLStatus MosquittoManager<T>::mod_begin_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  HandleError(mosquittoIO_->loop_start());
   return AS_OK;
 }
 template <typename T>
@@ -77,10 +81,7 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_end_run() {
-  if (!mosquittoIO_) {
-    return AS_ERROR;
-  }
-  return HandleError(mosquittoIO_->loop_stop());
+  return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_finalize() {
@@ -92,7 +93,7 @@ ANLStatus MosquittoManager<T>::mod_finalize() {
 template <typename T>
 ANLStatus MosquittoManager<T>::HandleError(int error_code) {
   if (error_code != 0) {
-    std::cerr << "Error in " << module_id() << ": Connecting MQTT failed. Error Message: " << mosqpp::strerror(error_code) << std::endl;
+    std::cerr << "Error in " << module_id() << ": Connecting MQTT failed. Error Message: " << error_code << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MQTT_COM_ERROR);
     }

@@ -43,15 +43,6 @@ public:
   int Publish(const V &message, const std::string &topic, int qos = 0);
   int Publish(const std::vector<V> &message, const std::string &topic, int qos = 0);
   int Subscribe(const std::string &topic, int qos = 0);
-  int Reconnect() {
-    const auto ret = reconnect();
-    if (ret == 0) {
-      for (const auto &topic: topicSub_) {
-        subscribe(nullptr, topic.c_str(), 0);
-      }
-    }
-    return ret;
-  }
   void on_connect(int rc) override;
   void on_disconnect(int rc) override;
   void on_publish(int mid) override;
@@ -163,6 +154,11 @@ int MosquittoIO<V>::Disconnect() {
 }
 template <typename V>
 void MosquittoIO<V>::on_connect(int rc) {
+  if (rc == 0) {
+    for (const auto &topic: topicSub_) {
+      subscribe(NULL, topic.c_str(), 0);
+    }
+  }
   if (verbose_ < 2) {
     return;
   }
@@ -170,7 +166,7 @@ void MosquittoIO<V>::on_connect(int rc) {
     std::cout << "Connected" << std::endl;
   }
   else {
-    std::cout << "Connection failed: error code" << mosqpp::strerror(rc) << std::endl;
+    std::cout << "Connection failed: reason " << rc << std::endl;
   }
 }
 template <typename V>
@@ -182,8 +178,7 @@ void MosquittoIO<V>::on_disconnect(int rc) {
     std::cout << "Disconnected" << std::endl;
   }
   else {
-    std::cout << "Disconnection failed: error code " << mosqpp::strerror(rc) << std::endl;
-    Reconnect();
+    std::cout << "Disconnection failed: reason " << rc << std::endl;
   }
 }
 template <typename V>
