@@ -33,11 +33,10 @@ private:
   const InterpretTelemetry *interpretTelemetry_ = nullptr;
   std::string interpretTelemetryName_ = "InterpretTelemetry";
   std::string mosquittoManagerName_ = "MosquittoManager";
-  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   std::string topic_ = "pgrams/telemetry";
   int qos_ = 0;
   int chatter_ = 0;
-  std::string data_;
 };
 } // namespace gramsballoon::pgrams
 #endif // GB_SendPacketByMQTT_hh
