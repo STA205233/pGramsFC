@@ -13,7 +13,7 @@ class MyApp < ANL::ANLApp
       exit 1
     end
     chain GRAMSBalloon::TelemMosquittoManager, "TelemMosquittoManager"
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 0, threaded_set: true, device_id: "Ground") do |m|
+   with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 0, threaded_set: true, device_id: "Ground") do |m|
       m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager, "GroundMosquittoManager"
@@ -27,11 +27,19 @@ class MyApp < ANL::ANLApp
       chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_#{subsystem}_Iridium"
       with_parameters(topic: @inifile[subsystem]["iridiumteltopic"], chatter: 0)
       chain GRAMSBalloon::InterpretTelemetry, "InterpretBaseTelemetry_#{subsystem}_Iridium"
-      with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}_Iridium", chatter: 1, telemetry_type: "Base")
-      chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}_Iridium"
-      with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}_Iridium", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
-      chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}"
-      with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
+      with_parameters(receiver_module_name: "ReceiveTelemetry_#{subsystem}_Iridium", chatter: 0, telemetry_type: "Base")
+      if subsystem != "TOF"
+            chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}_Iridium"
+            with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}_Iridium", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
+            chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}"
+            with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
+      elsif subsystem == "TOF"
+            chain GRAMSBalloon::SendPacketByMQTT, "SendPacketByMQTT_#{subsystem}_Iridium"
+            with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}_Iridium", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0, chatter: 1)
+            chain GRAMSBalloon::SendPacketByMQTT, "SendPacketByMQTT_#{subsystem}"
+            with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0, chatter: 1)
+      end  
+
     end
     chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_HK"
     with_parameters(topic: @inifile["Hub"]["iridiumteltopic"], chatter: 0)

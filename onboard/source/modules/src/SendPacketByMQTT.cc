@@ -40,13 +40,12 @@ ANLStatus SendPacketByMQTT::mod_analyze() {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
-  data_.clear();
-  telemetry->getContents()->CommandStr(data_);
+  const auto data = telemetry->getContents()->Command();
   auto mosquitto_io = mosquittoManager_->getMosquittoIO();
-  if (chatter_ > 3) {
-    std::cout << "Sending message to MQTT: " << data_ << std::endl;
-  }
-  const int result = mosquitto_io->Publish(data_, topic_, qos_);
+  //if (chatter_ > 3) {
+  //  std::cout << "Sending message to MQTT: " << data << std::endl;
+  //}
+  const int result = mosquitto_io->Publish(data, topic_, qos_);
   if (result != MOSQ_ERR_SUCCESS) {
     std::cerr << module_id() << "::mod_analyze: Failed to publish MQTT message: " << mosqpp::strerror(result) << std::endl;
     return AS_ERROR;

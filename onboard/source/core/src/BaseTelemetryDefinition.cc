@@ -152,6 +152,7 @@ bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
     }
     else {
       contents_->interpret();
+      contents_->update();
     }
   }
   catch (const std::exception &e) {
