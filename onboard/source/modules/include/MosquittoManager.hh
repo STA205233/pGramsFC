@@ -19,6 +19,7 @@ class SendTelemetry;
  * @date 2024-**-** Shota Arai| First implementation.
  * @date 2025-09-20 Shota Arai| Changed to template class to handle different types of telemetry. (v2.0)
  * @date 2026-02-05 Shota Arai| Added doInitialize parameter to control mosqpp::lib_init and lib_cleanup calls. (v2.1)
+ * @date 2026-02-05 Shota Arai| Multi-threading (v2.2)
 **/
 
 template <typename T>
@@ -32,7 +33,7 @@ class MosquittoManager: public anlnext::BasicModule {
     else if constexpr (std::is_same_v<TelemType, std::vector<uint8_t>>)
       return "ComMosquittoManager";
   }
-  std::string __module_version__() const override { return "2.1"; }
+  std::string __module_version__() const override { return "2.2"; }
   ENABLE_PARALLEL_RUN();
 
 public:

@@ -44,6 +44,10 @@ ANLStatus MosquittoManager<T>::mod_pre_initialize() {
   }
   mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
   mosquittoIO_->setVerbose(chatter_);
+  if (!user_.empty()) {
+    mosquittoIO_->username_pw_set(user_.c_str(), passwd_.c_str());
+  }
+  HandleError(mosquittoIO_->Connect());
   return AS_OK;
 }
 template <typename T>
@@ -51,10 +55,7 @@ ANLStatus MosquittoManager<T>::mod_initialize() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  if (!user_.empty()) {
-    mosquittoIO_->username_pw_set(user_.c_str(), passwd_.c_str());
-  }
-  HandleError(mosquittoIO_->Connect());
+
   if (exist_module("SendTelemetry")) {
     get_module_NC("SendTelemetry", &sendTelemetry_);
   }
@@ -65,9 +66,6 @@ ANLStatus MosquittoManager<T>::mod_begin_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  for (int i = 0; i < 5; i++) {
-    HandleError(mosquittoIO_->loop(timeout_, 10));
-  }
   return AS_OK;
 }
 template <typename T>
@@ -75,20 +73,18 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
   }
+  int result = 0;
   for (int i = 0; i < 10; i++) {
-    const auto result = mosquittoIO_->loop(timeout_, 10);
-    if (result != 0) {
-      return HandleError(mosquittoIO_->Reconnect());
-    }
+    result |= mosquittoIO_->loop(0);
+  }
+  if (result != 0) {
+    mosquittoIO_->Reconnect();
   }
   return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_end_run() {
-  if (!mosquittoIO_) {
-    return AS_ERROR;
-  }
-  return HandleError(mosquittoIO_->loop(-1, 10));
+  return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_finalize() {
@@ -100,7 +96,7 @@ ANLStatus MosquittoManager<T>::mod_finalize() {
 template <typename T>
 ANLStatus MosquittoManager<T>::HandleError(int error_code) {
   if (error_code != 0) {
-    std::cerr << "Error in " << module_id() << ": Connecting MQTT failed. Error Message: " << mosqpp::strerror(error_code) << std::endl;
+    std::cerr << "Error in " << module_id() << ": Connecting MQTT failed. Error Message: " << error_code << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MQTT_COM_ERROR);
     }

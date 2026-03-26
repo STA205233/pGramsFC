@@ -113,24 +113,24 @@ ANLStatus ReceiveCommand::mod_analyze() {
   if (!mosq_) {
     return AS_OK;
   }
-  auto commands = mosq_->getPayload();
-  if (commands.empty()) {
+
+  if (mosq_->isPayloadEmpty()) {
     return AS_OK;
   }
-  const size_t sz = commands.size();
+  if (mosq_->getFrontTopic() != topic_) {
+    return AS_OK;
+  }
+  auto command = mosq_->getFrontPayload();
+  const size_t sz = mosq_->getPayloadSize();
   if (chatter_ >= 1) {
     std::cout << "ReceiveCommand Num_packet:" << sz << std::endl;
   }
   if (chatter_ >= 2) {
-    for (int j = 0; j < static_cast<int>(commands[0]->payload.size()); j++) {
-      std::cout << "ReceiveCommand Payload[" << 0 << "][" << j << "]:" << static_cast<int>(commands[0]->payload[j]) << std::endl;
+    for (int j = 0; j < static_cast<int>(command->payload.size()); j++) {
+      std::cout << "ReceiveCommand Payload[" << 0 << "][" << j << "]:" << static_cast<int>(command->payload[j]) << std::endl;
     }
   }
-  const auto command = commands[0];
   const auto &command_payload = command->payload;
-  if (command->topic != topic_) {
-    return AS_OK;
-  }
   const bool applied = applyCommand(command_payload);
   commandSaver_->writeCommandToFile(!applied, command_payload);
   if (!applied) {

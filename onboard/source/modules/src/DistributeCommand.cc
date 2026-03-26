@@ -52,18 +52,18 @@ ANLStatus DistributeCommand::mod_analyze() {
     std::cerr << "MosquittoIO in the MosquittoManager is nullptr." << std::endl;
     return AS_OK;
   }
-  auto commands = mosq->getPayload();
-  if (commands.empty()) {
+  if (mosq->isPayloadEmpty()) {
     return AS_OK;
   }
-  const auto command = commands.front();
-  if (topic_ == command->topic) {
-    if (chatter_ > 0) {
-      std::cout << "Received command for " << topic_ << std::endl;
-    }
-    payloads_.push_back(command);
-    mosq->popPayloadFront();
+  if (topic_ != mosq->getFrontTopic()) {
+    return AS_OK;
   }
+  const auto command = mosq->getFrontPayload();
+  if (chatter_ > 0) {
+    std::cout << "Received command for " << topic_ << std::endl;
+  }
+  payloads_.push_back(command);
+  mosq->popPayloadFront();
   return AS_OK;
 }
 ANLStatus DistributeCommand::mod_finalize() {
