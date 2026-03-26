@@ -56,7 +56,7 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "SocketCommunicationManager_" + subsystem
       chain GRAMSBalloon::SocketCommunicationManager, "SocketCommunicationManager_#{subsystem}_rsv"
-      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["telport"].to_i, timeout: 100, subsystem: subsystemInts[subsystem], chatter: 0) do |m|
+      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["telport"].to_i, timeout: 100, subsystem: subsystemInts[subsystem], chatter: 1000) do |m|
         m.set_singleton(0)
       end
       @main_modules << "SocketCommunicationManager_#{subsystem}_rsv"
@@ -70,12 +70,12 @@ class MyApp < ANL::ANLApp
         m.set_singleton(0)
       end
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: subsystem_dead_com_time[subsystem], subsystem: subsystemInts[subsystem],chatter: 1) do |m|
+        with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: subsystem_dead_com_time[subsystem], subsystem: subsystemInts[subsystem],chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "ReceiveStatusFromDAQComputer_" + subsystem
       chain GRAMSBalloon::DividePacket, "DividePacket_#{subsystem}"
-        with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: subsystem_starlink[subsystem], overwritten_packet_code: subsystem_overwritten[subsystem], chatter: 0) do |m|
+        with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: subsystem_starlink[subsystem], overwritten_packet_code: subsystem_overwritten[subsystem], chatter: 2) do |m|
         m.set_singleton(0)
       end
       @main_modules << "DividePacket_#{subsystem}"
@@ -124,14 +124,14 @@ a.num_parallels = 2
 mosquitto_modules = ["TelemMosquittoManager", "ComMosquittoManager"]
 a.modify do |m|
   a.main_modules.each do |mod|
-    m.get_parallel_module(1, mod).off
+   m.get_parallel_module(1, mod).off
   end
   mosquitto_modules.each do |mod|
-    m.get_parallel_module(0, mod).off
+   m.get_parallel_module(0, mod).off
   end
 end
 #a.run(1, 1)
-a.run(1000000000, 1000000000)
+a.run(:all, 1000000000)
 exit_status = 1
 puts "exit_status: #{exit_status}"
 exit exit_status

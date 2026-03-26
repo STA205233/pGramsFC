@@ -43,6 +43,7 @@ public:
   int Publish(const V &message, const std::string &topic, int qos = 0);
   int Publish(const std::vector<V> &message, const std::string &topic, int qos = 0);
   int Subscribe(const std::string &topic, int qos = 0);
+  int Reconnect();
   void on_connect(int rc) override;
   void on_disconnect(int rc) override;
   void on_publish(int mid) override;
@@ -93,6 +94,7 @@ private:
   using mosqpp::mosquittopp::disconnect;
   using mosqpp::mosquittopp::publish;
   using mosqpp::mosquittopp::subscribe;
+  using mosqpp::mosquittopp::reconnect;
   std::deque<std::shared_ptr<mqtt::mosquitto_message<V>>> payLoad_;
   std::string host_;
   std::vector<std::string> topicSub_;
@@ -179,6 +181,7 @@ void MosquittoIO<V>::on_disconnect(int rc) {
   }
   else {
     std::cout << "Disconnection failed: reason " << rc << std::endl;
+    Reconnect();
   }
 }
 template <typename V>
@@ -270,6 +273,12 @@ inline std::shared_ptr<mqtt::mosquitto_message<V>> MosquittoIO<V>::allocateMessa
     return nullptr;
   }
 }
+
+template <typename V>
+inline int MosquittoIO<V>::Reconnect() {
+    const auto ret = reconnect();
+    return ret;
+  }
 } // namespace gramsballoon::pgrams
 
 #endif //GB_MosquittoIO_hh

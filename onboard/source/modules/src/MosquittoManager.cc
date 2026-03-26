@@ -73,8 +73,12 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
   }
+  int result = 0;
   for (int i = 0; i < 10; i++) {
-    mosquittoIO_->loop(0);
+    result |= mosquittoIO_->loop(0);
+  }
+  if (result != 0) {
+    mosquittoIO_->Reconnect();
   }
   return AS_OK;
 }
