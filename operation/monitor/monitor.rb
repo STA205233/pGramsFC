@@ -13,11 +13,11 @@ class MyApp < ANL::ANLApp
       exit 1
     end
     chain GRAMSBalloon::TelemMosquittoManager, "TelemMosquittoManager"
-   with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 100, threaded_set: true, device_id: "Ground", do_initialize: true) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 100, threaded_set: true, device_id: "Ground", do_initialize: true) do |m|
       m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager, "GroundMosquittoManager"
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 100, threaded_set: true, device_id: "Ground_hub")
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST_INTERNAL"], port: ENV["PGRAMS_MOSQUITTO_PORT_INTERNAL"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD_INTERNAL"], user: ENV["PGRAMS_MOSQUITTO_USER_INTERNAL"], keep_alive: 10, chatter: 100, threaded_set: true, device_id: "Ground_hub")
     subsystems = ["Orchestrator", "TPC", "TOF", "TPCMonitor"]
     for subsystem in subsystems
       chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_#{subsystem}"
