@@ -6,6 +6,7 @@
 #include "CommunicationSaver.hh"
 #include "ErrorManager.hh"
 #include "GetComputerStatus.hh"
+#include "GetLabJackData.hh"
 #include "GetMHADCData.hh"
 #include "HubHKTelemetry.hh"
 #include "MHADCMapping.hh"
@@ -25,6 +26,7 @@ namespace gramsballoon::pgrams {
 class ReceiveCommand;
 class GetMHADCData;
 class GetPressure;
+class GetLabJackData;
 template <typename T>
 class MosquittoManager;
 class BaseTelemetryDefinition;
@@ -102,6 +104,7 @@ private:
 #ifdef USE_SYSTEM_MODULES
   const GetComputerStatus *getComputerStatus_ = nullptr;
 #endif
+  const GetLabJackData *getLabJackData_ = nullptr;
 };
 
 } /* namespace gramsballoon::pgrams */

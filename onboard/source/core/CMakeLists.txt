@@ -6,6 +6,7 @@ include_directories(
   ${MYSQL_INC_DIR}
   ${GB_PGRAMSBALLOON_INC_DIR}
   ${VERSALOGIC_INC_DIR}
+  ${LJM_INC_DIR}
   )
 
 link_directories(
@@ -48,6 +49,11 @@ if(GB_USE_SPI)
   endif(GB_USE_FT232H)
 endif(GB_USE_SPI)
 
+if (GB_USE_LJM)
+  set(GB_LJM_CORE_CLASSES
+    src/LabJackIO.cc
+  )
+endif(GB_USE_LJM)
 
 
 if(GB_USE_MYSQL)
@@ -72,6 +78,7 @@ endif(GB_SOCKET_CLIENT)
 add_library(GBCore SHARED
   ${GB_CORE_CLASSES}
   ${GB_SPI_CORE_CLASSES}
+  ${GB_LJM_CORE_CLASSES}
   ${GB_MYSQL_CORE_CLASSES}
   ${GB_MOSQUITTO_CORE_CLASSES}
   ${GB_SOCKET_CLIENT_CORE_CLASSES}
@@ -87,6 +94,7 @@ target_link_libraries(GBCore
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
   ${VERSALOGIC_LIB}
+  ${LJM_LIB}
   )
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 

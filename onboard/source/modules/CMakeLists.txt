@@ -9,6 +9,7 @@ include_directories(
   ${GB_PGRAMSBALLOON_INC_DIR}
   ${VERSALOGIC_INC_DIR}
   ${D2XX_INCLUDE_DIRS}
+  ${LJM_INC_DIR}
 )
 
 link_directories(
@@ -74,6 +75,12 @@ if(GB_USE_MYSQL)
   )
 endif(GB_USE_MYSQL)
 
+if (GB_USE_LJM)
+  set(GB_LJM_MODULES
+    src/GetLabJackData.cc
+  )
+endif(GB_USE_LJM)
+
 add_library(GBModules SHARED
   ${GB_MODULES}
   ${GB_SYSTEM_MODULES}
@@ -83,6 +90,7 @@ add_library(GBModules SHARED
   ${GB_MYSQL_MODULES}
   ${GB_MOSQUITTO_MODULES}
   ${GB_SPI_MODULES}
+  ${GB_LJM_MODULES}
 )
 target_link_libraries(GBModules
   GBCore
@@ -94,6 +102,7 @@ target_link_libraries(GBModules
   ${HSQUICKLOOK_LIB}
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
+  ${LJM_LIB}
 )
 
 target_compile_definitions(GBModules PUBLIC ${cxx_definitions})
