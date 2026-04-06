@@ -45,6 +45,7 @@ set(GB_MODULES
   src/SendArrayByMQTT.cc
   src/SendPacketByMQTT.cc
   src/DetectErrorCallbackFromDAQ.cc
+  src/GetInclinometerData.cc
 )
 
 if(GB_USE_SPI)

@@ -1,13 +1,6 @@
 #ifndef SerialCommunication_H
 #define SerialCommunication_H 1
 
-/**
- * A class of serial communication
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-02
- */
-
 #include "termios.h"
 #include "unistd.h"
 #include <fcntl.h>
@@ -20,19 +13,28 @@
 #include <vector>
 
 #ifdef __APPLE__
-#  define TCSETS TIOCSETA
+#define TCSETS TIOCSETA
 #endif
 
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 
+/**
+ * A class of serial communication
+ *
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-03-02
+ * @date 2026-04-05 | Shota Arai | modified for inheritance and added sread/swrite with uint8_t* buffer
+ */
 class SerialCommunication {
 public:
   SerialCommunication();
   SerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode);
-  ~SerialCommunication();
-  int initialize();
+  virtual ~SerialCommunication();
+  virtual int initialize();
   int sreadSingle(uint8_t &buf);
+  int sread(uint8_t *buf, int length);
   int sread(std::vector<uint8_t> &buf, int length);
+  int swrite(const uint8_t *buf, int length);
   int swrite(const std::vector<uint8_t> &buf);
   int WaitForTimeOut(timeval timeout);
   void setBaudrate(speed_t v) { baudrate_ = v; }
@@ -40,6 +42,9 @@ public:
   void setOpenMode(mode_t c) { openMode_ = c; }
 
   int FD() { return fd_; }
+
+protected:
+  virtual void setFlags(tcflag_t &c_cflag);
 
 private:
   std::unique_ptr<termios> tio_ = nullptr;
@@ -49,6 +54,6 @@ private:
   mode_t openMode_;
 };
 
-} /* namespace gramsballoon */
+} /* namespace gramsballoon::pgrams */
 
 #endif /* SerialCommunication_H */

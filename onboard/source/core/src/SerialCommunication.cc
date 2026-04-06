@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 
 SerialCommunication::SerialCommunication()
     : baudrate_(B9600), openMode_(O_RDWR | O_NONBLOCK) {
@@ -35,12 +35,7 @@ int SerialCommunication::initialize() {
     return -1;
   }
   std::cout << "Open Serial port" << std::endl;
-  tio_->c_cflag |= CREAD;
-  tio_->c_cflag |= CS8;
-  tio_->c_cflag |= CLOCAL;
-  //tio_->c_cflag |= PARENB;
-  tio_->c_cflag &= (~PARENB);
-  //tio_->c_cflag |= CSTOPB;
+  setFlags(tio_->c_cflag);
 
   int status = tcsetattr(fd_, TCSANOW, tio_.get());
   if (status != 0) {
@@ -72,32 +67,24 @@ int SerialCommunication::sread(std::vector<uint8_t> &buf, int length) {
   const int status = read(fd_, &buf[0], length);
   return status;
 }
+int SerialCommunication::sread(uint8_t *buf, int length) {
+  const int status = read(fd_, buf, length);
+  return status;
+}
+
+int SerialCommunication::swrite(const uint8_t *buf, int length) {
+  constexpr int sleep_ms = 1;
+
+  const int status = write(fd_, buf, length);
+  if (status < 0) {
+    return status;
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
+  return status;
+}
 
 int SerialCommunication::swrite(const std::vector<uint8_t> &buf) {
-  const int length = buf.size();
-  int rem = length;
-  std::vector<int> counts;
-  const int max_send = 1000;
-  const int sleep_ms = 250;
-  while (rem > 0) {
-    const int v = std::min(rem, max_send);
-    counts.push_back(v);
-    rem -= v;
-  }
-
-  int num_sent = 0;
-  int index = 0;
-  for (int c: counts) {
-    const int status = write(fd_, &buf[index], c);
-    index += c;
-    if (status < 0) {
-      return status;
-    }
-    num_sent += status;
-    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_ms));
-  }
-
-  return num_sent;
+  return swrite(buf.data(), buf.size());
 }
 
 int SerialCommunication::WaitForTimeOut(timeval timeout) {
@@ -107,5 +94,12 @@ int SerialCommunication::WaitForTimeOut(timeval timeout) {
   int rv = select(fd_ + 1, &fdset, NULL, NULL, &timeout);
   return rv;
 }
-
-} /* namespace gramsballoon */
+void SerialCommunication::setFlags(tcflag_t &c_cflag) {
+  c_cflag |= CREAD;
+  c_cflag |= CS8;
+  c_cflag |= CLOCAL;
+  //c_cflag |= PARENB;
+  c_cflag &= (~PARENB);
+  //c_cflag |= CSTOPB;
+}
+} // namespace gramsballoon::pgrams

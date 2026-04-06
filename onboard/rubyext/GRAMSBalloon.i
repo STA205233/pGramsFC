@@ -45,6 +45,7 @@
 #include "DetectErrorCallbackFromDAQ.hh"
 #include "PressureGaugeManager.hh"
 #include "GetPressure.hh"
+#include "GetInclinometerData.hh"
 %}
 
 %include "std_vector.i"
@@ -225,6 +226,10 @@ public:
 class GetPressure: public anlnext::BasicModule {
 public:
   GetPressure();
+};
+class GetInclinometerData: public anlnext::BasicModule {
+public:
+  GetInclinometerData();
 };
 } // namespace pgrams
 } // namespace GRAMSBalloon

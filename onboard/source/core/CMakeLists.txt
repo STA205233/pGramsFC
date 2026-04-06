@@ -26,6 +26,7 @@ set(GB_CORE_CLASSES
   src/VHKTelemetryMapping.cc
   src/MHADCMapping.cc
   src/IridiumPacketPool.cc
+  src/InclinometerController.cc
 )
 
 if(GB_USE_SPI)
