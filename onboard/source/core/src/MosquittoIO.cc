@@ -33,7 +33,11 @@ int MosquittoIO<std::vector<uint8_t>>::Publish(const std::vector<uint8_t> &messa
 }
 template <>
 void MosquittoIO<std::string>::on_message(const struct mosquitto_message *message) {
-  std::shared_ptr<mqtt::mosquitto_message<std::string>> m_sptr = std::allocate_shared<mqtt::mosquitto_message<std::string>>(*allocatorMosq_);
+  std::shared_ptr<mqtt::mosquitto_message<std::string>> m_sptr = allocateMessage();
+  if (!m_sptr) {
+    std::cerr << "Failed to allocate message. Message will be dropped." << std::endl;
+    return;
+  }
   m_sptr->mid = message->mid;
   m_sptr->qos = message->qos;
   m_sptr->retain = message->retain;
@@ -43,7 +47,7 @@ void MosquittoIO<std::string>::on_message(const struct mosquitto_message *messag
   for (int i = 0; i < message->payloadlen; i++) {
     m_sptr->payload += (static_cast<char *>(message->payload)[i]);
   }
-  payLoad_.push_back(m_sptr);
+  pushBackPayLoad(m_sptr);
   if (verbose_ < 3) {
     return;
   }
@@ -69,7 +73,11 @@ void MosquittoIO<std::vector<uint8_t>>::on_message(const struct mosquitto_messag
     }
     return;
   }
-  std::shared_ptr<mqtt::mosquitto_message<std::vector<uint8_t>>> m_sptr = std::allocate_shared<mqtt::mosquitto_message<std::vector<uint8_t>>>(*allocatorMosq_);
+  std::shared_ptr<mqtt::mosquitto_message<std::vector<uint8_t>>> m_sptr = allocateMessage();
+  if (!m_sptr) {
+    std::cerr << "Failed to allocate message. Message will be dropped." << std::endl;
+    return;
+  }
   m_sptr->mid = message->mid;
   m_sptr->qos = message->qos;
   m_sptr->retain = message->retain;
@@ -78,7 +86,7 @@ void MosquittoIO<std::vector<uint8_t>>::on_message(const struct mosquitto_messag
     m_sptr->payload.push_back(static_cast<uint8_t *>(message->payload)[i]);
   }
   m_sptr->payloadlen = message->payloadlen;
-  payLoad_.push_back(m_sptr);
+  pushBackPayLoad(m_sptr);
   std::cout << "Received topic: " << m_sptr->topic << std::endl;
   std::cout << "Received first element of message: " << static_cast<int>((m_sptr->payload)[0]) << std::endl;
   std::cout << "Received length: " << m_sptr->payloadlen << std::endl;

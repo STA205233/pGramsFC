@@ -2,7 +2,6 @@
 #include <iostream>
 namespace gramsballoon::pgrams {
 void SigPipeHander(int) {
-  std::cout << "Caught SIGPIPE!" << std::endl;
 }
 SocketCommunication::SocketCommunication(int port) {
   failed_ = std::make_shared<std::atomic<bool>>(false);
@@ -38,7 +37,7 @@ SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context
   sockMutex_ = std::make_shared<std::mutex>();
 }
 SocketCommunication::~SocketCommunication() {
-  if (!stopped_) {
+  if (stopped_ && !stopped_->load(std::memory_order_acquire)) {
     close();
   }
   if (acceptor_) {
@@ -53,25 +52,35 @@ void SocketCommunication::accept() {
   auto self = shared_from_this();
   acceptor_->async_accept([this, self](const boost::system::error_code &error, boost::asio::ip::tcp::socket socket) {
     if (!error) {
+      auto newsocket = std::make_shared<boost::asio::ip::tcp::socket>(std::move(socket));
+      std::shared_ptr<boost::asio::ip::tcp::socket> oldsocket;
       try {
-        std::cout << "Accepted connection from " << socket.remote_endpoint().address().to_string() << ":" << socket.remote_endpoint().port() << "(Server port: " << acceptor_->local_endpoint().port() << ")" << std::endl;
+        std::cout << "Accepted connection from " << newsocket->remote_endpoint().address().to_string() << ":" << newsocket->remote_endpoint().port() << "(Server port: " << acceptor_->local_endpoint().port() << ")" << std::endl;
       }
       catch (const boost::system::system_error &e) {
         std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
       }
-      std::lock_guard<std::mutex> lock(*sockMutex_);
-      if (!socketAccepted_) {
-        socketAccepted_ = std::make_shared<boost::asio::ip::tcp::socket>(std::move(socket));
+
+      {
+        std::lock_guard<std::mutex> lock(*sockMutex_);
+        if (!socketAccepted_) {
+          socketAccepted_ = std::move(newsocket);
+        }
+        else {
+          oldsocket = socketAccepted_;
+          socketAccepted_ = std::move(newsocket);
+        }
       }
-      else {
-        try {
-          std::cout << "Socket is already accepted. Closing the old socket" << std::endl;
+
+      if (oldsocket) {
+        std::cout << "Socket is already accepted. Closing the old socket" << std::endl;
+        boost::system::error_code ec1, ec2;
+        oldsocket->shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec1);
+        oldsocket->close(ec2);
+        if (ec1 || ec2) {
+          std::cerr << "Error in SocketCommunication: " << ec1.message() << " " << ec2.message() << std::endl;
+          failed_->store(true, std::memory_order_release);
         }
-        catch (const boost::system::system_error &e) {
-          std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
-        }
-        socketAccepted_->close();
-        *socketAccepted_ = std::move(socket);
       }
     }
     else {
@@ -97,7 +106,7 @@ int SocketCommunication::send(const void *buf, size_t n) {
       if (errorcode) {
         std::cerr << "Error in SocketCommunication: " << errorcode.message() << std::endl;
         failed_->store(true, std::memory_order_release);
-        return errorcode.value();
+        return -1;
       }
       if (ret == 0) {
         std::cerr << "Error in SocketCommunication: No data sent." << std::endl;

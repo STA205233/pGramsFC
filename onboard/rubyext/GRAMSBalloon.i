@@ -35,6 +35,7 @@
 #endif
 #include "MosquittoManager.hh"
 #include "SendArrayByMQTT.hh"
+#include "SendPacketByMQTT.hh"
 #include "DistributeCommand.hh"
 #include "ReceiveStatusFromDAQComputer.hh"
 #include "DividePacket.hh"
@@ -183,6 +184,12 @@ class SendArrayByMQTT : public anlnext::BasicModule
 {
 public:
   SendArrayByMQTT();
+};
+
+class SendPacketByMQTT : public anlnext::BasicModule
+{
+public:
+  SendPacketByMQTT();
 };
 
 } // namespace pgrams

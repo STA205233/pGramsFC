@@ -30,7 +30,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_initialize() {
     get_module_NC(socketCommunicationManagerName_, &socketCommunicationManager_);
   }
   else {
-    std::cerr << "Error in " << module_id() << "::mod_initialize: SocketCommunicationManager not found." << std::endl;
+    std::cerr << "Error in " << module_id() << "::mod_initialize: " << socketCommunicationManagerName_ << " not found." << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
     }
@@ -97,7 +97,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
   else if (result != 0) {
     std::cout << "Error in " << module_id() << "::mod_analyze: receiving data failed. error code = " << errno << "(" << strerror(errno) << ")" << std::endl;
   }
-  if (chatter_ > 1) {
+  if (chatter_ > 5 || (chatter_ > 1 && result > 0)) {
     std::cout << "Received " << result << " bytes." << std::endl;
   }
   if ((deadCommunicationTime_ > 0) && (lastReceivedTime_ + deadCommunicationTimeChrono_ < now)) {

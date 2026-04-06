@@ -34,29 +34,28 @@ ANLStatus ReceiveTelemetry::mod_analyze() {
   if (mosq_ == nullptr) {
     return AS_OK;
   }
-  const auto &payload = mosq_->getPayload();
-  if (payload.empty()) {
+  if (mosq_->isPayloadEmpty()) {
     if (chatter_ >= 5) {
       std::cout << "ReceiveTelemetry: No payload" << std::endl;
     }
     valid_ = false;
     return AS_OK;
   }
-  const auto &packet = payload.front();
-  if (packet->topic != subTopic_) {
+  if (mosq_->getFrontTopic() != subTopic_) {
     if (chatter_ >= 4) {
-      std::cout << "ReceiveTelemetry: Received topic (" << payload.front()->topic << ") is different from subscribed topic (" << subTopic_ << ")" << std::endl;
+      std::cout << "ReceiveTelemetry: Received topic (" << mosq_->getFrontTopic() << ") is different from subscribed topic (" << subTopic_ << ")" << std::endl;
     }
     valid_ = false;
     return AS_OK;
   }
+  const auto &packet = mosq_->getFrontPayload();
   if (chatter_ >= 1) {
-    std::cout << "ReceiveTelemetry Num_packet:" << payload.size() << std::endl;
+    std::cout << "ReceiveTelemetry Num_packet:" << mosq_->getPayloadSize() << std::endl;
   }
   if (chatter_ > 3) {
     std::cout << "payload: ";
-    for (size_t i = 0; i < payload[0]->payload.size(); i++) {
-      std::cout << std::hex << static_cast<unsigned int>((payload[0]->payload[i]) & 0xFF) << std::dec << " ";
+    for (size_t i = 0; i < packet->payload.size(); i++) {
+      std::cout << std::hex << static_cast<unsigned int>((packet->payload[i]) & 0xFF) << std::dec << " ";
     }
     std::cout << std::endl;
   }

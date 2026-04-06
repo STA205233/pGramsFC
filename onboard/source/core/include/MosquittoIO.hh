@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <memory_resource>
+#include <stdexcept>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -42,27 +43,58 @@ public:
   int Publish(const V &message, const std::string &topic, int qos = 0);
   int Publish(const std::vector<V> &message, const std::string &topic, int qos = 0);
   int Subscribe(const std::string &topic, int qos = 0);
-  int Reconnect() {
-    return reconnect();
-  }
+  int Reconnect();
   void on_connect(int rc) override;
   void on_disconnect(int rc) override;
   void on_publish(int mid) override;
   void on_message(const struct mosquitto_message *message) override;
   void on_subscribe(int mid, int qos_count, const int *granted_qos) override;
-  const std::deque<std::shared_ptr<mqtt::mosquitto_message<V>>> &getPayload() const { return payLoad_; }
-  void popPayloadFront() { payLoad_.pop_front(); }
+
+  void popPayloadFront() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    payLoad_.pop_front();
+  }
+  std::shared_ptr<mqtt::mosquitto_message<V>> getFrontPayload() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    return payLoad_.front();
+  }
+  bool isPayloadEmpty() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    return payLoad_.empty();
+  }
+  size_t getPayloadSize() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    return payLoad_.size();
+  }
+  void ClearPayload() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    payLoad_.clear();
+  }
+  std::string getFrontTopic() {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    if (payLoad_.empty()) {
+      return "";
+    }
+    else {
+      return payLoad_.front()->topic;
+    }
+  }
+  void pushBackPayLoad(std::shared_ptr<mqtt::mosquitto_message<V>> &message) {
+    std::lock_guard<std::mutex> lock(payloadMutex_);
+    payLoad_.push_back(message);
+  }
+
   std::string getHost() const { return host_; }
   int getPort() const { return port_; }
   static int HandleError(int error_code);
   void setVerbose(int verbose) { verbose_ = verbose; }
-  void ClearPayload() { payLoad_.clear(); }
 
 private:
   using mosqpp::mosquittopp::connect;
   using mosqpp::mosquittopp::disconnect;
   using mosqpp::mosquittopp::publish;
   using mosqpp::mosquittopp::subscribe;
+  using mosqpp::mosquittopp::reconnect;
   std::deque<std::shared_ptr<mqtt::mosquitto_message<V>>> payLoad_;
   std::string host_;
   std::vector<std::string> topicSub_;
@@ -72,6 +104,8 @@ private:
   bool connected_ = false;
   std::unique_ptr<std::pmr::synchronized_pool_resource> memResource_ = nullptr;
   std::unique_ptr<std::pmr::polymorphic_allocator<mqtt::mosquitto_message<V>>> allocatorMosq_ = nullptr;
+  std::shared_ptr<mqtt::mosquitto_message<V>> allocateMessage();
+  std::mutex payloadMutex_;
 };
 template <typename V>
 int MosquittoIO<V>::Publish(const V &message, const std::string &topic, int qos) {
@@ -115,13 +149,18 @@ int MosquittoIO<V>::Disconnect() {
   if (ret == 0) {
     connected_ = false;
   }
-  payLoad_.clear();
+  ClearPayload();
   memResource_.reset();
   allocatorMosq_.reset();
   return ret;
 }
 template <typename V>
 void MosquittoIO<V>::on_connect(int rc) {
+  if (rc == 0) {
+    for (const auto &topic: topicSub_) {
+      subscribe(NULL, topic.c_str(), 0);
+    }
+  }
   if (verbose_ < 2) {
     return;
   }
@@ -129,7 +168,7 @@ void MosquittoIO<V>::on_connect(int rc) {
     std::cout << "Connected" << std::endl;
   }
   else {
-    std::cout << "Connection failed: error code" << mosqpp::strerror(rc) << std::endl;
+    std::cout << "Connection failed: reason " << rc << std::endl;
   }
 }
 template <typename V>
@@ -141,7 +180,8 @@ void MosquittoIO<V>::on_disconnect(int rc) {
     std::cout << "Disconnected" << std::endl;
   }
   else {
-    std::cout << "Disconnection failed: error code " << mosqpp::strerror(rc) << std::endl;
+    std::cout << "Disconnection failed: reason " << rc << std::endl;
+    Reconnect();
   }
 }
 template <typename V>
@@ -169,7 +209,11 @@ void MosquittoIO<V>::on_message(const mosquitto_message *message) {
     }
     return;
   }
-  auto m_sptr = std::allocate_shared<mqtt::mosquitto_message<V>>(*allocatorMosq_);
+  auto m_sptr = allocateMessage();
+  if (!m_sptr) {
+    std::cerr << "Failed to allocate message. Message will be dropped." << std::endl;
+    return;
+  }
   m_sptr->mid = message->mid;
   m_sptr->qos = message->qos;
   m_sptr->retain = message->retain;
@@ -177,7 +221,7 @@ void MosquittoIO<V>::on_message(const mosquitto_message *message) {
   m_sptr->payloadlen = message->payloadlen;
   V temp = *static_cast<V *>(message->payload);
   m_sptr->payload = static_cast<V>(temp);
-  payLoad_.push_back(m_sptr);
+  pushBackPayLoad(m_sptr);
   if (verbose_ < 3) {
     return;
   }
@@ -211,6 +255,30 @@ int MosquittoIO<V>::HandleError(int error_code) {
   }
   return error_code;
 }
+
+template <typename V>
+inline std::shared_ptr<mqtt::mosquitto_message<V>> MosquittoIO<V>::allocateMessage() {
+  try {
+    std::shared_ptr<mqtt::mosquitto_message<V>> m_sptr = std::allocate_shared<mqtt::mosquitto_message<V>>(*allocatorMosq_);
+    return m_sptr;
+  }
+  catch (const std::exception &e) {
+    std::cerr << "Error in allocating shared_ptr<mqtt::mosquitto_message>: " << e.what() << std::endl;
+    ClearPayload();
+    return nullptr;
+  }
+  catch (...) {
+    std::cerr << "Error in allocating shared_ptr<mqtt::mosquitto_message>: unknown error" << std::endl;
+    ClearPayload();
+    return nullptr;
+  }
+}
+
+template <typename V>
+inline int MosquittoIO<V>::Reconnect() {
+    const auto ret = reconnect();
+    return ret;
+  }
 } // namespace gramsballoon::pgrams
 
 #endif //GB_MosquittoIO_hh
