@@ -31,8 +31,8 @@ int LabJackIO::read(Address_t address, T &value) {
   if (handle_ < 0) {
     return -1; // Not open
   }
-  constexpr int type = LabJackAddresses::type_mapping<T>::ljm_type();
-
+  int type;
+  LJM_AddressToType(address, &type);
   double temp_value; // LJM_eReadAddress requires a double pointer, so we read into a temporary variable
   const auto err = LJM_eReadAddress(handle_, address, type, &temp_value);
   value = static_cast<T>(temp_value);
@@ -44,7 +44,8 @@ int LabJackIO::write(Address_t address, const T &value) {
   if (handle_ < 0) {
     return -1; // Not open
   }
-  constexpr int type = LabJackAddresses::type_mapping<T>::ljm_type();
+  int type;
+  LJM_AddressToType(address, &type);
   const auto err = LJM_eWriteAddress(handle_, address, type, value);
   return err;
 }

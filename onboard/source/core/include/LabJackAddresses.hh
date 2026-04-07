@@ -16,27 +16,6 @@ struct LJMaddress {
   static constexpr Address_t value = Ch * sizeof(T) / 2 + offset;
 };
 
-// Utility function
-template <typename T>
-struct type_mapping {
-  static constexpr int ljm_type() {
-    if constexpr (std::is_same_v<T, float32>) {
-      return LJM_FLOAT32;
-    }
-    else if constexpr (std::is_same_v<T, std::uint32_t>) {
-      return LJM_UINT32;
-    }
-    else if constexpr (std::is_same_v<T, std::int32_t>) {
-      return LJM_INT32;
-    }
-    else if constexpr (std::is_same_v<T, std::uint16_t>) {
-      return LJM_UINT16;
-    }
-    else {
-      static_assert(false, "Unsupported type for write");
-    }
-  }
-};
 
 // Address name
 template <Address_t Ch>
