@@ -4,7 +4,7 @@
 #include <iomanip>
 #endif
 namespace gramsballoon::pgrams {
-BayCatSPIIO::BayCatSPIIO() {
+BayCatSPIIO::BayCatSPIIO() : SPIInterface(), BayCatAPICaller() {
   baudrateList_.emplace(750000, SPI_CLK_FREQ0);
   baudrateList_.emplace(1500000, SPI_CLK_FREQ1);
   baudrateList_.emplace(2000000, SPI_CLK_FREQ2);
@@ -77,12 +77,18 @@ int BayCatSPIIO::Open(int) {
   if (IsOpen()) {
     return 0;
   }
-  const auto status = VSL_Open();
-  if (status != 0) {
-    std::cerr << "VSL_Open failed: " << status << std::endl;
-    return status;
+  const auto status = apiStatus();
+  if (status != 1) {
+    std::cerr << "VersaLogic Library is not initialized" << std::endl;
+    return -1;
   }
-  setIsOpen(true);
+  if (VSL_SPIIsAvailable() != VL_API_OK) {
+    std::cerr << "SPI is not available" << std::endl;
+    return -1;
+  }
+  else {
+    setIsOpen(true);
+  }
   const auto status_update = updateSetting();
   if (status_update != 0) {
     std::cerr << "updateSetting failed: " << status_update << std::endl;
@@ -91,16 +97,12 @@ int BayCatSPIIO::Open(int) {
   return status;
 }
 int BayCatSPIIO::Close() {
+  // do nothing. RAII will take care of closing the API when the last BayCatSPIIO object is destructed
   if (!IsOpen()) {
     return 0;
   }
-  const auto status = VSL_Close();
-  if (status != 0) {
-    std::cerr << "VSL_Close failed: " << status << std::endl;
-    return status;
-  }
   setIsOpen(false);
-  return status;
+  return 0;
 }
 int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
   if (!IsOpen()) {

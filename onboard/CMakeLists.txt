@@ -31,6 +31,7 @@ find_package(Ruby 3.0 REQUIRED)
 # # library options
 option(GB_USE_BAYCAT_SPI " enable BayCat SPI " ON)
 option(GB_USE_FT232H "enable FT232H" ON)
+option(GB_USE_BAYCAT_I2C "enable I2C" ON)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(GB_USE_SYSTEM_MODULES ON)
 else()
@@ -74,6 +75,22 @@ if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
 else()
   set(GB_USE_SPI OFF)
 endif()
+if (GB_USE_BAYCAT_SPI)
+  add_compile_definitions("USE_BAYCAT_SPI")
+endif()
+if (GB_USE_BAYCAT_I2C)
+  set(GB_USE_I2C ON)
+  add_compile_definitions("USE_BAYCAT_I2C")
+else()
+  set(GB_USE_I2C OFF)
+endif()
+if (GB_USE_BAYCAT_SPI OR GB_USE_BAYCAT_I2C)
+  set(GB_USE_VERSA_API ON)
+  add_compile_definitions("USE_VERSA_API")
+else()
+  set(GB_USE_VERSA_API OFF)
+endif()
+
 if(GB_APT_RUBY)
   set(RUBY_CONFIG_FILE_DIR /usr/include/arm-linux-gnueabihf/ruby-2.7.0)
 endif(GB_APT_RUBY)
@@ -116,36 +133,34 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ANLNEXT_LIB_DIR}/anlnext)
 message("-- ANLNEXT_INSTALL = ${ANLNEXT_INSTALL}")
 
 # SPI
-if(GB_USE_SPI)
-  if(GB_USE_FT232H)
-    find_path(D2XX_INC_DIR
-      NAMES ftd2xx.h REQUIRED
-      PATHS /usr/local/include)
-    find_path(WIN_TYPES_INC_DIR
-      NAMES WinTypes.h REQUIRED
-      PATHS /usr/local/include)
-    find_library(D2XX_LIB
-      NAMES libftd2xx.so libftd2xx.dylib REQUIRED
-      PATHS /usr/local/lib)
-    set(D2XX_LIB_DIR ${D2XX_LIB})
-    set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
-    message(" -- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS} ")
-    message(" -- D2XX_LIB: ${D2XX_LIB} ")
-    include_directories(${D2XX_INCLUDE_DIRS})
-    add_compile_definitions("USE_FT232H")
-  endif(GB_USE_FT232H)
-  if (GB_USE_BAYCAT_SPI)
-  find_path(VERSALOGIC_INC_DIR
-    NAMES VL_OSALib.h REQUIRED
+if(GB_USE_FT232H)
+  find_path(D2XX_INC_DIR
+    NAMES ftd2xx.h REQUIRED
     PATHS /usr/local/include)
-  find_library(VERSALOGIC_LIB
-    NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+  find_path(WIN_TYPES_INC_DIR
+    NAMES WinTypes.h REQUIRED
+    PATHS /usr/local/include)
+  find_library(D2XX_LIB
+    NAMES libftd2xx.so libftd2xx.dylib REQUIRED
     PATHS /usr/local/lib)
-  add_compile_definitions("USE_BAYCAT_SPI")
-  message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
-  message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
-  endif(GB_USE_BAYCAT_SPI)
-endif(GB_USE_SPI)
+  set(D2XX_LIB_DIR ${D2XX_LIB})
+  set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
+  message(" -- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS} ")
+  message(" -- D2XX_LIB: ${D2XX_LIB} ")
+  include_directories(${D2XX_INCLUDE_DIRS})
+  add_compile_definitions("USE_FT232H")
+endif(GB_USE_FT232H)
+if (GB_USE_VERSA_API)
+find_path(VERSALOGIC_INC_DIR
+  NAMES VL_OSALib.h REQUIRED
+  PATHS /usr/local/include)
+find_library(VERSALOGIC_LIB
+  NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+  PATHS /usr/local/lib)
+add_compile_definitions("USE_VERSA_API")
+message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+endif(GB_USE_VERSA_API)
 
 # ## HSQUICKLOOK ###
 if(GB_USE_HSQUICKLOOK)

@@ -3,12 +3,11 @@
 
 #ifndef GB_DEMO_MODE
 
-#include <pigpiod_if2.h>
-#include <iostream>
-#include <chrono>
-#include <thread>
 #include "bme68x.h"
-#include "SPIInterface.hh"
+#include <chrono>
+#include <iostream>
+#include <thread>
+
 
 #define BME_REGISTER_BYTES 1
 
@@ -31,8 +30,8 @@ public:
   int getData();
   void printData();
 
-  bme68x_data* SensorData() { return sensorData_.get(); }
-  
+  bme68x_data *SensorData() { return sensorData_.get(); }
+
 private:
   std::unique_ptr<bme68x_dev> bme68xn_ = nullptr;
   std::unique_ptr<bme68x_data> sensorData_ = nullptr;

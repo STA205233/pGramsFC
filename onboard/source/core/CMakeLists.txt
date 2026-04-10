@@ -48,7 +48,17 @@ if(GB_USE_SPI)
   endif(GB_USE_FT232H)
 endif(GB_USE_SPI)
 
+if (GB_USE_I2C)
+  set(GB_I2C_CORE_CLASSES
+    src/BayCatI2CIO.cc
+  )
+endif(GB_USE_I2C)
 
+if (GB_USE_VERSA_API)
+  set(GB_VERSA_API_CORE_CLASSES
+    src/BayCatAPICaller.cc
+  )
+endif(GB_USE_VERSA_API)
 
 if(GB_USE_MYSQL)
   set(GB_MYSQL_CORE_CLASSES
@@ -76,6 +86,8 @@ add_library(GBCore SHARED
   ${GB_MOSQUITTO_CORE_CLASSES}
   ${GB_SOCKET_CLIENT_CORE_CLASSES}
   ${GB_SOCKET_SERVER_CORE_CLASSES}
+  ${GB_I2C_CORE_CLASSES}
+  ${GB_VERSA_API_CORE_CLASSES}
   )
 
 target_link_libraries(GBCore
