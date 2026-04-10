@@ -22,6 +22,8 @@ template <Address_t Ch>
 static constexpr Address_t AIN = LJMaddress<Ch, 0, float32, 250>::value;
 static constexpr Address_t TEMPERATURE_AIR_K = LJMaddress<0, 60050, float32, 1>::value;
 static constexpr Address_t TEMPERATURE_DEVICE_K = LJMaddress<0, 60052, float32, 1>::value;
+template <Address_t Ch>
+static constexpr Address_t RANGE = LJMaddress<Ch, 40000, float32, 250>::value;
 } // namespace LabJackAddresses
 } // namespace gramsballoon::pgrams
 #endif //GB_LabJackAddresses_hh

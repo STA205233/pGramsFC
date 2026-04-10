@@ -13,10 +13,11 @@ class LabJackIO {
   using Address_t = LabJackAddresses::Address_t;
 
 public:
-  LabJackIO() = default;
+  LabJackIO();
   virtual ~LabJackIO() = default;
   int open();
   int close();
+  bool isOpen() const {return handle_ != -1;}
   template <typename T>
   int read(Address_t address, T &value);
   template <typename T>

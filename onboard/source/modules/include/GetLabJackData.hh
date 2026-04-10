@@ -34,6 +34,7 @@ private:
   std::array<float32, 2> analogIn_ = {0.0, 0.0};
   int chatter_ = 0;
   SendTelemetry *sendTelemetry_ = nullptr;
+  double rangeSetting_ = 0.1;
 
 public:
   const std::array<float32, 2> &getAnalogIn() const { return singleton_self()->analogIn_; }
