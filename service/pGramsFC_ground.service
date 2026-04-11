@@ -1,0 +1,16 @@
+[Unit]
+Description = Ground Software for pGRAMS Experiment
+After=network-online.target
+
+[Service]
+EnvironmentFile = /etc/pGRAMS_ground/pGramsFC_ground.env
+ExecStart = /bin/bash ${PGRAMS_SHELL_DIR}/starter_ground.sh start
+ExecStop = /bin/bash ${PGRAMS_SHELL_DIR}/starter_ground.sh stop
+Restart = no
+Type = simple
+StandardOutput=journal
+StandardError=journal
+TimeoutStopSec=10
+
+[Install]
+WantedBy = multi-user.target
