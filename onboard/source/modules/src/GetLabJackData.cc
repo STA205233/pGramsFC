@@ -22,13 +22,8 @@ ANLStatus GetLabJackData::mod_initialize() {
     }
     return AS_ERROR;
   }
-  labjackIO_->write(LabJackAddresses::RANGE<0>, rangeSetting_);
-  float val;
-  labjackIO_->read(LabJackAddresses::RANGE<0>, val);
-  std::cout << "range setting 2: " << val << std::endl;
-  labjackIO_->write(LabJackAddresses::RANGE<1>, rangeSetting_);
-  labjackIO_->read(LabJackAddresses::RANGE<1>, val);
-  std::cout << "range setting 1: " << val << std::endl;
+  labjackIO_->printInfo(std::cout);
+  labjackIO_->configure(rangeSetting_, 199, 0, 0);
   return AS_OK;
 }
 ANLStatus GetLabJackData::mod_analyze() {

@@ -16,14 +16,17 @@ struct LJMaddress {
   static constexpr Address_t value = Ch * sizeof(T) / 2 + offset;
 };
 
-
 // Address name
 template <Address_t Ch>
-static constexpr Address_t AIN = LJMaddress<Ch, 0, float32, 250>::value;
-static constexpr Address_t TEMPERATURE_AIR_K = LJMaddress<0, 60050, float32, 1>::value;
-static constexpr Address_t TEMPERATURE_DEVICE_K = LJMaddress<0, 60052, float32, 1>::value;
+constexpr Address_t AIN = LJMaddress<Ch, 0, float32, 250>::value;
+constexpr Address_t TEMPERATURE_AIR_K = LJMaddress<0, 60050, float32, 1>::value;
+constexpr Address_t TEMPERATURE_DEVICE_K = LJMaddress<0, 60052, float32, 1>::value;
 template <Address_t Ch>
-static constexpr Address_t RANGE = LJMaddress<Ch, 40000, float32, 250>::value;
+constexpr Address_t RANGE = LJMaddress<Ch, 40000, float32, 250>::value;
+constexpr Address_t ALL_RANGE = 43900;
+constexpr Address_t ALL_NEGATIVE_CH = 43902;
+constexpr Address_t ALL_RESOLUTION_INDEX = 43903;
+constexpr Address_t ALL_SETTING_US = 43904;
 } // namespace LabJackAddresses
 } // namespace gramsballoon::pgrams
 #endif //GB_LabJackAddresses_hh
