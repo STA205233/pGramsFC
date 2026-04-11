@@ -9,13 +9,16 @@ public:
   virtual ~BayCatI2CIO() = default;
   BayCatI2CIO(const BayCatI2CIO &) = delete;
 
-private:
+public:
   int applySetting() override;
   int Open(int channel) override;
   int Close() override;
-  int WriteThenRead(uint16_t address, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
-  int Write(uint16_t address, const uint8_t *writeBuffer, unsigned int size) override;
-  int Read(uint16_t address, uint8_t *readBuffer, unsigned int size) override;
+  int WriteThenRead(uint16_t address, const uint8_t *writeBuffer, uint32_t wsize, uint8_t *readBuffer, uint32_t rsize) override;
+  int Write(uint16_t address, const uint8_t *writeBuffer, uint32_t size) override;
+  int Read(uint16_t address, uint8_t *readBuffer, uint32_t size) override;
+
+private:
+  std::vector<uint8_t> writeBuffer_;
 };
 } // namespace gramsballoon::pgrams
 #endif //GB_BayCatI2CIO_hh

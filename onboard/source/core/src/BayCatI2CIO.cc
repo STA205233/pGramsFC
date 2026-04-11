@@ -34,7 +34,7 @@ int BayCatI2CIO::Close() {
   return 0;
 }
 
-int BayCatI2CIO::WriteThenRead(uint16_t address, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+int BayCatI2CIO::WriteThenRead(uint16_t address, const uint8_t *writeBuffer, uint32_t wsize, uint8_t *readBuffer, uint32_t rsize) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
@@ -43,11 +43,20 @@ int BayCatI2CIO::WriteThenRead(uint16_t address, const uint8_t *writeBuffer, int
     std::cerr << "Invalid size: wsize = " << wsize << ", rsize = " << rsize << std::endl;
     return -1;
   }
-  
+  const int ret = Write(address, writeBuffer, wsize);
+  if (ret != API_OK) {
+    std::cerr << "I2CWriteThenRead failed: " << ret << std::endl;
+    return ret;
+  }
+  const int ret_read = Read(address, readBuffer, rsize);
+  if (ret_read != API_OK) {
+    std::cerr << "I2CWriteThenRead failed: " << ret_read << std::endl;
+    return ret_read;
+  }
   return 0;
 }
 
-int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, unsigned int size) {
+int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, uint32_t size) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
@@ -56,8 +65,21 @@ int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, unsigned in
     std::cerr << "Invalid size: size = " << size << std::endl;
     return -1;
   }
-  const int ret = I2Cw
+  writeBuffer_.resize(size);
+  writeBuffer_.assign(writeBuffer, writeBuffer + size);
+  const int ret = I2CWriteAddress(I2C_BUS_TYPE_PRIMARY, static_cast<unsigned char>(address), writeBuffer_.data(), size);
   return 0;
 }
-
+int BayCatI2CIO::Read(uint16_t address, uint8_t *readBuffer, uint32_t size) {
+  if (!IsOpen()) {
+    std::cerr << "VersaLogic Library is not initialized" << std::endl;
+    return -1;
+  }
+  if (size <= 0) {
+    std::cerr << "Invalid size: size = " << size << std::endl;
+    return -1;
+  }
+  const int ret = I2CReadAddress(I2C_BUS_TYPE_PRIMARY, static_cast<unsigned char>(address), readBuffer, size);
+  return ret;
+}
 } // namespace gramsballoon::pgrams
