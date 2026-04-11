@@ -2,6 +2,7 @@
 #define GB_BayCatI2CIO_hh 1
 #include "BayCatAPICaller.hh"
 #include "I2CInterface.hh"
+#include <vector>
 namespace gramsballoon::pgrams {
 class BayCatI2CIO: public I2CInterface, public BayCatAPICaller {
 public:
