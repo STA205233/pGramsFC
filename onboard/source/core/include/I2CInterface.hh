@@ -32,7 +32,7 @@ public:
   uint16_t Address() const { return address_; }
   void setAddress(uint16_t address) { address_ = address; }
 
-  virtual int setOption(int option) { return -1; }
+  virtual int setOption(int /*option*/) { return -1; }
   virtual int applySetting() { return -1; }
 
 private:

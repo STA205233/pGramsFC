@@ -8,7 +8,7 @@ int BayCatI2CIO::applySetting() {
   }
   return 0;
 }
-int BayCatI2CIO::Open(int channel) {
+int BayCatI2CIO::Open(int) {
   if (IsOpen()) {
     return 0;
   }
@@ -68,7 +68,7 @@ int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, uint32_t si
   writeBuffer_.resize(size);
   writeBuffer_.assign(writeBuffer, writeBuffer + size);
   const int ret = I2CWriteAddress(I2C_BUS_TYPE_PRIMARY, static_cast<unsigned char>(address), writeBuffer_.data(), size);
-  return 0;
+  return ret;
 }
 int BayCatI2CIO::Read(uint16_t address, uint8_t *readBuffer, uint32_t size) {
   if (!IsOpen()) {
