@@ -17,7 +17,7 @@ int BayCatI2CIO::Open(int channel) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
-  if (VSL_I2CIsAvailable(busNumber_) != VL_API_OK) {
+  if (I2CIsAvailable(I2C_BUS_TYPE_PRIMARY) != API_OK) {
     std::cerr << "I2C bus is not available" << std::endl;
     return -1;
   }
@@ -34,6 +34,19 @@ int BayCatI2CIO::Close() {
   return 0;
 }
 
+int BayCatI2CIO::WriteThenRead(uint16_t address, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+  if (!IsOpen()) {
+    std::cerr << "VersaLogic Library is not initialized" << std::endl;
+    return -1;
+  }
+  if (wsize <= 0 || rsize <= 0) {
+    std::cerr << "Invalid size: wsize = " << wsize << ", rsize = " << rsize << std::endl;
+    return -1;
+  }
+  
+  return 0;
+}
+
 int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, unsigned int size) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
@@ -43,7 +56,7 @@ int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, unsigned in
     std::cerr << "Invalid size: size = " << size << std::endl;
     return -1;
   }
-
+  const int ret = I2Cw
   return 0;
 }
 

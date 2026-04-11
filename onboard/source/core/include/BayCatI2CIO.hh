@@ -16,7 +16,6 @@ private:
   int WriteThenRead(uint16_t address, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) override;
   int Write(uint16_t address, const uint8_t *writeBuffer, unsigned int size) override;
   int Read(uint16_t address, uint8_t *readBuffer, unsigned int size) override;
-  constexpr unsigned long busNumber_ = VL_I2C_BUS_TYPE_PRIMARY; // Only VL_I2C_BUS_TYPE_PRIMARY is supported at this time
 };
 } // namespace gramsballoon::pgrams
 #endif //GB_BayCatI2CIO_hh

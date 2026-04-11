@@ -1,10 +1,7 @@
 #ifndef GRAMSBalloon_BayCatControl_hh
 #define GRAMSBalloon_BayCatControl_hh 1
-#include "SPIInterface.hh"
-#define linux 1
 #include "BayCatAPICaller.hh"
-#include "VL_OSALib.h"
-#include "stdbool.h" // This is needed for including VL_OSALib.h
+#include "SPIInterface.hh"
 #include <map>
 #include <stdint.h>
 namespace gramsballoon::pgrams {

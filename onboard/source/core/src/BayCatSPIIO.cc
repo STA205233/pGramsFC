@@ -5,10 +5,10 @@
 #endif
 namespace gramsballoon::pgrams {
 BayCatSPIIO::BayCatSPIIO() : SPIInterface(), BayCatAPICaller() {
-  baudrateList_.emplace(750000, SPI_CLK_FREQ0);
-  baudrateList_.emplace(1500000, SPI_CLK_FREQ1);
-  baudrateList_.emplace(2000000, SPI_CLK_FREQ2);
-  baudrateList_.emplace(6000000, SPI_CLK_FREQ3);
+  baudrateList_.emplace(100000, SPI_CLK_FREQ0_);
+  baudrateList_.emplace(200000, SPI_CLK_FREQ1_);
+  baudrateList_.emplace(400000, SPI_CLK_FREQ2_);
+  baudrateList_.emplace(800000, SPI_CLK_FREQ3_);
 }
 void BayCatSPIIO::setBaudrate(unsigned int baudrate) {
   if (baudrateList_.count(baudrate) == 0) {
@@ -18,12 +18,12 @@ void BayCatSPIIO::setBaudrate(unsigned int baudrate) {
   SPIInterface::setBaudrate(baudrate);
 }
 int BayCatSPIIO::applyBaudrateSetting() {
-  const VL_APIStatusT status = VSL_SPISetFrequency(baudrateList_[Baudrate()]);
+  const int status = SPISetFrequency(baudrateList_[Baudrate()]);
 #ifdef DEBUG_SPI
   std::cout << "BayCatSPIIO: baudrate_" << Baudrate() << std::endl;
   std::cout << "BayCatSPIIO: baudrateList_[baudrate_]: " << baudrateList_[Baudrate()] << std::endl; //For Debug
 #endif
-  if (status != VL_API_OK) {
+  if (status != API_OK) {
     std::cerr << "SPISetFrequency failed: " << status << std::endl;
     return static_cast<int>(status);
   }
@@ -36,32 +36,32 @@ int BayCatSPIIO::updateSetting() {
   }
   const auto options = ConfigOptions();
   bool failed = false;
-  const VL_APIStatusT status = VSL_SPISetMode(options & SPI_MODE_MASK);
+  const int status = SPISetMode(options & SPI_MODE_MASK);
 #ifdef DEBUG_SPI
   std::cout << "BayCatSPIIO: options_ & SPI_MODE_MASK: " << (options & SPI_MODE_MASK) << std::endl; //For Debug
 #endif
-  if (status != VL_API_OK) {
+  if (status != API_OK) {
     std::cerr << "SPISetMode failed: " << status << std::endl;
     failed = true;
   }
 
   const unsigned int shift_direction = (options & SPI_SHIFT_DIRECTION_MASK) >> SPI_SHIFT_DIRECTION_OFFSET;
-  if (shift_direction != SPI_DIR_LEFT && shift_direction != SPI_DIR_RIGHT) {
-    std::cerr << "ShiftDirection is invalid: " << SPI_DIR_RIGHT << " or " << SPI_DIR_LEFT << " are allowed.";
+  if (shift_direction != SPI_DIR_LEFT_ && shift_direction != SPI_DIR_RIGHT_) {
+    std::cerr << "ShiftDirection is invalid: " << SPI_DIR_RIGHT_ << " or " << SPI_DIR_LEFT_ << " are allowed.";
     failed = false;
   }
   else {
-    const VL_APIStatusT status2 = VSL_SPISetShiftDirection(shift_direction);
+    const int status2 = SPISetShiftDirection(shift_direction);
 #ifdef DEBUG_SPI
     std::cout << "BayCatSPIIO: shift_direction: " << shift_direction << std::endl; //For Debug
 #endif
-    if (status2 != VL_API_OK) {
+    if (status2 != API_OK) {
       std::cerr << "SPISetShiftDiretcion failed: " << status << std::endl;
       failed = true;
     }
   }
-  const VL_APIStatusT status3 = VSL_SPISetFrameSize(1);
-  if (status3 != VL_API_OK) {
+  const int status3 = SPISetFrameSize(1);
+  if (status3 != API_OK) {
     std::cerr << "SPISetFrameSize failed: " << status << std::endl;
     failed = true;
   }
@@ -82,7 +82,7 @@ int BayCatSPIIO::Open(int) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
-  if (VSL_SPIIsAvailable() != VL_API_OK) {
+  if (SPIIsAvailable() != API_OK) {
     std::cerr << "SPI is not available" << std::endl;
     return -1;
   }
@@ -119,8 +119,8 @@ int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int 
   uint32_t write_data = 0;
   for (unsigned int i = 0; i < wsize; ++i) {
     write_data = static_cast<uint32_t>(writeBuffer[i]);
-    const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data); // assuming not using VL_SPI_SS0
-    if (status_write != VL_API_OK) {
+    const auto status_write = SPIWriteDataFrame(SPI_SS_SS0_, &write_data); // assuming not using VL_SPI_SS0
+    if (status_write != API_OK) {
       std::cerr << "SPIWriteDataFrame failed: " << status_write << std::endl;
       controlGPIO(cs, true);
       return -1;
@@ -136,9 +136,9 @@ int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int 
   uint32_t read_data = 0;
   for (unsigned int i = 0; i < rsize; ++i) {
     write_data = 1;
-    const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data);
-    const auto status_read = VSL_SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
-    if (status_read != VL_API_OK) {
+    const auto status_write = SPIWriteDataFrame(SPI_SS_SS0_, &write_data);
+    const auto status_read = SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
+    if (status_read != API_OK) {
       std::cerr << "SPIReadDataFrame failed: " << status_read << std::endl;
       controlGPIO(cs, true);
       return -1;
@@ -180,14 +180,14 @@ int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, u
   uint32_t read_data = 0;
   for (unsigned int i = 0; i < size; ++i) {
     write_data = static_cast<uint32_t>(writeBuffer[i]);
-    const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data); // assuming not using VL_SPI_SS0
-    const auto status_read = VSL_SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
-    if (status_write != VL_API_OK) {
+    const auto status_write = SPIWriteDataFrame(SPI_SS_SS0_, &write_data); // assuming not using VL_SPI_SS0
+    const auto status_read = SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
+    if (status_write != API_OK) {
       std::cerr << "SPIWriteDataFrame failed: " << status_write << std::endl;
       controlGPIO(cs, true);
       return -1;
     }
-    if (status_read != VL_API_OK) {
+    if (status_read != API_OK) {
       std::cerr << "SPIReadDataFrame failed: " << status_read << std::endl;
       controlGPIO(cs, true);
       return -1;
@@ -216,36 +216,36 @@ int BayCatSPIIO::controlGPIO(const int cs, const bool value) {
 }
 int BayCatSPIIO::controlDIO(const int cs, const bool value) {
   unsigned char direction = 0;
-  const auto status = VSL_DIOGetChannelDirection(cs, &direction);
-  if (status != VL_API_OK) {
-    std::cerr << "VSL_DIOGetChannelDirection failed: " << status << std::endl;
+  const auto status = DIOGetChannelDirection(cs, &direction);
+  if (status != API_OK) {
+    std::cerr << "DIOGetChannelDirection failed: " << status << std::endl;
     return -1;
   }
-  if (direction != DIO_OUTPUT) {
+  if (direction != DIO_OUTPUT_) {
     std::cerr << "Channel " << cs << " is not set to output" << std::endl;
-    VSL_DIOSetChannelDirection(cs, DIO_OUTPUT);
-    const auto status = VSL_DIOGetChannelDirection(cs, &direction);
-    if (status != VL_API_OK) {
-      std::cerr << "VSL_DIOGetChannelDirection failed: " << status << std::endl;
+    DIOSetChannelDirection(cs, DIO_OUTPUT_);
+    const auto status = DIOGetChannelDirection(cs, &direction);
+    if (status != API_OK) {
+      std::cerr << "DIOGetChannelDirection failed: " << status << std::endl;
       return -1;
     }
     std::cout << "Channel " << cs << " output: " << static_cast<int>(direction) << std::endl;
-    if (direction != DIO_OUTPUT) {
-      std::cerr << "VSL_DIOGEtChannelDirection failed: " << "no effects" << std::endl;
+    if (direction != DIO_OUTPUT_) {
+      std::cerr << "DIOGetChannelDirection failed: " << "no effects" << std::endl;
       return -1;
     }
   }
   unsigned char value_ = 0;
   if (value) {
-    value_ = DIO_CHANNEL_HIGH;
+    value_ = DIO_CHANNEL_HIGH_;
   }
   else {
-    value_ = DIO_CHANNEL_LOW;
+    value_ = DIO_CHANNEL_LOW_;
   }
 #ifdef DEBUG_SPI
   std::cout << "BayCatSPIIO: CS" << cs << " is set to " << static_cast<int>(value_) << std::endl;
 #endif
-  VSL_DIOSetChannelLevel(cs, value_);
+  DIOSetChannelLevel(cs, value_);
   return 0;
 }
 int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) {
@@ -267,8 +267,8 @@ int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bo
   uint32_t write_data = 0;
   for (unsigned int i = 0; i < size; ++i) {
     write_data = writeBuffer[i];
-    const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data); // assuming not using VL_SPI_SS0
-    if (status_write != VL_API_OK) {
+    const auto status_write = SPIWriteDataFrame(SPI_SS_SS0_, &write_data); // assuming not using VL_SPI_SS0
+    if (status_write != API_OK) {
       std::cerr << "SPIWriteDataFrame failed: " << status_write << std::endl;
       controlGPIO(cs, true);
       return -1;
@@ -317,8 +317,8 @@ int BayCatSPIIO::ReadFPGARegister(unsigned long reg, unsigned char *data) {
     std::cerr << "Data pointer is null" << std::endl;
     return -1;
   }
-  const auto status = VSL_FPGAReadRegister(reg, data);
-  if (status != VL_API_OK) {
+  const auto status = FPGAReadRegister(reg, data);
+  if (status != API_OK) {
     std::cerr << "VSL_FPGAReadRegister failed: " << status << std::endl;
     return static_cast<int>(status);
   }
@@ -329,8 +329,8 @@ int BayCatSPIIO::WriteFPGARegister(unsigned long reg, unsigned char data) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
-  const auto status = VSL_FPGAWriteRegister(reg, data);
-  if (status != VL_API_OK) {
+  const auto status = FPGAWriteRegister(reg, data);
+  if (status != API_OK) {
     std::cerr << "VSL_FPGAWriteRegister failed: " << status << std::endl;
     return static_cast<int>(status);
   }

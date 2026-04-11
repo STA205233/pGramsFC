@@ -1,2 +1,5 @@
 add_subdirectory(core)
 add_subdirectory(modules)
+if (GB_USE_IC2)
+  add_subdirectory(BME68x-Sensor-API)
+endif(GB_USE_IC2)
