@@ -104,22 +104,20 @@ int BayCatSPIIO::Close() {
   setIsOpen(false);
   return 0;
 }
-int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
-  if (wsize <= 0 || rsize <= 0) {
-    std::cerr << "Invalid size: wsize = " << wsize << ", rsize = " << rsize << std::endl;
-    return -1;
-  }
-  const auto status_cs_low = controlGPIO(cs, false);
-  if (status_cs_low != 0) {
-    std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
-    return -1;
+  if (csControl) {
+    const auto status_cs_low = controlGPIO(cs, false);
+    if (status_cs_low != 0) {
+      std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
+      return -1;
+    }
   }
   uint32_t write_data = 0;
-  for (int i = 0; i < wsize; ++i) {
+  for (unsigned int i = 0; i < wsize; ++i) {
     write_data = static_cast<uint32_t>(writeBuffer[i]);
     const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data); // assuming not using VL_SPI_SS0
     if (status_write != VL_API_OK) {
@@ -130,13 +128,13 @@ int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, ui
   }
 #ifdef DEBUG_SPI
   std::cout << "BayCatSPIIO: writeBuffer is "; // for debug
-  for (size_t j = 0; j < wsize; j++) { //for debug
+  for (unsigned int j = 0; j < wsize; j++) { //for debug
     std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(writeBuffer[j]) << " "; //for debug
   } //for debug
   std::cout << std::dec << std::setw(0) << std::endl; //for debug
 #endif
   uint32_t read_data = 0;
-  for (int i = 0; i < rsize; ++i) {
+  for (unsigned int i = 0; i < rsize; ++i) {
     write_data = 1;
     const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data);
     const auto status_read = VSL_SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
@@ -152,35 +150,35 @@ int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, int wsize, ui
   }
 #ifdef DEBUG_SPI
   std::cout << "BayCatSPIIO: readBuffer is "; // for debug
-  for (size_t j = 0; j < rsize; j++) { //for debug
+  for (unsigned int j = 0; j < rsize; j++) { //for debug
     std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(readBuffer[j]) << " "; //for debug
   } //for debug
   std::cout << std::dec << std::setw(0) << std::endl; //for debug
 #endif
-  const auto status_cs_high = controlGPIO(cs, true);
-  if (status_cs_high != 0) {
-    std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
-    return -1;
+  if (csControl) {
+    const auto status_cs_high = controlGPIO(cs, true);
+    if (status_cs_high != 0) {
+      std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
+      return -1;
+    }
   }
   return 0;
 }
-int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer) {
+int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
   }
-  if (size <= 0) {
-    std::cerr << "Invalid size: size = " << size << std::endl;
-    return -1;
-  }
-  const auto status_cs_low = controlGPIO(cs, false);
-  if (status_cs_low != 0) {
-    std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
-    return -1;
+  if (csControl) {
+    const auto status_cs_low = controlGPIO(cs, false);
+    if (status_cs_low != 0) {
+      std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
+      return -1;
+    }
   }
   uint32_t write_data = 0;
   uint32_t read_data = 0;
-  for (int i = 0; i < size; ++i) {
+  for (unsigned int i = 0; i < size; ++i) {
     write_data = static_cast<uint32_t>(writeBuffer[i]);
     const auto status_write = VSL_SPIWriteDataFrame(SPI_SS_SS0, &write_data); // assuming not using VL_SPI_SS0
     const auto status_read = VSL_SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
@@ -190,13 +188,19 @@ int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, u
       return -1;
     }
     if (status_read != VL_API_OK) {
-      std::cerr << "SPIWReadDataFrame failed: " << status_read << std::endl;
+      std::cerr << "SPIReadDataFrame failed: " << status_read << std::endl;
       controlGPIO(cs, true);
       return -1;
     }
-    readBuffer[i] = read_data;
+    readBuffer[i] = static_cast<uint8_t>(read_data);
   }
-  controlGPIO(cs, true);
+  if (csControl) {
+    const auto status_cs_high = controlGPIO(cs, true);
+    if (status_cs_high != 0) {
+      std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
+      return -1;
+    }
+  }
   return 0;
 }
 int BayCatSPIIO::controlGPIO(const int cs, const bool value) {
@@ -244,7 +248,7 @@ int BayCatSPIIO::controlDIO(const int cs, const bool value) {
   VSL_DIOSetChannelLevel(cs, value_);
   return 0;
 }
-int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
+int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) {
   if (!IsOpen()) {
     std::cerr << "VersaLogic Library is not initialized" << std::endl;
     return -1;
@@ -253,10 +257,12 @@ int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
     std::cerr << "Invalid size: size = " << size << std::endl;
     return -1;
   }
-  const auto status_cs_low = controlGPIO(cs, false);
-  if (status_cs_low != 0) {
-    std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
-    return -1;
+  if (csControl){
+    const auto status_cs_low = controlGPIO(cs, false);
+    if (status_cs_low != 0) {
+      std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
+      return -1;
+    }
   }
   uint32_t write_data = 0;
   for (unsigned int i = 0; i < size; ++i) {
@@ -270,15 +276,17 @@ int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size) {
   }
 #ifdef DEBUG_SPI
   std::cout << "BayCatSPIIO: writeBuffer is "; // for debug
-  for (size_t j = 0; j < size; j++) { //for debug
+  for (unsigned int j = 0; j < size; j++) { //for debug
     std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(writeBuffer[j]) << " "; //for debug
   } //for debug
   std::cout << std::dec << std::setw(0) << std::endl; //for debug
 #endif
-  const auto status_cs_high = controlGPIO(cs, true);
-  if (status_cs_high != 0) {
-    std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
-    return -1;
+  if (csControl) {
+    const auto status_cs_high = controlGPIO(cs, true);
+    if (status_cs_high != 0) {
+      std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
+      return -1;
+    }
   }
   return 0;
 }

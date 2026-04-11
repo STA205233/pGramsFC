@@ -41,9 +41,9 @@ public:
 
 private:
   FT_HANDLE handle_ = nullptr;
-  ULONG readTimeout_ = 1000; // in milliseconds
-  ULONG writeTimeout_ = 1000; // in milliseconds
-  UCHAR latencyTimer_ = 16; // in milliseconds
+  ULONG readTimeout_ = 1; // in milliseconds
+  ULONG writeTimeout_ = 1; // in milliseconds
+  UCHAR latencyTimer_ = 1; // in milliseconds
   int spiMode_ = 0;
   unsigned int baudrate_ = 9600;
   bool opened_ = false;

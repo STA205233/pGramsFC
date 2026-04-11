@@ -29,7 +29,7 @@ class SerialCommunication {
 public:
   SerialCommunication();
   SerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode);
-  ~SerialCommunication();
+  virtual ~SerialCommunication();
   int initialize();
   int sreadSingle(uint8_t &buf);
   int sread(std::vector<uint8_t> &buf, int length);
