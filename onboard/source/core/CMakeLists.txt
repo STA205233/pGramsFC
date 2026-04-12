@@ -6,8 +6,9 @@ include_directories(
   ${MYSQL_INC_DIR}
   ${GB_PGRAMSBALLOON_INC_DIR}
   ${VERSALOGIC_INC_DIR}
-  )
-
+  ${BME_INC_DIR}
+)
+  
 link_directories(
   ${BOOST_LIB_DIR}
   ${MYSQL_LIB_DIR}
@@ -38,11 +39,6 @@ if(GB_USE_SPI)
     src/PDUTelemetryCSMapping.cc
     src/PDUCommandCSMapping.cc
   )
-  if (GB_USE_BAYCAT_SPI)
-    list(APPEND GB_SPI_CORE_CLASSES
-      src/BayCatSPIIO.cc
-    )
-  endif(GB_USE_BAYCAT_SPI)
   if(GB_USE_FT232H)
     list(APPEND GB_SPI_CORE_CLASSES
       src/FT232HIO.cc
@@ -51,18 +47,23 @@ if(GB_USE_SPI)
     )
   endif(GB_USE_FT232H)
 endif(GB_USE_SPI)
-
 if (GB_USE_I2C)
   set(GB_I2C_CORE_CLASSES
-    src/BayCatI2CIO.cc
+    src/BME680IO.cc
   )
 endif(GB_USE_I2C)
-
-if (GB_USE_VERSA_API)
+if(GB_USE_BAYCAT)
+  list(APPEND GB_SPI_CORE_CLASSES
+    src/BayCatSPIIO.cc
+    src/BayCatAPICaller.cc
+  )
+  list(APPEND GB_I2C_CORE_CLASSES
+    src/BayCatI2CIO.cc
+  )
   set(GB_VERSA_API_CORE_CLASSES
     src/BayCatAPICaller.cc
   )
-endif(GB_USE_VERSA_API)
+endif(GB_USE_BAYCAT)
 
 if(GB_USE_MYSQL)
   set(GB_MYSQL_CORE_CLASSES
@@ -103,6 +104,7 @@ target_link_libraries(GBCore
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
   ${VERSALOGIC_LIB}
+  ${BME_LIB}
   )
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 

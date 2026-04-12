@@ -25,6 +25,10 @@
 #ifdef USE_HSQUICKLOOK
 #include "PushToMongoDB.hh"
 #endif
+#ifdef USE_I2C
+#include "GetEnvironmentalData.hh"
+#include "I2CManager.hh"
+#endif
 #include "RunIDManager.hh"
 #include "ReadTelemetry.hh"
 #include "DumpSerial.hh"
@@ -203,21 +207,6 @@ class SendPacketByMQTT : public anlnext::BasicModule
 public:
   SendPacketByMQTT();
 };
-
-} // namespace pgrams
-
-
-
-#ifdef USE_HSQUICKLOOK
-class PushToMongoDB : public anlnext::BasicModule
-{
-public:
-  PushToMongoDB();
-};
-#endif
-
-
-namespace pgrams{
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
 public:
   MeasureOrientationByMHADC();
@@ -238,6 +227,16 @@ class GetPressure: public anlnext::BasicModule {
 public:
   GetPressure();
 };
+#ifdef USE_I2C
+class GetEnvironmentalData: public anlnext::BasicModule {
+public:
+  GetEnvironmentalData();
+};
+class I2CManager: public anlnext::BasicModule {
+public:
+  I2CManager();
+};
+#endif
 } // namespace pgrams
 } // namespace GRAMSBalloon
 %template(TelemMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::string>;

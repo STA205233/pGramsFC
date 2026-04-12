@@ -14,6 +14,7 @@ set(RUBY_EXT_INCLUDE_DIRS
   ${MYSQL_INC_DIR}
   ${D2XX_INCLUDE_DIRS}
   ${VERSALOGIC_INC_DIRS}
+  ${BME_INC_DIR}
   )
 set(RUBY_EXT_LIBRARY_DIRS
   /usr/local/lib
@@ -32,6 +33,7 @@ set(RUBY_EXT_LIBRARIES
   ${MYSQL_LIB}
   ${D2XX_LIB}
   ${VERSALOGIC_LIB}
+  ${BME_LIB}
 )
 
 
@@ -57,6 +59,9 @@ if(GB_MAC)
 endif()
 if(GB_DEMO_MODE)
   list(APPEND cxx_definitions -DGB_DEMO_MODE)
+endif()
+if (GB_USE_I2C)
+  list(APPEND cxx_definitions -DUSE_I2C)
 endif()
 
 set(SWIG_FLAGS ${cxx_definitions})

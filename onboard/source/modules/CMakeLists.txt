@@ -9,6 +9,7 @@ include_directories(
   ${GB_PGRAMSBALLOON_INC_DIR}
   ${VERSALOGIC_INC_DIR}
   ${D2XX_INCLUDE_DIRS}
+  ${BME_INC_DIR}
 )
 
 link_directories(
@@ -55,6 +56,13 @@ if(GB_USE_SPI)
   )
 endif(GB_USE_SPI)
 
+if (GB_USE_I2C)
+  set(GB_I2C_MODULES
+    src/GetEnvironmentalData.cc
+    src/I2CManager.cc
+  )
+endif()
+  
 if(GB_USE_SYSTEM_MODULES)
   set(GB_SYSTEM_MODULES
     src/GetComputerStatus.cc
@@ -85,6 +93,7 @@ add_library(GBModules SHARED
   ${GB_MYSQL_MODULES}
   ${GB_MOSQUITTO_MODULES}
   ${GB_SPI_MODULES}
+  ${GB_I2C_MODULES}
 )
 target_link_libraries(GBModules
   GBCore
@@ -96,6 +105,7 @@ target_link_libraries(GBModules
   ${HSQUICKLOOK_LIB}
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
+  ${BME_LIB}
 )
 
 target_compile_definitions(GBModules PUBLIC ${cxx_definitions})

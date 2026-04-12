@@ -4,7 +4,7 @@
 #include "FT232HIO.hh"
 #endif
 
-#ifdef USE_BAYCAT_SPI
+#ifdef USE_BAYCAT
 #include "BayCatSPIIO.hh"
 #endif
 using namespace anlnext;
@@ -29,7 +29,7 @@ ANLStatus SPIManager::mod_pre_initialize() {
   std::shared_ptr<SPIInterface> base_interface = nullptr;
   interface_ = std::make_shared<SPIInterfaceMultiplexer>();
   if (spiControlType_ == "baycat") {
-#ifdef USE_BAYCAT_SPI
+#ifdef USE_BAYCAT
     base_interface = std::make_shared<BayCatSPIIO>();
 #else
     std::cerr << "BayCat SPI control type is not supported in this build." << std::endl;
@@ -37,7 +37,12 @@ ANLStatus SPIManager::mod_pre_initialize() {
 #endif
   }
   else if (spiControlType_ == "ft232h") {
+#ifdef USE_FT232H
     base_interface = std::make_shared<FT232HIO>();
+#else
+    std::cerr << "FT232H SPI control type is not supported in this build." << std::endl;
+    return AS_ERROR;
+#endif
   }
   else {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
