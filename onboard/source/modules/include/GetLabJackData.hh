@@ -32,12 +32,16 @@ public:
 private:
   std::shared_ptr<LabJackIO> labjackIO_ = nullptr;
   std::array<float32, 2> analogIn_ = {0.0, 0.0};
+  float32 temperatureDevice_ = 0.0;
+  float32 temperatureAir_ = 0.0;
   int chatter_ = 0;
   SendTelemetry *sendTelemetry_ = nullptr;
   double rangeSetting_ = 0.1;
 
 public:
   const std::array<float32, 2> &getAnalogIn() const { return singleton_self()->analogIn_; }
+  float32 getTemperatureDevice() const { return singleton_self()->temperatureDevice_; }
+  float32 getTemperatureAir() const { return singleton_self()->temperatureAir_; }
 };
 } // namespace gramsballoon::pgrams
 #endif // GB_GetLabJackData_hh

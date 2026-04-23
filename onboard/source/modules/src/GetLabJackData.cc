@@ -37,23 +37,47 @@ ANLStatus GetLabJackData::mod_analyze() {
     }
   }
   const auto err1 = labjackIO_->read(LabJackAddresses::AIN<0>, analogIn_[0]);
-  const auto err2 = labjackIO_->read(LabJackAddresses::AIN<1>, analogIn_[1]);
-  if (err1 != 0 || err2 != 0) {
-    if (chatter_ > 1) {
-      char err_str1[LJM_STRING_MAX_SIZE];
-      LJM_ErrorToString(err1, err_str1);
-      char err_str2[LJM_STRING_MAX_SIZE];
-      LJM_ErrorToString(err2, err_str2);
-      std::cerr << "Error reading from LabJack device: " << err_str1 << ", " << err_str2 << std::endl;
-    }
+  if (err1 != 0) {
+    char err_str[LJM_STRING_MAX_SIZE];
+    LJM_ErrorToString(err1, err_str);
+    std::cerr << "Error reading from LabJack device: " << err_str << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::LABJACK_READ_ERROR);
     }
-    analogIn_.fill(0.0);
-    return AS_ERROR;
+    analogIn_[0] = 0.0;
+  }
+  const auto err2 = labjackIO_->read(LabJackAddresses::AIN<1>, analogIn_[1]);
+  if (err2 != 0) {
+    char err_str[LJM_STRING_MAX_SIZE];
+    LJM_ErrorToString(err2, err_str);
+    std::cerr << "Error reading from LabJack device: " << err_str << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::LABJACK_READ_ERROR);
+    }
+    analogIn_[1] = 0.0;
+  }
+  const auto err3 = labjackIO_->read(LabJackAddresses::TEMPERATURE_DEVICE_K, temperatureDevice_);
+  if (err3 != 0) {
+    char err_str[LJM_STRING_MAX_SIZE];
+    LJM_ErrorToString(err3, err_str);
+    std::cerr << "Error reading from LabJack device: " << err_str << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::LABJACK_READ_ERROR);
+    }
+    temperatureDevice_ = 0.0;
+  }
+  const auto err4 = labjackIO_->read(LabJackAddresses::TEMPERATURE_AIR_K, temperatureAir_);
+  if (err4 != 0) {
+    char err_str[LJM_STRING_MAX_SIZE];
+    LJM_ErrorToString(err4, err_str);
+    std::cerr << "Error reading from LabJack device: " << err_str << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::LABJACK_READ_ERROR);
+    }
+    temperatureAir_ = 0.0;
   }
   if (chatter_ > 4) {
-    std::cout << "AIN0: " << analogIn_[0] << ", AIN1: " << analogIn_[1] << std::endl;
+    std::cout << "AIN0: " << analogIn_[0] << ", AIN1: " << analogIn_[1] << ", DEVICE: " << temperatureDevice_ << ", AIR: " << temperatureAir_ << std::endl;
   }
   return AS_OK;
 }
