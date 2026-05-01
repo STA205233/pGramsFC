@@ -1,11 +1,12 @@
 #include "I2CManager.hh"
+#include "BayCatI2CIO.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus I2CManager::mod_define() {
   return AS_OK;
 }
 ANLStatus I2CManager::mod_initialize() {
-  i2cInterface_ = std::make_shared<I2CInterface>();
+  i2cInterface_ = std::make_shared<BayCatI2CIO>();
   i2cInterface_->Open(0);
   return AS_OK;
 }

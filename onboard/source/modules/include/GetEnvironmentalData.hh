@@ -12,6 +12,7 @@
 namespace gramsballoon::pgrams {
 
 class I2CManager;
+class BME680IO;
 class SendTelemetry;
 
 /**

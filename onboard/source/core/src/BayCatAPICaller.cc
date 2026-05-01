@@ -18,20 +18,26 @@ const int BayCatAPICaller::DIO_CHANNEL_HIGH_ = DIO_CHANNEL_HIGH;
 const int BayCatAPICaller::DIO_CHANNEL_LOW_ = DIO_CHANNEL_LOW;
 const int BayCatAPICaller::API_OK = VL_API_OK;
 const unsigned long BayCatAPICaller::I2C_BUS_TYPE_PRIMARY = VL_I2C_BUS_TYPE_PRIMARY;
+const unsigned long BayCatAPICaller::I2C_FREQUENCY_100KHZ = VL_I2C_FREQUENCY_100KHZ;
+const unsigned long BayCatAPICaller::I2C_FREQUENCY_400KHZ = VL_I2C_FREQUENCY_400KHZ;
+
 BayCatAPICaller::BayCatAPICaller() {
-  if (++counter_ == 0) {
+  if (counter_ == 0) {
     startAPI();
   }
+  ++counter_;
 }
 BayCatAPICaller::~BayCatAPICaller() {
-  if (--counter_ == 0) {
+  if (counter_ == 1) {
     stopAPI();
   }
+  --counter_;
 }
 BayCatAPICaller::BayCatAPICaller(const BayCatAPICaller &) {
-  if (++counter_ == 0) {
+  if (counter_ == 0) {
     startAPI();
   }
+  ++counter_;
 }
 int BayCatAPICaller::startAPI() {
   std::cout << "Initializing VersaLogic Library..." << std::endl;

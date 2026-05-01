@@ -10,7 +10,6 @@ namespace gramsballoon::pgrams {
 
 GetEnvironmentalData::GetEnvironmentalData() {
   bme680io_ = std::make_shared<BME680IO>();
-  interface_ = std::make_shared<I2CInterface>();
 }
 
 GetEnvironmentalData::~GetEnvironmentalData() = default;

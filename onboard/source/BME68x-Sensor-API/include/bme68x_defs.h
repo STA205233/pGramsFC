@@ -1,5 +1,5 @@
 /**
-* Copyright (c) 2021 Bosch Sensortec GmbH. All rights reserved.
+* Copyright (c) 2023 Bosch Sensortec GmbH. All rights reserved.
 *
 * BSD-3-Clause
 *
@@ -31,8 +31,8 @@
 * POSSIBILITY OF SUCH DAMAGE.
 *
 * @file       bme68x_defs.h
-* @date       2021-11-09
-* @version    v4.4.7
+* @date       2023-02-07
+* @version    v4.4.8
 *
 */
 
@@ -736,17 +736,17 @@ struct bme68x_data
     uint8_t gas_wait;
 #ifndef BME68X_USE_FPU
 
-    /*! Temperature in degree celsius x100 */
-    int16_t temperature;
+    ///*! Temperature in degree celsius x100 */
+    //int16_t temperature;
 
-    /*! Pressure in Pascal */
-    uint32_t pressure;
+    ///*! Pressure in Pascal */
+    //uint32_t pressure;
 
-    /*! Humidity in % relative humidity x1000 */
-    uint32_t humidity;
+    ///*! Humidity in % relative humidity x1000 */
+    //uint32_t humidity;
 
-    /*! Gas resistance in Ohms */
-    uint32_t gas_resistance;
+    ///*! Gas resistance in Ohms */
+    //uint32_t gas_resistance;
 #else
 
     /*! Temperature in degree celsius */

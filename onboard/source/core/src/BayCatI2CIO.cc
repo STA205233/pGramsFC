@@ -24,6 +24,7 @@ int BayCatI2CIO::Open(int) {
   else {
     setIsOpen(true);
   }
+  I2CSetFrequency(I2C_BUS_TYPE_PRIMARY, I2C_FREQUENCY_100KHZ);
   return 0;
 }
 int BayCatI2CIO::Close() {
