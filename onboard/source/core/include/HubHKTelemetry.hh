@@ -28,6 +28,7 @@ public:
   static constexpr size_t NUM_PDU_CPU = 7;
   static constexpr size_t NUM_PDU_TOF_TELEMETRY = 6;
   static constexpr size_t NUM_SPARE = 11;
+  static constexpr size_t NUM_4_WIRE_RTD = 2;
 
 public:
   void serialize(DBFieldSink *sink) const override;
@@ -112,10 +113,15 @@ private:
   uint16_t rtdVacuumJacket3_ = 0;
   uint16_t pressureRegulator_ = 0;
   uint16_t pressureTransducer_ = 0;
-  uint16_t liquidLevelMeter_ = 0;
   uint16_t inclinometer_ = 0;
   std::array<uint16_t, NUM_RTD_IN_CHAMBER> rtdsInsideChamber_ = {0};
   std::array<uint16_t, NUM_SPARE> spare_ = {0};
+
+  uint16_t sealedEnclosurePressure_ = 0;
+  uint16_t sealedEnclosureTemperature_ = 0;
+  uint16_t sealedEnclosureHumidity_ = 0;
+
+  std::array<uint16_t, NUM_4_WIRE_RTD> rtd4Wire_ = {0};
 
   //Tof bias
   std::array<uint16_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
@@ -466,14 +472,8 @@ public:
   inline void setRtdVacuumJacket3(uint16_t v) { rtdVacuumJacket3_ = v; }
   inline uint16_t RtdVacuumJacket3() const { return rtdVacuumJacket3_; }
 
-  inline void setPressureRegulator(uint16_t v) { pressureRegulator_ = v; }
-  inline uint16_t PressureRegulator() const { return pressureRegulator_; }
-
   inline void setPressureTransducer(uint16_t v) { pressureTransducer_ = v; }
   inline uint16_t PressureTransducer() const { return pressureTransducer_; }
-
-  inline void setLiquidLevelMeter(uint16_t v) { liquidLevelMeter_ = v; }
-  inline uint16_t LiquidLevelMeter() const { return liquidLevelMeter_; }
 
   inline void setInclinometer(uint16_t v) { inclinometer_ = v; }
   inline uint16_t Inclinometer() const { return inclinometer_; }
@@ -527,6 +527,23 @@ public:
       return 0;
     }
     return tofBiasVoltage_[idx];
+  }
+
+  inline void setSealedEnclosurePressure(uint16_t v) { sealedEnclosurePressure_ = v; }
+  inline uint16_t SealedEnclosurePressure() const { return sealedEnclosurePressure_; }
+  inline void setSealedEnclosureTemperature(uint16_t v) { sealedEnclosureTemperature_ = v; }
+  inline uint16_t SealedEnclosureTemperature() const { return sealedEnclosureTemperature_; }
+  inline void setSealedEnclosureHumidity(uint16_t v) { sealedEnclosureHumidity_ = v; }
+  inline uint16_t SealedEnclosureHumidity() const { return sealedEnclosureHumidity_; }
+
+  inline const std::array<uint16_t, NUM_4_WIRE_RTD> &Rtd4Wire() const { return rtd4Wire_; }
+  inline void setRtd4Wire(const std::array<uint16_t, NUM_4_WIRE_RTD> &v) { rtd4Wire_ = v; }
+  inline void setRtd4Wire(size_t idx, uint16_t v) {
+    if (idx >= NUM_4_WIRE_RTD) {
+      std::cerr << "setRtd4Wire: index out of range: " << idx << std::endl;
+      return;
+    }
+    rtd4Wire_[idx] = v;
   }
 
   //inline void setTofBiasSetting(const std::array<uint16_t, NUM_TOF_BIAS> &v) { tofBiasSetting_ = v; }
