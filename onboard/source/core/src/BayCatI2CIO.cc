@@ -68,6 +68,10 @@ int BayCatI2CIO::Write(uint16_t address, const uint8_t *writeBuffer, uint32_t si
   writeBuffer_.resize(size);
   writeBuffer_.assign(writeBuffer, writeBuffer + size);
   const int ret = I2CWriteAddress(I2C_BUS_TYPE_PRIMARY, static_cast<unsigned char>(address), writeBuffer_.data(), size);
+  if (ret != API_OK) {
+    std::cerr << "I2CWriteAddress failed: " << ret << std::endl;
+    return -ret;
+  }
   return ret;
 }
 int BayCatI2CIO::Read(uint16_t address, uint8_t *readBuffer, uint32_t size) {
@@ -80,6 +84,10 @@ int BayCatI2CIO::Read(uint16_t address, uint8_t *readBuffer, uint32_t size) {
     return -1;
   }
   const int ret = I2CReadAddress(I2C_BUS_TYPE_PRIMARY, static_cast<unsigned char>(address), readBuffer, size);
+  if (ret != API_OK) {
+    std::cerr << "I2CReadAddress failed: " << ret << std::endl;
+    return -ret;
+  }
   return ret;
 }
 } // namespace gramsballoon::pgrams

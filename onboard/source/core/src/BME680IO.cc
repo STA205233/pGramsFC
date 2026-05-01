@@ -36,6 +36,7 @@ int8_t BME680IO::writeRegSPI(uint8_t reg_addr, const uint8_t *reg_data, uint32_t
 int8_t BME680IO::writeRegI2C(uint8_t reg_addr, const uint8_t *reg_data, uint32_t length, void *intf_ptr) {
   int8_t rslt = BME68X_OK;
   I2CInterface *intf = static_cast<I2CInterface *>(intf_ptr);
+  intf->setAddress(0x77);
   std::vector<uint8_t> writeBuffer(length + 1);
   writeBuffer[0] = reg_addr;
   std::copy(reg_data, reg_data + length, writeBuffer.begin() + 1);
@@ -48,6 +49,7 @@ int8_t BME680IO::writeRegI2C(uint8_t reg_addr, const uint8_t *reg_data, uint32_t
 int8_t BME680IO::readRegI2C(uint8_t reg_addr, uint8_t *reg_data, uint32_t length, void *intf_ptr) {
   int8_t rslt = BME68X_OK;
   I2CInterface *intf = static_cast<I2CInterface *>(intf_ptr);
+  intf->setAddress(0x77);
   const int result = intf->WriteThenRead(&reg_addr, BME_REGISTER_BYTES, reg_data, static_cast<uint32_t>(length));
   if (result < 0) {
     rslt = -1;
