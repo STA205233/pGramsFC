@@ -1,8 +1,8 @@
 
 #ifndef GetEnvironmentalData_H
 #define GetEnvironmentalData_H 1
-
-#include "BME680IO.hh"
+  
+#include "BME280IO.hh"
 #include "I2CInterface.hh"
 #include "I2CManager.hh"
 #include "SendTelemetry.hh"
@@ -13,6 +13,7 @@ namespace gramsballoon::pgrams {
 
 class I2CManager;
 class BME680IO;
+class BME280IO;
 class SendTelemetry;
 
 /**
@@ -41,7 +42,6 @@ public:
 
   void setDataAquisitionError();
 
-  BME680IO *GetBME680IO() { return (singleton_self()->bme680io_).get(); }
   double Temperature() { return singleton_self()->temperature_; }
   double Humidity() { return singleton_self()->humidity_; }
   double Pressure() { return singleton_self()->pressure_; }
@@ -50,7 +50,7 @@ private:
   std::string I2CManagerName_ = "I2CManager";
   I2CManager *I2CManager_ = nullptr;
   SendTelemetry *sendTelemetry_ = nullptr;
-  std::shared_ptr<BME680IO> bme680io_ = nullptr;
+  std::shared_ptr<BME280IO> bme680io_ = nullptr;
   std::shared_ptr<I2CInterface> interface_ = nullptr;
   double pressure_;
   double humidity_;
