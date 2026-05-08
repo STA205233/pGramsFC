@@ -106,6 +106,7 @@ target_link_libraries(GBModules
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
   ${BME_LIB}
+  ${BME280_LIB}
 )
 
 target_compile_definitions(GBModules PUBLIC ${cxx_definitions})

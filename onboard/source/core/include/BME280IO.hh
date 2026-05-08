@@ -1,12 +1,12 @@
-#ifndef BME680IO_H
-#define BME680IO_H 1
+#ifndef BME280IO_H
+#define BME280IO_H 1
 
 #ifndef GB_DEMO_MODE
 
 #include "I2CInterface.hh"
 #include "SPIInterface.hh"
-#include "bme68x.h"
-#include "bme68x_defs.h"
+#include "bme280.h"
+#include "bme280_defs.h"
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -14,17 +14,17 @@
 #define BME_REGISTER_BYTES 1
 
 /**
- * A class to handle BME680
+ * A class to handle BME280
  *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-01
+ * @author Shota Arai
+ * @date 2026-05-08 | Shota Arai | First design
  */
 
 namespace gramsballoon::pgrams {
 
-class BME680IO {
+class BME280IO {
 public:
-  BME680IO();
+  BME280IO();
   static int8_t readRegSPI(uint8_t reg_addr, uint8_t *reg_data, uint32_t length, void *intf_ptr);
   static int8_t readRegI2C(uint8_t reg_addr, uint8_t *reg_data, uint32_t length, void *intf_ptr);
   static int8_t writeRegSPI(uint8_t reg_addr, const uint8_t *reg_data, uint32_t length, void *intf_ptr);
@@ -35,16 +35,16 @@ public:
   int getData();
   void printData();
 
-  bme68x_data *SensorData() { return sensorData_.get(); }
+  bme280_data *SensorData() { return sensorData_.get(); }
 
 private:
-  std::unique_ptr<bme68x_dev> bme68xn_ = nullptr;
-  std::unique_ptr<bme68x_data> sensorData_ = nullptr;
-  std::unique_ptr<bme68x_conf> configure_ = nullptr;
+  std::unique_ptr<bme280_dev> bme280n_ = nullptr;
+  std::unique_ptr<bme280_data> sensorData_ = nullptr;
+  std::unique_ptr<bme280_settings> configure_ = nullptr;
   void setupImpl();
 };
 
 } // namespace gramsballoon::pgrams
 
 #endif
-#endif /* BME680IO_H */
+#endif /* BME280IO_H */

@@ -1,5 +1,6 @@
 if (GB_USE_I2C)
-  add_subdirectory(BME68x-Sensor-API)
+  include(${CMAKE_SOURCE_DIR}/cmake/BME68x.cmake)
+  include(${CMAKE_SOURCE_DIR}/cmake/BME280.cmake)
 endif(GB_USE_I2C)
 add_subdirectory(core)
 add_subdirectory(modules)

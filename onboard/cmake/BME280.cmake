@@ -1,0 +1,19 @@
+include_directories(
+  BME280_SensorAPI
+)
+
+set(GB_BME280_CLASSES
+  BME280_SensorAPI/bme280.c
+)
+  
+add_library(${BME280_LIB} SHARED
+  ${GB_BME280_CLASSES}
+)
+  
+install(TARGETS ${BME280_LIB} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+if(INSTALL_HEADERS)
+  install(DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/GRAMSBalloon
+    FILES_MATCHING PATTERN "*.h")
+endif(INSTALL_HEADERS)

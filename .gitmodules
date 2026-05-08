@@ -1,0 +1,6 @@
+[submodule "onboard/source/BME280_SensorAPI"]
+	path = onboard/source/BME280_SensorAPI
+	url = https://github.com/boschsensortec/BME280_SensorAPI
+[submodule "onboard/source/BME68x_SensorAPI"]
+	path = onboard/source/BME68x_SensorAPI
+	url = https://github.com/boschsensortec/BME68x_SensorAPI

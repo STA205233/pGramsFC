@@ -50,12 +50,12 @@ endif(GB_USE_SPI)
 if (GB_USE_I2C)
   set(GB_I2C_CORE_CLASSES
     src/BME680IO.cc
+    src/BME280IO.cc
   )
 endif(GB_USE_I2C)
 if(GB_USE_BAYCAT)
   list(APPEND GB_SPI_CORE_CLASSES
     src/BayCatSPIIO.cc
-    src/BayCatAPICaller.cc
   )
   list(APPEND GB_I2C_CORE_CLASSES
     src/BayCatI2CIO.cc
@@ -105,6 +105,7 @@ target_link_libraries(GBCore
   ${MOSQUITTO_LIB}
   ${VERSALOGIC_LIB}
   ${BME_LIB}
+  ${BME280_LIB}
   )
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 
