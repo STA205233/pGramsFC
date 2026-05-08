@@ -3,7 +3,7 @@ include_directories(
 )
 
 set(GB_BME68x_CLASSES
-  BME68x_SensorAPI/bme68x.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/../BME68x_SensorAPI/bme68x.c
 )
 
 add_library(${BME_LIB} SHARED
