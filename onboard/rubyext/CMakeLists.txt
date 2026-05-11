@@ -34,6 +34,7 @@ set(RUBY_EXT_LIBRARIES
   ${D2XX_LIB}
   ${VERSALOGIC_LIB}
   ${BME_LIB}
+  ${BME280_LIB}
 )
 
 

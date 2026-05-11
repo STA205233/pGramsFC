@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
   BayCatI2CIO i2c;
   i2c.Open(0);
   const int test_mode = std::stoi(argv[1]);
-  BME280IO bme280;
+  //BME280IO bme280;
   switch (test_mode) {
   case 0:
     return test_1(i2c);
@@ -31,9 +31,9 @@ std::ostream &printUsage(std::ostream &stream) {
   return stream;
 }
 int test_1(BayCatI2CIO &i2c) {
-  uint8_t reg_data[] = {0xB6};
-  const auto ret2 = BME280IO::writeRegI2C(0xE0, reg_data, 1, &i2c);
-  const auto ret = BME280IO::readRegI2C(0xD0, reg_data, 1, &i2c);
+  uint8_t reg_data[] = {0xE0};
+  //const auto ret2 = BME280IO::writeRegI2C(0xE0, reg_data, 1, &i2c);
+  const auto ret = BME680IO::readRegI2C(0xD0, reg_data, 1, &i2c);
   std::cout << "readRegI2C result: " << static_cast<int>(ret) << std::endl;
   std::cout << std::hex << "reg_data: 0x" << static_cast<int>(reg_data[0]) << std::dec << std::endl;
   return ret;

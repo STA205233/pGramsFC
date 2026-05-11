@@ -1,9 +1,10 @@
+set(source_directory ${CMAKE_SOURCE_DIR}/BME68x_SensorAPI)
 include_directories(
-  BME68x_SensorAPI
+  ${source_directory}
 )
 
 set(GB_BME68x_CLASSES
-  ${CMAKE_CURRENT_SOURCE_DIR}/../BME68x_SensorAPI/bme68x.c
+  ${source_directory}/bme68x.c
 )
 
 add_library(${BME_LIB} SHARED
@@ -13,7 +14,7 @@ add_library(${BME_LIB} SHARED
 install(TARGETS ${BME_LIB} LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if(INSTALL_HEADERS)
-  install(DIRECTORY include/
+  install(DIRECTORY ${source_directory}/
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/GRAMSBalloon
     FILES_MATCHING PATTERN "*.h")
 endif(INSTALL_HEADERS)

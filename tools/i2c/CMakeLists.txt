@@ -48,4 +48,6 @@ target_link_directories(${MY_LIBRARY} PRIVATE
 target_include_directories(${MY_LIBRARY} PRIVATE
   $ENV{HOME}/include/GRAMSBalloon
   ${VERSALOGIC_INC_DIR}
+  GBBME280
+  GBBME68x
 )

@@ -170,6 +170,7 @@ if (GB_USE_I2C)
   set(BME280_LIB GBBME280)
   set(BME_INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/BME68x_SensorAPI ${CMAKE_CURRENT_SOURCE_DIR}/BME280_SensorAPI)
   message("-- BME_LIB: ${BME_LIB}")
+  message("-- BME280_LIB: ${BME280_LIB}")
   message("-- BME_INC_DIR: ${BME_INC_DIR}")
 endif(GB_USE_I2C)
 
