@@ -94,8 +94,6 @@ void BME680IO::setup(I2CInterface *intf) {
 }
 
 int BME680IO::getData() {
-  bme68x_init(bme68xn_.get());
-  bme68x_set_conf(configure_.get(), bme68xn_.get());
   bme68x_set_op_mode(BME68X_FORCED_MODE, bme68xn_.get());
   uint8_t ndata = 0;
   const int res = bme68x_get_data(BME68X_FORCED_MODE, sensorData_.get(), &ndata, bme68xn_.get());
