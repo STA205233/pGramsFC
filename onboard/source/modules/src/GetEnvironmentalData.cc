@@ -9,8 +9,7 @@ using namespace anlnext;
 namespace gramsballoon::pgrams {
 
 GetEnvironmentalData::GetEnvironmentalData() {
-  //bme680io_ = std::make_shared<BME680IO>();
-  bme680io_ = std::make_shared<BME280IO>();
+  bme680io_ = std::make_shared<BME680IO>();
 }
 
 GetEnvironmentalData::~GetEnvironmentalData() = default;

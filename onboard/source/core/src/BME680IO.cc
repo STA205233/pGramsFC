@@ -50,7 +50,7 @@ int8_t BME680IO::readRegI2C(uint8_t reg_addr, uint8_t *reg_data, uint32_t length
   int8_t rslt = BME68X_OK;
   I2CInterface *intf = static_cast<I2CInterface *>(intf_ptr);
   intf->setAddress(BME_ADDRESS);
-  const int result = intf->WriteThenRead(&reg_addr, BME_REGISTER_BYTES, reg_data, static_cast<uint32_t>(length));
+  const int result = intf->ReadRegister(reg_addr, reg_data, static_cast<uint32_t>(length));
   if (result < 0) {
     rslt = -1;
   }

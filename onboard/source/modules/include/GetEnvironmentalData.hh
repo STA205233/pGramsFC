@@ -2,7 +2,7 @@
 #ifndef GetEnvironmentalData_H
 #define GetEnvironmentalData_H 1
   
-#include "BME280IO.hh"
+#include "BME680IO.hh"
 #include "I2CInterface.hh"
 #include "I2CManager.hh"
 #include "SendTelemetry.hh"
@@ -50,7 +50,7 @@ private:
   std::string I2CManagerName_ = "I2CManager";
   I2CManager *I2CManager_ = nullptr;
   SendTelemetry *sendTelemetry_ = nullptr;
-  std::shared_ptr<BME280IO> bme680io_ = nullptr;
+  std::shared_ptr<BME680IO> bme680io_ = nullptr;
   std::shared_ptr<I2CInterface> interface_ = nullptr;
   double pressure_;
   double humidity_;

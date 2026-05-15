@@ -16,12 +16,12 @@ protected:
 public:
   virtual int Open(int) { return -1; }
   virtual int Close() { return -1; }
-  virtual int WriteThenRead(uint16_t address, const uint8_t *reg_data, uint32_t length, uint8_t *read_data, uint32_t read_length) { return -1; }
-  virtual int Write(uint16_t address, const uint8_t *data, uint32_t length) { return -1; }
-  virtual int Read(uint16_t address, uint8_t *data, uint32_t length) { return -1; }
-
-  int WriteThenRead(const uint8_t *writeBuffer, uint32_t wsize, uint8_t *readBuffer, uint32_t rsize) {
-    return WriteThenRead(address_, writeBuffer, wsize, readBuffer, rsize);
+  virtual int ReadRegister(uint16_t /*address*/, uint8_t /*reg_data*/, uint8_t */*read_data*/, uint32_t /*read_length*/) { return -1; }
+  virtual int Write(uint16_t /*address*/, const uint8_t */*data*/, uint32_t /*length*/) { return -1; }
+  virtual int Read(uint16_t /*address*/, uint8_t */*data*/, uint32_t /*length*/) { return -1; }
+  
+  int ReadRegister(uint8_t reg_data, uint8_t *readBuffer, uint32_t rsize) {
+    return ReadRegister(address_, reg_data, readBuffer, rsize);
   }
   int Write(const uint8_t *writeBuffer, uint32_t size) {
     return Write(address_, writeBuffer, size);
