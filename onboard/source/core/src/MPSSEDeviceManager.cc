@@ -5,6 +5,7 @@ namespace gramsballoon::pgrams::mpsse {
 int MPSSEDeviceManager::getDeviceNum() {
   DWORD numDevices = 0;
   HANDLE_ERROR(FT_CreateDeviceInfoList(&numDevices));
+  DBG("MPSSE devices: " << numDevices);
   return static_cast<int>(numDevices);
 }
 std::ostream &MPSSEDeviceManager::printDeviceInfo(std::ostream &os) {
@@ -38,8 +39,9 @@ int MPSSEDeviceManager::openDevice(int index, MPSSEController &controller) {
     return -1;
   }
   FT_HANDLE handle;
-  if (FT_Open(index, &handle) != FT_OK) {
-    std::cerr << "Failed to open MPSSE device at index " << index << std::endl;
+  const auto status = FT_Open(index, &handle);
+  if (status != FT_OK) {
+    std::cerr << "Failed to open MPSSE device at index " << index << " (code: " <<  status << ")" << std::endl;
     return -1;
   }
   DBG("Opened the device");
