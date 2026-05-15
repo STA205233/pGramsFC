@@ -1,5 +1,6 @@
 export ANLNEXT_INSTALL="/home/user"
 export RUBYLIB=${ANLNEXT_INSTALL}/lib/ruby:${RUBYLIB}
+export RUBY_EXE=`which ruby`
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/lib/"
 export LD_LIBRARY_PATH=${ANLNEXT_INSTALL}/lib:${LD_LIBRARY_PATH}
 
