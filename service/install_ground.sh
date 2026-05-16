@@ -1,0 +1,35 @@
+#! /bin/sh
+
+SCRIPT_DIR="$(cd $(dirname $0); pwd)"
+HOME_DIR=`getent passwd ${SUDO_USER:-$USER} | cut -d: -f6`
+EXE_DIR=$SCRIPT_DIR/../operation/monitor
+EXE_PATH=$EXE_DIR/monitor.rb
+INSTALL_PATH=/etc/pGRAMS_ground
+ENV_FILE_PATH=${INSTALL_PATH}/pGramsFC_ground.env
+
+. ${HOME_DIR}/pGRAMS.sh
+retval=$?
+if [ $retval -ne 0 ]; then
+  exit $retval
+fi
+
+sudo mkdir ${INSTALL_PATH}
+#retval=$?
+#if [ $retval -ne 0 ]; then
+#  exit $retval
+#fi
+
+sudo echo -e "LD_LIBRARY_PATH=${LD_LIBRARY_PATH}\nRUBYLIB=${RUBYLIB}\nPGRAMS_MOSQUITTO_HOST=${PGRAMS_MOSQUITTO_HOST}\nPGRAMS_MOSQUITTO_PORT=${PGRAMS_MOSQUITTO_PORT}\nPGRAMS_MOSQUITTO_USER=${PGRAMS_MOSQUITTO_USER}\nPGRAMS_MOSQUITTO_PASSWD=${PGRAMS_MOSQUITTO_PASSWD}\nPGRAMS_MOSQUITTO_HOST_INTERNAL=${PGRAMS_MOSQUITTO_HOST_INTERNAL}\nPGRAMS_MOSQUITTO_PASSWD_INTERNAL=${PGRAMS_MOSQUITTO_PASSWD_INTERNAL}\nPGRAMS_MOSQUITTO_PORT_INTERNAL=${PGRAMS_MOSQUITTO_PORT_INTERNAL}\nPGRAMS_MOSQUITTO_USER_INTERNAL=${PGRAMS_MOSQUITTO_USER_INTERNAL}\nPGRAMS_EXE_DIR=${EXE_DIR}\npGRAMS_EXE_PATH=${EXE_PATH}\nPGRAMS_SHELL_DIR=${SCRIPT_DIR}\nHOME=${HOME_DIR}\nRUBY_EXE=${RUBY_EXE}\nPGRAMS_MYSQL_HOST=${PGRAMS_MYSQL_HOST}\nPGRAMS_MYSQL_PASSWD=${PGRAMS_MYSQL_PASSWD}\nPGRAMS_MYSQL_USER=${PGRAMS_MYSQL_USER}" > $ENV_FILE_PATH
+retval=$?
+if [ $retval -ne 0 ]; then
+  echo "Creating env file failed: ${ENV_FILE_PATH}"
+  exit $retval
+fi
+
+sudo cp ${SCRIPT_DIR}/pGramsFC_ground.service /etc/systemd/system
+retval=$?
+if [ $retval -ne 0 ]; then
+  exit $retval
+fi
+
+sudo systemctl daemon-reload

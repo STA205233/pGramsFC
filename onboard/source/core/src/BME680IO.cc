@@ -1,9 +1,9 @@
-#ifndef GB_DEMO_MODE
 #include "BME680IO.hh"
 #include <iomanip>
 #include <vector>
 
 namespace gramsballoon::pgrams {
+constexpr uint8_t BME_ADDRESS = 0x77;
 
 BME680IO::BME680IO() {
   bme68xn_ = std::make_unique<bme68x_dev>();
@@ -36,6 +36,7 @@ int8_t BME680IO::writeRegSPI(uint8_t reg_addr, const uint8_t *reg_data, uint32_t
 int8_t BME680IO::writeRegI2C(uint8_t reg_addr, const uint8_t *reg_data, uint32_t length, void *intf_ptr) {
   int8_t rslt = BME68X_OK;
   I2CInterface *intf = static_cast<I2CInterface *>(intf_ptr);
+  intf->setAddress(BME_ADDRESS);
   std::vector<uint8_t> writeBuffer(length + 1);
   writeBuffer[0] = reg_addr;
   std::copy(reg_data, reg_data + length, writeBuffer.begin() + 1);
@@ -48,7 +49,8 @@ int8_t BME680IO::writeRegI2C(uint8_t reg_addr, const uint8_t *reg_data, uint32_t
 int8_t BME680IO::readRegI2C(uint8_t reg_addr, uint8_t *reg_data, uint32_t length, void *intf_ptr) {
   int8_t rslt = BME68X_OK;
   I2CInterface *intf = static_cast<I2CInterface *>(intf_ptr);
-  const int result = intf->WriteThenRead(&reg_addr, BME_REGISTER_BYTES, reg_data, static_cast<uint32_t>(length));
+  intf->setAddress(BME_ADDRESS);
+  const int result = intf->ReadRegister(reg_addr, reg_data, static_cast<uint32_t>(length));
   if (result < 0) {
     rslt = -1;
   }
@@ -92,12 +94,10 @@ void BME680IO::setup(I2CInterface *intf) {
 }
 
 int BME680IO::getData() {
-  bme68x_init(bme68xn_.get());
-  bme68x_set_conf(configure_.get(), bme68xn_.get());
   bme68x_set_op_mode(BME68X_FORCED_MODE, bme68xn_.get());
   uint8_t ndata = 0;
-  int res = bme68x_get_data(BME68X_FORCED_MODE, sensorData_.get(), &ndata, bme68xn_.get());
-
+  const int res = bme68x_get_data(BME68X_FORCED_MODE, sensorData_.get(), &ndata, bme68xn_.get());
+  
   if (res != 0) {
     std::cerr << "BME680IO::getData failed: ndata = " << static_cast<int>(ndata) << ", get_data_id = " << res << std::endl;
   }
@@ -111,4 +111,3 @@ void BME680IO::printData() {
 }
 
 } // namespace gramsballoon::pgrams
-#endif /* GB_DEMO_MODE */

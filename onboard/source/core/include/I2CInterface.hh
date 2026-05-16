@@ -16,23 +16,23 @@ protected:
 public:
   virtual int Open(int) { return -1; }
   virtual int Close() { return -1; }
-  virtual int WriteThenRead(uint16_t address, uint16_t register_address, const uint8_t *reg_data, uint32_t length, uint16_t *read_data, uint32_t read_length) { return -1; }
-  virtual int Write(uint16_t address, uint16_t register_address, uint8_t *data, uint32_t length) { return -1; }
-  virtual int Read(uint16_t address, uint8_t *data, unsigned int length) { return -1; }
-
-  int WriteThenRead(const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
-    return WriteThenRead(address_, 0, writeBuffer, wsize, reinterpret_cast<uint16_t *>(readBuffer), rsize);
+  virtual int ReadRegister(uint16_t /*address*/, uint8_t /*reg_data*/, uint8_t */*read_data*/, uint32_t /*read_length*/) { return -1; }
+  virtual int Write(uint16_t /*address*/, const uint8_t */*data*/, uint32_t /*length*/) { return -1; }
+  virtual int Read(uint16_t /*address*/, uint8_t */*data*/, uint32_t /*length*/) { return -1; }
+  
+  int ReadRegister(uint8_t reg_data, uint8_t *readBuffer, uint32_t rsize) {
+    return ReadRegister(address_, reg_data, readBuffer, rsize);
   }
-  int Write(const uint8_t *writeBuffer, unsigned int size) {
-    return Write(address_, 0, const_cast<uint8_t *>(writeBuffer), size);
+  int Write(const uint8_t *writeBuffer, uint32_t size) {
+    return Write(address_, writeBuffer, size);
   }
-  int Read(uint8_t *readBuffer, unsigned int size) {
+  int Read(uint8_t *readBuffer, uint32_t size) {
     return Read(address_, readBuffer, size);
   }
   uint16_t Address() const { return address_; }
   void setAddress(uint16_t address) { address_ = address; }
 
-  virtual int setOption(int option) { return -1; }
+  virtual int setOption(int /*option*/) { return -1; }
   virtual int applySetting() { return -1; }
 
 private:

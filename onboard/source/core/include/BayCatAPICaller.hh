@@ -65,6 +65,8 @@ protected:
   static const int DIO_CHANNEL_HIGH_;
   static const int DIO_CHANNEL_LOW_;
   static const unsigned long I2C_BUS_TYPE_PRIMARY;
+  static const unsigned long I2C_FREQUENCY_100KHZ;
+  static const unsigned long I2C_FREQUENCY_400KHZ;
 
   static const int API_OK;
 
