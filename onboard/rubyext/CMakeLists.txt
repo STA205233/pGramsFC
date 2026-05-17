@@ -15,6 +15,7 @@ set(RUBY_EXT_INCLUDE_DIRS
   ${D2XX_INCLUDE_DIRS}
   ${VERSALOGIC_INC_DIRS}
   ${LJM_INC_DIR}
+  ${BME_INC_DIR}
   )
 set(RUBY_EXT_LIBRARY_DIRS
   /usr/local/lib
@@ -34,6 +35,8 @@ set(RUBY_EXT_LIBRARIES
   ${D2XX_LIB}
   ${VERSALOGIC_LIB}
   ${LJM_LIB}
+  ${BME_LIB}
+  ${BME280_LIB}
 )
 
 
@@ -62,6 +65,8 @@ if(GB_DEMO_MODE)
 endif()
 if (GB_USE_LJM)
   list(APPEND cxx_definitions -DUSE_LJM)
+if (GB_USE_I2C)
+  list(APPEND cxx_definitions -DUSE_I2C)
 endif()
 
 set(SWIG_FLAGS ${cxx_definitions})

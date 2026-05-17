@@ -1,6 +1,7 @@
 #ifndef GB_SPIInterfaceMultiplexer_hh
 #define GB_SPIInterfaceMultiplexer_hh 1
 #include "SPIInterface.hh"
+#include "VCSMapping.hh"
 #include <cstdint>
 #include <memory>
 #include <tuple>
@@ -8,14 +9,17 @@
 
 namespace gramsballoon::pgrams {
 class SPIInterface;
+class VCSMapping;
 
 /**
  * @brief A class of SPI Interface Multiplexer
  * @note This function is not thread-safe.
  * @author Shota Arai
  * @date 2025-10-27 | Shota Arai | Created
+ * @date 2026-02-20 | Shota Arai | Refactor to use only one SPIInterface per multiplexer
  */
-class SPIInterfaceMultiplexer {
+
+class SPIInterfaceMultiplexer: public SPIInterface {
 public:
   SPIInterfaceMultiplexer() = default;
   virtual ~SPIInterfaceMultiplexer() = default;
@@ -24,89 +28,69 @@ protected:
   SPIInterfaceMultiplexer(const SPIInterfaceMultiplexer &) = delete;
 
 private:
-  std::vector<std::unique_ptr<SPIInterface>> spiInterfaces_;
-  std::vector<std::vector<std::pair<int, int>>> csMapping_; // Pair: (interface index, cs). The vector index is (channel of multiplexer, bit position)
+  std::unique_ptr<VCSMapping> csMapping_ = nullptr;
+  std::shared_ptr<SPIInterface> baseInterface_ = nullptr;
 
 public:
-  void addSPIInterface(const std::unique_ptr<SPIInterface> &spiInterface) {
-    spiInterfaces_.push_back(std::move(spiInterface));
-  }
-  SPIInterface *getSPIInterface(size_t index) {
-    if (index < spiInterfaces_.size()) {
-      return spiInterfaces_[index].get();
-    }
-    return nullptr;
-  }
-  int baudrate(size_t index) const {
-    if (index < spiInterfaces_.size()) {
-      return spiInterfaces_[index]->baudrate();
+  void setBaseInterface(std::shared_ptr<SPIInterface> &&baseInterface) { baseInterface_ = baseInterface; }
+
+  void setMappingChipSelect(std::unique_ptr<VCSMapping> &&mapping) { csMapping_ = std::move(mapping); }
+  std::optional<uint32_t> getMappingChipSelect(int multiplexerChannel) const;
+
+  int controlGPIO(int cs, bool value) override;
+
+  template <typename F>
+  int executeFunction(int multiplexerChannel, bool csControl, F &&f);
+
+  int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
+  int WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) override;
+  int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) override;
+  int Open(int channel) override;
+  int Close() override;
+  int updateSetting() override {
+    if (baseInterface_) {
+      return baseInterface_->updateSetting();
     }
     return -1;
   }
-
-  void setBaudrate(size_t index, unsigned int baudrate) {
-    if (index < spiInterfaces_.size()) {
-      spiInterfaces_[index]->setBaudrate(baudrate);
+  void setBaudrate(unsigned int baudrate) override {
+    if (baseInterface_) {
+      baseInterface_->setBaudrate(baudrate);
     }
   }
-
-  void setConfigOptions(size_t index, unsigned int options) {
-    if (index < spiInterfaces_.size()) {
-      spiInterfaces_[index]->setConfigOptions(options);
+  int MaximumCh() override {
+    if (baseInterface_) {
+      return (1 << baseInterface_->MaximumCh());
     }
-  }
-
-  int Open(size_t index, int ch = 0) {
-    if (index < spiInterfaces_.size()) {
-      return spiInterfaces_[index]->Open(ch);
-    }
-    return -1;
-  }
-
-  int Close(size_t index) {
-    if (index < spiInterfaces_.size()) {
-      return spiInterfaces_[index]->Close();
-    }
-    return -1;
-  }
-
-  size_t getNumberOfInterfaces() const {
-    return spiInterfaces_.size();
-  }
-
-  void setMappingChipSelect(int multiplexerChannel, int bitPosition, size_t interfaceIndex, int cs) {
-    if (multiplexerChannel >= static_cast<int>(csMapping_.size())) {
-      csMapping_.resize(multiplexerChannel + 1);
-    }
-    csMapping_[multiplexerChannel][bitPosition] = std::make_pair(static_cast<int>(interfaceIndex), cs);
-  }
-
-  std::pair<int, int> getMappingChipSelect(int multiplexerChannel, int bitPosition) const {
-    if (multiplexerChannel < static_cast<int>(csMapping_.size()) && bitPosition < static_cast<int>(csMapping_[multiplexerChannel].size())) {
-      return csMapping_[multiplexerChannel][bitPosition];
-    }
-    return std::make_pair(-1, -1);
-  }
-  template <typename Func, typename... Args>
-  int executeFunction(int multiplexerChannel, int cs, Func SPIInterface::*func, Args... args) {
-    bool success = false;
-    for (int bit = 0; bit < 32; ++bit) {
-      if (cs & (1 << bit)) {
-        const auto [interfaceIndex, cs] = getMappingChipSelect(multiplexerChannel, bit);
-        if (interfaceIndex >= 0 && cs >= 0) {
-          SPIInterface *spiInterface = getSPIInterface(interfaceIndex);
-          if (spiInterface != nullptr) {
-            success &= (spiInterface->*func)(cs, args...);
-          }
-          else {
-            success = false;
-          }
-        }
-        return -1;
-      }
-    }
-    return -1;
+    return 0;
   }
 };
+
+template <typename F>
+int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csControl, F &&f) {
+  const auto mapped = getMappingChipSelect(multiplexerChannel);
+  if (!mapped.has_value()) {
+    return -1;
+  }
+
+  int ret = 0;
+  if (csControl) {
+    ret = baseInterface_->controlGPIO(static_cast<int>(*mapped), true);
+    if (ret != 0) {
+      return ret;
+    }
+  }
+
+  ret = std::forward<F>(f)(static_cast<int>(*mapped));
+
+  if (csControl) {
+    const int releaseRet = baseInterface_->controlGPIO(static_cast<int>(*mapped), false);
+    if (ret == 0) {
+      ret = releaseRet;
+    }
+  }
+  return ret;
+}
+
 } // namespace gramsballoon::pgrams
 #endif //GB_SPIInterfaceMultiplexer_hh

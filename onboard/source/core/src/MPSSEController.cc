@@ -45,6 +45,7 @@ int MPSSEController::applySettings() {
   HANDLE_ERROR(FT_SetTimeouts(handle_, readTimeout_, writeTimeout_));
   DBG("readTimeout is set to " << readTimeout_);
   DBG("writeTimeout is set to " << writeTimeout_);
+  FT_Purge(handle_, FT_PURGE_RX | FT_PURGE_TX);
   setSPIMode(spiMode_);
   return 0;
 }
@@ -76,6 +77,13 @@ int MPSSEController::setSPIMode(int mode, bool byteMode, bool msbFirst) {
 }
 
 int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
+#ifdef SPI_DEBUG
+  std::cout << __func__ << " is called with arguments ";
+  for (unsigned int i = 0; i < size; i++) {
+    std::cout << std::hex << static_cast<int>(data[i]) << " " << std::dec;
+  }
+  std::cout << std::endl;
+#endif
   uint16_t status;
   readCurrentPinStatus(status);
   status &= ~(1 << (cs + 3)); // Keep high byte
@@ -85,6 +93,7 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(spiWriteCommand_);
   cmdBuffer_.push_back(static_cast<uint8_t>((size - 1) & 0xFF)); // Length LSB
+  cmdBuffer_.push_back(static_cast<uint8_t>(((size - 1) >> 8) & 0xFF)); // Length MSB
   for (unsigned int i = 0; i < size; ++i) {
     cmdBuffer_.push_back(data[i]);
   }
@@ -92,12 +101,23 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
   status |= (1 << (cs + 3)); // Keep high byte
   cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
-  writeMPSSE(cmdBuffer_);
+  const int writtenBytes = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
-  return 0;
+  if (writtenBytes < 0) {
+    std::cerr << "SPI_Write is failed: " << status << std::endl;
+    return writtenBytes;
+  }
+  return static_cast<int>(size);
 }
 
 int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8_t *dataToReceive, int cs) {
+#ifdef SPI_DEBUG
+  std::cout << __func__ << " is called with arguments ";
+  for (unsigned int i = 0; i < size; i++) {
+    std::cout << std::hex << static_cast<int>(dataToSend[i]) << " " << std::dec;
+  }
+  std::cout << std::endl;
+#endif
   uint16_t status;
   readCurrentPinStatus(status);
   status &= ~(1 << (cs + 3)); // Keep high byte
@@ -116,8 +136,12 @@ int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8
   cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(commands::SEND_IMMEDIATE_CMD);
-  writeMPSSE(cmdBuffer_);
+  const int writtenBytes = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
+  if (writtenBytes < 0) {
+    std::cerr << "SPI_Write_Read is failed: " << status << std::endl;
+    return writtenBytes;
+  }
   return readMPSSE(dataToReceive, size);
 }
 
@@ -140,7 +164,7 @@ int MPSSEController::writeGPIO(int pin, bool value) {
 }
 
 int MPSSEController::readCurrentPinStatus(uint16_t &status) {
-  uint8_t cmd[2] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD}; // Command to read low byte
+  uint8_t cmd[3] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD, commands::SEND_IMMEDIATE_CMD}; // Command to read low byte
   writeMPSSE(cmd, sizeof(cmd));
   uint8_t readData[2] = {0, 0};
   readMPSSE(readData, sizeof(readData));
@@ -171,17 +195,22 @@ int MPSSEController::readMPSSE(std::vector<uint8_t> &data, unsigned int size) {
   return readMPSSE(data.data(), size);
 }
 int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
-  DWORD numRead = 0;
-  for (int i = 0; i < 100; i++) {
-    DWORD numReadAtOnce = 0;
-    HANDLE_ERROR(FT_Read(handle_, data, static_cast<DWORD>(size), &numReadAtOnce));
-    numRead += numReadAtOnce;
-    if (numRead == size) {
-      break;
+  DWORD total = 0;
+
+  for (int i = 0; i < 100 && total < size; i++) {
+    DWORD n = 0;
+    DWORD remain = static_cast<DWORD>(size - total);
+
+    HANDLE_ERROR(FT_Read(handle_, data + total, remain, &n));
+    total += n;
+
+    if (total < size) {
+      // tight loop を避ける（timeout 0ms だと延々0バイトになりやすい）
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::cout << numRead << std::endl;
   }
-  if (numRead != static_cast<DWORD>(size)) {
+
+  if (total != static_cast<DWORD>(size)) {
     std::cerr << "MPSSEController::readMPSSE: Not all bytes were read" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
   }
@@ -192,7 +221,7 @@ int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
   }
   std::cout << std::endl;
 #endif
-  return static_cast<int>(numRead);
+  return static_cast<int>(total);
 }
 int MPSSEController::testConnection() {
   // Test 1
@@ -208,7 +237,7 @@ int MPSSEController::testConnection() {
     std::cerr << "MPSSEController::testConnection: Read failed" << std::endl;
     return read_status;
   }
-  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID && readData[1] != commands::MPSSE_TEST_CMD1) {
+  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID || readData[1] != commands::MPSSE_TEST_CMD1) {
     std::cerr << "MPSSEController::testConnection: Data mismatch. Sent 0xAA, received 0x" << std::hex << static_cast<int>(readData[0]) << std::dec << std::endl;
     return -1;
   }
@@ -227,7 +256,7 @@ int MPSSEController::testConnection() {
     std::cerr << "MPSSEController::testConnection: Read failed" << std::endl;
     return read_status2;
   }
-  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID && readData[1] != commands::MPSSE_TEST_CMD2) {
+  if (readData[0] != commands::MPSSE_ERROR_CMD_INVALID || readData[1] != commands::MPSSE_TEST_CMD2) {
     std::cerr << "MPSSEController::testConnection: Data mismatch. Sent 0xAB, received 0x" << std::hex << static_cast<int>(readData[0]) << std::dec << std::endl;
     return -1;
   }

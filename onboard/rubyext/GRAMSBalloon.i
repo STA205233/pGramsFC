@@ -13,6 +13,8 @@
 #endif
 #ifdef USE_SPI
 #include "SPIManager.hh"
+#include "GetPDUInfo.hh"
+#include "ControlPDU.hh"
 #endif
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
@@ -22,6 +24,10 @@
 #include "InterpretTelemetry.hh"
 #ifdef USE_HSQUICKLOOK
 #include "PushToMongoDB.hh"
+#endif
+#ifdef USE_I2C
+#include "GetEnvironmentalData.hh"
+#include "I2CManager.hh"
 #endif
 #include "RunIDManager.hh"
 #include "ReadTelemetry.hh"
@@ -75,6 +81,16 @@ class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
+};
+class GetPDUInfo : public anlnext::BasicModule
+{
+public:
+  GetPDUInfo();
+};
+class ControlPDU : public anlnext::BasicModule
+{
+public:
+  ControlPDU();
 };
 #endif
 
@@ -194,21 +210,6 @@ class SendPacketByMQTT : public anlnext::BasicModule
 public:
   SendPacketByMQTT();
 };
-
-} // namespace pgrams
-
-
-
-#ifdef USE_HSQUICKLOOK
-class PushToMongoDB : public anlnext::BasicModule
-{
-public:
-  PushToMongoDB();
-};
-#endif
-
-
-namespace pgrams{
 class MeasureOrientationByMHADC: public anlnext::BasicModule {
 public:
   MeasureOrientationByMHADC();
@@ -233,6 +234,15 @@ public:
 class GetLabJackData: public anlnext::BasicModule {
 public:
   GetLabJackData();
+#endif
+#ifdef USE_I2C
+class GetEnvironmentalData: public anlnext::BasicModule {
+public:
+  GetEnvironmentalData();
+};
+class I2CManager: public anlnext::BasicModule {
+public:
+  I2CManager();
 };
 #endif
 } // namespace pgrams
