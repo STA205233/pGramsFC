@@ -51,6 +51,9 @@
 #include "DetectErrorCallbackFromDAQ.hh"
 #include "PressureGaugeManager.hh"
 #include "GetPressure.hh"
+#ifdef USE_LJM
+#include "GetLabJackData.hh"
+#endif
 %}
 
 %include "std_vector.i"
@@ -227,6 +230,11 @@ class GetPressure: public anlnext::BasicModule {
 public:
   GetPressure();
 };
+#ifdef USE_LJM
+class GetLabJackData: public anlnext::BasicModule {
+public:
+  GetLabJackData();
+#endif
 #ifdef USE_I2C
 class GetEnvironmentalData: public anlnext::BasicModule {
 public:

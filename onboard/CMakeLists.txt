@@ -42,6 +42,7 @@ option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
 option(GB_APT_RUBY "installed ruby via apt" OFF)
 option(GB_USE_ROOT "enable root" OFF)
 option(GB_USE_MYSQL "enable mysql" OFF)
+option(GB_USE_LJM "enable LJM library for LabJack devices" ON)
 
 # # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
@@ -57,17 +58,25 @@ else()
 endif()
 set(GB_PGRAMSBALLOON_INC_DIR "${GB_PGRAMSBALLOON_PATH}/include")
 
-# # shortcut options
-option(GB_MAC " shortcut " OFF)
-
-if(GB_MAC)
+if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
+  set(GB_USE_SPI ON)
+else()
+  set(GB_USE_SPI OFF)
+  endif()
+  
+  # # shortcut options
+  option(GB_MAC " shortcut " OFF)
+  
+  if(GB_MAC)
   message("-- GB_MAC is set")
   message("-- GB_MAC is set ")
   set(GB_USE_SPI OFF)
   set(GB_USE_HSQUICKLOOK OFF)
   set(GB_APT_RUBY OFF)
-  set(GB_USE_ROOT ON)
-endif(GB_MAC)
+  set(GB_USE_MYSQL ON)
+  set(GB_USE_ROOT OFF)
+  set(GB_USE_SYSTEM_MODULES OFF)
+  endif(GB_MAC)
 
 
 if (GB_USE_FT232H)
@@ -222,7 +231,14 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquittopp REQUIRED)
 set(MOSQUITTO_LIB PkgConfig::Mosquitto)
 
-
+# LJM
+if (GB_USE_LJM)
+  find_library(LJM_LIB NAMES LabJackM REQUIRED PATHS /usr/local/lib)
+  find_path(LJM_INC_DIR NAMES LabJackM.h REQUIRED PATHS /usr/local/include)
+  message(" -- LJM_LIB: ${LJM_LIB} ")
+  message(" -- LJM_INC_DIR: ${LJM_INC_DIR} ")
+  list(APPEND cxx_definitions "-DUSE_LJM")
+endif(GB_USE_LJM)
 
 # ## subdirectories
 add_subdirectory(source)
