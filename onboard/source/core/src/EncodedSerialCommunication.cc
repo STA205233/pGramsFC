@@ -2,16 +2,22 @@
 namespace gramsballoon::pgrams {
 int EncodedSerialCommunication::ReadData(std::string &data, int length) {
   data.clear();
-  std::vector<uint8_t> buf(length);
-  const int ret = sread(buf, length);
-  std::cout << "ret: " << ret << std::endl;
+  buf_.resize(length);
+  const int ret = sread(buf_, length);
   if (ret < 0) {
     return ret;
   }
-  std::cout << "b: " << ret << std::endl;
-  for (const auto &b: buf) {
-    data += static_cast<char>(b);
+  data.assign(buf_.begin(), buf_.begin() + ret);
+  return ret;
+}
+int EncodedSerialCommunication::ReadData(char *data, int length) {
+  buf_.clear();
+  buf_.resize(length);
+  const int ret = sread(buf_, length);
+  if (ret < 0) {
+    return ret;
   }
+  std::copy(buf_.begin(), buf_.begin() + ret, data);
   return ret;
 }
 int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data) {
@@ -43,12 +49,9 @@ int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, cons
   return cnt;
 }
 int EncodedSerialCommunication::WriteData(const std::string &data) {
-  const int sz = data.size();
-  std::vector<uint8_t> buf(sz);
-  for (int i = 0; i < sz; i++) {
-    buf[i] = static_cast<uint8_t>(data[i]);
-  }
-  const int ret = swrite(buf);
+  buf_.clear();
+  buf_.assign(data.begin(), data.end());
+  const int ret = swrite(buf_);
   return ret;
 }
 } // namespace gramsballoon::pgrams

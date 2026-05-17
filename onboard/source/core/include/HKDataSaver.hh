@@ -2,6 +2,7 @@
 #define GB_HKDataSaver_h 1
 #include <cstdint>
 #include <fstream>
+#include <sstream>
 namespace gramsballoon::pgrams {
 template <typename DataType = uint8_t>
 class HKDataSaver {
@@ -10,7 +11,7 @@ public:
   virtual ~HKDataSaver() = default;
 
 private:
-  std::ofstream file_;
+  std::fstream file_;
   uint32_t NData_ = 1;
   uint32_t dataCount_ = 0;
   uint32_t fileIndex_ = 0;
@@ -19,7 +20,7 @@ private:
 
 public:
   void setFilenameBase(const std::string &base) { filenameBase_ = base; }
-  void saveData(const DataType (&data));
+  void saveData(const DataType *data);
   void openFileForWrite();
   void openFileForRead(const std::string &filename) {
     if (file_.is_open()) {
@@ -30,7 +31,7 @@ public:
       std::cerr << "Failed to open file: " << filename << std::endl;
       return;
     }
-    file_.read(reinterpret_cast<char *>(&NData), sizeof(uint32_t));
+    file_.read(reinterpret_cast<char *>(&NData_), sizeof(uint32_t));
   }
   void closeFile() {
     if (file_.is_open()) {
@@ -39,17 +40,19 @@ public:
   }
 };
 
-void HKDataSaver::saveData() {
+template <typename DataType>
+void HKDataSaver<DataType>::saveData(const DataType *data) {
   if (!file_.is_open() || dataCount_ >= numDataPerFile_) {
     openFileForWrite();
   }
   time_t current_time = time(nullptr);
   file_.write(reinterpret_cast<const uint8_t *>(&current_time), sizeof(current_time));
-  file_.write(reinterpret_cast<const uint8_t *>(data), sizeof(DataType) * NData);
+  file_.write(reinterpret_cast<const uint8_t *>(data), sizeof(DataType) * NData_);
   dataCount_++;
 }
 
-void HKDataSaver::openFileForWrite() {
+template <typename DataType>
+void HKDataSaver<DataType>::openFileForWrite() {
   if (file_.is_open()) {
     file_.close();
   }
@@ -62,7 +65,7 @@ void HKDataSaver::openFileForWrite() {
   }
   fileIndex_++;
   dataCount_ = 0;
-  file_.write(reinterpret_cast<const uint8_t *>(&NData), sizeof(uint32_t));
+  file_.write(reinterpret_cast<const uint8_t *>(&NData_), sizeof(uint32_t));
 }
 } // namespace gramsballoon::pgrams
 

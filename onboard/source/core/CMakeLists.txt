@@ -28,6 +28,7 @@ set(GB_CORE_CLASSES
   src/VHKTelemetryMapping.cc
   src/MHADCMapping.cc
   src/IridiumPacketPool.cc
+  src/ToFBiasController.cc
 )
 
 if(GB_USE_SPI)
