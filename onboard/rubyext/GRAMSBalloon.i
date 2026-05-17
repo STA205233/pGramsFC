@@ -234,6 +234,7 @@ public:
 class GetLabJackData: public anlnext::BasicModule {
 public:
   GetLabJackData();
+};
 #endif
 #ifdef USE_I2C
 class GetEnvironmentalData: public anlnext::BasicModule {
