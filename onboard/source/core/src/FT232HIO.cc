@@ -70,28 +70,20 @@ int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint
   return num_transfered;
 }
 int FT232HIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) {
-  if (csControl) {
-    const auto status_cs_low = controlGPIO(cs, false);
-    if (status_cs_low != 0) {
-      std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
-      return -1;
-    }
+  if (!csControl) {
+    cs = -1; // No CS control
   }
   writeBuffer_.clear();
+  std::cout << "write Buffer: ";
   for (int i = 0; i < static_cast<int>(size); ++i) {
     writeBuffer_.push_back(writeBuffer[i]);
+    std::cout << std::hex << static_cast<int>(writeBuffer[i]) << " ";
   }
+  std::cout << std::endl;
   const int num_transfered = mpsseController_->writeSPI(&writeBuffer_[0], size, cs);
   if (num_transfered != static_cast<int>(size)) {
     std::cerr << "SPI_Write: Not all bytes were written" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
-  }
-  if (csControl) {
-    const auto status_cs_high = controlGPIO(cs, true);
-    if (status_cs_high != 0) {
-      std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
-      return -1;
-    }
   }
   return num_transfered;
 }

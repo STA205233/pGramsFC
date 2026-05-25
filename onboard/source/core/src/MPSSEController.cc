@@ -84,27 +84,23 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
   }
   std::cout << std::endl;
 #endif
-  uint16_t status;
-  readCurrentPinStatus(status);
-  status &= ~(1 << (cs + 3)); // Keep high byte
+  if (cs >= 0) {
+    writeGPIO(cs + 4, false);
+  }
   cmdBuffer_.clear();
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(spiWriteCommand_);
   cmdBuffer_.push_back(static_cast<uint8_t>((size - 1) & 0xFF)); // Length LSB
   cmdBuffer_.push_back(static_cast<uint8_t>(((size - 1) >> 8) & 0xFF)); // Length MSB
   for (unsigned int i = 0; i < size; ++i) {
     cmdBuffer_.push_back(data[i]);
   }
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  status |= (1 << (cs + 3)); // Keep high byte
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   const int writtenBytes = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
+  if (cs >= 0) {
+    writeGPIO(cs + 4, true);
+  }
   if (writtenBytes < 0) {
-    std::cerr << "SPI_Write is failed: " << status << std::endl;
+    std::cerr << "SPI_Write is failed: " << writtenBytes << std::endl;
     return writtenBytes;
   }
   return static_cast<int>(size);
@@ -118,28 +114,24 @@ int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8
   }
   std::cout << std::endl;
 #endif
-  uint16_t status;
-  readCurrentPinStatus(status);
-  status &= ~(1 << (cs + 3)); // Keep high byte
+  if (cs >= 0) {
+    writeGPIO(cs + 4, false);
+  }
   cmdBuffer_.clear();
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(spiWriteReadCommand_);
   cmdBuffer_.push_back(static_cast<uint8_t>((size - 1) & 0xFF)); // Length LSB
   cmdBuffer_.push_back(static_cast<uint8_t>(((size - 1) >> 8) & 0xFF)); // Length MSB
   for (unsigned int i = 0; i < size; ++i) {
     cmdBuffer_.push_back(dataToSend[i]);
   }
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  status |= (1 << (cs + 3)); // Keep high byte
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(commands::SEND_IMMEDIATE_CMD);
   const int writtenBytes = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
+  if (cs >= 0) {
+    writeGPIO(cs + 4, true);
+  }
   if (writtenBytes < 0) {
-    std::cerr << "SPI_Write_Read is failed: " << status << std::endl;
+    std::cerr << "SPI_Write_Read is failed: " << writtenBytes << std::endl;
     return writtenBytes;
   }
   return readMPSSE(dataToReceive, size);
@@ -149,15 +141,25 @@ int MPSSEController::writeGPIO(int pin, bool value) {
   uint16_t status;
   readCurrentPinStatus(status);
   if (value) {
-    status |= (1 << (pin + 3)); // Keep high byte
+    status |= (1 << (pin)); // Keep high byte
   }
   else {
-    status &= ~(1 << (pin + 3)); // Keep high byte
+    status &= ~(1 << (pin)); // Keep high byte
+  }
+  uint8_t command;
+  uint8_t data;
+  if (pin > 7) {
+    command = commands::SET_HIGH_BYTE_STATE_CMD;
+    data = (status >> 8) & 0xFF; // Keep low byte
+  }
+  else {
+    command = commands::SET_LOW_BYTE_STATE_CMD;
+    data = status & 0xFF; // Keep low byte
   }
   cmdBuffer_.clear();
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
+  cmdBuffer_.push_back(command);
+  cmdBuffer_.push_back(data);
+  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK); // This time assumes only for spi.
   writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
   return 0;
