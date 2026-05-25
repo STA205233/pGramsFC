@@ -2,6 +2,7 @@
 #define GB_ToFBiasController_hh 1
 #include "EncodedSerialCommunication.hh"
 #include "HKDataSaver.hh"
+#include <ostream>
 namespace gramsballoon::pgrams {
 
 class ToFBiasController: public EncodedSerialCommunication, public HKDataSaver<uint8_t> {
@@ -17,7 +18,13 @@ public:
   virtual ~ToFBiasController();
   int enableDataStream();
   int disableDataStream();
+  int setTrimVoltage(int channel, int voltage);
+  int setDefaultTemperature(int channel, int temperature);
+  int enableTemperatureControl(int channel);
+  int disableTemperatureControl(int channel);
+  std::ostream &printData(std::ostream &os);
   int readData();
+  void interpret(const char *dataStr);
 
 protected:
   using EncodedSerialCommunication::ReadData;
