@@ -12,6 +12,7 @@ namespace gramsballoon::pgrams {
  * @date 2026-04-10 | Shota Arai | Refactored to use BayCatAPICaller
  */
 class BayCatSPIIO: public SPIInterface, public BayCatAPICaller {
+public:
   static constexpr unsigned int SPI_MODE_MASK = 0x3;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_MASK = 0x4;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_OFFSET = 2;

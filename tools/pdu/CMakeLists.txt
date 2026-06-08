@@ -73,3 +73,21 @@ target_include_directories(${MY_LIBRARY} PRIVATE
   ${MPSSE_INC_DIR}
   ${D2XX_INCLUDE_DIRS}
 )
+
+add_executable(pdu_read pdu_read.cc)
+target_link_libraries(pdu_read
+  GBCore
+  ${D2XX_LIB}
+  ${VERSALOGIC_LIB}
+)
+target_link_directories(pdu_read PRIVATE
+  $ENV{HOME}/lib
+  $ENV{HOME}/lib/GRAMSBalloon
+  $ENV{HOME}/lib/GRAMSBalloon/modules
+  $ENV{HOME}/lib/GRAMSBalloon/core
+)
+target_include_directories(pdu_read PRIVATE
+  $ENV{HOME}/include/GRAMSBalloon
+  ${MPSSE_INC_DIR}
+  ${D2XX_INCLUDE_DIRS}
+)
