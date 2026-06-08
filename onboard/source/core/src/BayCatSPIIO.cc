@@ -176,6 +176,13 @@ int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, u
       return -1;
     }
   }
+  #ifdef DEBUG_SPI
+  std::cout << "BayCatSPIIO: writeBuffer is "; // for debug
+  for (unsigned int j = 0; j < size; j++) { //for debug
+    std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(writeBuffer[j]) << " "; //for debug
+  } //for debug
+  std::cout << std::dec << std::setw(0) << std::endl; //for debug
+#endif
   uint32_t write_data = 0;
   uint32_t read_data = 0;
   for (unsigned int i = 0; i < size; ++i) {
@@ -194,6 +201,13 @@ int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, u
     }
     readBuffer[i] = static_cast<uint8_t>(read_data);
   }
+#ifdef DEBUG_SPI
+  std::cout << "BayCatSPIIO: readBuffer is "; // for debug
+  for (unsigned int j = 0; j < size; j++) { //for debug
+    std::cout << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(readBuffer[j]) << " "; //for debug
+  } //for debug
+  std::cout << std::dec << std::setw(0) << std::endl; //for debug
+#endif
   if (csControl) {
     const auto status_cs_high = controlGPIO(cs, true);
     if (status_cs_high != 0) {

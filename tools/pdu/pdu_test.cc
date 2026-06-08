@@ -32,18 +32,19 @@ int main(int argc, char *argv[]) {
   spiInterface->setBaudrate(1000000);
   spiInterface->setConfigOptions(FT232HIO::config::SPI_MODE2);
   spiInterface->updateSetting();
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  //std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
   dac.setVoltage(1.0f);
   std::this_thread::sleep_for(std::chrono::seconds(5));
-  //const auto applyStatus = dac.applySetting();
-  //if (applyStatus != 0) {
-  //  std::cerr << "Failed to apply DAC setting. Status: " << applyStatus << std::endl;
-  //  return applyStatus;
-  //}
+  const auto applyStatus = dac.applySetting();
+  if (applyStatus != 0) {
+    std::cerr << "Failed to apply DAC setting. Status: " << applyStatus << std::endl;
+    return applyStatus;
+  }
   std::cout << "Current Voltage: " << dac.getCurrentVoltage() << " V" << std::endl;
   std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setVoltage(0.0f);
+  dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_PowerDown_HiZ);
   const auto resetStatus = dac.applySetting();
   if (resetStatus != 0) {
     std::cerr << "Failed to reset DAC voltage. Status: " << resetStatus << std::endl;
