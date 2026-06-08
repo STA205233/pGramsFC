@@ -16,6 +16,9 @@ public:
   static constexpr unsigned int SPI_MODE_MASK = 0x3;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_MASK = 0x4;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_OFFSET = 2;
+  static  unsigned int MakeOption(unsigned int mode, unsigned int shiftDirection) {
+    return (mode & SPI_MODE_MASK) | ((shiftDirection << SPI_SHIFT_DIRECTION_OFFSET) & SPI_SHIFT_DIRECTION_MASK);
+  }
 
   static constexpr unsigned long DIR_GPIO = 0xCA1;
   static constexpr unsigned long AUX_OUT = 0xCA3;

@@ -13,8 +13,7 @@ int main(int argc, char *argv[]) {
   adc.setSPIInterface(spiInterface.get());
   adc.setCS(0);
   spiInterface->setBaudrate(1000000);
-  spiInterface->setConfigOptions(BayCatSPIIO::SPI_MODE_MASK & 0x2); // SPI mode 2
-  spiInterface->updateSetting();
+  spiInterface->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
   std::this_thread::sleep_for(std::chrono::seconds(5));
   const auto status = adc.getCurrentVoltage(0);
   if (status != 0) {
