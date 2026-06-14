@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <sstream>
 namespace gramsballoon::pgrams {
-BaseTelemetryDefinition::BaseTelemetryDefinition(bool instantiateContents) {
+BaseTelemetryDefinition::BaseTelemetryDefinition(bool instantiateContents) : DBSerializable() {
   if (instantiateContents) {
     contents_ = std::make_shared<CommunicationFormat>();
   }
@@ -182,5 +182,21 @@ std::ostream &operator<<(std::ostream &os, const Subsystem &subsystem) {
     os << "UNKNOWN";
   }
   return os;
+}
+
+std::ostream &BaseTelemetryDefinition::print(std::ostream &stream) {
+  stream << "BaseTelemetryDefinition" << std::endl;
+  stream << "Time: " << timeStamp_ << std::endl;
+  stream << "Index: " << index_ << std::endl;
+  stream << "Subsystem: " << static_cast<int>(subsystem_) << std::endl;
+  return contents_->print(stream);
+}
+
+std::ofstream &BaseTelemetryDefinition::write(std::ofstream &stream) {
+  if (!constructed_) {
+    construct();
+  }
+  stream.write(outss_.str().c_str(), outss_.str().size());
+  return stream;
 }
 } // namespace gramsballoon::pgrams

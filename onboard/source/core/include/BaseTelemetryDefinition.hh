@@ -2,8 +2,9 @@
 #define GRAMSBalloon_BaseTelemetryDefinition_hh 1
 #include "CommunicationFormat.hh"
 #include "DBFieldSink.hh"
-#include "magic_enum.hpp"
+#include "DBSerializable.hh"
 #include "fstream"
+#include "magic_enum.hpp"
 #include <cstdint>
 #include <ctime>
 #include <memory>
@@ -31,8 +32,9 @@ std::ostream &operator<<(std::ostream &os, const Subsystem &subsystem);
  * @author Shota Arai
  * @date 2025-xx-xx | Shota Arai | Created
  * @date 2025-12-14 | Shota Arai | Added DB serialization functions
+ * @date 2026-06-14 | Shota Arai | Detached DB serialization functions to DBSerializable
  */
-class BaseTelemetryDefinition {
+class BaseTelemetryDefinition: public DBSerializable {
 public:
   BaseTelemetryDefinition(bool instantiateContents);
   virtual ~BaseTelemetryDefinition() = default;
@@ -113,40 +115,29 @@ public:
     index_ = index;
     constructed_ = false;
   }
-  virtual std::ostream &print(std::ostream &stream) {
-    stream << "BaseTelemetryDefinition" << std::endl;
-    stream << "Time: " << timeStamp_ << std::endl;
-    stream << "Index: " << index_ << std::endl;
-    stream << "Subsystem: " << static_cast<int>(subsystem_) << std::endl;
-    return contents_->print(stream);
-  }
-  template <typename Iter, size_t N = 4>
-  uint32_t compileValues(Iter iter, Iter end) {
-    static_assert(N <= 4 && N > 0);
-    uint32_t value = 0;
-    for (size_t i = 0; i < N; i++) {
-      if (iter == end) {
-        break;
-      }
-      value += (*iter << (8 * (N - 1 - i)));
-      iter++;
-    }
-    return value;
-  }
-  virtual std::ofstream &write(std::ofstream &stream) {
-    if (!constructed_) {
-      construct();
-    }
-    stream.write(outss_.str().c_str(), outss_.str().size());
-    return stream;
-  }
 
-  /**
-   * @brief Initialize DB table structure (setting column names and types...)
-   * @param sink DBFieldSink object
-   */
-  virtual void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const;
-  virtual void serialize(DBFieldSink *sink) const;
+  virtual std::ostream &print(std::ostream &stream);
+  virtual std::ofstream &write(std::ofstream &stream);
+
+  template <typename Iter, size_t N = 4>
+  static uint32_t compileValues(Iter iter, Iter end);
+
+  void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const override;
+  void serialize(DBFieldSink *sink) const override;
 };
+
+template <typename Iter, size_t N>
+uint32_t BaseTelemetryDefinition::compileValues(Iter iter, Iter end) {
+  static_assert(N <= 4 && N > 0);
+  uint32_t value = 0;
+  for (size_t i = 0; i < N; i++) {
+    if (iter == end) {
+      break;
+    }
+    value += (*iter << (8 * (N - 1 - i)));
+    iter++;
+  }
+  return value;
+}
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_BaseTelemetryDefinition_hh
