@@ -5,13 +5,10 @@ void VHKTelemetryMapping::setValue(int index, uint16_t value) {
     std::cerr << "VHKTelemetryMapping: HubHKTelemetry is not set" << std::endl;
     return;
   }
-  HubHKSetterResult setter;
+  Setter setter;
   getSetter(index, setter);
-  if (setter.setter) {
-    (hubHkTelemetry_.get()->*setter.setter)(value);
-  }
-  else if (setter.setterArray) {
-    (hubHkTelemetry_.get()->*setter.setterArray)(setter.indexOfArray, value);
+  if (setter) {
+    (hubHkTelemetry_.get()->*setter)(value);
   }
 }
 } // namespace gramsballoon::pgrams

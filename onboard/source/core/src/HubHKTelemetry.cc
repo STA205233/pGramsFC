@@ -129,7 +129,7 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
     sink->setFieldValue("rtd_inside_chamber_" + std::to_string(i), rtdsInsideChamber_[i]);
   }
 
-  for (size_t i = 0; i < NUM_SPARE; ++i) {
+  for (size_t i = 0; i < NUM_ADC_SPARE; ++i) {
     sink->setFieldValue("spare_" + std::to_string(i), spare_[i]);
   }
 
@@ -258,7 +258,7 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   for (size_t i = 0; i < NUM_RTD_INSIDE_CHAMBER; ++i) {
     sink->addField("rtd_inside_chamber_" + std::to_string(i), static_cast<uint16_t>(0));
   }
-  for (size_t i = 0; i < NUM_SPARE; ++i) {
+  for (size_t i = 0; i < NUM_ADC_SPARE; ++i) {
     sink->addField("spare_" + std::to_string(i), static_cast<uint16_t>(0));
   }
   sink->addField("sealed_enclosure_pressure", static_cast<uint16_t>(0));
@@ -313,13 +313,13 @@ bool HubHKTelemetry::interpret() {
   DivideData(static_cast<uint32_t>(contents->getArguments(19)), pduSiPMPreAmpTemp_, pduChargePreAmpP5VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(20)), pduChargePreAmpP5VCur_, pduChargePreAmpM5VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(21)), pduChargePreAmpM5VCur_, pduChargePreAmpTemp_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(22)), std::get<1>(pduToFTelemetry_), std::get<2>(pduToFTelemetry_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(23)), std::get<3>(pduToFTelemetry_), std::get<4>(pduToFTelemetry_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(24)), std::get<5>(pduToFTelemetry_), pduCaenNevisP12VVol_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(25)), pduCaenNevisP12VCur_, pduCaenNevisM5VVol_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(26)), pduCaenNevisM5VCur_, pduCaenNevisP5VVol_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(27)), pduCaenNevisP5VCur_, pduCaenNevisP3V3Vol_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(28)), pduCaenNevisP3V3Cur_, pduWarmTPCShaperPVol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(22)),pduTofBiasP5V0Cur_, pduTofBiasP5V0Vol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(23)), pduTofBiasP5V1Cur_, pduTofBiasP5V1Vol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(24)), pduTofBiasP5VTemp_, pduTofP12VCur_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(25)), pduTofP12VVol_, pduCaenNevisP12VVol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(26)), pduCaenNevisP12VCur_, pduCaenNevisM5VVol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(27)), pduCaenNevisM5VCur_, pduCaenNevisP5VVol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(28)), pduCaenNevisP3V3Cur_, pduWarmTPCShaperPVol_);
   //DivideData(static_cast<uint32_t>(contents->getArguments(29)), pduCaenNevisPM5VTemp_, pduWarmTPCShaperTemp_);
   //DivideData(static_cast<uint32_t>(contents->getArguments(30)), pduWarmTPCShaperMVol_, std::get<0>(pduShaperPCur_));
   //DivideData(static_cast<uint32_t>(contents->getArguments(31)), std::get<1>(pduShaperPCur_), std::get<2>(pduShaperPCur_));
@@ -610,7 +610,7 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << std::endl;
 
   stream << "spare_: ";
-  for (size_t i = 0; i < NUM_SPARE; ++i) { stream << spare_[i] << " "; }
+  for (size_t i = 0; i < NUM_ADC_SPARE; ++i) { stream << spare_[i] << " "; }
   stream << std::endl;
 
   stream << "sealedEnclosurePressure_: " << sealedEnclosurePressure_

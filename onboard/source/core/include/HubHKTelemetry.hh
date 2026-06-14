@@ -12,6 +12,10 @@
     }                                                                              \
     variable[idx] = v;                                                             \
   }                                                                                \
+  template <size_t N>                                                              \
+  inline void set##name(type v) {                                                  \
+    std::get<N>(variable) = v;                                                     \
+  }                                                                                \
   inline const std::array<type, num> &name() const { return variable; }            \
   inline type name(size_t idx) const {                                             \
     if (idx >= num) {                                                              \
@@ -19,7 +23,12 @@
       return 0;                                                                    \
     }                                                                              \
     return variable[idx];                                                          \
+  }                                                                                \
+  template <size_t N>                                                              \
+  inline type name() const {                                                       \
+    return std::get<N>(variable);                                                  \
   }
+
 namespace gramsballoon::pgrams {
 
 /**
@@ -28,6 +37,7 @@ namespace gramsballoon::pgrams {
  * @date 2025-11-** | Shota Arai | First design
  * @date 2025-12-15 | Shota Arai | Added serialize and initializeDBTable methods
  * @date 2026-01-22 | Shota Arai | Introduce command rejected index and remove TOF bias setting
+ * @date 2026-06-13 | Shota Arai | Updated Telemetry Definition and introduce setter for array with std::get<>
  */
 class HubHKTelemetry: public BaseTelemetryDefinition {
 public:
@@ -45,7 +55,6 @@ public:
   static constexpr size_t NUM_RTD_SHAPER_BOARD = 6;
   static constexpr size_t NUM_PDU_CPU = 7;
   static constexpr size_t NUM_PDU_TOF_TELEMETRY = 6;
-  static constexpr size_t NUM_SPARE = 11;
   static constexpr size_t NUM_4_WIRE_RTD = 2;
   static constexpr size_t NUM_RTD_VACUUM_JACKET = 3;
   static constexpr size_t NUM_RTD_SHAPER_FARADAY_CAGE = 2;
@@ -53,13 +62,12 @@ public:
   static constexpr size_t NUM_RTD_HUB_COMPUTER_LOCATION = 2;
   static constexpr size_t NUM_RTD_OUTSIDE_SEALED_ENCLOSURE = 2;
   static constexpr size_t NUM_RTD_INSIDE_CHAMBER = 9;
-  static constexpr size_t NUM_SPARE = 13;
+  static constexpr size_t NUM_ADC_SPARE = 13;
   static constexpr size_t NUM_PRESSURE_SENSORS = 2;
   static constexpr size_t NUM_INCLINOMETERS = 2;
 
 public:
-  void
-  serialize(DBFieldSink *sink) const override;
+  void serialize(DBFieldSink *sink) const override;
   void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const override;
 
 private:
@@ -141,7 +149,7 @@ private:
   uint16_t pressureTransducer_ = 0;
   std::array<uint16_t, NUM_INCLINOMETERS> inclinometers_ = {0};
   std::array<uint16_t, NUM_RTD_INSIDE_CHAMBER> rtdsInsideChamber_ = {0};
-  std::array<uint16_t, NUM_SPARE> spare_ = {0};
+  std::array<uint16_t, NUM_ADC_SPARE> spare_ = {0};
 
   uint16_t sealedEnclosurePressure_ = 0;
   uint16_t sealedEnclosureTemperature_ = 0;
@@ -366,7 +374,7 @@ public:
 
   GETTER_SETTER_ARRAY(uint16_t, Inclinometers, inclinometers_, NUM_INCLINOMETERS);
   GETTER_SETTER_ARRAY(uint16_t, RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER);
-  GETTER_SETTER_ARRAY(uint16_t, Spare, spare_, NUM_SPARE);
+  GETTER_SETTER_ARRAY(uint16_t, Spare, spare_, NUM_ADC_SPARE);
 
   inline void setSealedEnclosurePressure(uint16_t v) { sealedEnclosurePressure_ = v; }
   inline uint16_t SealedEnclosurePressure() const { return sealedEnclosurePressure_; }

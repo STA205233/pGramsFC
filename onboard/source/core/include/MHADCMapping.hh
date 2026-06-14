@@ -11,7 +11,14 @@ public:
   virtual ~MHADCMapping() = default;
 
 protected:
-  bool getSetter(int index, HubHKSetterResult &setter) override;
+  bool getSetter(int index, VHKTelemetryMapping::Setter &setter) const override;
+
+public:
+  static constexpr int ChannelMapping(int ADC_index, int channel);
 };
+inline constexpr int MHADCMapping::ChannelMapping(int ADC_index, int channel) {
+  constexpr int NUM_CH_PER_ADC = 16;
+  return ADC_index * NUM_CH_PER_ADC + channel;
+}
 } // namespace gramsballoon::pgrams
 #endif //GB_MHADCMapping_hh
