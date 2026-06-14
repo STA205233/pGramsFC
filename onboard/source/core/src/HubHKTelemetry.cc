@@ -301,6 +301,18 @@ void HubHKTelemetry::updateErrorFlags_(std::index_sequence<Is...>) {
   (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is, std::get<Is>(hubComputerErrorFlags_)), ...);
 }
 
+template <typename Stream, typename Contents, size_t... Is>
+Stream &printIterativeImpl(Stream &stream, const Contents &contents, std::index_sequence<Is...>) {
+  ([](Stream &s, const Contents &c) -> void { s << std::get<Is>(c) << " "; }(stream, contents), ...);
+  stream << std::endl;
+  return stream;
+}
+
+template <size_t N, typename Stream, typename Contents>
+Stream &HubHKTelemetry::printIterative(Stream &stream, const Contents &contents) {
+  return printIterativeImpl(stream, contents, std::make_index_sequence<N>{});
+}
+
 bool HubHKTelemetry::interpret() {
   auto contents = getContents();
   if (!contents) {
@@ -527,18 +539,15 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
          << ", commandRejectedIndexQM_: " << commandRejectedIndexQM_ << std::endl;
 
   stream << "pduVolSiPM_: ";
-  for (size_t i = 0; i < NUM_PDU_SIPM; ++i) { stream << pduVolSiPM_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_SIPM>(stream, pduVolSiPM_);
 
   stream << "pduCurSiPM_: ";
-  for (size_t i = 0; i < NUM_PDU_SIPM; ++i) { stream << pduCurSiPM_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_SIPM>(stream, pduCurSiPM_);
 
   stream << "pduCurTPCHV_: " << pduCurTPCHV_ << ", pduVolTPCHV_: " << pduVolTPCHV_ << std::endl;
 
   stream << "pduHVTemp_: ";
-  for (size_t i = 0; i < NUM_PDU_HV_TEMP; ++i) { stream << pduHVTemp_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_HV_TEMP>(stream, pduHVTemp_);
 
   stream << "pduCommsBoardTemp_: " << pduCommsBoardTemp_ << std::endl;
   stream << "pduSiPMPreAmpP2V5Vol_: " << pduSiPMPreAmpP2V5Vol_
@@ -574,22 +583,18 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
          << ", pduShaperM3V3Vol_: " << pduShaperM3V3Vol_ << std::endl;
 
   stream << "pduShaperPCur_: ";
-  for (size_t i = 0; i < NUM_PDU_WARM_TPC_SHAPER; ++i) { stream << pduShaperPCur_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_WARM_TPC_SHAPER>(stream, pduShaperPCur_);
 
   stream << "pduShaperMCur_: ";
-  for (size_t i = 0; i < NUM_PDU_WARM_TPC_SHAPER; ++i) { stream << pduShaperMCur_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_WARM_TPC_SHAPER>(stream, pduShaperMCur_);
 
   stream << "pduCPUCur_: ";
-  for (size_t i = 0; i < NUM_PDU_CPU; ++i) { stream << pduCPUCur_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_CPU>(stream, pduCPUCur_);
 
   stream << "pduCpuUnusedCur_: " << pduCpuUnusedCur_ << std::endl;
 
   stream << "pduCPUVol_: ";
-  for (size_t i = 0; i < NUM_PDU_CPU; ++i) { stream << pduCPUVol_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PDU_CPU>(stream, pduCPUVol_);
 
   stream << "pressureRegulatorVol_: " << pressureRegulatorVol_
          << ", pduTofP12VTemp_: " << pduTofP12VTemp_
@@ -598,72 +603,57 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
          << ", pduMainBatTemp_: " << pduMainBatTemp_ << std::endl;
 
   stream << "rtdGondolaFrame_: ";
-  for (size_t i = 0; i < NUM_RTD_GONDOLA; ++i) { stream << rtdGondolaFrame_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_GONDOLA>(stream, rtdGondolaFrame_);
 
   stream << "rtdDaqCrate_: ";
-  for (size_t i = 0; i < NUM_RTD_DAQ_CRATE; ++i) { stream << rtdDaqCrate_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_DAQ_CRATE>(stream, rtdDaqCrate_);
 
   stream << "rtdShaperFaradayCage_: ";
-  for (size_t i = 0; i < NUM_RTD_SHAPER_FARADAY_CAGE; ++i) { stream << rtdShaperFaradayCage_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_SHAPER_FARADAY_CAGE>(stream, rtdShaperFaradayCage_);
 
   stream << "rtdShaperBoard_: ";
-  for (size_t i = 0; i < NUM_RTD_SHAPER_BOARD; ++i) { stream << rtdShaperBoard_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_SHAPER_BOARD>(stream, rtdShaperBoard_);
 
   stream << "rtdHubComputerLocation_: ";
-  for (size_t i = 0; i < NUM_RTD_HUB_COMPUTER_LOCATION; ++i) { stream << rtdHubComputerLocation_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_HUB_COMPUTER_LOCATION>(stream, rtdHubComputerLocation_);
 
   stream << "rtdTofFpga_: " << rtdTofFpga_ << ", rtdTof_: " << rtdTof_ << std::endl;
 
   stream << "rtdOutsideSealedEnclosure_: ";
-  for (size_t i = 0; i < NUM_RTD_OUTSIDE_SEALED_ENCLOSURE; ++i) { stream << rtdOutsideSealedEnclosure_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_OUTSIDE_SEALED_ENCLOSURE>(stream, rtdOutsideSealedEnclosure_);
 
   stream << "rtdVacuumJacket_: ";
-  for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) { stream << rtdVacuumJacket_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_VACUUM_JACKET>(stream, rtdVacuumJacket_);
 
   stream << "pressureTransducer_: " << pressureTransducer_ << std::endl;
 
   stream << "inclinometers_: ";
-  for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) { stream << inclinometers_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_INCLINOMETERS>(stream, inclinometers_);
 
   stream << "rtdsInsideChamber_: ";
-  for (size_t i = 0; i < NUM_RTD_INSIDE_CHAMBER; ++i) { stream << rtdsInsideChamber_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_RTD_INSIDE_CHAMBER>(stream, rtdsInsideChamber_);
 
   stream << "spare_: ";
-  for (size_t i = 0; i < NUM_ADC_SPARE; ++i) { stream << spare_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_ADC_SPARE>(stream, spare_);
 
   stream << "sealedEnclosurePressure_: " << sealedEnclosurePressure_
          << ", sealedEnclosureTemperature_: " << sealedEnclosureTemperature_
          << ", sealedEnclosureHumidity_: " << sealedEnclosureHumidity_ << std::endl;
 
   stream << "pressureSensors_: ";
-  for (size_t i = 0; i < NUM_PRESSURE_SENSORS; ++i) { stream << pressureSensors_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_PRESSURE_SENSORS>(stream, pressureSensors_);
 
   stream << "rtd4Wire_: ";
-  for (size_t i = 0; i < NUM_4_WIRE_RTD; ++i) { stream << rtd4Wire_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_4_WIRE_RTD>(stream, rtd4Wire_);
 
   stream << "tofBiasVoltage_: ";
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) { stream << tofBiasVoltage_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_TOF_BIAS>(stream, tofBiasVoltage_);
 
   stream << "tofBiasTemperature_: ";
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) { stream << tofBiasTemperature_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_TOF_BIAS>(stream, tofBiasTemperature_);
 
   stream << "hubComputerErrorFlags_: ";
-  for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) { stream << hubComputerErrorFlags_[i] << " "; }
-  stream << std::endl;
+  printIterative<NUM_ERROR_FLAGS>(stream, hubComputerErrorFlags_);
 
   stream << "storageSize_: " << storageSize_
          << ", cpuTemperature_: " << cpuTemperature_
