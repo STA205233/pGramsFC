@@ -49,7 +49,7 @@ public:
   static constexpr size_t NUM_TOF_BIAS = 200;
   static constexpr size_t NUM_PDU_HV_TEMP = 2;
   static constexpr size_t NUM_PDU_SIPM = 6;
-  static constexpr size_t ARGC = 287;
+  static constexpr size_t ARGC = 288;
   static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
   static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
   static constexpr size_t NUM_RTD_GONDOLA = 4;
@@ -177,6 +177,10 @@ private:
   void interpretTofBias_(const Contents *contents, std::index_sequence<Is...>);
   template <typename Contents, size_t... Is>
   void interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>);
+  template <size_t... Is>
+  void updateTofBias_(std::index_sequence<Is...>);
+  template <size_t... Is>
+  void updateErrorFlags_(std::index_sequence<Is...>);
 
 protected:
   bool interpret() override;

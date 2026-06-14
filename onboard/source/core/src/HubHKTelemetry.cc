@@ -284,11 +284,21 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
 
 template <typename Contents, size_t... Is>
 void HubHKTelemetry::interpretTofBias_(const Contents *contents, std::index_sequence<Is...>) {
-  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is)), std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is>(tofBiasVoltage_)), ...);
+  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is)), std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is + 1>(tofBiasVoltage_)), ...);
+  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is)), std::get<2 * Is>(tofBiasTemperature_), std::get<2 * Is + 1>(tofBiasTemperature_)), ...);
 }
 template <typename Contents, size_t... Is>
 void HubHKTelemetry::interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>) {
-  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is))), ...);
+  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is))), ...);
+}
+template <size_t... Is>
+void HubHKTelemetry::updateTofBias_(std::index_sequence<Is...>) {
+  (setArguments(ARG_INDEX_TOF_BIAS + Is, CompileData(std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is + 1>(tofBiasVoltage_))), ...);
+  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is, CompileData(std::get<2 * Is>(tofBiasTemperature_), std::get<2 * Is + 1>(tofBiasTemperature_))), ...);
+}
+template <size_t... Is>
+void HubHKTelemetry::updateErrorFlags_(std::index_sequence<Is...>) {
+  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is, std::get<Is>(hubComputerErrorFlags_)), ...);
 }
 
 bool HubHKTelemetry::interpret() {
@@ -308,15 +318,15 @@ bool HubHKTelemetry::interpret() {
   lastCommandIndexQM_ = static_cast<uint32_t>(contents->getArguments(5));
   DivideData(static_cast<uint32_t>(contents->getArguments(6)), lastCommandCodeHub_, lastCommandCodeOrc_);
   DivideData(static_cast<uint32_t>(contents->getArguments(7)), lastCommandCodeTPC_, lastCommandCodeTOF_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(8)), lastCommandCodeQM_, pduVolSiPM_[0]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(9)), pduVolSiPM_[1], pduVolSiPM_[2]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(10)), pduVolSiPM_[3], pduVolSiPM_[4]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(11)), pduVolSiPM_[5], pduCurSiPM_[0]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(12)), pduCurSiPM_[1], pduCurSiPM_[2]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(13)), pduCurSiPM_[3], pduCurSiPM_[4]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(14)), pduCurSiPM_[5], pduCurTPCHV_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(15)), pduVolTPCHV_, pduHVTemp_[0]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(16)), pduHVTemp_[1], pduCommsBoardTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(8)), lastCommandCodeQM_, std::get<0>(pduVolSiPM_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(9)), std::get<1>(pduVolSiPM_), std::get<2>(pduVolSiPM_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(10)), std::get<3>(pduVolSiPM_), std::get<4>(pduVolSiPM_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(11)), std::get<5>(pduVolSiPM_), std::get<0>(pduCurSiPM_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(12)), std::get<1>(pduCurSiPM_), std::get<2>(pduCurSiPM_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(13)), std::get<3>(pduCurSiPM_), std::get<4>(pduCurSiPM_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(14)), std::get<5>(pduCurSiPM_), pduCurTPCHV_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(15)), pduVolTPCHV_, std::get<0>(pduHVTemp_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(16)), std::get<1>(pduHVTemp_), pduCommsBoardTemp_);
   DivideData(static_cast<uint32_t>(contents->getArguments(17)), pduSiPMPreAmpP2V5Vol_, pduSiPMPreAmpP2V5Cur_);
   DivideData(static_cast<uint32_t>(contents->getArguments(18)), pduSiPMPreAmpM5VVol_, pduSiPMPreAmpM5VCur_);
   DivideData(static_cast<uint32_t>(contents->getArguments(19)), pduSiPMPreAmpTemp_, pduChargePreAmpP5VVol_);
@@ -382,10 +392,10 @@ bool HubHKTelemetry::interpret() {
 
   interpretTofBias_(contents, std::make_index_sequence<NUM_TOF_BIAS / 2>{});
   interpretErrorFlags_(contents, std::make_index_sequence<NUM_ERROR_FLAGS>{});
-  
+
   constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
   storageSize_ = contents->getArguments(INDEX_UNTIL_HERE);
-  
+
   DivideData(static_cast<uint32_t>(contents->getArguments(INDEX_UNTIL_HERE + 1)), cpuTemperature_, ramUsage_);
   commandRejectedIndexHub_ = contents->getArguments(INDEX_UNTIL_HERE + 2);
   commandRejectedIndexOrc_ = contents->getArguments(INDEX_UNTIL_HERE + 3);
@@ -415,77 +425,83 @@ void HubHKTelemetry::update() {
   setArguments(12, CompileData(std::get<1>(pduCurSiPM_), std::get<2>(pduCurSiPM_)));
   setArguments(13, CompileData(std::get<3>(pduCurSiPM_), std::get<4>(pduCurSiPM_)));
   setArguments(14, CompileData(std::get<5>(pduCurSiPM_), pduCurTPCHV_));
-  setArguments(15, CompileData(std::get<0>(pduHVTemp_), std::get<1>(pduHVTemp_)));
-  //setArguments(16, CompileData(pduComsBoardTemp_, pduSiPMPreAmpP2V5Vol_));
-  setArguments(17, CompileData(pduSiPMPreAmpP2V5Cur_, pduSiPMPreAmpM5VVol_));
-  setArguments(18, CompileData(pduSiPMPreAmpM5VCur_, pduSiPMPreAmpTemp_));
-  setArguments(19, CompileData(pduChargePreAmpP5VVol_, pduChargePreAmpP5VCur_));
-  setArguments(20, CompileData(pduChargePreAmpM5VVol_, pduChargePreAmpM5VCur_));
-  //setArguments(21, CompileData(pduChargePreAmpTemp_, std::get<0>(pduToFTelemetry_)));
-  //setArguments(22, CompileData(std::get<1>(pduToFTelemetry_), std::get<2>(pduToFTelemetry_)));
-  //setArguments(23, CompileData(std::get<3>(pduToFTelemetry_), std::get<4>(pduToFTelemetry_)));
-  //setArguments(24, CompileData(std::get<5>(pduToFTelemetry_), pduCaenNevisP12VVol_));
-  setArguments(25, CompileData(pduCaenNevisP12VCur_, pduCaenNevisM5VVol_));
-  setArguments(26, CompileData(pduCaenNevisM5VCur_, pduCaenNevisP5VVol_));
-  setArguments(27, CompileData(pduCaenNevisP5VCur_, pduCaenNevisP3V3Vol_));
-  //setArguments(28, CompileData(pduCaenNevisP3V3Cur_, pduWarmTPCShaperPVol_));
-  //setArguments(29, CompileData(pduCaenNevisPM5VTemp_, pduWarmTPCShaperTemp_));
-  //setArguments(30, CompileData(pduWarmTPCShaperMVol_, std::get<0>(pduShaperPCur_)));
-  setArguments(31, CompileData(std::get<1>(pduShaperPCur_), std::get<2>(pduShaperPCur_)));
-  setArguments(32, CompileData(std::get<3>(pduShaperPCur_), std::get<4>(pduShaperPCur_)));
-  setArguments(33, CompileData(std::get<5>(pduShaperPCur_), std::get<0>(pduShaperMCur_)));
-  setArguments(34, CompileData(std::get<1>(pduShaperMCur_), std::get<2>(pduShaperMCur_)));
-  setArguments(35, CompileData(std::get<3>(pduShaperMCur_), std::get<4>(pduShaperMCur_)));
-  setArguments(36, CompileData(std::get<5>(pduShaperMCur_), std::get<0>(pduCPUVol_)));
-  setArguments(37, CompileData(std::get<1>(pduCPUVol_), std::get<2>(pduCPUVol_)));
-  setArguments(38, CompileData(std::get<3>(pduCPUVol_), std::get<4>(pduCPUVol_)));
-  setArguments(39, CompileData(std::get<5>(pduCPUVol_), std::get<6>(pduCPUVol_)));
-  setArguments(40, CompileData(std::get<0>(pduCPUCur_), std::get<1>(pduCPUCur_)));
-  setArguments(41, CompileData(std::get<2>(pduCPUCur_), std::get<3>(pduCPUCur_)));
-  setArguments(42, CompileData(std::get<4>(pduCPUCur_), std::get<5>(pduCPUCur_)));
-  //setArguments(43, CompileData(std::get<6>(pduCPUCur_), reserved1_));
-  //setArguments(44, CompileData(reserved2_, pduTofP5VVol_));
-  //setArguments(45, CompileData(pduTofP5VCur_, pduTofTemp_));
-  //setArguments(46, CompileData(pduTofBiasP5V0Vol_, pduTofBiasP5V0Cur_));
-  //setArguments(47, CompileData(pduTofBiasTemp_, pduMainDCDCTemp_));
+  setArguments(15, CompileData(pduVolTPCHV_, std::get<0>(pduHVTemp_)));
+  setArguments(16, CompileData(std::get<1>(pduHVTemp_), pduCommsBoardTemp_));
+  setArguments(17, CompileData(pduSiPMPreAmpP2V5Vol_, pduSiPMPreAmpP2V5Cur_));
+  setArguments(18, CompileData(pduSiPMPreAmpM5VVol_, pduSiPMPreAmpM5VCur_));
+  setArguments(19, CompileData(pduSiPMPreAmpTemp_, pduChargePreAmpP5VVol_));
+  setArguments(20, CompileData(pduChargePreAmpP5VCur_, pduChargePreAmpM5VVol_));
+  setArguments(21, CompileData(pduChargePreAmpM5VCur_, pduChargePreAmpTemp_));
+  setArguments(22, CompileData(pduTofBiasP5V0Cur_, pduTofBiasP5V0Vol_));
+  setArguments(23, CompileData(pduTofBiasP5V1Cur_, pduTofBiasP5V1Vol_));
+  setArguments(24, CompileData(pduTofBiasP5VTemp_, pduTofP12VCur_));
+  setArguments(25, CompileData(pduTofP12VVol_, pduCaenNevisP12VVol_));
+  setArguments(26, CompileData(pduCaenNevisP12VCur_, pduCaenNevisM5VVol_));
+  setArguments(27, CompileData(pduCaenNevisM5VCur_, pduCaenNevisP5VVol_));
+  setArguments(28, CompileData(pduCaenNevisP5VCur_, pduCaenNevisP3V3Vol_));
+  setArguments(29, CompileData(pduCaenNevisP3V3Cur_, pduShaperP3V3Vol_));
+  setArguments(30, CompileData(pduCaenNevisPM5VTemp_, pduCaenNevisP12VTemp_));
+  setArguments(31, CompileData(pduCaenNevisP3V3Temp_, pduShaperTemp_));
+  setArguments(32, CompileData(pduShaperM3V3Vol_, std::get<0>(pduShaperPCur_)));
+  setArguments(33, CompileData(std::get<1>(pduShaperPCur_), std::get<2>(pduShaperPCur_)));
+  setArguments(34, CompileData(std::get<3>(pduShaperPCur_), std::get<4>(pduShaperPCur_)));
+  setArguments(35, CompileData(std::get<5>(pduShaperPCur_), std::get<0>(pduShaperMCur_)));
+  setArguments(36, CompileData(std::get<1>(pduShaperMCur_), std::get<2>(pduShaperMCur_)));
+  setArguments(37, CompileData(std::get<3>(pduShaperMCur_), std::get<4>(pduShaperMCur_)));
+  setArguments(38, CompileData(std::get<5>(pduShaperMCur_), std::get<0>(pduCPUCur_)));
+  setArguments(39, CompileData(std::get<1>(pduCPUCur_), std::get<2>(pduCPUCur_)));
+  setArguments(40, CompileData(std::get<3>(pduCPUCur_), std::get<4>(pduCPUCur_)));
+  setArguments(41, CompileData(std::get<5>(pduCPUCur_), std::get<6>(pduCPUCur_)));
+  setArguments(42, CompileData(std::get<0>(pduCPUVol_), std::get<1>(pduCPUVol_)));
+  setArguments(43, CompileData(std::get<2>(pduCPUVol_), std::get<3>(pduCPUVol_)));
+  setArguments(44, CompileData(std::get<4>(pduCPUVol_), std::get<5>(pduCPUVol_)));
+  setArguments(45, CompileData(std::get<6>(pduCPUVol_), pduCpuUnusedCur_));
+  setArguments(46, CompileData(pressureRegulatorVol_, pduTofP12VTemp_));
+  setArguments(47, CompileData(pduMainBatTemp_, pduCurMainBat_));
 
   // MHADC
-  setArguments(48, CompileData(std::get<0>(rtdGondolaFrame_), std::get<1>(rtdGondolaFrame_)));
-  setArguments(49, CompileData(std::get<2>(rtdGondolaFrame_), std::get<3>(rtdGondolaFrame_)));
-  //setArguments(50, CompileData(rtdDaqCrate1_, rtdDaqCrate2_));
-  //setArguments(51, CompileData(rtdDaqCrateBackup_, rtdShaperFaradayCage1_));
-  //setArguments(52, CompileData(rtdShaperFaradayCage2_, std::get<0>(rtdShaperBoard_)));
-  //setArguments(53, CompileData(std::get<1>(rtdShaperBoard_), std::get<2>(rtdShaperBoard_)));
-  //setArguments(54, CompileData(std::get<3>(rtdShaperBoard_), std::get<4>(rtdShaperBoard_)));
-  //setArguments(55, CompileData(std::get<5>(rtdShaperBoard_), rtdHubComputerLocation1_));
-  //setArguments(56, CompileData(rtdHubComputerLocation2_, rtdTofFpga_));
-  //setArguments(57, CompileData(rtdTof_, rtdSealedEnclosure1WaterTank_));
-  //setArguments(58, CompileData(rtdSealedEnclosureLocation2_, rtdVacuumJacket1_));
-  //setArguments(59, CompileData(rtdVacuumJacket2_, rtdVacuumJacket3_));
-  //setArguments(60, CompileData(pressureRegulator_, pressureTransducer_));
-  setArguments(62, CompileData(std::get<0>(rtdsInsideChamber_), std::get<1>(rtdsInsideChamber_)));
-  setArguments(63, CompileData(std::get<2>(rtdsInsideChamber_), std::get<3>(rtdsInsideChamber_)));
-  setArguments(64, CompileData(std::get<4>(rtdsInsideChamber_), std::get<5>(rtdsInsideChamber_)));
-  setArguments(65, CompileData(std::get<6>(rtdsInsideChamber_), std::get<0>(spare_)));
-  setArguments(66, CompileData(std::get<1>(spare_), std::get<2>(spare_)));
-  setArguments(67, CompileData(std::get<3>(spare_), std::get<4>(spare_)));
-  setArguments(68, CompileData(std::get<5>(spare_), std::get<6>(spare_)));
-  setArguments(69, CompileData(std::get<7>(spare_), std::get<8>(spare_)));
-  setArguments(70, CompileData(std::get<9>(spare_), std::get<10>(spare_)));
+  setArguments(48, CompileData(pduVolMainBat_, std::get<0>(rtdGondolaFrame_)));
+  setArguments(49, CompileData(std::get<1>(rtdGondolaFrame_), std::get<2>(rtdGondolaFrame_)));
+  setArguments(50, CompileData(std::get<3>(rtdGondolaFrame_), std::get<0>(rtdDaqCrate_)));
+  setArguments(51, CompileData(std::get<1>(rtdDaqCrate_), std::get<2>(rtdDaqCrate_)));
+  setArguments(52, CompileData(std::get<0>(rtdShaperFaradayCage_), std::get<1>(rtdShaperFaradayCage_)));
+  setArguments(53, CompileData(std::get<0>(rtdShaperBoard_), std::get<1>(rtdShaperBoard_)));
+  setArguments(54, CompileData(std::get<2>(rtdShaperBoard_), std::get<3>(rtdShaperBoard_)));
+  setArguments(55, CompileData(std::get<4>(rtdShaperBoard_), std::get<5>(rtdShaperBoard_)));
+  setArguments(56, CompileData(std::get<0>(rtdHubComputerLocation_), std::get<1>(rtdHubComputerLocation_)));
+  setArguments(57, CompileData(rtdTofFpga_, rtdTof_));
+  setArguments(58, CompileData(std::get<0>(rtdOutsideSealedEnclosure_), std::get<1>(rtdOutsideSealedEnclosure_)));
+  setArguments(59, CompileData(std::get<0>(rtdVacuumJacket_), std::get<1>(rtdVacuumJacket_)));
+  setArguments(60, CompileData(std::get<2>(rtdVacuumJacket_), std::get<0>(inclinometers_)));
+  setArguments(61, CompileData(std::get<1>(inclinometers_), std::get<0>(rtdsInsideChamber_)));
+  setArguments(62, CompileData(std::get<1>(rtdsInsideChamber_), std::get<2>(rtdsInsideChamber_)));
+  setArguments(63, CompileData(std::get<3>(rtdsInsideChamber_), std::get<4>(rtdsInsideChamber_)));
+  setArguments(64, CompileData(std::get<5>(rtdsInsideChamber_), std::get<6>(rtdsInsideChamber_)));
+  setArguments(65, CompileData(std::get<7>(rtdsInsideChamber_), std::get<8>(rtdsInsideChamber_)));
+  setArguments(66, CompileData(std::get<0>(spare_), std::get<1>(spare_)));
+  setArguments(67, CompileData(std::get<2>(spare_), std::get<3>(spare_)));
+  setArguments(68, CompileData(std::get<4>(spare_), std::get<5>(spare_)));
+  setArguments(69, CompileData(std::get<6>(spare_), std::get<7>(spare_)));
+  setArguments(70, CompileData(std::get<8>(spare_), std::get<9>(spare_)));
+  setArguments(71, CompileData(std::get<10>(spare_), std::get<11>(spare_)));
+  setArguments(72, CompileData(std::get<12>(spare_), sealedEnclosurePressure_));
+  setArguments(73, CompileData(sealedEnclosureTemperature_, sealedEnclosureHumidity_));
+  setArguments(74, CompileData(std::get<0>(pressureSensors_), std::get<1>(pressureSensors_)));
+  setArguments(75, CompileData(labJackTemperature_, std::get<0>(rtd4Wire_)));
+  setArguments(76, CompileData(std::get<1>(rtd4Wire_), static_cast<uint16_t>(0)));
+
   static_assert(NUM_TOF_BIAS % 2 == 0, "NUM_TOF_BIAS is expected to be even.");
-  for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(ARG_INDEX_TOF_BIAS + i, CompileData(tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]));
-  }
-  for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
-    setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + i, hubComputerErrorFlags_[i]);
-  }
-  setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, storageSize_);
-  setArguments(72 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, CompileData(cpuTemperature_, ramUsage_));
-  setArguments(73 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexHub_);
-  setArguments(74 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexOrc_);
-  setArguments(75 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexTPC_);
-  setArguments(76 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexTOF_);
-  setArguments(77 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexQM_);
+  updateTofBias_(std::make_index_sequence<NUM_TOF_BIAS / 2>{});
+  updateErrorFlags_(std::make_index_sequence<NUM_ERROR_FLAGS>{});
+
+  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
+  setArguments(INDEX_UNTIL_HERE, storageSize_);
+  setArguments(INDEX_UNTIL_HERE + 1, CompileData(cpuTemperature_, ramUsage_));
+  setArguments(INDEX_UNTIL_HERE + 2, commandRejectedIndexHub_);
+  setArguments(INDEX_UNTIL_HERE + 3, commandRejectedIndexOrc_);
+  setArguments(INDEX_UNTIL_HERE + 4, commandRejectedIndexTPC_);
+  setArguments(INDEX_UNTIL_HERE + 5, commandRejectedIndexTOF_);
+  setArguments(INDEX_UNTIL_HERE + 6, commandRejectedIndexQM_);
   BaseTelemetryDefinition::update();
 }
 std::ostream &HubHKTelemetry::print(std::ostream &stream) {
