@@ -2,6 +2,7 @@
 #define GRAMSBalloon_HubHKTelemetry_HH 1
 #include "BaseTelemetryDefinition.hh"
 #include "ErrorManager.hh"
+#include <utility>
 
 #define GETTER_SETTER_ARRAY(type, name, variable, num)                             \
   inline void set##name(const std::array<type, num> &v) { variable = v; }          \
@@ -48,7 +49,7 @@ public:
   static constexpr size_t NUM_TOF_BIAS = 200;
   static constexpr size_t NUM_PDU_HV_TEMP = 2;
   static constexpr size_t NUM_PDU_SIPM = 6;
-  static constexpr size_t ARGC = 1148 / 4;
+  static constexpr size_t ARGC = 287;
   static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
   static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
   static constexpr size_t NUM_RTD_GONDOLA = 4;
@@ -65,6 +66,7 @@ public:
   static constexpr size_t NUM_ADC_SPARE = 13;
   static constexpr size_t NUM_PRESSURE_SENSORS = 2;
   static constexpr size_t NUM_INCLINOMETERS = 2;
+  static constexpr size_t ARG_INDEX_TOF_BIAS = 77;
 
 public:
   void serialize(DBFieldSink *sink) const override;
@@ -155,6 +157,7 @@ private:
   uint16_t sealedEnclosureTemperature_ = 0;
   uint16_t sealedEnclosureHumidity_ = 0;
   std::array<uint16_t, NUM_PRESSURE_SENSORS> pressureSensors_ = {0};
+  uint16_t labJackTemperature_ = 0;
   std::array<uint16_t, NUM_4_WIRE_RTD> rtd4Wire_ = {0};
 
   //Tof bias
@@ -166,6 +169,14 @@ private:
   uint32_t storageSize_ = 0;
   uint16_t cpuTemperature_ = 0;
   uint16_t ramUsage_ = 0;
+
+  // Compile-time-bounds-checked helpers for interpret(): every index passed
+  // to std::get<> is a template parameter, so an out-of-range index is a
+  // compile error rather than a runtime one.
+  template <typename Contents, size_t... Is>
+  void interpretTofBias_(const Contents *contents, std::index_sequence<Is...>);
+  template <typename Contents, size_t... Is>
+  void interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>);
 
 protected:
   bool interpret() override;
@@ -386,6 +397,8 @@ public:
   inline uint16_t SealedEnclosureHumidity() const { return sealedEnclosureHumidity_; }
 
   GETTER_SETTER_ARRAY(uint16_t, PressureSensors, pressureSensors_, NUM_PRESSURE_SENSORS);
+  inline void setLabJackTemperature(uint16_t v) { labJackTemperature_ = v; }
+  inline uint16_t setLabJackTemperature() const { return labJackTemperature_; }
   GETTER_SETTER_ARRAY(uint16_t, Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD);
   GETTER_SETTER_ARRAY(uint16_t, TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS);
   GETTER_SETTER_ARRAY(uint16_t, TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS);

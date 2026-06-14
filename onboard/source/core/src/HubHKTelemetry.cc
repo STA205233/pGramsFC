@@ -42,8 +42,8 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
     sink->setFieldValue("pdu_cur_sipm_" + std::to_string(i), pduCurSiPM_[i]);
   }
   for (size_t i = 0; i < NUM_PDU_CPU; ++i) {
-    sink->setFieldValue("pdu_vol_tpc_" + std::to_string(i), pduVolTPCHV_[i]);
-    sink->setFieldValue("pdu_cur_tpc_" + std::to_string(i), pduCurTPCHV_[i]);
+    //sink->setFieldValue("pdu_vol_tpc_" + std::to_string(i), pduVolTPCHV_[i]);
+    //sink->setFieldValue("pdu_cur_tpc_" + std::to_string(i), pduCurTPCHV_[i]);
   }
 
   for (size_t i = 0; i < NUM_PDU_HV_TEMP; ++i) {
@@ -281,6 +281,16 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   sink->addField("cpu_temperature", static_cast<uint16_t>(0));
   sink->addField("ram_usage", static_cast<uint16_t>(0));
 }
+
+template <typename Contents, size_t... Is>
+void HubHKTelemetry::interpretTofBias_(const Contents *contents, std::index_sequence<Is...>) {
+  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is)), std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is>(tofBiasVoltage_)), ...);
+}
+template <typename Contents, size_t... Is>
+void HubHKTelemetry::interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>) {
+  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is))), ...);
+}
+
 bool HubHKTelemetry::interpret() {
   auto contents = getContents();
   if (!contents) {
@@ -306,80 +316,82 @@ bool HubHKTelemetry::interpret() {
   DivideData(static_cast<uint32_t>(contents->getArguments(13)), pduCurSiPM_[3], pduCurSiPM_[4]);
   DivideData(static_cast<uint32_t>(contents->getArguments(14)), pduCurSiPM_[5], pduCurTPCHV_);
   DivideData(static_cast<uint32_t>(contents->getArguments(15)), pduVolTPCHV_, pduHVTemp_[0]);
-  DivideData(static_cast<uint32_t>(contents->getArguments(15)), pduHVTemp_[1], pduCommsBoardTemp_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(16)), pduSiPMPreAmpP2V5Vol_, pduSiPMPreAmpP2V5Cur_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(17)), pduSiPMPreAmpP2V5Cur_, pduSiPMPreAmpM5VVol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(16)), pduHVTemp_[1], pduCommsBoardTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(17)), pduSiPMPreAmpP2V5Vol_, pduSiPMPreAmpP2V5Cur_);
   DivideData(static_cast<uint32_t>(contents->getArguments(18)), pduSiPMPreAmpM5VVol_, pduSiPMPreAmpM5VCur_);
   DivideData(static_cast<uint32_t>(contents->getArguments(19)), pduSiPMPreAmpTemp_, pduChargePreAmpP5VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(20)), pduChargePreAmpP5VCur_, pduChargePreAmpM5VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(21)), pduChargePreAmpM5VCur_, pduChargePreAmpTemp_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(22)),pduTofBiasP5V0Cur_, pduTofBiasP5V0Vol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(22)), pduTofBiasP5V0Cur_, pduTofBiasP5V0Vol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(23)), pduTofBiasP5V1Cur_, pduTofBiasP5V1Vol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(24)), pduTofBiasP5VTemp_, pduTofP12VCur_);
   DivideData(static_cast<uint32_t>(contents->getArguments(25)), pduTofP12VVol_, pduCaenNevisP12VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(26)), pduCaenNevisP12VCur_, pduCaenNevisM5VVol_);
   DivideData(static_cast<uint32_t>(contents->getArguments(27)), pduCaenNevisM5VCur_, pduCaenNevisP5VVol_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(28)), pduCaenNevisP3V3Cur_, pduWarmTPCShaperPVol_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(29)), pduCaenNevisPM5VTemp_, pduWarmTPCShaperTemp_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(30)), pduWarmTPCShaperMVol_, std::get<0>(pduShaperPCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(31)), std::get<1>(pduShaperPCur_), std::get<2>(pduShaperPCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(32)), std::get<3>(pduShaperPCur_), std::get<4>(pduShaperPCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(33)), std::get<5>(pduShaperPCur_), std::get<0>(pduShaperMCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(34)), std::get<1>(pduShaperMCur_), std::get<2>(pduShaperMCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(35)), std::get<3>(pduShaperMCur_), std::get<4>(pduShaperMCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(36)), std::get<5>(pduShaperMCur_), std::get<0>(pduCPUVol_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(37)), std::get<1>(pduCPUVol_), std::get<2>(pduCPUVol_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(38)), std::get<3>(pduCPUVol_), std::get<4>(pduCPUVol_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(39)), std::get<5>(pduCPUVol_), std::get<6>(pduCPUVol_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(40)), std::get<0>(pduCPUCur_), std::get<1>(pduCPUCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(41)), std::get<2>(pduCPUCur_), std::get<3>(pduCPUCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(42)), std::get<4>(pduCPUCur_), std::get<5>(pduCPUCur_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(43)), std::get<6>(pduCPUCur_), reserved1_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(44)), reserved2_, pduTofP5VVol_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(45)), pduTofP5VCur_, pduTofTemp_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(46)), pduTofBiasP5V0Vol_, pduTofBiasP5V0Cur_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(47)), pduTofBiasTemp_, pduMainDCDCTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(28)), pduCaenNevisP5VCur_, pduCaenNevisP3V3Vol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(29)), pduCaenNevisP3V3Cur_, pduShaperP3V3Vol_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(30)), pduCaenNevisPM5VTemp_, pduCaenNevisP12VTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(31)), pduCaenNevisP3V3Temp_, pduShaperTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(32)), pduShaperM3V3Vol_, std::get<0>(pduShaperPCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(33)), std::get<1>(pduShaperPCur_), std::get<2>(pduShaperPCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(34)), std::get<3>(pduShaperPCur_), std::get<4>(pduShaperPCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(35)), std::get<5>(pduShaperPCur_), std::get<0>(pduShaperMCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(36)), std::get<1>(pduShaperMCur_), std::get<2>(pduShaperMCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(37)), std::get<3>(pduShaperMCur_), std::get<4>(pduShaperMCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(38)), std::get<5>(pduShaperMCur_), std::get<0>(pduCPUCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(39)), std::get<1>(pduCPUCur_), std::get<2>(pduCPUCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(40)), std::get<3>(pduCPUCur_), std::get<4>(pduCPUCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(41)), std::get<5>(pduCPUCur_), std::get<6>(pduCPUCur_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(42)), std::get<0>(pduCPUVol_), std::get<1>(pduCPUVol_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(43)), std::get<2>(pduCPUVol_), std::get<3>(pduCPUVol_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(44)), std::get<4>(pduCPUVol_), std::get<5>(pduCPUVol_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(45)), std::get<6>(pduCPUVol_), pduCpuUnusedCur_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(46)), pressureRegulatorVol_, pduTofP12VTemp_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(47)), pduMainBatTemp_, pduCurMainBat_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(48)), pduVolMainBat_, std::get<0>(rtdGondolaFrame_));
   //// MHADC
-  //DivideData(static_cast<uint32_t>(contents->getArguments(48)), std::get<0>(rtdGondolaFrame_), std::get<1>(rtdGondolaFrame_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(49)), std::get<2>(rtdGondolaFrame_), std::get<3>(rtdGondolaFrame_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(50)), rtdDaqCrate1_, rtdDaqCrate2_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(51)), rtdDaqCrateBackup_, rtdShaperFaradayCage1_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(52)), rtdShaperFaradayCage2_, std::get<0>(rtdShaperBoard_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(53)), std::get<1>(rtdShaperBoard_), std::get<2>(rtdShaperBoard_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(54)), std::get<3>(rtdShaperBoard_), std::get<4>(rtdShaperBoard_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(55)), std::get<5>(rtdShaperBoard_), rtdHubComputerLocation1_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(56)), rtdHubComputerLocation2_, rtdTofFpga_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(57)), rtdTof_, rtdSealedEnclosure1WaterTank_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(58)), rtdSealedEnclosureLocation2_, rtdVacuumJacket1_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(59)), rtdVacuumJacket2_, rtdVacuumJacket3_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(60)), pressureRegulator_, inclinometer_);
-  DivideData(static_cast<uint32_t>(contents->getArguments(61)), std::get<0>(rtdsInsideChamber_), std::get<1>(rtdsInsideChamber_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(62)), std::get<2>(rtdsInsideChamber_), std::get<3>(rtdsInsideChamber_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(63)), std::get<4>(rtdsInsideChamber_), std::get<5>(rtdsInsideChamber_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(64)), std::get<6>(rtdsInsideChamber_), std::get<0>(spare_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(65)), std::get<1>(spare_), std::get<2>(spare_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(66)), std::get<3>(spare_), std::get<4>(spare_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(67)), std::get<5>(spare_), std::get<6>(spare_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(68)), std::get<7>(spare_), std::get<8>(spare_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(69)), std::get<9>(spare_), std::get<10>(spare_));
-  DivideData(static_cast<uint32_t>(contents->getArguments(70)), sealedEnclosurePressure_, sealedEnclosureTemperature_);
-  //DivideData(static_cast<uint32_t>(contents->getArguments(71)), sealedEnclosureHumidity_, std::get<0>(pressureSensors_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(72)), std::get<1>(pressureSensors_), std::get<0>(rtd4Wire_));
-  //DivideData(static_cast<uint32_t>(contents->getArguments(73)), std::get<1>(rtd4Wire_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(49)), std::get<1>(rtdGondolaFrame_), std::get<2>(rtdGondolaFrame_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(50)), std::get<3>(rtdGondolaFrame_), std::get<0>(rtdDaqCrate_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(51)), std::get<1>(rtdDaqCrate_), std::get<2>(rtdDaqCrate_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(52)), std::get<0>(rtdShaperFaradayCage_), std::get<1>(rtdShaperFaradayCage_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(53)), std::get<0>(rtdShaperBoard_), std::get<1>(rtdShaperBoard_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(54)), std::get<2>(rtdShaperBoard_), std::get<3>(rtdShaperBoard_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(55)), std::get<4>(rtdShaperBoard_), std::get<5>(rtdShaperBoard_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(56)), std::get<0>(rtdHubComputerLocation_), std::get<1>(rtdHubComputerLocation_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(57)), rtdTofFpga_, rtdTof_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(58)), std::get<0>(rtdOutsideSealedEnclosure_), std::get<1>(rtdOutsideSealedEnclosure_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(59)), std::get<0>(rtdVacuumJacket_), std::get<1>(rtdVacuumJacket_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(60)), std::get<2>(rtdVacuumJacket_), std::get<0>(inclinometers_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(61)), std::get<1>(inclinometers_), std::get<0>(rtdsInsideChamber_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(62)), std::get<1>(rtdsInsideChamber_), std::get<2>(rtdsInsideChamber_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(63)), std::get<3>(rtdsInsideChamber_), std::get<4>(rtdsInsideChamber_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(64)), std::get<5>(rtdsInsideChamber_), std::get<6>(rtdsInsideChamber_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(65)), std::get<7>(rtdsInsideChamber_), std::get<8>(rtdsInsideChamber_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(66)), std::get<0>(spare_), std::get<1>(spare_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(67)), std::get<2>(spare_), std::get<3>(spare_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(68)), std::get<4>(spare_), std::get<5>(spare_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(69)), std::get<6>(spare_), std::get<7>(spare_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(70)), std::get<8>(spare_), std::get<9>(spare_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(71)), std::get<10>(spare_), std::get<11>(spare_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(72)), std::get<12>(spare_), sealedEnclosurePressure_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(73)), sealedEnclosureTemperature_, sealedEnclosureHumidity_);
+  DivideData(static_cast<uint32_t>(contents->getArguments(74)), std::get<0>(pressureSensors_), std::get<1>(pressureSensors_));
+  DivideData(static_cast<uint32_t>(contents->getArguments(75)), labJackTemperature_, std::get<0>(rtd4Wire_));
+  uint16_t dummy = 0;
+  DivideData(static_cast<uint32_t>(contents->getArguments(76)), std::get<1>(rtd4Wire_), dummy);
 
-  for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    DivideData(static_cast<uint32_t>(contents->getArguments(71 + i)), tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]);
-  }
-  for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
-    hubComputerErrorFlags_[i] = static_cast<uint32_t>(contents->getArguments(71 + NUM_TOF_BIAS / 2 + i));
-  }
-  storageSize_ = contents->getArguments(71 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
-  DivideData(static_cast<uint32_t>(contents->getArguments(72 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS)), cpuTemperature_, ramUsage_);
-  commandRejectedIndexHub_ = contents->getArguments(73 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
-  commandRejectedIndexOrc_ = contents->getArguments(74 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
-  commandRejectedIndexTPC_ = contents->getArguments(75 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
-  commandRejectedIndexTOF_ = contents->getArguments(76 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
-  commandRejectedIndexQM_ = contents->getArguments(77 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS);
+  interpretTofBias_(contents, std::make_index_sequence<NUM_TOF_BIAS / 2>{});
+  interpretErrorFlags_(contents, std::make_index_sequence<NUM_ERROR_FLAGS>{});
+  
+  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
+  storageSize_ = contents->getArguments(INDEX_UNTIL_HERE);
+  
+  DivideData(static_cast<uint32_t>(contents->getArguments(INDEX_UNTIL_HERE + 1)), cpuTemperature_, ramUsage_);
+  commandRejectedIndexHub_ = contents->getArguments(INDEX_UNTIL_HERE + 2);
+  commandRejectedIndexOrc_ = contents->getArguments(INDEX_UNTIL_HERE + 3);
+  commandRejectedIndexTPC_ = contents->getArguments(INDEX_UNTIL_HERE + 4);
+  commandRejectedIndexTOF_ = contents->getArguments(INDEX_UNTIL_HERE + 5);
+  commandRejectedIndexQM_ = contents->getArguments(INDEX_UNTIL_HERE + 6);
   return true;
 }
 void HubHKTelemetry::update() {
@@ -440,16 +452,16 @@ void HubHKTelemetry::update() {
   // MHADC
   setArguments(48, CompileData(std::get<0>(rtdGondolaFrame_), std::get<1>(rtdGondolaFrame_)));
   setArguments(49, CompileData(std::get<2>(rtdGondolaFrame_), std::get<3>(rtdGondolaFrame_)));
-  setArguments(50, CompileData(rtdDaqCrate1_, rtdDaqCrate2_));
-  setArguments(51, CompileData(rtdDaqCrateBackup_, rtdShaperFaradayCage1_));
-  setArguments(52, CompileData(rtdShaperFaradayCage2_, std::get<0>(rtdShaperBoard_)));
-  setArguments(53, CompileData(std::get<1>(rtdShaperBoard_), std::get<2>(rtdShaperBoard_)));
-  setArguments(54, CompileData(std::get<3>(rtdShaperBoard_), std::get<4>(rtdShaperBoard_)));
-  setArguments(55, CompileData(std::get<5>(rtdShaperBoard_), rtdHubComputerLocation1_));
-  setArguments(56, CompileData(rtdHubComputerLocation2_, rtdTofFpga_));
-  setArguments(57, CompileData(rtdTof_, rtdSealedEnclosure1WaterTank_));
-  setArguments(58, CompileData(rtdSealedEnclosureLocation2_, rtdVacuumJacket1_));
-  setArguments(59, CompileData(rtdVacuumJacket2_, rtdVacuumJacket3_));
+  //setArguments(50, CompileData(rtdDaqCrate1_, rtdDaqCrate2_));
+  //setArguments(51, CompileData(rtdDaqCrateBackup_, rtdShaperFaradayCage1_));
+  //setArguments(52, CompileData(rtdShaperFaradayCage2_, std::get<0>(rtdShaperBoard_)));
+  //setArguments(53, CompileData(std::get<1>(rtdShaperBoard_), std::get<2>(rtdShaperBoard_)));
+  //setArguments(54, CompileData(std::get<3>(rtdShaperBoard_), std::get<4>(rtdShaperBoard_)));
+  //setArguments(55, CompileData(std::get<5>(rtdShaperBoard_), rtdHubComputerLocation1_));
+  //setArguments(56, CompileData(rtdHubComputerLocation2_, rtdTofFpga_));
+  //setArguments(57, CompileData(rtdTof_, rtdSealedEnclosure1WaterTank_));
+  //setArguments(58, CompileData(rtdSealedEnclosureLocation2_, rtdVacuumJacket1_));
+  //setArguments(59, CompileData(rtdVacuumJacket2_, rtdVacuumJacket3_));
   //setArguments(60, CompileData(pressureRegulator_, pressureTransducer_));
   setArguments(62, CompileData(std::get<0>(rtdsInsideChamber_), std::get<1>(rtdsInsideChamber_)));
   setArguments(63, CompileData(std::get<2>(rtdsInsideChamber_), std::get<3>(rtdsInsideChamber_)));
@@ -462,12 +474,12 @@ void HubHKTelemetry::update() {
   setArguments(70, CompileData(std::get<9>(spare_), std::get<10>(spare_)));
   static_assert(NUM_TOF_BIAS % 2 == 0, "NUM_TOF_BIAS is expected to be even.");
   for (size_t i = 0; i < NUM_TOF_BIAS / 2; i++) {
-    setArguments(71 + i, CompileData(tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]));
+    setArguments(ARG_INDEX_TOF_BIAS + i, CompileData(tofBiasVoltage_[2 * i], tofBiasVoltage_[2 * i + 1]));
   }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; i++) {
-    setArguments(71 + NUM_TOF_BIAS / 2 + i, hubComputerErrorFlags_[i]);
+    setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + i, hubComputerErrorFlags_[i]);
   }
-  setArguments(71 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, storageSize_);
+  setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, storageSize_);
   setArguments(72 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, CompileData(cpuTemperature_, ramUsage_));
   setArguments(73 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexHub_);
   setArguments(74 + NUM_TOF_BIAS / 2 + NUM_ERROR_FLAGS, commandRejectedIndexOrc_);
