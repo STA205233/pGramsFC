@@ -117,7 +117,7 @@ public:
     constructed_ = false;
   }
 
-  Subsystem Subsystem() const { return subsystem_; }
+  Subsystem getSubsystem() const { return subsystem_; }
 
   virtual std::ostream &print(std::ostream &stream);
   virtual std::ofstream &write(std::ofstream &stream);

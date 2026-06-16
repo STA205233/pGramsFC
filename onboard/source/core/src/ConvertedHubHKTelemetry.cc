@@ -1,5 +1,6 @@
 #include "ConvertedHubHKTelemetry.hh"
 #include "SystemOfUnits.hh"
+#include <cmath>
 using namespace gramsballoon::pgrams::units;
 using floating_t = gramsballoon::pgrams::ConvertedHubHKTelemetry::floating_t;
 
@@ -111,7 +112,7 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   code_ = raw_telemetry->getContents()->Code();
   timeStamp_ = raw_telemetry->TimeStamp();
   runid_ = raw_telemetry->RunID();
-  subsystem_ = raw_telemetry->Subsystem();
+  subsystem_ = raw_telemetry->getSubsystem();
 
   lastCommandCodeHub_ = raw_telemetry->LastCommandCodeHub();
   lastCommandIndexHub_ = raw_telemetry->LastCommandIndexHub();
