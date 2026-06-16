@@ -236,19 +236,16 @@ def make_scrollable_tab(notebook: ttk.Notebook):
     window_id = canvas.create_window((0, 0), window=inner, anchor="nw")
 
     def update_scroll_state():
-        """中身がはみ出る時だけスクロール可能にする"""
         tab_container.update_idletasks()
 
         content_h = inner.winfo_reqheight()
         view_h = canvas.winfo_height()
 
-        # scrollregion は常に最新化
         canvas.configure(scrollregion=canvas.bbox("all"))
 
         if content_h <= view_h:
-            # はみ出てない → スクロール不要
-            vbar.pack_forget()              # スクロールバー非表示
-            canvas.yview_moveto(0)          # 上に戻す（任意）
+            vbar.pack_forget()
+            canvas.yview_moveto(0)
             tab_container._scroll_enabled = False
         else:
             # はみ出てる → スクロール必要
@@ -256,17 +253,17 @@ def make_scrollable_tab(notebook: ttk.Notebook):
                 vbar.pack(side="right", fill="y")
             tab_container._scroll_enabled = True
 
-    # innerサイズ変更時
+
     inner.bind("<Configure>", lambda e: update_scroll_state())
 
-    # canvasサイズ変更時（ウィンドウリサイズなど）
+
     def on_canvas_configure(event):
         canvas.itemconfigure(window_id, width=event.width)
         update_scroll_state()
 
     canvas.bind("<Configure>", on_canvas_configure)
 
-    # マウスホイール（必要な時だけ動かす）
+
     def on_mousewheel(event):
         if getattr(tab_container, "_scroll_enabled", False):
             canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
@@ -280,7 +277,7 @@ def make_scrollable_tab(notebook: ttk.Notebook):
     tab_container.bind("<Enter>", bind_wheel)
     tab_container.bind("<Leave>", unbind_wheel)
 
-    # 初期状態
+
     tab_container._scroll_enabled = False
     tab_container.after(0, update_scroll_state)
 
