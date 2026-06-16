@@ -677,6 +677,6 @@ public:
     return ramUsage_;
   }
 };
-#undef GETTER_SETTER_ARRA
+#undef GETTER_SETTER_ARRAY
 } // namespace gramsballoon::pgrams
 #endif //GRAMSBalloon_HubHKTelemetry_HH
