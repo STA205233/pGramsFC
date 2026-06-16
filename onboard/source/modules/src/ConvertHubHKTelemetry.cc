@@ -6,6 +6,7 @@ namespace gramsballoon::pgrams {
 ANLStatus ConvertHubHKTelemetry::mod_define() {
   define_parameter("InterpretTelemetry_name", &mod_class::HubHKInterpreterName_);
   define_parameter("verbose", &mod_class::verbose_);
+  return AS_OK;
 }
 
 ANLStatus ConvertHubHKTelemetry::mod_initialize() {
@@ -22,16 +23,17 @@ ANLStatus ConvertHubHKTelemetry::mod_initialize() {
     return AS_QUIT_ALL_ERROR;
   }
   convertedTelemetry_ = std::make_shared<ConvertedHubHKTelemetry>();
+  return AS_OK;
 }
 
 ANLStatus ConvertHubHKTelemetry::mod_analyze() {
   if (interpretTelemetry_->CurrentTelemetryType() == 1) { // HK
     const bool result = convertedTelemetry_->convert(rawTelemetry_.get());
+    if (verbose_ > 3) {
+      convertedTelemetry_->print(std::cout);
+    }
     if (!result) {
       return AS_ERROR;
-    }
-    if (result && verbose_ > 3) {
-      convertedTelemetry_->print(std::cout);
     }
   }
   return AS_OK;

@@ -62,6 +62,7 @@ public:
 
   // Conversion for MHADC
   static constexpr floating_t COEFF_INCLINOMETER = 60.0 / 5.0 * units::degree / units::volt; // \pm 30 degree with 0--5 V
+  static constexpr floating_t OFFSET_INCLINOMETER = 2.5 * units::volt;
 
   ConvertedHubHKTelemetry();
   virtual ~ConvertedHubHKTelemetry();

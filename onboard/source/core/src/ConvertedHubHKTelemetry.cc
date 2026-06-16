@@ -48,7 +48,7 @@ bool ConvertedHubHKTelemetry::convertInclinometer(T adc_value, floating_t &src) 
   if (!convertVoltageMHADC(adc_value, voltage)) {
     return false;
   }
-  src = (voltage-2.5) * COEFF_INCLINOMETER;
+  src = (voltage - OFFSET_INCLINOMETER) * COEFF_INCLINOMETER;
   return true;
 }
 
@@ -140,7 +140,9 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
 
   // Hub computer
   hubComputerErrorFlags_ = raw_telemetry->HubComputerErrorFlags();
-
+  cpuTemperature_ = raw_telemetry->CpuTemperature() * 1e-3 * units::degC;
+  ramUsage_ = raw_telemetry->RamUsage() * units::MB;
+  storageSize_ = raw_telemetry->StorageSize() * units::MB;
   return ok;
 }
 
@@ -297,9 +299,9 @@ std::ostream &ConvertedHubHKTelemetry::print(std::ostream &stream) {
   stream << "hubComputerErrorFlags_: ";
   printIterative<NUM_ERROR_FLAGS>(stream, hubComputerErrorFlags_);
 
-  stream << "storageSize_: " << storageSize_
-         << ", cpuTemperature_: " << cpuTemperature_
-         << ", ramUsage_: " << ramUsage_ << std::endl;
+  stream << "storageSize_: " << storageSize_ / units::GB
+         << " GB, cpuTemperature_: " << cpuTemperature_ / units::degC
+         << " degC, ramUsage_: " << ramUsage_ / units::MB << " MB" << std::endl;
 
   return stream;
 }

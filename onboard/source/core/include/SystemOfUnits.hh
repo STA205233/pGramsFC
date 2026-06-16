@@ -36,6 +36,10 @@ constexpr double ms = millisecond;
 // Dimensionless ratio
 constexpr double percent = 1.e-2;
 
+constexpr double GB = 1024.0 * 1024.0 * 1024.0;
+constexpr double MB = 1024.0 * 1024.0;
+constexpr double kB = 1024.0;
+constexpr double Byte = 1.0;
 } // namespace gramsballoon::pgrams::units
 
 #endif //GB_SystemOfUnits_hh
