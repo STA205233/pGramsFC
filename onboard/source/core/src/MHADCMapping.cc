@@ -15,7 +15,7 @@ bool MHADCMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) con
     setter = &HubHKTelemetry::setRtdGondolaFrame<3>;
     break;
   case ChannelMapping(0, 4):
-    setter = &HubHKTelemetry::setRtdDaqCrate<0>;
+    setter = &HubHKTelemetry::setInclinometers<0>;
     break;
   case ChannelMapping(0, 5):
     setter = &HubHKTelemetry::setRtdDaqCrate<1>;
@@ -111,7 +111,7 @@ bool MHADCMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) con
     setter = &HubHKTelemetry::setRtdsInsideChamber<3>;
     break;
   case ChannelMapping(2, 4):
-    setter = &HubHKTelemetry::setRtdsInsideChamber<4>;
+    setter = &HubHKTelemetry::setInclinometers<1>;
     break;
   case ChannelMapping(2, 5):
     setter = &HubHKTelemetry::setRtdsInsideChamber<5>;
@@ -126,10 +126,10 @@ bool MHADCMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) con
     setter = &HubHKTelemetry::setRtdsInsideChamber<8>;
     break;
   case ChannelMapping(2, 9):
-    setter = &HubHKTelemetry::setInclinometers<0>;
+    setter = &HubHKTelemetry::setRtdsInsideChamber<4>;
     break;
   case ChannelMapping(2, 10):
-    setter = &HubHKTelemetry::setInclinometers<1>;
+    setter = &HubHKTelemetry::setRtdDaqCrate<0>;
     break;
   case ChannelMapping(2, 11):
     setter = &HubHKTelemetry::setSpare<8>;

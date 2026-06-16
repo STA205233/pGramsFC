@@ -48,7 +48,7 @@ bool ConvertedHubHKTelemetry::convertInclinometer(T adc_value, floating_t &src) 
   if (!convertVoltageMHADC(adc_value, voltage)) {
     return false;
   }
-  src = voltage * COEFF_INCLINOMETER;
+  src = (voltage-2.5) * COEFF_INCLINOMETER;
   return true;
 }
 
