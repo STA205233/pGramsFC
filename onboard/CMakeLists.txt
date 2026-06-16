@@ -66,7 +66,6 @@ if(GB_MAC)
   set(GB_USE_BAYCAT OFF)
   set(GB_USE_HSQUICKLOOK OFF)
   set(GB_APT_RUBY OFF)
-  set(GB_USE_ROOT ON)
 endif(GB_MAC)
 
 
