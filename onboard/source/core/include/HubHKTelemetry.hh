@@ -181,8 +181,6 @@ private:
   void updateTofBias_(std::index_sequence<Is...>);
   template <size_t... Is>
   void updateErrorFlags_(std::index_sequence<Is...>);
-  template <size_t N, typename Stream, typename Contents>
-  Stream &printIterative(Stream &stream, const Contents &contents);
 
 protected:
   bool interpret() override;
@@ -299,8 +297,8 @@ public:
   }
 
   // PDU
-  GETTER_SETTER_ARRAY(uint16_t, PduVolSiPM, pduVolSiPM_, NUM_PDU_SIPM);
-  GETTER_SETTER_ARRAY(uint16_t, PduCurSiPM, pduCurSiPM_, NUM_PDU_SIPM);
+  GETTER_SETTER_ARRAY(uint16_t, PduVolSiPM, pduVolSiPM_, NUM_PDU_SIPM)
+  GETTER_SETTER_ARRAY(uint16_t, PduCurSiPM, pduCurSiPM_, NUM_PDU_SIPM)
 
   inline void setPduCurTPCHV(uint16_t v) {
     pduCurTPCHV_ = v;
@@ -316,7 +314,7 @@ public:
     return pduVolTPCHV_;
   }
 
-  GETTER_SETTER_ARRAY(uint16_t, PduHVTemp, pduHVTemp_, NUM_PDU_HV_TEMP);
+  GETTER_SETTER_ARRAY(uint16_t, PduHVTemp, pduHVTemp_, NUM_PDU_HV_TEMP)
 
   inline void setPduCommsBoardTemp(uint16_t v) {
     pduCommsBoardTemp_ = v;
@@ -542,9 +540,9 @@ public:
     return pduShaperM3V3Vol_;
   }
 
-  GETTER_SETTER_ARRAY(uint16_t, PduShaperPCur, pduShaperPCur_, NUM_PDU_WARM_TPC_SHAPER);
-  GETTER_SETTER_ARRAY(uint16_t, PduShaperMCur, pduShaperMCur_, NUM_PDU_WARM_TPC_SHAPER);
-  GETTER_SETTER_ARRAY(uint16_t, PduCPUCur, pduCPUCur_, NUM_PDU_CPU);
+  GETTER_SETTER_ARRAY(uint16_t, PduShaperPCur, pduShaperPCur_, NUM_PDU_WARM_TPC_SHAPER)
+  GETTER_SETTER_ARRAY(uint16_t, PduShaperMCur, pduShaperMCur_, NUM_PDU_WARM_TPC_SHAPER)
+  GETTER_SETTER_ARRAY(uint16_t, PduCPUCur, pduCPUCur_, NUM_PDU_CPU)
 
   inline void setPduCpuUnusedCur(uint16_t v) {
     pduCpuUnusedCur_ = v;
@@ -553,7 +551,7 @@ public:
     return pduCpuUnusedCur_;
   }
 
-  GETTER_SETTER_ARRAY(uint16_t, PduCPUVol, pduCPUVol_, NUM_PDU_CPU);
+  GETTER_SETTER_ARRAY(uint16_t, PduCPUVol, pduCPUVol_, NUM_PDU_CPU)
 
   inline void setPressureRegulatorVol(uint16_t v) {
     pressureRegulatorVol_ = v;
@@ -591,11 +589,11 @@ public:
   }
 
   // MHADC
-  GETTER_SETTER_ARRAY(uint16_t, RtdGondolaFrame, rtdGondolaFrame_, NUM_RTD_GONDOLA);
-  GETTER_SETTER_ARRAY(uint16_t, RtdDaqCrate, rtdDaqCrate_, NUM_RTD_DAQ_CRATE);
-  GETTER_SETTER_ARRAY(uint16_t, RtdShaperFaradayCage, rtdShaperFaradayCage_, NUM_RTD_SHAPER_FARADAY_CAGE);
-  GETTER_SETTER_ARRAY(uint16_t, RtdShaperBoard, rtdShaperBoard_, NUM_RTD_SHAPER_BOARD);
-  GETTER_SETTER_ARRAY(uint16_t, RtdHubComputerLocation, rtdHubComputerLocation_, NUM_RTD_HUB_COMPUTER_LOCATION);
+  GETTER_SETTER_ARRAY(uint16_t, RtdGondolaFrame, rtdGondolaFrame_, NUM_RTD_GONDOLA)
+  GETTER_SETTER_ARRAY(uint16_t, RtdDaqCrate, rtdDaqCrate_, NUM_RTD_DAQ_CRATE)
+  GETTER_SETTER_ARRAY(uint16_t, RtdShaperFaradayCage, rtdShaperFaradayCage_, NUM_RTD_SHAPER_FARADAY_CAGE)
+  GETTER_SETTER_ARRAY(uint16_t, RtdShaperBoard, rtdShaperBoard_, NUM_RTD_SHAPER_BOARD)
+  GETTER_SETTER_ARRAY(uint16_t, RtdHubComputerLocation, rtdHubComputerLocation_, NUM_RTD_HUB_COMPUTER_LOCATION)
 
   inline void setRtdTofFpga(uint16_t v) {
     rtdTofFpga_ = v;
@@ -611,8 +609,8 @@ public:
     return rtdTof_;
   }
 
-  GETTER_SETTER_ARRAY(uint16_t, RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE);
-  GETTER_SETTER_ARRAY(uint16_t, RtdVacuumJacket, rtdVacuumJacket_, NUM_RTD_VACUUM_JACKET);
+  GETTER_SETTER_ARRAY(uint16_t, RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE)
+  GETTER_SETTER_ARRAY(uint16_t, RtdVacuumJacket, rtdVacuumJacket_, NUM_RTD_VACUUM_JACKET)
 
   inline void setPressureTransducer(uint16_t v) {
     pressureTransducer_ = v;
@@ -621,9 +619,9 @@ public:
     return pressureTransducer_;
   }
 
-  GETTER_SETTER_ARRAY(uint16_t, Inclinometers, inclinometers_, NUM_INCLINOMETERS);
-  GETTER_SETTER_ARRAY(uint16_t, RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER);
-  GETTER_SETTER_ARRAY(uint16_t, Spare, spare_, NUM_ADC_SPARE);
+  GETTER_SETTER_ARRAY(uint16_t, Inclinometers, inclinometers_, NUM_INCLINOMETERS)
+  GETTER_SETTER_ARRAY(uint16_t, RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER)
+  GETTER_SETTER_ARRAY(uint16_t, Spare, spare_, NUM_ADC_SPARE)
 
   inline void setSealedEnclosurePressure(uint16_t v) {
     sealedEnclosurePressure_ = v;
@@ -646,17 +644,17 @@ public:
     return sealedEnclosureHumidity_;
   }
 
-  GETTER_SETTER_ARRAY(uint16_t, PressureSensors, pressureSensors_, NUM_PRESSURE_SENSORS);
+  GETTER_SETTER_ARRAY(uint16_t, PressureSensors, pressureSensors_, NUM_PRESSURE_SENSORS)
   inline void setLabJackTemperature(uint16_t v) {
     labJackTemperature_ = v;
   }
-  inline uint16_t setLabJackTemperature() const {
+  inline uint16_t LabJackTemperature() const {
     return labJackTemperature_;
   }
-  GETTER_SETTER_ARRAY(uint16_t, Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD);
-  GETTER_SETTER_ARRAY(uint16_t, TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS);
-  GETTER_SETTER_ARRAY(uint16_t, TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS);
-  GETTER_SETTER_ARRAY(uint32_t, HubComputerErrorFlags, hubComputerErrorFlags_, NUM_ERROR_FLAGS);
+  GETTER_SETTER_ARRAY(uint16_t, Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD)
+  GETTER_SETTER_ARRAY(uint16_t, TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS)
+  GETTER_SETTER_ARRAY(uint16_t, TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS)
+  GETTER_SETTER_ARRAY(uint32_t, HubComputerErrorFlags, hubComputerErrorFlags_, NUM_ERROR_FLAGS)
 
   inline void setStorageSize(uint32_t v) {
     storageSize_ = v;
@@ -679,6 +677,6 @@ public:
     return ramUsage_;
   }
 };
-#undef GETTER_SETTER_ARRAY
+#undef GETTER_SETTER_ARRA
 } // namespace gramsballoon::pgrams
 #endif //GRAMSBalloon_HubHKTelemetry_HH

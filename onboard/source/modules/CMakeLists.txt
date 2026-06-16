@@ -46,6 +46,7 @@ set(GB_MODULES
   src/SendArrayByMQTT.cc
   src/SendPacketByMQTT.cc
   src/DetectErrorCallbackFromDAQ.cc
+  src/ConvertHubHKTelemetry.cc
 )
 
 if(GB_USE_SPI)

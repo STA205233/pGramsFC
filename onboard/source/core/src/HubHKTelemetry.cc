@@ -41,11 +41,8 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
     sink->setFieldValue("pdu_vol_sipm_" + std::to_string(i), pduVolSiPM_[i]);
     sink->setFieldValue("pdu_cur_sipm_" + std::to_string(i), pduCurSiPM_[i]);
   }
-  for (size_t i = 0; i < NUM_PDU_CPU; ++i) {
-    //sink->setFieldValue("pdu_vol_tpc_" + std::to_string(i), pduVolTPCHV_[i]);
-    //sink->setFieldValue("pdu_cur_tpc_" + std::to_string(i), pduCurTPCHV_[i]);
-  }
-
+  sink->setFieldValue("pdu_cur_tpchv", pduCurTPCHV_);
+  sink->setFieldValue("pdu_vol_tpchv", pduVolTPCHV_);
   for (size_t i = 0; i < NUM_PDU_HV_TEMP; ++i) {
     sink->setFieldValue("pdu_hv_temp_" + std::to_string(i), pduHVTemp_[i]);
   }
@@ -82,7 +79,7 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
   sink->setFieldValue("pdu_shaper_temp", pduShaperTemp_);
   sink->setFieldValue("pdu_shaper_m3v3_vol", pduShaperM3V3Vol_);
 
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
+  for (size_t i = 0; i < NUM_PDU_WARM_TPC_SHAPER; ++i) {
     sink->setFieldValue("pdu_shaper_p_cur_" + std::to_string(i), pduShaperPCur_[i]);
     sink->setFieldValue("pdu_shaper_m_cur_" + std::to_string(i), pduShaperMCur_[i]);
   }
@@ -120,7 +117,13 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
 
   sink->setFieldValue("rtd_tof_fpgas", rtdTofFpga_);
   sink->setFieldValue("rtd_tof", rtdTof_);
-
+  for (size_t i = 0; i < NUM_RTD_OUTSIDE_SEALED_ENCLOSURE; ++i) {
+    sink->setFieldValue("rtd_outside_sealed_enclosure_" + std::to_string(i), rtdOutsideSealedEnclosure_[i]);
+  }
+  for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
+    sink->setFieldValue("rtd_vacuum_jacket_" + std::to_string(i), rtdVacuumJacket_[i]);
+  }
+  sink->setFieldValue("pressure_transducer", pressureTransducer_);
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->setFieldValue("inclinometer_" + std::to_string(i), inclinometers_[i]);
   }
@@ -139,6 +142,7 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
   for (size_t i = 0; i < NUM_PRESSURE_SENSORS; ++i) {
     sink->setFieldValue("pressure_sensor_" + std::to_string(i), pressureSensors_[i]);
   }
+  sink->setFieldValue("lab_jack_temperature", labJackTemperature_);
   for (size_t i = 0; i < NUM_4_WIRE_RTD; ++i) {
     sink->setFieldValue("rtd_4_wire_" + std::to_string(i), rtd4Wire_[i]);
   }
@@ -180,10 +184,8 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
     sink->addField("pdu_vol_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
     sink->addField("pdu_cur_sipm_" + std::to_string(i), static_cast<uint16_t>(0));
   }
-  for (size_t i = 0; i < NUM_PDU_CPU; ++i) {
-    sink->addField("pdu_vol_tpc_" + std::to_string(i), static_cast<uint16_t>(0));
-    sink->addField("pdu_cur_tpc_" + std::to_string(i), static_cast<uint16_t>(0));
-  }
+  sink->addField("pdu_cur_tpchv", static_cast<uint16_t>(0));
+  sink->addField("pdu_vol_tpchv", static_cast<uint16_t>(0));
   for (size_t i = 0; i < NUM_PDU_HV_TEMP; ++i) {
     sink->addField("pdu_hv_temp_" + std::to_string(i), static_cast<uint16_t>(0));
   }
@@ -219,7 +221,7 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   sink->addField("pdu_caen_nevis_p3v3_temp", static_cast<uint16_t>(0));
   sink->addField("pdu_shaper_temp", static_cast<uint16_t>(0));
   sink->addField("pdu_shaper_m3v3_vol", static_cast<uint16_t>(0));
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
+  for (size_t i = 0; i < NUM_PDU_WARM_TPC_SHAPER; ++i) {
     sink->addField("pdu_shaper_p_cur_" + std::to_string(i), static_cast<uint16_t>(0));
     sink->addField("pdu_shaper_m_cur_" + std::to_string(i), static_cast<uint16_t>(0));
   }
@@ -230,9 +232,9 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   sink->addField("pdu_cpu_unused_cur", static_cast<uint16_t>(0));
   sink->addField("pressure_regulator_vol", static_cast<uint16_t>(0));
   sink->addField("pdu_tof_p12v_temp", static_cast<uint16_t>(0));
-  sink->addField("pdu_main_bat_temp", static_cast<uint16_t>(0));
   sink->addField("pdu_main_bat_cur", static_cast<uint16_t>(0));
   sink->addField("pdu_main_bat_vol", static_cast<uint16_t>(0));
+  sink->addField("pdu_main_bat_temp", static_cast<uint16_t>(0));
 
   // MHADC
   for (size_t i = 0; i < NUM_RTD_GONDOLA; ++i) {
@@ -252,6 +254,13 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   }
   sink->addField("rtd_tof_fpgas", static_cast<uint16_t>(0));
   sink->addField("rtd_tof", static_cast<uint16_t>(0));
+  for (size_t i = 0; i < NUM_RTD_OUTSIDE_SEALED_ENCLOSURE; ++i) {
+    sink->addField("rtd_outside_sealed_enclosure_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
+    sink->addField("rtd_vacuum_jacket_" + std::to_string(i), static_cast<uint16_t>(0));
+  }
+  sink->addField("pressure_transducer", static_cast<uint16_t>(0));
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->addField("inclinometer_" + std::to_string(i), static_cast<uint16_t>(0));
   }
@@ -267,6 +276,7 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   for (size_t i = 0; i < NUM_PRESSURE_SENSORS; ++i) {
     sink->addField("pressure_sensor_" + std::to_string(i), static_cast<uint16_t>(0));
   }
+  sink->addField("lab_jack_temperature", static_cast<uint16_t>(0));
   for (size_t i = 0; i < NUM_4_WIRE_RTD; ++i) {
     sink->addField("rtd_4_wire_" + std::to_string(i), static_cast<uint16_t>(0));
   }
@@ -309,7 +319,7 @@ Stream &printIterativeImpl(Stream &stream, const Contents &contents, std::index_
 }
 
 template <size_t N, typename Stream, typename Contents>
-Stream &HubHKTelemetry::printIterative(Stream &stream, const Contents &contents) {
+Stream &printIterative(Stream &stream, const Contents &contents) {
   return printIterativeImpl(stream, contents, std::make_index_sequence<N>{});
 }
 
@@ -518,7 +528,7 @@ void HubHKTelemetry::update() {
 }
 std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "HubHKTelemetry" << std::endl;
-  stream << "index: " << getContents()->Code() << ", Argc(): " << getContents()->Argc() << std::endl;
+  stream << "Code: " << getContents()->Code() << ", Argc(): " << getContents()->Argc() << std::endl;
   stream << "Data: " << std::endl;
   BaseTelemetryDefinition::print(stream);
 

@@ -105,6 +105,7 @@ public:
     timeStamp_ = t;
     constructed_ = false;
   }
+  std::time_t TimeStamp() const { return timeStamp_; }
   static std::string getTimeString(std::time_t t);
   virtual void update() {
     if (contents_)
@@ -115,6 +116,8 @@ public:
     index_ = index;
     constructed_ = false;
   }
+
+  Subsystem Subsystem() const { return subsystem_; }
 
   virtual std::ostream &print(std::ostream &stream);
   virtual std::ofstream &write(std::ofstream &stream);

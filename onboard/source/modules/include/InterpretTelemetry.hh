@@ -26,9 +26,10 @@ class PushToMongoDB;
  * @date 2025-09-20 Shota Arai| Comparatible to different type of telemetry. (v2.0)
  * @date 2025-11-17 Shota Arai| Refactoring
  * @date 2025-12-14 Shota Arai| Added DB serialization functions
+ * @date 2026-06-16 Shota Arai | Added some functions (v2.1)
  */
 class InterpretTelemetry: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(InterpretTelemetry, 2.0);
+  DEFINE_ANL_MODULE(InterpretTelemetry, 2.1);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -60,7 +61,10 @@ public:
     }
   }
   const BaseTelemetryDefinition *getTelemetry() const {
-    return telemetry_.get();
+    return singleton_self()->telemetry_.get();
+  }
+  std::shared_ptr<BaseTelemetryDefinition> getTelemetryShared() const {
+    return singleton_self()->telemetry_;
   }
 
 private:
