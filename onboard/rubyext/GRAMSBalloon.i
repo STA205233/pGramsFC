@@ -51,6 +51,7 @@
 #include "DetectErrorCallbackFromDAQ.hh"
 #include "PressureGaugeManager.hh"
 #include "GetPressure.hh"
+#include "ConvertHubHKTelemetry.hh"
 %}
 
 %include "std_vector.i"
@@ -237,6 +238,10 @@ public:
   I2CManager();
 };
 #endif
+class ConvertHubHKTelemetry: public anlnext::BasicModule {
+public:
+  ConvertHubHKTelemetry();
+};
 } // namespace pgrams
 } // namespace GRAMSBalloon
 %template(TelemMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::string>;
