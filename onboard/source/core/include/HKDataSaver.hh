@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <fstream>
 #include <sstream>
+#include <iomanip>
 namespace gramsballoon::pgrams {
 template <typename DataType = uint8_t>
 class HKDataSaver {
@@ -46,8 +47,8 @@ void HKDataSaver<DataType>::saveData(const DataType *data) {
     openFileForWrite();
   }
   time_t current_time = time(nullptr);
-  file_.write(reinterpret_cast<const uint8_t *>(&current_time), sizeof(current_time));
-  file_.write(reinterpret_cast<const uint8_t *>(data), sizeof(DataType) * NData_);
+  file_.write(reinterpret_cast<const char *>(&current_time), sizeof(current_time));
+  file_.write(reinterpret_cast<const char *>(data), sizeof(DataType) * NData_);
   dataCount_++;
 }
 
@@ -65,7 +66,7 @@ void HKDataSaver<DataType>::openFileForWrite() {
   }
   fileIndex_++;
   dataCount_ = 0;
-  file_.write(reinterpret_cast<const uint8_t *>(&NData_), sizeof(uint32_t));
+  file_.write(reinterpret_cast<const char *>(&NData_), sizeof(uint32_t));
 }
 } // namespace gramsballoon::pgrams
 

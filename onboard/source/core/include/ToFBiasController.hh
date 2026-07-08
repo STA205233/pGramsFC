@@ -4,6 +4,7 @@
 #include "HKDataSaver.hh"
 #include "ToFBiasChannel.hh"
 #include <atomic>
+#include <condition_variable>
 #include <cstdint>
 #include <memory>
 #include <mutex>
