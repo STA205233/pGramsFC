@@ -7,7 +7,7 @@ namespace gramsballoon::pgrams {
 template <typename DataType = uint8_t>
 class HKDataSaver {
 public:
-  HKDataSaver(uint32_t numDataPerFile = 100000, const std::string &filenameBase = "hk_data", uint32_t Ndata = 1) : file_(), dataCount_(0), fileIndex_(0), filenameBase_(filenameBase), numDataPerFile_(numDataPerFile), NData_(Ndata) {};
+  HKDataSaver(uint32_t numDataPerFile = 100000, const std::string &filenameBase = "hk_data", uint32_t Ndata = 1) : file_(), NData_(Ndata), dataCount_(0), fileIndex_(0), filenameBase_(filenameBase), numDataPerFile_(numDataPerFile) {};
   virtual ~HKDataSaver() = default;
 
 private:

@@ -158,6 +158,10 @@ if(GB_USE_FT232H)
   message("-- D2XX_LIB: ${D2XX_LIB} ")
   include_directories(${D2XX_INCLUDE_DIRS})
   add_compile_definitions("USE_FT232H")
+else()
+  set(D2XX_LIB_DIR "")
+  set(D2XX_INCLUDE_DIRS "")
+  set(D2XX_LIB "")
 endif(GB_USE_FT232H)
 
 # VersaLogic
@@ -171,6 +175,9 @@ find_library(VERSALOGIC_LIB
 add_compile_definitions("USE_VERSA_API")
 message("-- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
 message("-- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+else()
+  set(VERSALOGIC_INC_DIR "")
+  set(VERSALOGIC_LIB "")
 endif(GB_USE_VERSA_API)
 
 # I2C
@@ -224,6 +231,10 @@ if(GB_USE_MYSQL)
   message("-- MYSQL_LIB_DIR: ${MYSQL_LIB_DIR}")
   message("-- MYSQL_LIB: ${MYSQL_LIB}")
   list(APPEND cxx_definitions "-DUSE_MYSQL")
+else ()
+  set(MYSQL_INC_DIR "")
+  set(MYSQL_LIB_DIR "")
+  set(MYSQL_LIB "")
 endif(GB_USE_MYSQL)
 
 # Mosquitto
@@ -235,9 +246,12 @@ set(MOSQUITTO_LIB PkgConfig::Mosquitto)
 if (GB_USE_LJM)
   find_library(LJM_LIB NAMES LabJackM REQUIRED PATHS /usr/local/lib)
   find_path(LJM_INC_DIR NAMES LabJackM.h REQUIRED PATHS /usr/local/include)
-  message(" -- LJM_LIB: ${LJM_LIB} ")
-  message(" -- LJM_INC_DIR: ${LJM_INC_DIR} ")
+  message("-- LJM_LIB: ${LJM_LIB} ")
+  message("-- LJM_INC_DIR: ${LJM_INC_DIR} ")
   list(APPEND cxx_definitions "-DUSE_LJM")
+else()
+  set(LJM_LIB "")
+  set(LJM_INC_DIR "")
 endif(GB_USE_LJM)
 
 # ## subdirectories

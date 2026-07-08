@@ -51,6 +51,7 @@
 #include "DetectErrorCallbackFromDAQ.hh"
 #include "PressureGaugeManager.hh"
 #include "GetPressure.hh"
+#include "ControlToFBias.hh"
 #ifdef USE_LJM
 #include "GetLabJackData.hh"
 #endif
@@ -229,6 +230,10 @@ public:
 class GetPressure: public anlnext::BasicModule {
 public:
   GetPressure();
+};
+class ControlToFBias: public anlnext::BasicModule {
+public:
+  ControlToFBias();
 };
 #ifdef USE_LJM
 class GetLabJackData: public anlnext::BasicModule {

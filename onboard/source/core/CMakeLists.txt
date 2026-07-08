@@ -104,6 +104,17 @@ add_library(GBCore SHARED
   ${GB_I2C_CORE_CLASSES}
   ${GB_VERSA_API_CORE_CLASSES}
   )
+message(DEBUG "-- Classes to be compile as GBCore:
+  ${GB_CORE_CLASSES}
+  ${GB_SPI_CORE_CLASSES}
+  ${GB_LJM_CORE_CLASSES}
+  ${GB_MYSQL_CORE_CLASSES}
+  ${GB_MOSQUITTO_CORE_CLASSES}
+  ${GB_SOCKET_CLIENT_CORE_CLASSES}
+  ${GB_SOCKET_SERVER_CORE_CLASSES}
+  ${GB_I2C_CORE_CLASSES}
+  ${GB_VERSA_API_CORE_CLASSES}
+")
 
 target_link_libraries(GBCore
   ${BOOST_LIB}
@@ -118,6 +129,19 @@ target_link_libraries(GBCore
   ${BME_LIB}
   ${BME280_LIB}
   )
+message(DEBUG "-- Libraries to be linked with GBCore:
+ ${BOOST_LIB}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
+  ${WAVEFORMS_LIB}
+  ${ICM20948_LIB}
+  ${MYSQL_LIB}
+  ${MOSQUITTO_LIB}
+  ${VERSALOGIC_LIB}
+  ${LJM_LIB}
+  ${BME_LIB}
+  ${BME280_LIB}
+")
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 
 install(TARGETS GBCore LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

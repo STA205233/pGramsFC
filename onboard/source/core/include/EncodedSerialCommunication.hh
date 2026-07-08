@@ -14,6 +14,19 @@ public:
   int ReadDataUntilSpecificStr(std::string &data, const std::string &end);
   int ReadDataUntilBreak(std::string &data);
   int WriteData(const std::string &data);
+  int WriteDataWithTimeout(const std::string &data, timeval &timeout) {
+    return transferWithTimeout(
+        [this](timeval &t) { return waitForWritable(t); },
+        [this, &data]() { return WriteData(data); },
+        timeout);
+  }
+  int ReadDataWithTimeout(char *data, int length, timeval &timeout) {
+    return transferWithTimeout(
+        [this](timeval &t) { return waitForReceivable(t); },
+        [this, data, length]() { return ReadData(data, length); },
+        timeout);
+  }
+
 private:
   std::vector<uint8_t> buf_;
 };

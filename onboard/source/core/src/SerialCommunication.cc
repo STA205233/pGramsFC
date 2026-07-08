@@ -2,7 +2,7 @@
 #include <chrono>
 #include <thread>
 
-namespace gramsballoon {
+namespace gramsballoon::pgrams {
 
 SerialCommunication::SerialCommunication()
     : baudrate_(B9600), openMode_(O_RDWR | O_NONBLOCK) {
@@ -77,8 +77,8 @@ int SerialCommunication::swrite(const std::vector<uint8_t> &buf) {
   const int length = buf.size();
   int rem = length;
   std::vector<int> counts;
-  const int max_send = 1000;
-  const int sleep_ms = 250;
+  constexpr int max_send = 1000;
+  constexpr int sleep_ms = 1;
   while (rem > 0) {
     const int v = std::min(rem, max_send);
     counts.push_back(v);
@@ -100,7 +100,7 @@ int SerialCommunication::swrite(const std::vector<uint8_t> &buf) {
   return num_sent;
 }
 
-int SerialCommunication::WaitForTimeOut(timeval timeout) {
+int SerialCommunication::waitForReceivable(timeval &timeout) {
   fd_set fdset;
   FD_ZERO(&fdset);
   FD_SET(fd_, &fdset);
@@ -108,4 +108,12 @@ int SerialCommunication::WaitForTimeOut(timeval timeout) {
   return rv;
 }
 
-} /* namespace gramsballoon */
+int SerialCommunication::waitForWritable(timeval &timeout) {
+  fd_set fdset;
+  FD_ZERO(&fdset);
+  FD_SET(fd_, &fdset);
+  int rv = select(fd_ + 1, NULL, &fdset, NULL, &timeout);
+  return rv;
+}
+
+} /* namespace gramsballoon::pgrams */

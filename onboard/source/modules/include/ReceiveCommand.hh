@@ -5,6 +5,7 @@
 
 #include "CommunicationFormat.hh"
 #include "CommunicationSaver.hh"
+#include "ControlToFBias.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
 #include "SendCommandToDAQComputer.hh"
@@ -24,6 +25,8 @@ class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
 class SendCommandToDAQComputer;
+class ControlToFBias;
+
 /**
  * Receive commands from ground.
  *
@@ -72,6 +75,7 @@ private:
   RunIDManager *runIDManager_ = nullptr;
   MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   MosquittoManager<std::string> *telemetryMosquittoManager_ = nullptr;
+  ControlToFBias *controlTofBias_ = nullptr;
 
   //communication
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;

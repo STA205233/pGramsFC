@@ -9,7 +9,7 @@ int PressureGaugeManager::SendComAndGetData(const std::string &command, std::str
   timeval timeout;
   timeout.tv_sec = GetTimeout();
   timeout.tv_usec = 0;
-  const int rv = esc->WaitForTimeOut(timeout);
+  const int rv = esc->waitForReceivable(timeout);
   if (rv == -1) {
     return -1;
   }

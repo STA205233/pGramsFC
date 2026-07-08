@@ -32,7 +32,7 @@ int EncodedSerialCommunicator::SendComAndGetData(const std::string &command, std
   timeval timeout;
   timeout.tv_sec = timeout_;
   timeout.tv_usec = timeoutUsec_;
-  const int rv = esc_->WaitForTimeOut(timeout);
+  const int rv = esc_->waitForReceivable(timeout);
   if (rv == -1) {
     return -1;
   }

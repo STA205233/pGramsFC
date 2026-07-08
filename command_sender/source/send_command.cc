@@ -64,9 +64,9 @@ int main(int argc, char *argv[]) {
   }
 
   const std::string name(argv[1]);
-  std::vector<int32_t> arg_array;
+  std::vector<uint32_t> arg_array;
   for (int i = 2; i < argc; i++) {
-    arg_array.push_back(std::stoi(argv[i]));
+    arg_array.push_back(std::stoul(argv[i]));
   }
 
   std::vector<uint8_t> command;
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
   std::cout << "Subsystem: " << SUBSYSTEM_NAME << std::endl;
   std::cout << "Command name: " << name << std::endl;
   std::cout << "Arguments: ";
-  for (const int32_t arg: arg_array) {
+  for (const uint32_t arg: arg_array) {
     std::cout << arg << " ";
   }
   std::cout << std::endl;

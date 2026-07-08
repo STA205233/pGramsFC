@@ -142,10 +142,14 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Singles, 0);
   ADD_CODE_MAP(TOF_Run_Convert_Stg1_To_Stg2, 0);
   ADD_CODE_MAP(TOF_Run_Process_Coin_Evt_QA, 0);
+  ADD_CODE_MAP(TOF_Run_Process_QA_Iridium, 0);
 
-  ADD_CODE_MAP(TOF_Bias_ON, 0);
-  ADD_CODE_MAP(TOF_Bias_OFF, 0);
-  ADD_CODE_MAP(TOF_Bias_Set_Voltage, 1);
+  ADD_CODE_MAP(HUB_DCDC_ON, 1);
+  ADD_CODE_MAP(HUB_DCDC_OFF, 1);
+  ADD_CODE_MAP(HUB_Set_Voltage, 5);
+  ADD_CODE_MAP(HUB_Enable_Temp_Con, 0);
+  ADD_CODE_MAP(HUB_Disable_Temp_Con, 0);
+  ADD_CODE_MAP(HUB_Set_Default_Temp, 2);
 }
 #undef ADD_CODE_MAP
 
@@ -166,7 +170,7 @@ int CommandBuilder::get_argnum(const std::string &name) const {
   return get_command_property(name).argnum;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<int32_t> &arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<uint32_t> &arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);
@@ -203,7 +207,7 @@ std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::v
   return command;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string &name, const std::vector<int32_t> &arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string &name, const std::vector<uint32_t> &arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);
