@@ -1,4 +1,5 @@
 #include "MosquittoManager.hh"
+#include "TerminalColoring.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 template <typename T>
@@ -6,7 +7,6 @@ ANLStatus MosquittoManager<T>::mod_define() {
   define_parameter("host", &mod_class::host_);
   define_parameter("port", &mod_class::port_);
   define_parameter("keep_alive", &mod_class::keepAlive_);
-  define_parameter("threaded_set", &mod_class::threadedSet_);
   define_parameter("time_out", &mod_class::timeout_);
   set_parameter_description("Timeout for the connection. If negative, default value (1000 ms) is used according to the reference of mosquittopp.");
   set_parameter_unit(1.0, "msec");
@@ -14,35 +14,36 @@ ANLStatus MosquittoManager<T>::mod_define() {
   define_parameter("password", &mod_class::passwd_);
   define_parameter("device_id", &mod_class::deviceId_);
   define_parameter("do_initialize", &mod_class::doInitialize_);
+  set_parameter_description("If true, initialization of mosquitto library will be performed at mod_pre_initialize. This should be true only one module.");
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_pre_initialize() {
   if (host_.empty()) {
-    std::cerr << "Error in MosquittoManager::mod_pre_initialize: host is empty." << std::endl;
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": host is empty." << std::endl;
     return AS_ERROR;
   }
   if (port_ < 0) {
-    std::cerr << "Error in MosquittoManager::mod_pre_initialize: port is negative." << std::endl;
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": port is negative." << std::endl;
     return AS_ERROR;
   }
   if (keepAlive_ < 0) {
-    std::cerr << "Error in MosquittoManager::mod_pre_initialize: keep_alive is negative." << std::endl;
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": keep_alive is negative." << std::endl;
     return AS_ERROR;
   }
   if (user_.empty() && !passwd_.empty()) {
-    std::cerr << "Error in MosquittoManager::mod_pre_initialize: passwd is set but user is empty." << std::endl;
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": passwd is set but user is empty." << std::endl;
     return AS_ERROR;
   }
   if (doInitialize_) {
     const auto result = mosqpp::lib_init();
     if (result != MOSQ_ERR_SUCCESS) {
-      std::cerr << "Error in MosquittoManager::mod_pre_initialize: mosqpp::lib_init failed. Error Message: " << mosqpp::strerror(result) << std::endl;
+      std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": mosqpp::lib_init failed. Error Message: " << mosqpp::strerror(result) << std::endl;
       return AS_ERROR;
     }
   }
-  mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, threadedSet_);
+  mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, false); // threaded_set is set to false due to use of loop_start()
   mosquittoIO_->setVerbose(chatter_);
   if (!user_.empty()) {
     mosquittoIO_->username_pw_set(user_.c_str(), passwd_.c_str());
@@ -66,6 +67,10 @@ ANLStatus MosquittoManager<T>::mod_begin_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
+  const auto loop_status = mosquittoIO_->loop_start();
+  if (loop_status != MOSQ_ERR_SUCCESS) {
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_start() failed" << std::endl;
+  }
   return AS_OK;
 }
 template <typename T>
@@ -73,17 +78,14 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
   if (!mosquittoIO_) {
     return AS_OK;
   }
-  int result = 0;
-  for (int i = 0; i < 10; i++) {
-    result |= mosquittoIO_->loop(0);
-  }
-  if (result != 0) {
-    mosquittoIO_->Reconnect();
-  }
   return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_end_run() {
+  const auto loop_status = mosquittoIO_->loop_stop();
+  if (loop_status != MOSQ_ERR_SUCCESS) {
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_stop() failed" << std::endl;
+  }
   return AS_OK;
 }
 template <typename T>
@@ -96,7 +98,7 @@ ANLStatus MosquittoManager<T>::mod_finalize() {
 template <typename T>
 ANLStatus MosquittoManager<T>::HandleError(int error_code) {
   if (error_code != 0) {
-    std::cerr << "Error in " << module_id() << ": Connecting MQTT failed. Error Message: " << error_code << std::endl;
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": Connecting MQTT failed. Error Message: " << error_code << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorType::MQTT_COM_ERROR);
     }
