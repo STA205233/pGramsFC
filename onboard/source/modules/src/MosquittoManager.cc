@@ -82,7 +82,11 @@ ANLStatus MosquittoManager<T>::mod_analyze() {
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_end_run() {
-  const auto loop_status = mosquittoIO_->loop_stop();
+  if (!mosquittoIO_) {
+    return AS_ERROR;
+  }
+  const bool is_disconnect_success = mosquittoIO_->Disconnect() != MOSQ_ERR_SUCCESS;
+  const auto loop_status = mosquittoIO_->loop_stop(!is_disconnect_success);
   if (loop_status != MOSQ_ERR_SUCCESS) {
     std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_stop() failed" << std::endl;
   }
@@ -90,10 +94,7 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_finalize() {
-  if (!mosquittoIO_) {
-    return AS_ERROR;
-  }
-  return HandleError(mosquittoIO_->Disconnect());
+  return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::HandleError(int error_code) {
