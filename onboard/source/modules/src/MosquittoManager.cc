@@ -1,5 +1,7 @@
 #include "MosquittoManager.hh"
 #include "TerminalColoring.hh"
+#include <chrono>
+#include <thread>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 template <typename T>
@@ -15,6 +17,8 @@ ANLStatus MosquittoManager<T>::mod_define() {
   define_parameter("device_id", &mod_class::deviceId_);
   define_parameter("do_initialize", &mod_class::doInitialize_);
   set_parameter_description("If true, initialization of mosquitto library will be performed at mod_pre_initialize. This should be true only one module.");
+  define_parameter("do_cleanup", &mod_class::doCleanup_);
+  set_parameter_description("If true, cleanup of mosquitto library will be performed at mod_finalyze. This should be true only one module.");
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -91,21 +95,37 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  const bool is_disconnect_success = mosquittoIO_->Disconnect() == MOSQ_ERR_SUCCESS;
+  const int status_disconnection = mosquittoIO_->Disconnect();
+  const bool is_disconnect_success = status_disconnection == MOSQ_ERR_SUCCESS;
   if (!is_disconnect_success) {
-    std::cerr << module_id() << termutil::yellow << " WARNING" << termutil::reset << ": disconnect() failed" << std::endl;
+    std::cerr << module_id() << termutil::yellow << " WARNING" << termutil::reset << ": disconnect() failed: " << status_disconnection << std::endl;
   }
   else {
-    std::cerr << module_id() << termutil::green << " INFO" << termutil::reset << ": loop_stop() failed" << std::endl;
+    std::cerr << module_id() << termutil::green << " INFO" << termutil::reset << ": disconnect() succeeded" << std::endl;
   }
-  const auto loop_status = mosquittoIO_->loop_stop(!is_disconnect_success);
+  
+  for (int i = 0; i < 100; ++i) {
+    if (!mosquittoIO_->IsConnected()) {
+      break;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+  
+  const auto loop_status = mosquittoIO_->loop_stop(mosquittoIO_->IsConnected());
   if (loop_status != MOSQ_ERR_SUCCESS) {
-    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_stop() failed" << std::endl;
+    std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_stop() failed: " << loop_status << std::endl;
   }
   return AS_OK;
 }
 template <typename T>
 ANLStatus MosquittoManager<T>::mod_finalize() {
+  if (doCleanup_) {
+    const auto result = mosqpp::lib_cleanup();
+    if (result != MOSQ_ERR_SUCCESS) {
+      std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": mosqpp::lib_cleanup failed. Error Message: " << mosqpp::strerror(result) << std::endl;
+      return AS_ERROR;
+    }
+  }
   return AS_OK;
 }
 template <typename T>

@@ -130,7 +130,6 @@ int MosquittoIO<std::vector<uint8_t>>::Publish(const std::vector<uint8_t> &messa
 template <typename V>
 MosquittoIO<V>::~MosquittoIO() {
   HandleError(Disconnect());
-  HandleError(mosqpp::lib_cleanup());
 }
 template <typename V>
 int MosquittoIO<V>::Connect() {
@@ -150,8 +149,6 @@ int MosquittoIO<V>::Disconnect() {
     isConnected_.store(false);
   }
   ClearPayload();
-  memResource_.reset();
-  allocatorMosq_.reset();
   return ret;
 }
 template <typename V>

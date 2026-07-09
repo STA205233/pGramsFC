@@ -18,7 +18,7 @@ class MyApp < ANL::ANLApp
       m.set_singleton(1)
     end
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(1)
     end
     chain GRAMSBalloon::IoContextManager do |m|
@@ -66,7 +66,7 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "DistributeCommand_#{subsystem}"
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 2) do |m|
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem

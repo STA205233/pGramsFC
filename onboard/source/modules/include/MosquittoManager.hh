@@ -77,6 +77,7 @@ private:
   int chatter_ = 0;
   int timeout_ = 10;
   bool doInitialize_ = false;
+  bool doCleanup_ = false;
   anlnext::ANLStatus HandleError(int error_code);
   CommunicationLinkType linkType_ = CommunicationLinkType::IRIDIUM;
 };
