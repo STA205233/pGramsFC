@@ -62,21 +62,22 @@ if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
   set(GB_USE_SPI ON)
 else()
   set(GB_USE_SPI OFF)
-  endif()
+endif()
   
-  # # shortcut options
-  option(GB_MAC " shortcut " OFF)
-  
-  if(GB_MAC)
-  message("-- GB_MAC is set")
-  message("-- GB_MAC is set ")
-  set(GB_USE_SPI OFF)
-  set(GB_USE_HSQUICKLOOK OFF)
-  set(GB_APT_RUBY OFF)
-  set(GB_USE_MYSQL ON)
-  set(GB_USE_ROOT OFF)
-  set(GB_USE_SYSTEM_MODULES OFF)
-  endif(GB_MAC)
+# # shortcut options
+option(GB_MAC "shortcut " OFF)
+
+if(GB_MAC)
+message("-- GB_MAC is set")
+message("-- GB_MAC is set ")
+set(GB_USE_FT232H OFF)
+set(GB_USE_BAYCAT OFF)
+set(GB_USE_HSQUICKLOOK OFF)
+set(GB_APT_RUBY OFF)
+set(GB_USE_MYSQL OFF)
+set(GB_USE_ROOT OFF)
+set(GB_USE_SYSTEM_MODULES OFF)
+endif(GB_MAC)
 
 
 if (GB_USE_FT232H)

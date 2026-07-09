@@ -49,6 +49,12 @@ ANLStatus MosquittoManager<T>::mod_pre_initialize() {
     mosquittoIO_->username_pw_set(user_.c_str(), passwd_.c_str());
   }
   HandleError(mosquittoIO_->Connect());
+  for (int i = 0; i < 100; ++i) {
+    mosquittoIO_->loop();
+    if (mosquittoIO_->IsConnected()) {
+      break;
+    }
+  }
   return AS_OK;
 }
 template <typename T>
@@ -86,6 +92,12 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
     return AS_ERROR;
   }
   const bool is_disconnect_success = mosquittoIO_->Disconnect() != MOSQ_ERR_SUCCESS;
+  if (!is_disconnect_success) {
+    std::cerr << module_id() << termutil::yellow << " WARNING" << termutil::reset << ": disconnect() failed" << std::endl;
+  }
+  else {
+    std::cerr << module_id() << termutil::green << " INFO" << termutil::reset << ": loop_stop() failed" << std::endl;
+  }
   const auto loop_status = mosquittoIO_->loop_stop(!is_disconnect_success);
   if (loop_status != MOSQ_ERR_SUCCESS) {
     std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_stop() failed" << std::endl;
