@@ -180,6 +180,11 @@ class PassTelemetry: public anlnext::BasicModule {
 public:
   PassTelemetry();
 };
+%nodefaultctor VDBDataStore;
+class VDBDataStore
+{
+public:
+};
 class InterpretTelemetry : public anlnext::BasicModule, public VDBDataStore
 {
 public:
