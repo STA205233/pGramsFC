@@ -40,6 +40,9 @@ class MosquittoManager: public anlnext::BasicModule {
 public:
   MosquittoManager() = default;
   virtual ~MosquittoManager() {
+    if (doInitialize_) {
+      mosqpp::lib_cleanup();
+    }
     mosquittoIO_.reset();
   }
 
@@ -73,6 +76,7 @@ private:
   int keepAlive_ = 60;
   int chatter_ = 0;
   int timeout_ = 10;
+  bool doInitialize_ = false;
   anlnext::ANLStatus HandleError(int error_code);
   CommunicationLinkType linkType_ = CommunicationLinkType::IRIDIUM;
 };
