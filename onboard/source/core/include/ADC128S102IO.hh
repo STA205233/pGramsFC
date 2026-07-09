@@ -8,7 +8,7 @@ class ADC128S102IO {
 public:
   ADC128S102IO(float supply_voltage_in_V = 3.3) : LSB_(supply_voltage_in_V / 4096), halfLSB_(LSB_ * 0.5) {}
   virtual ~ADC128S102IO() = default;
-  static constexpr int MaxChannelsPerADC() { return 8; }
+  static constexpr size_t MaxChannelsPerADC() { return 8; }
 
 private:
   SPIInterface *spiInterface_ = nullptr;
@@ -20,11 +20,12 @@ private:
   int errorCode_ = 0;
 
 public:
-  float convertVoltage(uint16_t value);
   float getCurrentVoltage(int ch);
+  bool getAllADCs(std::array<float, ADC128S102IO::MaxChannelsPerADC()> &dest);
   float convertVoltage(uint16_t value) const;
   int getErrorCode() const { return errorCode_; }
   bool isError() const { return errorCode_ != 0; }
+  void resetError() { errorCode_ = 0; }
   void setSPIInterface(SPIInterface *spiInterface) { spiInterface_ = spiInterface; }
   bool isSPIInterfaceSet() const { return spiInterface_ != nullptr; }
   void setCS(int cs) { cs_ = cs; }

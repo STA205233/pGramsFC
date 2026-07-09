@@ -1,6 +1,6 @@
 #include "ADC128S102IO.hh"
 namespace gramsballoon::pgrams {
-float ADC128S102IO::convertVoltage(uint16_t value) {
+float ADC128S102IO::convertVoltage(uint16_t value) const {
   return LSB_ * value + halfLSB_;
 }
 float ADC128S102IO::getCurrentVoltage(int ch) {
@@ -15,5 +15,16 @@ float ADC128S102IO::getCurrentVoltage(int ch) {
   }
   const uint16_t val = ((readBuffer_[0] & 0x00ff) << 8) | (readBuffer_[1] & 0xffff);
   return convertVoltage(val);
+}
+bool ADC128S102IO::getAllADCs(std::array<float, ADC128S102IO::MaxChannelsPerADC()> &dest) {
+  bool has_error = false;
+  for (int i = 0; i < MaxChannelsPerADC(); ++i) {
+    const auto vol = getCurrentVoltage(i);
+    if (isError()) {
+      return false;
+    }
+    dest[i] = vol;
+  }
+  return true;
 }
 } // namespace gramsballoon::pgrams
