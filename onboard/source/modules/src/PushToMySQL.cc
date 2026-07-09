@@ -21,6 +21,10 @@ ANLStatus PushToMySQL::mod_initialize() {
       return AS_QUIT_ALL_ERROR;
     }
   }
+  else {
+    std::cerr << module_id() << "::mod_initialize: module " << dataStoreName_ << " not found" << std::endl;
+    return AS_QUIT_ALL_ERROR;
+  }
   if (exist_module("MySQLManager")) {
     get_module_NC("MySQLManager", &mysqlManager_);
   }

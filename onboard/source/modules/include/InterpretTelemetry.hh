@@ -30,7 +30,7 @@ class PushToMongoDB;
  * @date 2026-06-16 Shota Arai | Added some functions (v2.1)
  * @date 2026-07-09 Shota Arai | Inherited from VDBDataStore (v2.2)
  */
-class InterpretTelemetry: public anlnext::BasicModule, VDBDataStore {
+class InterpretTelemetry: public anlnext::BasicModule, public VDBDataStore {
   DEFINE_ANL_MODULE(InterpretTelemetry, 2.2);
   ENABLE_PARALLEL_RUN();
 
