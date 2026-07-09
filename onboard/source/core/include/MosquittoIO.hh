@@ -1,6 +1,7 @@
 #ifndef GB_MosquittoIO_hh
 #define GB_MosquittoIO_hh 1
 #include "mosquittopp.h"
+#include "TerminalColoring.hh"
 #include <atomic>
 #include <cstring>
 #include <deque>
@@ -30,6 +31,17 @@ template <typename V>
 class MosquittoIO: public mosqpp::mosquittopp {
 public:
   MosquittoIO(const std::string &id, const std::string &host, int port, int keepAlive = 60, bool threadedset = false) : mosquittopp(id.c_str()) {
+    const int counter = counter_.load();
+    if (counter == 0) {
+      const auto result = mosqpp::lib_init();
+      if (result != MOSQ_ERR_SUCCESS) {
+        std::cerr << termutil::red << " ERROR" << termutil::reset << ": mosqpp::lib_init failed. Error Message: " << mosqpp::strerror(result) << std::endl;
+      }
+      else {
+        std::cout << termutil::green <<" INFO" << termutil::reset << ": mosqpp::lib_init succeeded." << std::endl;
+      }
+    }
+    ++counter_;
     if (threadedset)
       HandleError(threaded_set(true));
     host_ = host;
@@ -109,6 +121,8 @@ private:
   std::shared_ptr<mqtt::mosquitto_message<V>> allocateMessage();
   std::mutex payloadMutex_;
   std::atomic_bool isConnected_ = false;
+  inline static std::atomic_int counter_{0};
+  
 };
 template <typename V>
 int MosquittoIO<V>::Publish(const V &message, const std::string &topic, int qos) {
@@ -130,7 +144,12 @@ int MosquittoIO<std::vector<uint8_t>>::Publish(const std::vector<uint8_t> &messa
 template <typename V>
 MosquittoIO<V>::~MosquittoIO() {
   HandleError(Disconnect());
-  HandleError(mosqpp::lib_cleanup());
+  if (counter_ == 1) {
+    std::cout << termutil::green <<" INFO" << termutil::reset << ": calling mosqpp::lib_cleanup." << std::endl;
+    HandleError(mosqpp::lib_cleanup());
+       
+  }
+  --counter_;
 }
 template <typename V>
 int MosquittoIO<V>::Connect() {
@@ -150,8 +169,6 @@ int MosquittoIO<V>::Disconnect() {
     isConnected_.store(false);
   }
   ClearPayload();
-  memResource_.reset();
-  allocatorMosq_.reset();
   return ret;
 }
 template <typename V>

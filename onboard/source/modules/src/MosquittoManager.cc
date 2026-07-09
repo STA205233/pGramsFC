@@ -13,8 +13,6 @@ ANLStatus MosquittoManager<T>::mod_define() {
   define_parameter("user", &mod_class::user_);
   define_parameter("password", &mod_class::passwd_);
   define_parameter("device_id", &mod_class::deviceId_);
-  define_parameter("do_initialize", &mod_class::doInitialize_);
-  set_parameter_description("If true, initialization of mosquitto library will be performed at mod_pre_initialize. This should be true only one module.");
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -35,13 +33,6 @@ ANLStatus MosquittoManager<T>::mod_pre_initialize() {
   if (user_.empty() && !passwd_.empty()) {
     std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": passwd is set but user is empty." << std::endl;
     return AS_ERROR;
-  }
-  if (doInitialize_) {
-    const auto result = mosqpp::lib_init();
-    if (result != MOSQ_ERR_SUCCESS) {
-      std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": mosqpp::lib_init failed. Error Message: " << mosqpp::strerror(result) << std::endl;
-      return AS_ERROR;
-    }
   }
   mosquittoIO_ = std::make_shared<MosquittoIO<T>>(deviceId_, host_, port_, keepAlive_, false); // threaded_set is set to false due to use of loop_start()
   mosquittoIO_->setVerbose(chatter_);
@@ -77,6 +68,9 @@ ANLStatus MosquittoManager<T>::mod_begin_run() {
   if (loop_status != MOSQ_ERR_SUCCESS) {
     std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_start() failed" << std::endl;
   }
+  else {
+    std::cout << module_id() << termutil::green << " INFO" << termutil::reset << ": loop_start() success" << std::endl;
+  }
   return AS_OK;
 }
 template <typename T>
@@ -91,12 +85,13 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  const bool is_disconnect_success = mosquittoIO_->Disconnect() != MOSQ_ERR_SUCCESS;
+  const int disconnect_status = mosquittoIO_->Disconnect();
+  const bool is_disconnect_success = disconnect_status == MOSQ_ERR_SUCCESS;
   if (!is_disconnect_success) {
-    std::cerr << module_id() << termutil::yellow << " WARNING" << termutil::reset << ": disconnect() failed" << std::endl;
+    std::cerr << module_id() << termutil::yellow << " WARNING" << termutil::reset << ": disconnect() failed: " << disconnect_status << std::endl;
   }
   else {
-    std::cerr << module_id() << termutil::green << " INFO" << termutil::reset << ": loop_stop() failed" << std::endl;
+    std::cout << module_id() << termutil::green << " INFO" << termutil::reset << ": disconnect() success" << std::endl;
   }
   const auto loop_status = mosquittoIO_->loop_stop(!is_disconnect_success);
   if (loop_status != MOSQ_ERR_SUCCESS) {
