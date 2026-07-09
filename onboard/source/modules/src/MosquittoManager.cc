@@ -91,7 +91,7 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
   if (!mosquittoIO_) {
     return AS_ERROR;
   }
-  const bool is_disconnect_success = mosquittoIO_->Disconnect() != MOSQ_ERR_SUCCESS;
+  const bool is_disconnect_success = mosquittoIO_->Disconnect() == MOSQ_ERR_SUCCESS;
   if (!is_disconnect_success) {
     std::cerr << module_id() << termutil::yellow << " WARNING" << termutil::reset << ": disconnect() failed" << std::endl;
   }
