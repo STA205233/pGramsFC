@@ -320,6 +320,13 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     //TODO: Implement handling
     return true;
   }
+  else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK)) {
+#ifdef USE_SPI
+    return 
+#else
+#endif
+  }
+
   else {
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
     return false;

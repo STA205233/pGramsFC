@@ -58,4 +58,10 @@ int ControlPDU::initializeDAC() {
   }
   return -1;
 }
+int ControlPDU::setVoltage(int cs, int channel, float voltage) {
+  dac_->setVoltage(voltage);
+  dac_->setCS(cs);
+  const int status = dac_->applySetting();
+  return status;
+}
 } // namespace gramsballoon::pgrams

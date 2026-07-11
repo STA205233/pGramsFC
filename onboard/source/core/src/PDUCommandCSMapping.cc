@@ -1,7 +1,6 @@
 #include "PDUCommandCSMapping.hh"
 namespace gramsballoon::pgrams {
 void PDUCommandCSMapping::registerMapping() {
-  reserveSize(8);
   setChipSelect(0, 0x01);
   setChipSelect(1, 0x02);
   setChipSelect(2, 0x04);

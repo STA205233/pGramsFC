@@ -96,6 +96,10 @@ else()
   set(GB_USE_VERSA_API OFF)
 endif()
 
+if (GB_USE_SPI)
+  add_compile_definitions("USE_SPI")
+endif()
+
 message("-- GB_USE_SPI: ${GB_USE_SPI}")
 message("-- GB_USE_I2C: ${GB_USE_I2C}")
 message("-- GB_USE_BAYCAT: ${GB_USE_BAYCAT}")

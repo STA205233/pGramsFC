@@ -75,7 +75,7 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
 
   int ret = 0;
   if (csControl) {
-    ret = baseInterface_->controlGPIO(static_cast<int>(*mapped), true);
+    ret = baseInterface_->controlGPIO(static_cast<int>(*mapped), true); // BUG: controlGPIO doesn't accept bit expression.
     if (ret != 0) {
       return ret;
     }

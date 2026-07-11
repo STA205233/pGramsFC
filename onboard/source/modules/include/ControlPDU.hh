@@ -26,6 +26,7 @@ public:
   anlnext::ANLStatus mod_define() override;
   anlnext::ANLStatus mod_initialize() override;
   int initializeDAC();
+  int setVoltage(int cs, int channel, float voltage);
 
 private:
   SPIManager *spiManager_ = nullptr;
