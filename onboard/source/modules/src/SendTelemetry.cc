@@ -207,6 +207,14 @@ void SendTelemetry::getHKModules() {
 #else
   std::cerr << "SendTelemetry::getHKModules: GetComputerStatus is disabled." << std::endl;
 #endif
+#ifdef USE_LJM
+  if (exist_module("GetLabJackData")) {
+    get_module("GetLabJackData", &getLabJackData_);
+  }
+  else {
+    std::cerr << "Error in SendTelemetry::getHKModules: GetLabJackData module not found." << std::endl;
+  }
+#endif
 }
 
 void SendTelemetry::setHKTelemetry() {
@@ -233,7 +241,7 @@ void SendTelemetry::setHKTelemetry() {
     const auto v = receiveCommand_->CommandRejectCount();
     telemdef_->setCommandRejectedIndexHub(v);
   }
-  
+
 #ifdef USE_SYSTEM_MODULES
   {
     if (getComputerStatus_ == nullptr) {
@@ -251,6 +259,11 @@ void SendTelemetry::setHKTelemetry() {
     }
   }
 #endif
+  if (getLabJackData_) {
+    const auto &analogIn = getLabJackData_->getAnalogIn();
+    telemdef_->setPressureTransducer(static_cast<uint16_t>(analogIn[0] * 100.0));
+    telemdef_->setPressureRegulator(static_cast<uint16_t>(analogIn[1] * 100.0));
+  }
 }
 
 } // namespace gramsballoon::pgrams
