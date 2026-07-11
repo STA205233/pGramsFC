@@ -6,7 +6,6 @@
 #include <iostream>
 #include <memory>
 #include <memory_resource>
-#include <stdexcept>
 #include <stdint.h>
 #include <string>
 #include <vector>

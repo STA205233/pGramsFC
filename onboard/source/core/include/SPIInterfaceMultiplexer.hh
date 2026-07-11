@@ -4,8 +4,6 @@
 #include "VCSMapping.hh"
 #include <cstdint>
 #include <memory>
-#include <tuple>
-#include <vector>
 
 namespace gramsballoon::pgrams {
 class SPIInterface;
@@ -25,22 +23,37 @@ public:
   virtual ~SPIInterfaceMultiplexer() = default;
 
 protected:
-  SPIInterfaceMultiplexer(const SPIInterfaceMultiplexer &) = delete;
+  SPIInterfaceMultiplexer(const SPIInterfaceMultiplexer&) = delete;
 
 private:
   std::unique_ptr<VCSMapping> csMapping_ = nullptr;
   std::shared_ptr<SPIInterface> baseInterface_ = nullptr;
 
 public:
-  void setBaseInterface(std::shared_ptr<SPIInterface> &&baseInterface) { baseInterface_ = baseInterface; }
+  void setBaseInterface(std::shared_ptr<SPIInterface>&& baseInterface) { baseInterface_ = baseInterface; }
 
-  void setMappingChipSelect(std::unique_ptr<VCSMapping> &&mapping) { csMapping_ = std::move(mapping); }
+  void setMappingChipSelect(std::unique_ptr<VCSMapping>&& mapping) { csMapping_ = std::move(mapping); }
   std::optional<uint32_t> getMappingChipSelect(int multiplexerChannel) const;
 
   int controlGPIO(int cs, bool value) override;
 
   template <typename F>
-  int executeFunction(int multiplexerChannel, bool csControl, F &&f);
+  int executeFunction(int multiplexerChannel, bool csControl, F&& f);
+
+  auto begin() const {
+    static const std::map<int, uint32_t> empty;
+    if (!csMapping_) {
+      return empty.begin();
+    }
+    return csMapping_->begin();
+  }
+  auto end() const {
+    static const std::map<int, uint32_t> empty;
+    if (!csMapping_) {
+      return empty.end();
+    }
+    return csMapping_->end();
+  }
 
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) override;
@@ -67,7 +80,7 @@ public:
 };
 
 template <typename F>
-int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csControl, F &&f) {
+int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csControl, F&& f) {
   const auto mapped = getMappingChipSelect(multiplexerChannel);
   if (!mapped.has_value()) {
     return -1;

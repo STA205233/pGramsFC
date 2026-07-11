@@ -1,8 +1,7 @@
 #ifndef GRAMSBalloon_DAC121S101IO_hh
 #define GRAMSBalloon_DAC121S101IO_hh 1
 #include "SPIInterface.hh"
-#include "cstdint"
-#include <memory>
+#include <cstdint>
 namespace gramsballoon::pgrams {
 /**
  * @brief DAC121S101IO class for handling DAC121S101
@@ -24,7 +23,7 @@ public:
   DAC121S101IO(double supply_voltage_in_V = 3.3) : supplyVoltageInV_(supply_voltage_in_V) {}
   virtual ~DAC121S101IO() = default;
 
-  void setVoltage(float voltage);
+  bool setVoltage(float voltage);
   void setOperationMode(DAC121S101Mode mode);
   int applySetting();
   float getCurrentVoltage() const;
@@ -49,6 +48,10 @@ private:
   }
   uint16_t extractDataBit() const {
     return (static_cast<uint16_t>(settingData_[0] & DATABIT_MASK_IN_UPPER_BYTE) << 8) | static_cast<uint16_t>(settingData_[1] & DATABIT_MASK_IN_LOWER_BYTE);
+  }
+
+  float getMaximumVoltage() const {
+    return convertVoltage(0x0fffU);
   }
 };
 } // namespace gramsballoon::pgrams

@@ -1,5 +1,3 @@
-
-
 #ifndef ReceiveCommand_H
 #define ReceiveCommand_H 1
 
@@ -11,6 +9,7 @@
 #include "SendTelemetry.hh"
 #include "ShutdownSystem.hh"
 #include <anlnext/BasicModule.hh>
+#include <memory>
 #include <queue>
 #include <sys/select.h>
 #include <sys/time.h>
@@ -24,6 +23,9 @@ class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
 class SendCommandToDAQComputer;
+class PDUChannelMap;
+class ControlPDU;
+
 /**
  * Receive commands from ground.
  *
@@ -41,7 +43,7 @@ public:
   virtual ~ReceiveCommand();
 
 protected:
-  ReceiveCommand(const ReceiveCommand &r) = default;
+  ReceiveCommand(const ReceiveCommand& r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -54,7 +56,8 @@ public:
   uint16_t CommandRejectCount() { return singleton_self()->commandRejectCount_; }
 
 private:
-  bool applyCommand(const std::vector<uint8_t> &command);
+  void getModules();
+  bool applyCommand(const std::vector<uint8_t>& command);
   std::shared_ptr<pgrams::CommunicationFormat> comdef_ = nullptr;
   uint32_t commandIndex_ = 0;
   uint16_t commandRejectCount_ = 0;
@@ -72,6 +75,9 @@ private:
   RunIDManager *runIDManager_ = nullptr;
   MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   MosquittoManager<std::string> *telemetryMosquittoManager_ = nullptr;
+#ifdef USE_SPI
+  ControlPDU *controlPDU_ = nullptr;
+#endif
 
   //communication
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
@@ -82,6 +88,8 @@ private:
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> commandSaver_ = nullptr;
   std::vector<SendCommandToDAQComputer *> sendCommandToDAQComputers_;
   std::vector<std::string> sendCommandToDAQComputerNames_;
+
+  PDUChannelMap& pduChannelMap_;
 };
 
 } // namespace pgrams
