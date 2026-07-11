@@ -1,6 +1,7 @@
 #include "MPSSEController.hh"
 #include "MPSSEUtil.hh"
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <thread>
 namespace gramsballoon::pgrams::mpsse {
@@ -137,35 +138,44 @@ int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8
   return readMPSSE(dataToReceive, size);
 }
 
-int MPSSEController::writeGPIO(int pin, bool value) {
+int MPSSEController::writeGPIOMulti(uint16_t bitExpression, bool value) {
   uint16_t status;
-  readCurrentPinStatus(status);
+  const auto ret = readCurrentPinStatus(status);
+  if (ret < 0) {
+    return ret;
+  }
   if (value) {
-    status |= (1 << (pin)); // Keep high byte
+    status |= bitExpression; // Keep high byte
   }
   else {
-    status &= ~(1 << (pin)); // Keep high byte
+    status &= ~bitExpression; // Keep high byte
   }
   uint8_t command;
   uint8_t data;
-  if (pin > 7) {
+  cmdBuffer_.clear();
+  if ((bitExpression & 0xffff0000) > 0) {
     command = commands::SET_HIGH_BYTE_STATE_CMD;
     data = (status >> 8) & 0xFF; // Keep low byte
+    cmdBuffer_.push_back(command);
+    cmdBuffer_.push_back(data);
   }
-  else {
+  if ((bitExpression & 0x0000ffff) > 0) {
     command = commands::SET_LOW_BYTE_STATE_CMD;
     data = status & 0xFF; // Keep low byte
+    cmdBuffer_.push_back(command);
+    cmdBuffer_.push_back(data);
   }
-  cmdBuffer_.clear();
-  cmdBuffer_.push_back(command);
-  cmdBuffer_.push_back(data);
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK); // This time assumes only for spi.
-  writeMPSSE(cmdBuffer_);
+  const auto ret2 = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
-  return 0;
+  return ret2;
 }
 
-int MPSSEController::readCurrentPinStatus(uint16_t &status) {
+int MPSSEController::writeGPIO(int pin, bool value) {
+  return writeGPIOMulti((1 << pin), value);
+}
+
+int MPSSEController::readCurrentPinStatus(uint16_t& status) {
   uint8_t cmd[3] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD, commands::SEND_IMMEDIATE_CMD}; // Command to read low byte
   writeMPSSE(cmd, sizeof(cmd));
   uint8_t readData[2] = {0, 0};
@@ -174,7 +184,7 @@ int MPSSEController::readCurrentPinStatus(uint16_t &status) {
   return 0;
 }
 
-int MPSSEController::writeMPSSE(std::vector<uint8_t> &data) {
+int MPSSEController::writeMPSSE(std::vector<uint8_t>& data) {
   return writeMPSSE(data.data(), data.size());
 }
 int MPSSEController::writeMPSSE(uint8_t *data, unsigned int size) {
@@ -193,7 +203,7 @@ int MPSSEController::writeMPSSE(uint8_t *data, unsigned int size) {
   }
   return static_cast<int>(numWritten);
 }
-int MPSSEController::readMPSSE(std::vector<uint8_t> &data, unsigned int size) {
+int MPSSEController::readMPSSE(std::vector<uint8_t>& data, unsigned int size) {
   return readMPSSE(data.data(), size);
 }
 int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
@@ -207,7 +217,6 @@ int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
     total += n;
 
     if (total < size) {
-      // tight loop を避ける（timeout 0ms だと延々0バイトになりやすい）
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }

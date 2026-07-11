@@ -26,7 +26,7 @@ ANLStatus GetPDUInfo::mod_initialize() {
     }
     return AS_ERROR;
   }
-  adc_ = std::make_shared<ADC128S102IO>(); // TODO: chip select pin number
+  adc_ = std::make_shared<ADC128S102IO>();
   auto csMapping = std::make_unique<PDUTelemetryCSMapping>();
   interface->setMappingChipSelect(std::move(csMapping));
   adc_->setSPIInterface(interface);

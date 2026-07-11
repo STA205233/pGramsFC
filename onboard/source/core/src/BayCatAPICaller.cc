@@ -33,7 +33,7 @@ BayCatAPICaller::~BayCatAPICaller() {
   }
   --counter_;
 }
-BayCatAPICaller::BayCatAPICaller(const BayCatAPICaller &) {
+BayCatAPICaller::BayCatAPICaller(const BayCatAPICaller&) {
   if (counter_ == 0) {
     startAPI();
   }
@@ -89,6 +89,9 @@ void BayCatAPICaller::DIOSetChannelDirection(unsigned char channel, unsigned cha
 }
 void BayCatAPICaller::DIOSetChannelLevel(unsigned char channel, unsigned char level) {
   VSL_DIOSetChannelLevel(channel, level);
+}
+unsigned char BayCatAPICaller::DIOGetChannelLevel(unsigned char channel) {
+  return VSL_DIOGetChannelLevel(channel);
 }
 int BayCatAPICaller::FPGAReadRegister(unsigned long reg, unsigned char *data) {
   return VSL_FPGAReadRegister(reg, data);

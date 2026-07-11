@@ -88,7 +88,7 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
 
   int ret = 0;
   if (csControl) {
-    ret = baseInterface_->controlGPIO(static_cast<int>(*mapped), true); // BUG: controlGPIO doesn't accept bit expression.
+    ret = baseInterface_->controlGPIOBit(static_cast<uint32_t>(*mapped), true);
     if (ret != 0) {
       return ret;
     }
@@ -97,7 +97,7 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
   ret = std::forward<F>(f)(static_cast<int>(*mapped));
 
   if (csControl) {
-    const int releaseRet = baseInterface_->controlGPIO(static_cast<int>(*mapped), false);
+    const int releaseRet = baseInterface_->controlGPIOBit(static_cast<uint32_t>(*mapped), false);
     if (ret == 0) {
       ret = releaseRet;
     }

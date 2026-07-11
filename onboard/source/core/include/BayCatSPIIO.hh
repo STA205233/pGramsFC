@@ -1,3 +1,4 @@
+#include <cstdint>
 #ifndef GRAMSBalloon_BayCatControl_hh
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "BayCatAPICaller.hh"
@@ -10,13 +11,14 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2025-**-** | Shota Arai | Created
  * @date 2026-04-10 | Shota Arai | Refactored to use BayCatAPICaller
+ * @date 2026-07-10 | Shota Arai | Added controlGPIOBit
  */
 class BayCatSPIIO: public SPIInterface, public BayCatAPICaller {
 public:
   static constexpr unsigned int SPI_MODE_MASK = 0x3;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_MASK = 0x4;
   static constexpr unsigned int SPI_SHIFT_DIRECTION_OFFSET = 2;
-  static  unsigned int MakeOption(unsigned int mode, unsigned int shiftDirection) {
+  static unsigned int MakeOption(unsigned int mode, unsigned int shiftDirection) {
     return (mode & SPI_MODE_MASK) | ((shiftDirection << SPI_SHIFT_DIRECTION_OFFSET) & SPI_SHIFT_DIRECTION_MASK);
   }
 
@@ -26,8 +28,8 @@ public:
 public:
   BayCatSPIIO();
   virtual ~BayCatSPIIO() = default;
-  BayCatSPIIO(const BayCatSPIIO &) = delete;
-  virtual int MaximumCh() { return 24; } // TODO: Set actual value
+  BayCatSPIIO(const BayCatSPIIO&) = delete;
+  int MaximumCh() override { return 24; } // TODO: Set actual value
 
 private:
   std::map<int, unsigned int> baudrateList_;
@@ -40,15 +42,15 @@ public:
   int WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) override;
   int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/, bool csControl) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
-  int controlGPIO(int cs, bool value);
+  int controlGPIO(int cs, bool value) override;
+  int controlGPIOBit(uint32_t csBit, bool value) override;
   int WriteFPGARegister(unsigned long reg, unsigned char data);
-  int WriteFPGARegisterOneChannel(unsigned long reg, int gpioId, bool data);
+  int WriteFPGARegisterMultiChannel(unsigned long reg, uint32_t bitexpression, bool data);
   int ReadFPGARegister(unsigned long reg, unsigned char *data);
-  int ReadFPGARegisterOneChannel(unsigned long reg, int gpioId, bool *value);
 
 private:
   int applyBaudrateSetting();
-  int controlFPGAGPIO(int cs, bool value);
+  int controlFPGAGPIO(uint32_t bitExpression, bool value);
   int controlDIO(int cs, bool value);
 };
 } // namespace gramsballoon::pgrams

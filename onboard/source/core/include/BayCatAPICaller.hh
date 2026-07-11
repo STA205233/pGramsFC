@@ -9,12 +9,13 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-04-10 | Shota Arai | Created
  * @date 2026-04-11 | Shota Arai | Added API wrapper functions
+ * @date 2026-07-10 | Shota Arai | Added DIOGetChannelLevel
  */
 class BayCatAPICaller {
 public:
   BayCatAPICaller();
   virtual ~BayCatAPICaller();
-  BayCatAPICaller(const BayCatAPICaller &);
+  BayCatAPICaller(const BayCatAPICaller&);
   int apiStatus() const { return apiStatus_.load(); }
 
 protected:
@@ -31,6 +32,7 @@ protected:
   int DIOGetChannelDirection(unsigned char channel, unsigned char *pDirection);
   void DIOSetChannelDirection(unsigned char channel, unsigned char direction);
   void DIOSetChannelLevel(unsigned char channel, unsigned char level);
+  unsigned char DIOGetChannelLevel(unsigned char channel);
 
   // FPGA register access
   int FPGAReadRegister(unsigned long reg, unsigned char *data);
@@ -79,4 +81,4 @@ private:
   inline static std::atomic_int apiStatus_{0}; // 0: not initialized, 1: initialized, <0: failed to initialize
 };
 } // namespace gramsballoon::pgrams
-#endif //GB_BayCatAPICaller_hh
+#endif // GB_BayCatAPICaller_hh

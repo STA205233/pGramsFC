@@ -2,11 +2,8 @@
 #define SPIInterface_H 1
 
 #include <cstdint>
-#include <iostream>
-#include <memory>
-#include <vector>
 /**
- * A class of SPI Interface
+ * @brief A class of SPI Interface
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
@@ -19,7 +16,7 @@ public:
   virtual ~SPIInterface() = default;
 
 protected:
-  SPIInterface(const SPIInterface &) = delete;
+  SPIInterface(const SPIInterface&) = delete;
   void setIsOpen(bool isOpen) { isOpen_ = isOpen; }
 
 public:
@@ -37,6 +34,12 @@ public:
   virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *, bool = true) { return -1; }
   virtual int Write(int, const uint8_t *, unsigned int, bool = true) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
+  /**
+  *  @brief Control GPIO specified by bit expression
+  *  @param csBit Set high to be controlled
+  *  @param state Specify high / low
+  */
+  virtual int controlGPIOBit(uint32_t, bool) { return -1; }
   virtual int MaximumCh() { return 0; }
 
   // Convenience functions that use the cs_ member variable

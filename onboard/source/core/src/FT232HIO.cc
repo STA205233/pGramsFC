@@ -1,4 +1,6 @@
 #include "FT232HIO.hh"
+#include "ftd2xx.h"
+#include <cstdint>
 #include <iostream>
 namespace gramsballoon::pgrams {
 FT232HIO::FT232HIO() {
@@ -90,6 +92,11 @@ int FT232HIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool 
 int FT232HIO::controlGPIO(int cs, bool value) {
   return mpsseController_->writeGPIO(cs, value);
 }
+
+int FT232HIO::controlGPIOBit(uint32_t csBit, bool value) {
+  return mpsseController_->writeGPIOMulti(static_cast<uint16_t>(csBit & 0xffff), value);
+}
+
 int FT232HIO::updateSetting() {
   const unsigned int baudrate = Baudrate();
   const unsigned int configOptions = ConfigOptions();
