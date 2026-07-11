@@ -51,10 +51,11 @@
 #include "DetectErrorCallbackFromDAQ.hh"
 #include "PressureGaugeManager.hh"
 #include "GetPressure.hh"
-#include "ConvertHubHKTelemetry.hh"
 #ifdef USE_LJM
 #include "GetLabJackData.hh"
 #endif
+#include "ConvertHubHKTelemetry.hh"
+#include "VDBDataStore.hh"
 %}
 
 %include "std_vector.i"
@@ -182,7 +183,12 @@ class PassTelemetry: public anlnext::BasicModule {
 public:
   PassTelemetry();
 };
-class InterpretTelemetry : public anlnext::BasicModule
+%nodefaultctor VDBDataStore;
+class VDBDataStore
+{
+public:
+};
+class InterpretTelemetry : public anlnext::BasicModule, public VDBDataStore
 {
 public:
   InterpretTelemetry();
@@ -247,7 +253,7 @@ public:
   I2CManager();
 };
 #endif
-class ConvertHubHKTelemetry: public anlnext::BasicModule {
+class ConvertHubHKTelemetry: public anlnext::BasicModule, public VDBDataStore {
 public:
   ConvertHubHKTelemetry();
 };

@@ -10,5 +10,7 @@ void PDUTelemetryCSMapping::registerMapping() {
   setChipSelect(5, 0x20);
   setChipSelect(6, 0x40);
   setChipSelect(7, 0x80);
+  setChipSelect(8, 0x100);
+  setChipSelect(9, 0x200);
 }
 } // namespace gramsballoon::pgrams

@@ -19,7 +19,7 @@
   }
 
 namespace gramsballoon::pgrams {
-  
+
 /**
  * @brief Housekeeping Telemetry Definition for converted value
  * @author Shota Arai
@@ -51,18 +51,6 @@ public:
   static constexpr size_t NUM_PRESSURE_SENSORS = HubHKTelemetry::NUM_PRESSURE_SENSORS;
   static constexpr size_t NUM_INCLINOMETERS = HubHKTelemetry::NUM_INCLINOMETERS;
   static constexpr size_t ARG_INDEX_TOF_BIAS = HubHKTelemetry::ARG_INDEX_TOF_BIAS;
-
-  // Conversion for RTDs
-  static constexpr floating_t VREF_RTD = 3.3 * units::volt;
-  static constexpr int RTD_ADC_MAX = 2715;
-  static constexpr floating_t RTD_ADC_MAX_FLOAT = static_cast<floating_t>(RTD_ADC_MAX);
-  static constexpr floating_t COEFF_SIPM_VOL = 1. / 0.0503;
-  static constexpr floating_t COEFF_SIPM_CUR = 1. * units::ampere / units::volt;
-  static constexpr floating_t COEFF_TPC_HV_CUR = 0.08 / 0.3408 * units::milliampere / units::volt;
-
-  // Conversion for MHADC
-  static constexpr floating_t COEFF_INCLINOMETER = 60.0 / 5.0 * units::degree / units::volt; // \pm 30 degree with 0--5 V
-  static constexpr floating_t OFFSET_INCLINOMETER = 2.5 * units::volt;
 
   ConvertedHubHKTelemetry();
   virtual ~ConvertedHubHKTelemetry();
@@ -295,25 +283,25 @@ private:
   floating_t ramUsage_ = 0;
 
   template <typename T>
-  static bool convertRTD(T adc_value, floating_t offset, floating_t &src);
-
-  template <typename T>
   static bool convertVoltageMHADC(T adc_value, floating_t &src);
-
   template <typename T>
-  static bool convertInclinometer(T adc_value, floating_t &src);
-
+  static bool convertRTD(T adc_value, floating_t &src, floating_t offset);
   template <typename T>
-  static bool convertPDUSiPMVoltage(T adc_value, floating_t &src);
-
+  static bool convertInclinometer(T adc_value, floating_t &src, floating_t offset);
   template <typename T>
-  static bool convertPDUSiPMCurrent(T adc_value, floating_t &src);
-
+  static bool convertPDUSiPMVoltage(T adc_value, floating_t &src, floating_t offset);
   template <typename T>
-  static bool convertPDUTPCHVCurrent(T adc_value, floating_t &src);
-
+  static bool convertPDUSiPMCurrent(T adc_value, floating_t &src, floating_t offset);
+  template <typename T>
+  static bool convertPDUTPCHVCurrent(T adc_value, floating_t &src, floating_t offset);
   template <typename T>
   static bool convertVoltagePDU(T adc_value, floating_t &src);
+  template <typename T>
+  static bool convertBME680Temp(T value, floating_t &temp_dest, floating_t);
+  template <typename T>
+  static bool convertBME680Press(T value, floating_t &press_dest, floating_t);
+  template <typename T>
+  static bool convertBME680Humid(T value, floating_t &humid_dest, floating_t);
 };
 
 } // namespace gramsballoon::pgrams

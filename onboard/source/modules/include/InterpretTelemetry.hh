@@ -4,6 +4,7 @@
 #include "BaseTelemetryDefinition.hh"
 #include "ErrorManager.hh"
 #include "ReceiveTelemetry.hh"
+#include "VDBDataStore.hh"
 #include <anlnext/BasicModule.hh>
 #include <chrono>
 #include <thread>
@@ -27,9 +28,10 @@ class PushToMongoDB;
  * @date 2025-11-17 Shota Arai| Refactoring
  * @date 2025-12-14 Shota Arai| Added DB serialization functions
  * @date 2026-06-16 Shota Arai | Added some functions (v2.1)
+ * @date 2026-07-09 Shota Arai | Inherited from VDBDataStore (v2.2)
  */
-class InterpretTelemetry: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(InterpretTelemetry, 2.1);
+class InterpretTelemetry: public anlnext::BasicModule, public VDBDataStore {
+  DEFINE_ANL_MODULE(InterpretTelemetry, 2.2);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -50,16 +52,21 @@ public:
   std::string_view TelemetryType() {
     return singleton_self()->telemetryTypeStr_;
   }
-  void pushToDBSink(DBFieldSink *sink) const {
+
+  void pushToDBSink(DBFieldSink *sink) const override {
     if (singleton_self()->telemetry_) {
       singleton_self()->telemetry_->serialize(sink);
     }
   }
-  void initializeDBTableInSink(DBFieldSink *sink, const std::string &table_name) const {
+  void initializeDBTableInSink(DBFieldSink *sink, const std::string &table_name) const override {
     if (singleton_self()->telemetry_) {
       singleton_self()->telemetry_->initializeDBTable(sink, table_name);
     }
   }
+  bool hasData() const override {
+    return singleton_self()->telemetry_ && (singleton_self()->CurrentTelemetryType() != 0);
+  }
+
   const BaseTelemetryDefinition *getTelemetry() const {
     return singleton_self()->telemetry_.get();
   }

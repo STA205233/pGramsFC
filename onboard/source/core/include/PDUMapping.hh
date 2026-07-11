@@ -12,9 +12,13 @@ class PDUMapping: public VHKTelemetryMapping {
 public:
   PDUMapping() = default;
   virtual ~PDUMapping() = default;
+  static constexpr int NUM_CH_PER_CHIP_SELECT = 8;
 
 protected:
-  bool getSetter(int index, HubHKSetterResult &setter) override;
+  bool getSetter(int index, VHKTelemetryMapping::Setter &setter) const override;
+
+public:
+  static constexpr int ChannelMapping(int multiplexer_channel, int adc_ch);
 };
 } // namespace gramsballoon::pgrams
 

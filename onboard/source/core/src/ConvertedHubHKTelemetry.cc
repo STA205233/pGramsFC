@@ -1,24 +1,26 @@
 #include "ConvertedHubHKTelemetry.hh"
+#include "ConversionConstant.hh"
 #include "SystemOfUnits.hh"
 #include <cmath>
 using namespace gramsballoon::pgrams::units;
 using floating_t = gramsballoon::pgrams::ConvertedHubHKTelemetry::floating_t;
-
+using namespace gramsballoon::pgrams::conversion;
 namespace gramsballoon::pgrams {
 template <typename T>
-inline bool set_value(const HubHKTelemetry *raw_telemetry, T (HubHKTelemetry::*getter)() const, floating_t &value, bool (*converter)(T, floating_t &)) {
+inline bool set_value(const HubHKTelemetry *raw_telemetry, T (HubHKTelemetry::*getter)() const, floating_t &value, bool (*converter)(T, floating_t &, floating_t), floating_t offset = 0.0) {
   floating_t temp_value;
-  const bool ok = converter((raw_telemetry->*getter)(), temp_value);
+  const bool ok = converter((raw_telemetry->*getter)(), temp_value, offset);
   if (ok) { value = temp_value; }
   return ok;
 }
+
 template <size_t N, typename T>
-inline bool set_all_values(const HubHKTelemetry *raw_telemetry, T (HubHKTelemetry::*getter)(size_t) const, std::array<floating_t, N> &values, bool (*converter)(T, floating_t &)) {
+inline bool set_all_values(const HubHKTelemetry *raw_telemetry, T (HubHKTelemetry::*getter)(size_t) const, std::array<floating_t, N> &values, bool (*converter)(T, floating_t &, floating_t), floating_t offset[N]) {
   bool ok = true;
   floating_t temp_value;
   for (size_t i = 0; i < N; ++i) {
     try {
-      ok &= converter((raw_telemetry->*getter)(i), temp_value);
+      ok &= converter((raw_telemetry->*getter)(i), temp_value, offset[i]);
       if (ok) { values.at(i) = temp_value; }
     }
     catch (std::out_of_range &e) {
@@ -28,70 +30,85 @@ inline bool set_all_values(const HubHKTelemetry *raw_telemetry, T (HubHKTelemetr
   }
   return ok;
 }
+template <size_t N, typename T>
+inline bool set_all_values(const HubHKTelemetry *raw_telemetry, T (HubHKTelemetry::*getter)(size_t) const, std::array<floating_t, N> &values, bool (*converter)(T, floating_t &, floating_t), floating_t offset = 0.0) {
+  bool ok = true;
+  floating_t temp_value;
+  for (size_t i = 0; i < N; ++i) {
+    try {
+      ok &= converter((raw_telemetry->*getter)(i), temp_value, offset);
+      if (ok) { values.at(i) = temp_value; }
+    }
+    catch (std::out_of_range &e) {
+      std::cerr << "OUT OF RANGE in converting HubHKTelemetry" << std::endl;
+      return false;
+    }
+  }
+  return ok;
+}
+
 ConvertedHubHKTelemetry::ConvertedHubHKTelemetry() = default;
 ConvertedHubHKTelemetry::~ConvertedHubHKTelemetry() = default;
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertVoltageMHADC(T adc_value, floating_t &src) {
-  auto adc_float = static_cast<floating_t>(adc_value);
-  if (adc_value >= RTD_ADC_MAX) {
+bool ConvertedHubHKTelemetry::convertVoltageMHADC(T adc_value, floating_t &dest) {
+  if (adc_value >= mhadc::ADC_MAX) {
     std::cerr << "Conversion failed: Open Circuit" << std::endl;
     return false;
   }
-  src = adc_float * (VREF_RTD / RTD_ADC_MAX_FLOAT);
+  auto adc_float = static_cast<floating_t>(adc_value);
+  dest = adc_float * (mhadc::VREF / mhadc::ADC_MAX_FLOAT) + mhadc::CMN_OFFSET;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertInclinometer(T adc_value, floating_t &src) {
+bool ConvertedHubHKTelemetry::convertInclinometer(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltageMHADC(adc_value, voltage)) {
     return false;
   }
-  src = (voltage - OFFSET_INCLINOMETER) * COEFF_INCLINOMETER;
+  dest = (voltage - inclinometer::OFFSET_INCLINOMETER) * inclinometer::COEFF_INCLINOMETER + offset;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUSiPMVoltage(T adc_value, floating_t &src) {
+bool ConvertedHubHKTelemetry::convertPDUSiPMVoltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltageMHADC(adc_value, voltage)) {
     return false;
   }
-  src = voltage * COEFF_SIPM_VOL;
+  dest = voltage * pdu::COEFF_SIPM_VOL + offset;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUSiPMCurrent(T adc_value, floating_t &src) {
+bool ConvertedHubHKTelemetry::convertPDUSiPMCurrent(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
   }
-  src = voltage * COEFF_SIPM_CUR;
+  dest = voltage * pdu::COEFF_SIPM_CUR + offset;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUTPCHVCurrent(T adc_value, floating_t &src) {
+bool ConvertedHubHKTelemetry::convertPDUTPCHVCurrent(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
   }
-  src = voltage * COEFF_TPC_HV_CUR;
+  dest = voltage * pdu::COEFF_TPC_HV_CUR + offset;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertVoltagePDU(T adc_value, floating_t &src) {
-  // TODO: this is preliminary
-  constexpr double V_REF = 3.3 * units::volt;
-  src = adc_value / 4096 * V_REF;
+bool ConvertedHubHKTelemetry::convertVoltagePDU(T adc_value, floating_t &dest) {
+  dest = adc_value / pdu::PRESICION * pdu::V_REF + pdu::CMN_OFFSET;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertRTD(T adc_value, floating_t offset, floating_t &src) {
+bool ConvertedHubHKTelemetry::convertRTD(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltageMHADC(adc_value, voltage)) {
     return false;
@@ -100,11 +117,29 @@ bool ConvertedHubHKTelemetry::convertRTD(T adc_value, floating_t offset, floatin
   L_tmp += 273.15;
   const floating_t L_correction = L_tmp + offset;
   if (L_correction > 73) {
-    src = L_correction;
+    dest = L_correction;
     std::cerr << "Conversion failed: Short!" << std::endl;
     return true;
   }
   return false;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertBME680Temp(T value, floating_t &temp_dest, floating_t) {
+  temp_dest = static_cast<floating_t>(value) * bme680::COEFF_BME680_TEMP;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertBME680Press(T value, floating_t &press_dest, floating_t) {
+  press_dest = static_cast<floating_t>(value) * bme680::COEFF_BME680_PRESS;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertBME680Humid(T value, floating_t &humid_dest, floating_t) {
+  humid_dest = static_cast<floating_t>(value) * bme680::COEFF_BME680_HUMID;
+  return true;
 }
 
 bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
@@ -132,11 +167,33 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
 
   bool ok = true;
   // PDU
-  ok &= set_all_values<NUM_PDU_SIPM, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCurSiPM, pduCurSiPM_, &ConvertedHubHKTelemetry::convertPDUSiPMCurrent);
-  ok &= set_all_values<NUM_PDU_SIPM, uint16_t>(raw_telemetry, &HubHKTelemetry::PduVolSiPM, pduVolSiPM_, &ConvertedHubHKTelemetry::convertPDUSiPMVoltage);
-  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCurTPCHV, pduCurTPCHV_, &ConvertedHubHKTelemetry::convertPDUTPCHVCurrent);
+  ok &= set_all_values<NUM_PDU_SIPM, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCurSiPM, pduCurSiPM_, &convertPDUSiPMCurrent);
+  ok &= set_all_values<NUM_PDU_SIPM, uint16_t>(raw_telemetry, &HubHKTelemetry::PduVolSiPM, pduVolSiPM_, &convertPDUSiPMVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCurTPCHV, pduCurTPCHV_, &convertPDUTPCHVCurrent);
+
   // MHADC
-  ok &= set_all_values<NUM_INCLINOMETERS, uint16_t>(raw_telemetry, &HubHKTelemetry::Inclinometers, inclinometers_, &ConvertedHubHKTelemetry::convertInclinometer);
+  ok &= set_all_values<NUM_INCLINOMETERS, uint16_t>(raw_telemetry, &HubHKTelemetry::Inclinometers, inclinometers_, &convertInclinometer);
+  std::get<0>(inclinometers_) += inclinometer::X_OFFSET;
+  std::get<1>(inclinometers_) += inclinometer::Y_OFFSET;
+
+  ok &= set_all_values<NUM_RTD_GONDOLA, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdGondolaFrame, rtdGondolaFrame_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_DAQ_CRATE, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdDaqCrate, rtdDaqCrate_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_SHAPER_FARADAY_CAGE, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdShaperFaradayCage, rtdShaperFaradayCage_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_SHAPER_BOARD, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdShaperBoard, rtdShaperBoard_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_HUB_COMPUTER_LOCATION, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdHubComputerLocation, rtdHubComputerLocation_, &convertRTD);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::RtdTofFpga, rtdTofFpga_, &convertRTD);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::RtdTof, rtdTof_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_OUTSIDE_SEALED_ENCLOSURE, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_VACUUM_JACKET, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdVacuumJacket, rtdVacuumJacket_, &convertRTD);
+  ok &= set_all_values<NUM_RTD_INSIDE_CHAMBER, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdsInsideChamber, rtdsInsideChamber_, &convertRTD);
+
+  // BME680
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::SealedEnclosureHumidity, sealedEnclosureHumidity_, &convertBME680Humid);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::SealedEnclosurePressure, sealedEnclosurePressure_, &convertBME680Press);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::SealedEnclosureTemperature, sealedEnclosureTemperature_, &convertBME680Temp);
+
+  // labjack
+  // TODO: implement
 
   // Hub computer
   hubComputerErrorFlags_ = raw_telemetry->HubComputerErrorFlags();
@@ -247,27 +304,27 @@ std::ostream &ConvertedHubHKTelemetry::print(std::ostream &stream) {
          << ", pduMainBatTemp_: " << pduMainBatTemp_ << std::endl;
 
   stream << "rtdGondolaFrame_: ";
-  printIterative<NUM_RTD_GONDOLA>(stream, rtdGondolaFrame_);
+  printIterative<NUM_RTD_GONDOLA>(stream, rtdGondolaFrame_, "degC", degC);
 
   stream << "rtdDaqCrate_: ";
-  printIterative<NUM_RTD_DAQ_CRATE>(stream, rtdDaqCrate_);
+  printIterative<NUM_RTD_DAQ_CRATE>(stream, rtdDaqCrate_, "degC", degC);
 
   stream << "rtdShaperFaradayCage_: ";
-  printIterative<NUM_RTD_SHAPER_FARADAY_CAGE>(stream, rtdShaperFaradayCage_);
+  printIterative<NUM_RTD_SHAPER_FARADAY_CAGE>(stream, rtdShaperFaradayCage_, "degC", degC);
 
   stream << "rtdShaperBoard_: ";
-  printIterative<NUM_RTD_SHAPER_BOARD>(stream, rtdShaperBoard_);
+  printIterative<NUM_RTD_SHAPER_BOARD>(stream, rtdShaperBoard_, "degC", degC);
 
   stream << "rtdHubComputerLocation_: ";
-  printIterative<NUM_RTD_HUB_COMPUTER_LOCATION>(stream, rtdHubComputerLocation_);
+  printIterative<NUM_RTD_HUB_COMPUTER_LOCATION>(stream, rtdHubComputerLocation_, "degC", degC);
 
-  stream << "rtdTofFpga_: " << rtdTofFpga_ << ", rtdTof_: " << rtdTof_ << std::endl;
+  stream << "rtdTofFpga_: " << rtdTofFpga_ / degC << " degC, rtdTof_: " << rtdTof_ / degC << " degC" << std::endl;
 
   stream << "rtdOutsideSealedEnclosure_: ";
-  printIterative<NUM_RTD_OUTSIDE_SEALED_ENCLOSURE>(stream, rtdOutsideSealedEnclosure_);
+  printIterative<NUM_RTD_OUTSIDE_SEALED_ENCLOSURE>(stream, rtdOutsideSealedEnclosure_, "degC", degC);
 
   stream << "rtdVacuumJacket_: ";
-  printIterative<NUM_RTD_VACUUM_JACKET>(stream, rtdVacuumJacket_);
+  printIterative<NUM_RTD_VACUUM_JACKET>(stream, rtdVacuumJacket_, "degC", degC);
 
   stream << "pressureTransducer_: " << pressureTransducer_ << std::endl;
 
@@ -275,7 +332,7 @@ std::ostream &ConvertedHubHKTelemetry::print(std::ostream &stream) {
   printIterative<NUM_INCLINOMETERS>(stream, inclinometers_, "degree", units::degree);
 
   stream << "rtdsInsideChamber_: ";
-  printIterative<NUM_RTD_INSIDE_CHAMBER>(stream, rtdsInsideChamber_);
+  printIterative<NUM_RTD_INSIDE_CHAMBER>(stream, rtdsInsideChamber_, "degC", degC);
 
   stream << "spare_: ";
   printIterative<NUM_ADC_SPARE>(stream, spare_);
