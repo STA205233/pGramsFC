@@ -33,12 +33,29 @@ public:
   unsigned int ConfigOptions() const { return configOptions_; }
   virtual int Open(int) { return -1; }
   virtual int Close() { return -1; }
-  virtual int WriteThenRead(int, const uint8_t *, int, uint8_t *, int) { return -1; }
-  virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *) { return -1; }
-  virtual int Write(int, const uint8_t *, unsigned int) { return -1; }
+  virtual int WriteThenRead(int, const uint8_t *, unsigned int, uint8_t *, unsigned int, bool = true) { return -1; }
+  virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *, bool = true) { return -1; }
+  virtual int Write(int, const uint8_t *, unsigned int, bool = true) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
+  virtual int MaximumCh() { return 0; }
+
+  // Convenience functions that use the cs_ member variable
+  int WriteThenRead(const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
+    return WriteThenRead(cs_, writeBuffer, wsize, readBuffer, rsize);
+  }
+  int WriteAndRead(uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer) {
+    return WriteAndRead(cs_, writeBuffer, wsize, readBuffer);
+  }
+  int Write(const uint8_t *writeBuffer, unsigned int size) {
+    return Write(cs_, writeBuffer, size);
+  }
+  int getCs() const { return cs_; }
+  void setCs(int cs) {
+    cs_ = cs;
+  }
 
 private:
+  int cs_ = -1;
   unsigned int baudrate_ = 1000000;
   unsigned int configOptions_ = 0;
   bool isOpen_ = false;
