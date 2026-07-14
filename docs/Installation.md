@@ -265,9 +265,9 @@
 
     `mkdir build && cd build`
 
-    `cmake ../onboard -DGB_PGRAMSBALLOON_PATH=~/software/pGRAMSBalloon -DGB_USE_BAYCAT_SPI=OFF -DGB_USE_FT232H=OFF -DGB_USE_MYSQL=ON`
+    `cmake ../onboard -DGB_PGRAMSBALLOON_PATH=~/software/pGRAMSBalloon -DGB_USE_BAYCAT_SPI=OFF -DGB_USE_FT232H=OFF -DGB_USE_MYSQL=ON -DCMAKE_PREFIX_PATH=<install path for mysqlcpp>`
 
-    You have to specify pGRAMSBalloon directory.
+    You have to specify pGRAMSBalloon directory by option `GB_PGRAMSBALLOON_PATH` and the directory where the mysqlconncpp is installed by option `CMAKE_PREFIX_PATH`.
 
     (NOTE: specify the installation prefix if not using default ($HOME/lib) by CMAKE_INSTALL_PREFIX option)
 
