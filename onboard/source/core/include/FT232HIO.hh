@@ -1,7 +1,8 @@
-#include <cstdint>
 #ifndef GRAMSBalloon_FT232HIO_hh
 #define GRAMSBalloon_FT232HIO_hh 1
 #include "MPSSEController.hh"
+#include <cstdint>
+#include <memory>
 #include "MPSSEDeviceManager.hh"
 #include "SPIInterface.hh"
 namespace gramsballoon::pgrams {

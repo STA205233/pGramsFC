@@ -5,6 +5,7 @@
 #include "SendCommandToDAQComputer.hh"
 #include "SendTelemetry.hh"
 #include "TerminalColoring.hh"
+#include "ShutdownSystem.hh"
 #include <cstdint>
 using namespace anlnext;
 using namespace pgrams::communication;
@@ -350,34 +351,34 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ":" << std::hex << code << std::dec << " command received.  Voltage: " << arguments[0] << std::endl;
     }
 #ifdef USE_SPI
-    if (::pgrams::communication::is_pdu_enable(code)) {
-      uint32_t cs;
-      switch (code) {
-      case to_u16(CommunicationCodes::PDU_DAQ_CPU_ON):
-        cs = 3;
-        break;
-      case to_u16(CommunicationCodes::PDU_CAEN_PM5V_ON):
-        cs = 0;
-      }
+    //if (::pgrams::communication::is_pdu_enable(code)) {
+    //  uint32_t cs;
+    //  switch (code) {
+    //  case to_u16(CommunicationCodes::PDU_DAQ_CPU_ON):
+    //    cs = 3;
+    //    break;
+    //  case to_u16(CommunicationCodes::PDU_CAEN_PM5V_ON):
+    //    cs = 0;
+    //  }
 
-      return true;
-    }
-    else {
-      PDUChannelMap::ch_t cs;
-      const bool ret_mapping = pduChannelMap_.getMapping(code, cs);
-      if (ret_mapping) {
-        const auto result = controlPDU_->setVoltage(cs, arguments[0]);
-        if (result != 0) {
-          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
-          return false;
-        }
-        return true;
-      }
-      else {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
-        return false;
-      }
-    }
+    //  return true;
+    //}
+    //else {
+    //  PDUChannelMap::ch_t cs;
+    //  const bool ret_mapping = pduChannelMap_.getMapping(code, cs);
+    //  if (ret_mapping) {
+    //    const auto result = controlPDU_->setVoltage(cs, arguments[0]);
+    //    if (result != 0) {
+    //      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+    //      return false;
+    //    }
+    //    return true;
+    //  }
+    //  else {
+    //    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
+    //    return false;
+    //  }
+    //}
 #else
     return false;
 #endif
