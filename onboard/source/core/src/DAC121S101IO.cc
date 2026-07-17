@@ -1,5 +1,6 @@
 #include "DAC121S101IO.hh"
 #include <cstdint>
+#include <iostream>
 namespace gramsballoon::pgrams {
 bool DAC121S101IO::setVoltage(float voltage) {
   // Convert voltage to 12-bit data

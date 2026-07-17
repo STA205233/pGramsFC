@@ -21,7 +21,7 @@ private:
 
 public:
   float getCurrentVoltage(int ch);
-  bool getAllADCs(std::array<float, ADC128S102IO::MaxChannelsPerADC()> &dest);
+  bool getAllADCs(std::array<float, 8> &dest);
   float convertVoltage(uint16_t value) const;
   int getErrorCode() const { return errorCode_; }
   bool isError() const { return errorCode_ != 0; }

@@ -28,7 +28,7 @@ public:
   virtual ~SPIManager();
 
 protected:
-  SPIManager(const SPIManager &r) = default;
+  SPIManager(const SPIManager& r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -38,6 +38,7 @@ public:
   anlnext::ANLStatus mod_finalize() override;
 
   SPIInterfaceMultiplexer *Interface() { return singleton_self()->interface_.get(); }
+  int controlGPIO(uint32_t cs, bool value);
 
 private:
   std::shared_ptr<SPIInterfaceMultiplexer> interface_ = nullptr;

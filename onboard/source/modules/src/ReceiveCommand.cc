@@ -2,8 +2,10 @@
 #include "CommunicationCodes.hh"
 #include "ControlPDU.hh"
 #include "PDUChannelMap.hh"
+#include "SendCommandToDAQComputer.hh"
 #include "SendTelemetry.hh"
 #include "TerminalColoring.hh"
+#include <cstdint>
 using namespace anlnext;
 using namespace pgrams::communication;
 namespace gramsballoon::pgrams {
@@ -334,13 +336,13 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Index: " << arguments[0] << std::endl;
     }
-    //TODO: Implement handling
+    // TODO: Implement handling
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_Set_Voltage) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
     }
-    //TODO: Implement handling
+    // TODO: Implement handling
     return true;
   }
   else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc == 1) {
@@ -348,19 +350,33 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ":" << std::hex << code << std::dec << " command received.  Voltage: " << arguments[0] << std::endl;
     }
 #ifdef USE_SPI
-    PDUChannelMap::ch_t cs;
-    const bool ret_mapping = pduChannelMap_.getMapping(code, cs);
-    if (ret_mapping) {
-      const auto result = controlPDU_->setVoltage(cs, arguments[0]);
-      if (result != 0) {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
-        return false;
+    if (::pgrams::communication::is_pdu_enable(code)) {
+      uint32_t cs;
+      switch (code) {
+      case to_u16(CommunicationCodes::PDU_DAQ_CPU_ON):
+        cs = 3;
+        break;
+      case to_u16(CommunicationCodes::PDU_CAEN_PM5V_ON):
+        cs = 0;
       }
+
       return true;
     }
     else {
-      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
-      return false;
+      PDUChannelMap::ch_t cs;
+      const bool ret_mapping = pduChannelMap_.getMapping(code, cs);
+      if (ret_mapping) {
+        const auto result = controlPDU_->setVoltage(cs, arguments[0]);
+        if (result != 0) {
+          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+          return false;
+        }
+        return true;
+      }
+      else {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
+        return false;
+      }
     }
 #else
     return false;

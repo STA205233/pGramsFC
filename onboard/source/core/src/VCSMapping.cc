@@ -5,7 +5,7 @@ std::optional<uint32_t> VCSMapping::getChipSelect(int multiplexerChannel) const 
   if (csMapping_.count(multiplexerChannel) == 0) {
     return std::nullopt;
   }
-  return csMapping_[index];
+  return csMapping_.at(multiplexerChannel);
 }
 void VCSMapping::setChipSelect(int multiplexerChannel, uint32_t chipSelect) {
   csMapping_.insert_or_assign(multiplexerChannel, chipSelect);

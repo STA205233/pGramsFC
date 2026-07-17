@@ -30,6 +30,7 @@ public:
   int initializeDAC(int cs);
   int setVoltage(int cs, float voltage);
   int setVoltageRaw(int cs, uint16_t voltage);
+  int controlGPIO(uint32_t cs, bool value);
 
 private:
   SPIManager *spiManager_ = nullptr;
@@ -38,4 +39,4 @@ private:
   std::shared_ptr<DAC121S101IO> dac_ = nullptr;
 };
 } // namespace gramsballoon::pgrams
-#endif //GRAMSBalloon_ControlPDU_hh
+#endif // GRAMSBalloon_ControlPDU_hh

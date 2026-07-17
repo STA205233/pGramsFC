@@ -1,5 +1,6 @@
 #include "SPIManager.hh"
 #include "SPIInterfaceMultiplexer.hh"
+#include <cstdint>
 #ifdef USE_FT232H
 #include "FT232HIO.hh"
 #endif
@@ -93,6 +94,13 @@ ANLStatus SPIManager::mod_finalize() {
     }
   }
   return AS_OK;
+}
+
+int SPIManager::controlGPIO(uint32_t cs, bool value) {
+  if (!interface_) {
+    return -1;
+  }
+  return interface_->controlGPIO(cs, value);
 }
 
 } // namespace gramsballoon::pgrams

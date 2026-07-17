@@ -1,3 +1,4 @@
+#include "SPIManager.hh"
 #ifndef ReceiveCommand_H
 #define ReceiveCommand_H 1
 
@@ -5,9 +6,7 @@
 #include "CommunicationSaver.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
-#include "SendCommandToDAQComputer.hh"
 #include "SendTelemetry.hh"
-#include "ShutdownSystem.hh"
 #include <anlnext/BasicModule.hh>
 #include <memory>
 #include <queue>
@@ -25,6 +24,7 @@ class MosquittoManager;
 class SendCommandToDAQComputer;
 class PDUChannelMap;
 class ControlPDU;
+class SPIManager;
 
 /**
  * Receive commands from ground.
@@ -79,7 +79,7 @@ private:
   ControlPDU *controlPDU_ = nullptr;
 #endif
 
-  //communication
+  // communication
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
   std::string topic_ = "command";
   int qos_ = 0;

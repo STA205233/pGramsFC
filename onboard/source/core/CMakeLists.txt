@@ -40,6 +40,7 @@ if(GB_USE_SPI)
     src/VCSMapping.cc
     src/PDUTelemetryCSMapping.cc
     src/PDUCommandCSMapping.cc
+    src/PDUChannelMap.cc
   )
   if(GB_USE_FT232H)
     list(APPEND GB_SPI_CORE_CLASSES

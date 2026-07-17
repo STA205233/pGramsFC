@@ -1,6 +1,7 @@
 #include "ControlPDU.hh"
 #include "ErrorManager.hh"
 #include "PDUCommandCSMapping.hh"
+#include <cstdint>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ControlPDU::ControlPDU() : spiManager_(nullptr), sendTelemetry_(nullptr), dac_(nullptr) {}
