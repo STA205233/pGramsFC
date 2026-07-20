@@ -101,6 +101,19 @@ command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ syst
 command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
 command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
 command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "",[CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem(
+        "Send Full Event Data",
+        "Send one event with FEM headers, charge middle frame, and light ROIs",
+        [
+            CommandParameter("Run", "Run number"),
+            CommandParameter("File", "File number"),
+            CommandParameter("Event", "Event index in file"),
+            CommandParameter("L lag", "LFEM header from event+n, ADC from event+(n-1)", range=(0, 100)),
+        ],
+    ),
+)
 
 
 command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))
