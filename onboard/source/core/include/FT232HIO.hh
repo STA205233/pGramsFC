@@ -1,10 +1,10 @@
 #ifndef GRAMSBalloon_FT232HIO_hh
 #define GRAMSBalloon_FT232HIO_hh 1
 #include "MPSSEController.hh"
-#include <cstdint>
-#include <memory>
 #include "MPSSEDeviceManager.hh"
 #include "SPIInterface.hh"
+#include <cstdint>
+#include <memory>
 namespace gramsballoon::pgrams {
 /**
  * @brief Control Class for FT232H

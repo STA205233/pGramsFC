@@ -1,10 +1,9 @@
-#include <cstdint>
 #ifndef GRAMSBalloon_BayCatControl_hh
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "BayCatAPICaller.hh"
 #include "SPIInterface.hh"
+#include <cstdint>
 #include <map>
-#include <stdint.h>
 namespace gramsballoon::pgrams {
 /**
  * @brief A class to control the SPI interface of BayCat.

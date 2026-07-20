@@ -1,4 +1,3 @@
-#include "SPIManager.hh"
 #ifndef ReceiveCommand_H
 #define ReceiveCommand_H 1
 
@@ -6,6 +5,7 @@
 #include "CommunicationSaver.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
+#include "SPIManager.hh"
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
 #include <memory>

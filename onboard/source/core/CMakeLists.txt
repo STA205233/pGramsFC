@@ -105,8 +105,7 @@ add_library(GBCore SHARED
   ${GB_I2C_CORE_CLASSES}
   ${GB_VERSA_API_CORE_CLASSES}
   )
-  
-  message(DEBUG "GBCore:   
+message(DEBUG "GBCore:   
   ${GB_CORE_CLASSES}
   ${GB_SPI_CORE_CLASSES}
   ${GB_LJM_CORE_CLASSES}
