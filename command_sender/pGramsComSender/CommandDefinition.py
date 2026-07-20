@@ -114,6 +114,23 @@ command_collection.add_command(
         ],
     ),
 )
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem(
+        "Start Continuous LBW",
+        "Periodically send per-event LBW metrics from closed readout files",
+        [
+            CommandParameter("Period sec", "Seconds between LBW packets", range=(1, 3600)),
+            CommandParameter("Run", "99999 = auto; fixed run monitors new closed files for that run", range=(0, 99999)),
+            CommandParameter("File", "99999 = latest closed (ignored if Run is 99999)", range=(0, 99999)),
+            CommandParameter("Event stride", "Send every Nth event in the file", range=(1, 10000)),
+        ],
+    ),
+)
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem("Stop Continuous LBW", "Stop periodic LBW telemetry"),
+)
 
 
 command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))
