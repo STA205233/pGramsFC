@@ -29,6 +29,9 @@ public:
   virtual ~BayCatSPIIO() = default;
   BayCatSPIIO(const BayCatSPIIO&) = delete;
   int MaximumCh() override { return 24; } // TODO: Set actual value
+  int setSpiMode(int mode) override {
+    return SPISetMode(static_cast<unsigned int>(mode));
+  }
 
 private:
   std::map<int, unsigned int> baudrateList_;

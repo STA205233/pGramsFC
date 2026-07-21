@@ -40,7 +40,7 @@ int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsi
   if (num_transfered < 0) {
     return num_transfered;
   }
-  if (num_transfered != (wsize + rsize)) {
+  if (num_transfered != static_cast<int>(wsize + rsize)) {
     std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
   }
@@ -58,7 +58,10 @@ int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint
     }
   }
   int num_transfered = mpsseController_->write_readSPI(writeBuffer, size, readBuffer, cs);
-  if (num_transfered != size) {
+  if (num_transfered < 0) {
+    return num_transfered;
+  }
+  if (num_transfered != static_cast<int>(size)) {
     std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
   }
