@@ -339,7 +339,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
     }
     // TODO: Implement handling
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_Set_Voltage) && argc == 2) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Voltage) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
     }
