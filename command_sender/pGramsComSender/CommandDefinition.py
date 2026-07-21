@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class CommandParameter:
-    def __init__(self, name: str, description: str, range=None):
+    def __init__(self, name: str, description: str | None = None, range=None):
         self.name = name
-        self.description = description
+        self.description = description if description is not None else name
         self.range = range
 
     def __repr__(self) -> str:
@@ -30,7 +30,7 @@ class CommandItem:
         self.description = description
         self.parameters = parameters
         self.file_loadable = file_loadable
-    
+
     def __repr__(self) -> str:
         return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters}, file_loadable={self.file_loadable})"
 
@@ -41,7 +41,7 @@ class CommandItem:
         else:
             str_ += "None"
         return str_
-    
+
 
 class CommandDefinition:
     def __init__(self):
@@ -91,6 +91,13 @@ command_collection.add_command("ORC", CommandItem("Boot ToF DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown ToF DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Boot TPC DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown TPC DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Start PPS", ""))
+command_collection.add_command("ORC", CommandItem("Send Pulse Train", ""))
+command_collection.add_command("ORC", CommandItem("Stop PPS", ""))
+command_collection.add_command("ORC", CommandItem("Restart Orchestrator", ""))
+command_collection.add_command("ORC", CommandItem("Clear Errors", ""))
+command_collection.add_command("ORC", CommandItem("Set Data SSD0", "write to SSD 0"))
+command_collection.add_command("ORC", CommandItem("Set Data SSD1", "write to SSD 1"))
 
 
 command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))], file_loadable=True))
