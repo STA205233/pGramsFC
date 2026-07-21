@@ -34,11 +34,12 @@ public:
   virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *, bool = true) { return -1; }
   virtual int Write(int, const uint8_t *, unsigned int, bool = true) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
+  virtual int setSpiMode(int) { return -1; }
   /**
-  *  @brief Control GPIO specified by bit expression
-  *  @param csBit Set high to be controlled
-  *  @param state Specify high / low
-  */
+   *  @brief Control GPIO specified by bit expression
+   *  @param csBit Set high to be controlled
+   *  @param state Specify high / low
+   */
   virtual int controlGPIOBit(uint32_t, bool) { return -1; }
   virtual int MaximumCh() { return 0; }
 

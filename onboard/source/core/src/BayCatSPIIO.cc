@@ -147,6 +147,11 @@ int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int 
   for (unsigned int i = 0; i < rsize; ++i) {
     write_data = 1;
     const auto status_write = SPIWriteDataFrame(SPI_SS_SS0_, &write_data);
+    if (status_write != API_OK) {
+      std::cerr << "SPIWriteDataFrame failed: " << status_write << std::endl;
+      controlGPIO(cs, true);
+      return -1;
+    }
     const auto status_read = SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
     if (status_read != API_OK) {
       std::cerr << "SPIReadDataFrame failed: " << status_read << std::endl;

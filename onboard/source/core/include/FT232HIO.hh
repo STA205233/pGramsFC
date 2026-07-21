@@ -46,11 +46,13 @@ public:
   int controlGPIO(int cs, bool value) override;
   int controlGPIOBit(uint32_t cs, bool value) override;
   int updateSetting() override;
+  int setSpiMode(int mode) override {
+    return mpsseController_->setSPIMode(mode);
+  }
 
 private:
   std::shared_ptr<mpsse::MPSSEDeviceManager> mpsseDeviceManager_;
   std::shared_ptr<mpsse::MPSSEController> mpsseController_;
-  unsigned int configOptions_ = 0;
   std::vector<uint8_t> writeBuffer_;
   std::vector<uint8_t> readBuffer_;
 };
