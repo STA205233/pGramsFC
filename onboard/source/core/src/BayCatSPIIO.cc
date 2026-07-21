@@ -3,6 +3,8 @@
 #ifdef DEBUG_SPI
 #include <iomanip>
 #include <iostream>
+#include <chrono>
+#include <thread>
 #endif
 
 #define ERROR_HANDLE(func) \
@@ -348,16 +350,24 @@ int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bo
   }
   return 0;
 }
-int BayCatSPIIO::controlFPGAGPIO(const uint32_t csBit, const bool value) {
+int BayCatSPIIO::controlFPGAGPIO(uint32_t csBit, const bool value) {
+  csBit = (csBit >> 16);
+  std::cout << "controlFPGAGPIO called with " << std::hex <<  csBit << std::dec <<  ", " << value << std::endl;
   bool direction = false;
   ERROR_HANDLE(WriteFPGARegisterMultiChannel(DIR_GPIO, csBit, direction))
   unsigned char out = 0;
   ERROR_HANDLE(ReadFPGARegister(AUX_OUT, &out))
-  std::cout << "AUX_OUT: " << static_cast<int>(out) << std::endl;
+#ifdef DEBUG_SPI
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  std::cout << "AUX_OUT: " << std::hex << static_cast<int>(out) << std::dec << std::endl;
+#endif
   ERROR_HANDLE(WriteFPGARegisterMultiChannel(AUX_OUT, csBit, value))
 
   // final check
   ERROR_HANDLE(ReadFPGARegister(AUX_OUT, &out))
+#ifdef DEBUG_SPI
+  std::cout << "ReadFPGARegister: " << std::hex << static_cast<int>(out) << std::dec << std::endl;
+#endif
   const uint32_t ref = value ? csBit : 0;
   if ((out & csBit) == ref) {
     std::cerr << "ControlGPIOBit: failed final check" << std::endl;
@@ -395,19 +405,26 @@ int BayCatSPIIO::WriteFPGARegister(unsigned long reg, unsigned char data) {
 }
 
 int BayCatSPIIO::WriteFPGARegisterMultiChannel(const unsigned long reg, const uint32_t bitExpression, bool value) {
+#ifdef DEBUG_SPI
+  std::cout << "WriteFPGARegisterMultiChannel called with " << reg << ", " << std::hex << bitExpression << std::dec << ", " << value << std::endl;
+#endif
   unsigned char value_raw = 0;
   const int status_read = ReadFPGARegister(reg, &value_raw);
   if (status_read != 0) {
     return status_read;
   }
-  std::cout << static_cast<int>(value_raw) << std::endl;
+#ifdef DEBUG_SPI
+  std::cout << "WriteFPGARegisterMultiChannel value before writing: " << std::hex << static_cast<int>(value_raw) << std::dec << std::endl;
+#endif
   if (value) {
     value_raw |= bitExpression;
   }
   else {
     value_raw &= ~bitExpression;
   }
-  std::cout << static_cast<int>(value_raw) << std::endl;
+#ifdef DEBUG_SPI
+  std::cout << "WriteFPGARegisterMultiChannel value after writing: " << std::hex <<  static_cast<int>(value_raw) << std::dec << std::endl;
+#endif
   const int status_write = WriteFPGARegister(reg, value_raw);
   return status_write;
 }
