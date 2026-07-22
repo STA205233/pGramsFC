@@ -1,6 +1,6 @@
 #include "ControlPDU.hh"
 #include "ErrorManager.hh"
-#include "PDUCommandCSMapping.hh"
+#include "PDUCSMapping.hh"
 #include <cstdint>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
@@ -23,7 +23,7 @@ ANLStatus ControlPDU::mod_initialize() {
     return AS_ERROR;
   }
   dac_ = std::make_shared<DAC121S101IO>();
-  auto csMapping_ = std::make_unique<PDUCommandCSMapping>();
+  auto csMapping_ = std::make_unique<PDUCSMapping>();
   auto interface = spiManager_->Interface();
   if (interface) {
     dac_->setSPIInterface(interface);

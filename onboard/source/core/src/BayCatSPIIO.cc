@@ -3,8 +3,6 @@
 #ifdef DEBUG_SPI
 #include <iomanip>
 #include <iostream>
-#include <chrono>
-#include <thread>
 #endif
 
 #define ERROR_HANDLE(func) \
@@ -239,20 +237,22 @@ int BayCatSPIIO::controlGPIO(const int cs, const bool value) {
     return controlDIO(cs, value);
   }
   else if (cs <= 24) {
-    return controlFPGAGPIO((1 << cs), value);
+    const uint32_t bit = (1u << cs);
+    return controlFPGAGPIO(bit, value ? bit : 0u);
   }
   else {
     return -1;
   }
 }
 
-int BayCatSPIIO::controlGPIOBit(const uint32_t csBit, const bool value) {
+int BayCatSPIIO::controlGPIOBit(const uint32_t csBit, const uint32_t value) {
   constexpr uint32_t LOWER_MSK = 0xffff;
   bool succeeded = true;
   if ((csBit & LOWER_MSK) != 0) {
     for (int ibit = 0; ibit < 16; ++ibit) {
       if (((csBit >> ibit) & 0x1) == 0x1) {
-        const int ret = controlDIO(ibit, value);
+        const bool bitValue = ((value >> ibit) & 0x1) == 0x1;
+        const int ret = controlDIO(ibit, bitValue);
         succeeded = (ret >= 0);
         if (!succeeded) { break; }
       }
@@ -261,9 +261,10 @@ int BayCatSPIIO::controlGPIOBit(const uint32_t csBit, const bool value) {
 
   if (!succeeded) { return -1; }
   constexpr uint32_t UPPER_MSK = 0xffff0000;
-  const uint32_t csBit_upper = (csBit & UPPER_MSK) >> 16;
+  const uint32_t csBit_upper = csBit & UPPER_MSK;
   if (csBit_upper != 0) {
-    controlFPGAGPIO(csBit_upper, value);
+    const int ret = controlFPGAGPIO(csBit_upper, value & UPPER_MSK);
+    if (ret < 0) { return -1; }
   }
   return 0;
 }
@@ -350,16 +351,14 @@ int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bo
   }
   return 0;
 }
-int BayCatSPIIO::controlFPGAGPIO(uint32_t csBit, const bool value) {
+int BayCatSPIIO::controlFPGAGPIO(uint32_t csBit, uint32_t value) {
   csBit = (csBit >> 16);
-  std::cout << "controlFPGAGPIO called with " << std::hex <<  csBit << std::dec <<  ", " << value << std::endl;
-  const bool direction = true;
-  ERROR_HANDLE(WriteFPGARegisterMultiChannel(DIR_GPIO, csBit, direction))
-  unsigned char out = 0;
-  ERROR_HANDLE(ReadFPGARegister(AUX_OUT, &out))
+  value = (value >> 16);
 #ifdef DEBUG_SPI
-  std::cout << "AUX_OUT: " << std::hex << static_cast<int>(out) << std::dec << std::endl;
+  std::cout << "controlFPGAGPIO called with " << std::hex << csBit << ", " << value << std::dec << std::endl;
 #endif
+  const bool direction = true; // Output
+  ERROR_HANDLE(WriteFPGARegisterMultiChannel(DIR_GPIO, csBit, direction))
   ERROR_HANDLE(WriteFPGARegisterMultiChannel(AUX_OUT, csBit, value))
 
   // final check
@@ -368,7 +367,7 @@ int BayCatSPIIO::controlFPGAGPIO(uint32_t csBit, const bool value) {
 #ifdef DEBUG_SPI
   std::cout << "AUX_IN (final check): " << std::hex << static_cast<int>(aux_in) << std::dec << std::endl;
 #endif
-  const uint32_t ref = value ? csBit : 0;
+  const uint32_t ref = value & csBit;
   if ((aux_in & csBit) != ref) {
     std::cerr << "ControlGPIOBit: failed final check" << std::endl;
     return -1;
@@ -404,9 +403,13 @@ int BayCatSPIIO::WriteFPGARegister(unsigned long reg, unsigned char data) {
   return 0;
 }
 
-int BayCatSPIIO::WriteFPGARegisterMultiChannel(const unsigned long reg, const uint32_t bitExpression, bool value) {
+int BayCatSPIIO::WriteFPGARegisterMultiChannel(const unsigned long reg, const uint32_t bitExpression, const bool value) {
+  return WriteFPGARegisterMultiChannel(reg, bitExpression, value ? bitExpression : 0u);
+}
+
+int BayCatSPIIO::WriteFPGARegisterMultiChannel(const unsigned long reg, const uint32_t bitExpression, const uint32_t data) {
 #ifdef DEBUG_SPI
-  std::cout << "WriteFPGARegisterMultiChannel called with " << reg << ", " << std::hex << bitExpression << std::dec << ", " << value << std::endl;
+  std::cout << "WriteFPGARegisterMultiChannel called with " << reg << ", " << std::hex << bitExpression << ", " << data << std::dec << std::endl;
 #endif
   unsigned char value_raw = 0;
   const int status_read = ReadFPGARegister(reg, &value_raw);
@@ -416,14 +419,9 @@ int BayCatSPIIO::WriteFPGARegisterMultiChannel(const unsigned long reg, const ui
 #ifdef DEBUG_SPI
   std::cout << "WriteFPGARegisterMultiChannel value before writing: " << std::hex << static_cast<int>(value_raw) << std::dec << std::endl;
 #endif
-  if (value) {
-    value_raw |= bitExpression;
-  }
-  else {
-    value_raw &= ~bitExpression;
-  }
+  value_raw = static_cast<unsigned char>((value_raw & ~bitExpression) | (data & bitExpression));
 #ifdef DEBUG_SPI
-  std::cout << "WriteFPGARegisterMultiChannel value after writing: " << std::hex <<  static_cast<int>(value_raw) << std::dec << std::endl;
+  std::cout << "WriteFPGARegisterMultiChannel value after writing: " << std::hex << static_cast<int>(value_raw) << std::dec << std::endl;
 #endif
   const int status_write = WriteFPGARegister(reg, value_raw);
   return status_write;

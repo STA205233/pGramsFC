@@ -38,8 +38,7 @@ if(GB_USE_SPI)
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
     src/VCSMapping.cc
-    src/PDUTelemetryCSMapping.cc
-    src/PDUCommandCSMapping.cc
+    src/PDUCSMapping.cc
     src/PDUChannelMap.cc
   )
   if(GB_USE_FT232H)

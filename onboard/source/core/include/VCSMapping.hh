@@ -13,18 +13,26 @@ namespace gramsballoon::pgrams {
  */
 class VCSMapping {
 public:
-  VCSMapping() = default;
+  using cs_t = uint32_t;
+  using pair_t = std::pair<cs_t, cs_t>; // first: bit to be controlled, second: actual value when enabled
+  using map_t = std::map<int, pair_t>;
+  VCSMapping(cs_t csBitRange = 0x00U, cs_t defaultState = 0x00) : csBitRange_(csBitRange), defaultState_(defaultState) {}
   virtual ~VCSMapping() = default;
-  std::optional<uint32_t> getChipSelect(int multiplexerChannel) const;
-  void setChipSelect(int multiplexerChannel, uint32_t chipSelect);
-  std::map<int, uint32_t>::const_iterator begin() const { return csMapping_.begin(); }
-  std::map<int, uint32_t>::const_iterator end() const { return csMapping_.end(); }
+  std::optional<pair_t> getChipSelect(int multiplexerChannel) const;
+  void setChipSelect(int multiplexerChannel, cs_t chipSelect);
+  map_t::const_iterator begin() const { return csMapping_.begin(); }
+  map_t::const_iterator end() const { return csMapping_.end(); }
+  cs_t CsBitRange() const { return csBitRange_; }
+  cs_t DefaultState() const { return defaultState_; }
+  int NumChannels() const { return static_cast<int>(csMapping_.size()); }
 
 protected:
   virtual void registerMapping() = 0;
 
 private:
-  std::map<int, uint32_t> csMapping_;
+  cs_t csBitRange_;
+  map_t csMapping_;
+  cs_t defaultState_;
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_VCSMapping_hh

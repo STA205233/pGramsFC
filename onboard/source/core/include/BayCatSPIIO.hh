@@ -1,3 +1,4 @@
+#include <sys/types.h>
 #ifndef GRAMSBalloon_BayCatControl_hh
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "BayCatAPICaller.hh"
@@ -46,14 +47,15 @@ public:
   int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/, bool csControl) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int controlGPIO(int cs, bool value) override;
-  int controlGPIOBit(uint32_t csBit, bool value) override;
+  int controlGPIOBit(uint32_t csBit, uint32_t value) override;
   int WriteFPGARegister(unsigned long reg, unsigned char data);
   int WriteFPGARegisterMultiChannel(unsigned long reg, uint32_t bitexpression, bool data);
+  int WriteFPGARegisterMultiChannel(unsigned long reg, uint32_t bitexpression, uint32_t data);
   int ReadFPGARegister(unsigned long reg, unsigned char *data);
 
 private:
   int applyBaudrateSetting();
-  int controlFPGAGPIO(uint32_t bitExpression, bool value);
+  int controlFPGAGPIO(uint32_t bitExpression, uint32_t value);
   int controlDIO(int cs, bool value);
 };
 } // namespace gramsballoon::pgrams

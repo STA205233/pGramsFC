@@ -18,13 +18,13 @@ bool PDUChannelMap::getMapping(com_code_t code, cs_msk_t& cs) const {
 }
 
 void PDUChannelMap::construct() {
-  addOne(CommunicationCodes::PDU_SiPM0_VSET, 0);
-  addOne(CommunicationCodes::PDU_SiPM1_VSET, 1);
-  addOne(CommunicationCodes::PDU_SiPM2_VSET, 2);
-  addOne(CommunicationCodes::PDU_SiPM3_VSET, 3);
-  addOne(CommunicationCodes::PDU_SiPM4_VSET, 4);
-  addOne(CommunicationCodes::PDU_SiPM5_VSET, 5);
-  addOne(CommunicationCodes::PDU_PressureReg_VSET, 6);
+  addOne(CommunicationCodes::PDU_SiPM0_VSET, 10);
+  addOne(CommunicationCodes::PDU_SiPM1_VSET, 11);
+  addOne(CommunicationCodes::PDU_SiPM2_VSET, 12);
+  addOne(CommunicationCodes::PDU_SiPM3_VSET, 13);
+  addOne(CommunicationCodes::PDU_SiPM4_VSET, 14);
+  addOne(CommunicationCodes::PDU_SiPM5_VSET, 15);
+  addOne(CommunicationCodes::PDU_PressureReg_VSET, 16);
 }
 
 void PDUChannelMap::addOne(CommunicationCodes code, cs_msk_t cs) {
