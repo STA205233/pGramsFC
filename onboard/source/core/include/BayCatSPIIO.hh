@@ -21,14 +21,15 @@ public:
     return (mode & SPI_MODE_MASK) | ((shiftDirection << SPI_SHIFT_DIRECTION_OFFSET) & SPI_SHIFT_DIRECTION_MASK);
   }
 
-  static constexpr unsigned long DIR_GPIO = 0xCA1;
-  static constexpr unsigned long AUX_OUT = 0xCA3;
+  static constexpr unsigned long DIR_GPIO = 0x21;
+  static constexpr unsigned long AUX_OUT = 0x23;
+  static constexpr unsigned long AUX_IN = 0x24;
 
 public:
   BayCatSPIIO();
   virtual ~BayCatSPIIO() = default;
   BayCatSPIIO(const BayCatSPIIO&) = delete;
-  int MaximumCh() override { return 24; } // TODO: Set actual value
+  int MaximumCh() override { return 24; }
   int setSpiMode(int mode) override {
     return SPISetMode(static_cast<unsigned int>(mode));
   }

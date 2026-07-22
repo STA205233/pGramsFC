@@ -353,23 +353,23 @@ int BayCatSPIIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bo
 int BayCatSPIIO::controlFPGAGPIO(uint32_t csBit, const bool value) {
   csBit = (csBit >> 16);
   std::cout << "controlFPGAGPIO called with " << std::hex <<  csBit << std::dec <<  ", " << value << std::endl;
-  bool direction = false;
+  const bool direction = true;
   ERROR_HANDLE(WriteFPGARegisterMultiChannel(DIR_GPIO, csBit, direction))
   unsigned char out = 0;
   ERROR_HANDLE(ReadFPGARegister(AUX_OUT, &out))
 #ifdef DEBUG_SPI
-  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   std::cout << "AUX_OUT: " << std::hex << static_cast<int>(out) << std::dec << std::endl;
 #endif
   ERROR_HANDLE(WriteFPGARegisterMultiChannel(AUX_OUT, csBit, value))
 
   // final check
-  ERROR_HANDLE(ReadFPGARegister(AUX_OUT, &out))
+  unsigned char aux_in = 0;
+  ERROR_HANDLE(ReadFPGARegister(AUX_IN, &aux_in))
 #ifdef DEBUG_SPI
-  std::cout << "ReadFPGARegister: " << std::hex << static_cast<int>(out) << std::dec << std::endl;
+  std::cout << "AUX_IN (final check): " << std::hex << static_cast<int>(aux_in) << std::dec << std::endl;
 #endif
   const uint32_t ref = value ? csBit : 0;
-  if ((out & csBit) == ref) {
+  if ((aux_in & csBit) != ref) {
     std::cerr << "ControlGPIOBit: failed final check" << std::endl;
     return -1;
   }

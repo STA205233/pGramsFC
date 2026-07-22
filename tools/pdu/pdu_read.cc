@@ -8,7 +8,7 @@
 using namespace gramsballoon::pgrams;
 
 int main(int argc, char *argv[]) {
-  ADC128S102IO adc;
+  ADC128S102IO adc(5.0);
   std::unique_ptr<SPIInterface> spiInterface = nullptr;
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <FT232H or Baycat>" << std::endl;
@@ -31,9 +31,9 @@ int main(int argc, char *argv[]) {
   }
   spiInterface->Open(0);
   adc.setSPIInterface(spiInterface.get());
-  adc.setCS(0);
+  adc.setCS(21);
   spiInterface->setBaudrate(1000000);
-  const auto value = adc.getCurrentVoltage(0);
+  const auto value = adc.getCurrentVoltage(5);
   if (adc.isError()) {
     std::cerr << "Failed to read ADC channel 0. Error code: " << adc.getErrorCode() << std::endl;
     return adc.getErrorCode();
