@@ -11,7 +11,7 @@ namespace gramsballoon::pgrams {
  */
 class PDUCSMapping: public VCSMapping {
 public:
-  PDUCSMapping(cs_t csBitRange = 0x0fff0000) : VCSMapping(csBitRange) {
+  PDUCSMapping(cs_t csBitRange = 0x01ff0000, cs_t defaultState = 0x0100000) : VCSMapping(csBitRange, defaultState) {
     registerMapping();
   }
   virtual ~PDUCSMapping() = default;

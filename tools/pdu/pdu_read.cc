@@ -1,6 +1,8 @@
 #include "ADC128S102IO.hh"
 #include "BayCatSPIIO.hh"
 #include "FT232HIO.hh"
+#include "SPIInterfaceMultiplexer.hh"
+#include "PDUCSMapping.hh"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -9,7 +11,8 @@ using namespace gramsballoon::pgrams;
 
 int main(int argc, char *argv[]) {
   ADC128S102IO adc(5.0);
-  std::unique_ptr<SPIInterface> spiInterface = nullptr;
+  std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
+  std::unique_ptr<SPIInterfaceMultiplexer> spiInterface = std::make_unique<SPIInterfaceMultiplexer>();
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <FT232H or Baycat>" << std::endl;
     return -1;
@@ -17,28 +20,33 @@ int main(int argc, char *argv[]) {
   std::string interfaceType = argv[1];
   if (interfaceType == "Baycat") {
     std::cout << "Using BayCatSPIIO interface" << std::endl;
-    spiInterface = std::make_unique<BayCatSPIIO>();
-    spiInterface->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
+    spiInterface2 = std::make_shared<BayCatSPIIO>();
+    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
   }
   else if (interfaceType == "FT232H") {
     std::cout << "Using FT232HIO interface" << std::endl;
-    spiInterface = std::make_unique<FT232HIO>();
-    spiInterface->setConfigOptions(2);
+    spiInterface2 = std::make_shared<FT232HIO>();
+    spiInterface2->setConfigOptions(2);
   }
   else {
     std::cerr << "Invalid interface type: " << interfaceType << ". Use 'FT232H' or 'Baycat'." << std::endl;
     return -1;
   }
-  spiInterface->Open(0);
+  spiInterface2->Open(0);
+  spiInterface->setBaseInterface(std::move(spiInterface2));
+  spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
   adc.setSPIInterface(spiInterface.get());
-  adc.setCS(21);
   spiInterface->setBaudrate(1000000);
-  const auto value = adc.getCurrentVoltage(5);
-  if (adc.isError()) {
-    std::cerr << "Failed to read ADC channel 0. Error code: " << adc.getErrorCode() << std::endl;
-    return adc.getErrorCode();
+  for (int i = 0; i < 17; ++i){
+    adc.setCS(i);
+    const auto value = adc.getCurrentVoltage(5);
+    if (adc.isError()) {
+      std::cerr << "Failed to read ADC channel 0. Error code: " << adc.getErrorCode() << std::endl;
+      return adc.getErrorCode();
+    }
+    std::cout << "Channel 0 Voltage: " << value << " V" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  std::cout << "Channel 0 Voltage: " << value << " V" << std::endl;
   const int status2 = spiInterface->Close();
   return status2;
 }
