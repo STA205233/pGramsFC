@@ -50,6 +50,9 @@ int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsi
   return 0;
 }
 int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) {
+  if (!csControl) {
+    cs = -1; // No CS control
+  }
   if (csControl) {
     const auto status_cs_low = controlGPIO(cs, false);
     if (status_cs_low != 0) {
@@ -96,8 +99,8 @@ int FT232HIO::controlGPIO(int cs, bool value) {
   return mpsseController_->writeGPIO(cs, value);
 }
 
-int FT232HIO::controlGPIOBit(uint32_t csBit, bool value) {
-  return mpsseController_->writeGPIOMulti(static_cast<uint16_t>(csBit & 0xffff), value);
+int FT232HIO::controlGPIOBit(uint32_t csBit, uint32_t value) {
+  return mpsseController_->writeGPIOMulti(static_cast<uint16_t>(csBit & 0xffff), static_cast<uint16_t>(value & 0xffff));
 }
 
 int FT232HIO::updateSetting() {

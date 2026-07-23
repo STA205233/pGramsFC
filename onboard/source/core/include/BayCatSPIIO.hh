@@ -1,3 +1,4 @@
+#include <sys/types.h>
 #ifndef GRAMSBalloon_BayCatControl_hh
 #define GRAMSBalloon_BayCatControl_hh 1
 #include "BayCatAPICaller.hh"
@@ -21,14 +22,15 @@ public:
     return (mode & SPI_MODE_MASK) | ((shiftDirection << SPI_SHIFT_DIRECTION_OFFSET) & SPI_SHIFT_DIRECTION_MASK);
   }
 
-  static constexpr unsigned long DIR_GPIO = 0xCA1;
-  static constexpr unsigned long AUX_OUT = 0xCA3;
+  static constexpr unsigned long DIR_GPIO = 0x21;
+  static constexpr unsigned long AUX_OUT = 0x23;
+  static constexpr unsigned long AUX_IN = 0x24;
 
 public:
   BayCatSPIIO();
   virtual ~BayCatSPIIO() = default;
   BayCatSPIIO(const BayCatSPIIO&) = delete;
-  int MaximumCh() override { return 24; } // TODO: Set actual value
+  int MaximumCh() override { return 24; }
   int setSpiMode(int mode) override {
     return SPISetMode(static_cast<unsigned int>(mode));
   }
@@ -45,14 +47,15 @@ public:
   int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/, bool csControl) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int controlGPIO(int cs, bool value) override;
-  int controlGPIOBit(uint32_t csBit, bool value) override;
+  int controlGPIOBit(uint32_t csBit, uint32_t value) override;
   int WriteFPGARegister(unsigned long reg, unsigned char data);
   int WriteFPGARegisterMultiChannel(unsigned long reg, uint32_t bitexpression, bool data);
+  int WriteFPGARegisterMultiChannel(unsigned long reg, uint32_t bitexpression, uint32_t data);
   int ReadFPGARegister(unsigned long reg, unsigned char *data);
 
 private:
   int applyBaudrateSetting();
-  int controlFPGAGPIO(uint32_t bitExpression, bool value);
+  int controlFPGAGPIO(uint32_t bitExpression, uint32_t value);
   int controlDIO(int cs, bool value);
 };
 } // namespace gramsballoon::pgrams

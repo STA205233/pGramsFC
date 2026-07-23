@@ -139,31 +139,30 @@ int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8
 }
 
 int MPSSEController::writeGPIOMulti(uint16_t bitExpression, bool value) {
+  return writeGPIOMulti(bitExpression, value ? bitExpression : static_cast<uint16_t>(0));
+}
+
+int MPSSEController::writeGPIOMulti(uint16_t bitExpression, uint16_t data) {
   uint16_t status;
   const auto ret = readCurrentPinStatus(status);
   if (ret < 0) {
     return ret;
   }
-  if (value) {
-    status |= bitExpression; // Keep high byte
-  }
-  else {
-    status &= ~bitExpression; // Keep high byte
-  }
+  status = static_cast<uint16_t>((status & ~bitExpression) | (data & bitExpression));
   uint8_t command;
-  uint8_t data;
+  uint8_t data_byte;
   cmdBuffer_.clear();
-  if ((bitExpression & 0xffff0000) > 0) {
+  if ((bitExpression & 0xff00) > 0) {
     command = commands::SET_HIGH_BYTE_STATE_CMD;
-    data = (status >> 8) & 0xFF; // Keep low byte
+    data_byte = (status >> 8) & 0xFF; // Keep low byte
     cmdBuffer_.push_back(command);
-    cmdBuffer_.push_back(data);
+    cmdBuffer_.push_back(data_byte);
   }
-  if ((bitExpression & 0x0000ffff) > 0) {
+  if ((bitExpression & 0x00ff) > 0) {
     command = commands::SET_LOW_BYTE_STATE_CMD;
-    data = status & 0xFF; // Keep low byte
+    data_byte = status & 0xFF; // Keep low byte
     cmdBuffer_.push_back(command);
-    cmdBuffer_.push_back(data);
+    cmdBuffer_.push_back(data_byte);
   }
   cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK); // This time assumes only for spi.
   const auto ret2 = writeMPSSE(cmdBuffer_);

@@ -1,5 +1,5 @@
 #include "GetPDUInfo.hh"
-#include "PDUTelemetryCSMapping.hh"
+#include "PDUCSMapping.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus GetPDUInfo::mod_define() {
@@ -27,7 +27,7 @@ ANLStatus GetPDUInfo::mod_initialize() {
     return AS_ERROR;
   }
   adc_ = std::make_shared<ADC128S102IO>();
-  auto csMapping = std::make_unique<PDUTelemetryCSMapping>();
+  auto csMapping = std::make_unique<PDUCSMapping>();
   interface->setMappingChipSelect(std::move(csMapping));
   adc_->setSPIInterface(interface);
   return AS_OK;
@@ -51,7 +51,7 @@ ANLStatus GetPDUInfo::mod_analyze() {
 
   for (int cs = 0; cs < numAdcs_; ++cs) {
     adc_->setCS(cs);
-    for (int ch = 0; ch < adc_->MaxChannelsPerADC(); ++ch) {
+    for (size_t ch = 0; ch < adc_->MaxChannelsPerADC(); ++ch) {
       const float voltage = adc_->getCurrentVoltage(ch);
       voltages_.push_back(voltage);
       std::cout << "PDU Channel " << ch << " (CS " << cs << "): " << voltage << " V" << std::endl;

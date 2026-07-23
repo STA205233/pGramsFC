@@ -40,7 +40,7 @@ public:
    *  @param csBit Set high to be controlled
    *  @param state Specify high / low
    */
-  virtual int controlGPIOBit(uint32_t, bool) { return -1; }
+  virtual int controlGPIOBit(uint32_t, uint32_t) { return -1; }
   virtual int MaximumCh() { return 0; }
 
   // Convenience functions that use the cs_ member variable

@@ -44,7 +44,7 @@ public:
   int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) override;
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int controlGPIO(int cs, bool value) override;
-  int controlGPIOBit(uint32_t cs, bool value) override;
+  int controlGPIOBit(uint32_t cs, uint32_t value) override;
   int updateSetting() override;
   int setSpiMode(int mode) override {
     return mpsseController_->setSPIMode(mode);

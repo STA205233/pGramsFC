@@ -4,6 +4,7 @@
 #include "VCSMapping.hh"
 #include <cstdint>
 #include <memory>
+#include <optional>
 
 namespace gramsballoon::pgrams {
 class SPIInterface;
@@ -33,22 +34,27 @@ public:
   void setBaseInterface(std::shared_ptr<SPIInterface>&& baseInterface) { baseInterface_ = baseInterface; }
 
   void setMappingChipSelect(std::unique_ptr<VCSMapping>&& mapping) { csMapping_ = std::move(mapping); }
-  std::optional<uint32_t> getMappingChipSelect(int multiplexerChannel) const;
+  std::optional<VCSMapping::pair_t> getMappingChipSelect(int multiplexerChannel) const;
+  std::optional<VCSMapping::cs_t> getDefaultState() const {
+    if (!csMapping_) { return std::nullopt; }
+    return csMapping_->DefaultState();
+  }
 
   int controlGPIO(int cs, bool value) override;
+  int controlGPIOBit(uint32_t cs, uint32_t value) override;
 
   template <typename F>
   int executeFunction(int multiplexerChannel, bool csControl, F&& f);
 
   auto begin() const {
-    static const std::map<int, uint32_t> empty;
+    static const std::map<int, VCSMapping::pair_t> empty;
     if (!csMapping_) {
       return empty.begin();
     }
     return csMapping_->begin();
   }
   auto end() const {
-    static const std::map<int, uint32_t> empty;
+    static const std::map<int, VCSMapping::pair_t> empty;
     if (!csMapping_) {
       return empty.end();
     }
@@ -72,10 +78,7 @@ public:
     }
   }
   int MaximumCh() override {
-    if (baseInterface_) {
-      return (1 << baseInterface_->MaximumCh());
-    }
-    return 0;
+    return csMapping_ ? csMapping_->NumChannels() : 0;
   }
 };
 
@@ -88,16 +91,16 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
 
   int ret = 0;
   if (csControl) {
-    ret = baseInterface_->controlGPIOBit(static_cast<uint32_t>(*mapped), true);
+    ret = baseInterface_->controlGPIOBit(static_cast<uint32_t>(mapped->first), static_cast<uint32_t>(mapped->second));
     if (ret != 0) {
       return ret;
     }
   }
 
-  ret = std::forward<F>(f)(static_cast<int>(*mapped));
+  ret = std::forward<F>(f)(-1); // CS control is already handled above via controlGPIOBit; the base interface does not need a real channel.
 
   if (csControl) {
-    const int releaseRet = baseInterface_->controlGPIOBit(static_cast<uint32_t>(*mapped), false);
+    const int releaseRet = baseInterface_->controlGPIOBit(static_cast<uint32_t>(mapped->first), getDefaultState().value());
     if (ret == 0) {
       ret = releaseRet;
     }
@@ -106,4 +109,4 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
 }
 
 } // namespace gramsballoon::pgrams
-#endif //GB_SPIInterfaceMultiplexer_hh
+#endif // GB_SPIInterfaceMultiplexer_hh

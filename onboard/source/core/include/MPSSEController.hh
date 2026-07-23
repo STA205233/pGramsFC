@@ -37,6 +37,7 @@ public:
   int readCurrentPinStatus(uint16_t& status);
   int writeGPIO(int pin, bool value);
   int writeGPIOMulti(uint16_t bitExpression, bool value);
+  int writeGPIOMulti(uint16_t bitExpression, uint16_t data);
   unsigned int getBaudrate();
   int write_readSPI(uint8_t *dataToSend, unsigned int size, uint8_t *dataToReceive, int cs);
   int close();

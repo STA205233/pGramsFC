@@ -81,25 +81,3 @@ add_executable(simple_test
 target_link_libraries(simple_test
   ${VERSALOGIC_LIB}
 )
-
-add_executable(gpio
-  gpio.cc
-)
-
-target_link_libraries(gpio
-  GBCore
-  ${D2XX_LIB}
-  ${MPSSE_LIB}
-  ${VERSALOGIC_INC_DIR}
-)
-target_link_directories(gpio PRIVATE
-  $ENV{HOME}/lib
-  $ENV{HOME}/lib/GRAMSBalloon
-  $ENV{HOME}/lib/GRAMSBalloon/modules
-  $ENV{HOME}/lib/GRAMSBalloon/core
-)
-target_include_directories(gpio PRIVATE
-  $ENV{HOME}/include/GRAMSBalloon
-  ${MPSSE_INC_DIR}
-  ${D2XX_INCLUDE_DIRS}
-)
