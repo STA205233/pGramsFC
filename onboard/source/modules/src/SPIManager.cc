@@ -78,7 +78,7 @@ ANLStatus SPIManager::mod_initialize() {
 
   interface_->setBaudrate(baudrate_);
   interface_->setConfigOptions(spiConfigOptions_);
-  int status = interface_->Open(channel_);
+  const int status = interface_->Open(channel_);
   if (status != 0) {
     std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
     if (sendTelemetry_) {

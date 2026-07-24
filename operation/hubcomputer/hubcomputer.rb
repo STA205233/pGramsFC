@@ -33,6 +33,11 @@ class MyApp < ANL::ANLApp
     # end
     # @main_modules << "MHADCManager"
     # @main_modules << "GetMHADCData"
+    
+    chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
+    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat", use_multiplexer: false)
+    
+    
     # subsystems = ["Orchestrator"]
     #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystems = []
@@ -46,7 +51,7 @@ class MyApp < ANL::ANLApp
       @main_modules << "SendCommandToDAQComputer_" + subsystem
     end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names, SPIManager_name: "SPIManager_baycat") do |m|
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"
@@ -98,7 +103,7 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "MHADCManager"
     chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 4, sleep_for_msec:1) do |m|
+    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetMHADCData"

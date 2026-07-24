@@ -28,7 +28,7 @@ public:
     baudrate_ = baudrate;
   }
   bool IsOpen() const { return isOpen_; }
-  void setConfigOptions(unsigned int configOptions) { configOptions_ = configOptions; }
+  virtual void setConfigOptions(unsigned int configOptions) { configOptions_ = configOptions; }
   unsigned int ConfigOptions() const { return configOptions_; }
   virtual int Open(int) { return -1; }
   virtual int Close() { return -1; }

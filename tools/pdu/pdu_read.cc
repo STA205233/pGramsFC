@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
   spiInterface2->Open(0);
-  spiInterface->setBaseInterface(std::move(spiInterface2));
+  spiInterface->setBaseInterface(spiInterface2);
   spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
   adc.setSPIInterface(spiInterface.get());
   spiInterface->setBaudrate(1000000);

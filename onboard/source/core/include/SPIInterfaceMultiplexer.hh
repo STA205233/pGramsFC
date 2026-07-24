@@ -67,6 +67,12 @@ public:
       baseInterface_->setBaudrate(baudrate);
     }
   }
+  
+  void setConfigOptions(unsigned int options) override {
+    if (baseInterface_) {
+      baseInterface_->setConfigOptions(options);
+    }
+  }
   int MaximumCh() override {
     return csMapping_ ? csMapping_->NumChannels() : 0;
   }
