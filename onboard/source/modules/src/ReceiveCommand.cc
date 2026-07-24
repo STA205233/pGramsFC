@@ -1,12 +1,19 @@
 #include "ReceiveCommand.hh"
 #include "CommunicationCodes.hh"
+#ifdef USE_SPI
 #include "ControlPDU.hh"
-#include "PDUChannelMap.hh"
+#include "PDUCodeMapCS.hh"
+#include "PDUCodeMapDIO.hh"
+#endif
 #include "SendCommandToDAQComputer.hh"
 #include "SendTelemetry.hh"
+#ifdef USE_SYSTEM_MODULES
 #include "ShutdownSystem.hh"
+#endif
 #include "TerminalColoring.hh"
 #include <cstdint>
+#include <iostream>
+
 using namespace anlnext;
 using namespace pgrams::communication;
 namespace gramsballoon::pgrams {
@@ -17,7 +24,7 @@ inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, c
   }
   return false;
 }
-ReceiveCommand::ReceiveCommand() : pduChannelMap_(PDUChannelMap::getInstance()) {
+ReceiveCommand::ReceiveCommand() : pduCodeMapCS_(PDUCodeMapCS::getInstance()), pduCodeMapDIO_(PDUCodeMapDIO::getInstance()) {
   binaryFilenameBase_ = "Command";
   topic_ = "command";
   comdef_ = std::make_shared<CommunicationFormat>();
@@ -30,6 +37,7 @@ ANLStatus ReceiveCommand::mod_define() {
   define_parameter("timeout_sec", &mod_class::timeoutSec_);
   define_parameter("save_command", &mod_class::saveCommand_);
   define_parameter("SendCommandToDAQComputer_names", &mod_class::sendCommandToDAQComputerNames_);
+  define_parameter("SPIManager_name", &mod_class::spiManagerName_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_command_per_file", &mod_class::numCommandPerFile_);
   define_parameter("topic", &mod_class::topic_);
@@ -163,6 +171,17 @@ void ReceiveCommand::getModules() {
     }
     else {
       std::cerr << "Error in ReceiveCommand::mod_initialize: ControlPDU module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+  {
+    if (exist_module(spiManagerName_)) {
+      get_module_NC(spiManagerName_, &spiManager_);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: SPIManager module " << spiManagerName_ << " not found." << std::endl;
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
       }
@@ -351,45 +370,52 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ":" << std::hex << code << std::dec << " command received.  Voltage: " << arguments[0] << std::endl;
     }
 #ifdef USE_SPI
-    if (::pgrams::communication::is_pdu_enable(code)) {
-      uint32_t cs;
-      switch (code) {
-      case to_u16(CommunicationCodes::PDU_DAQ_CPU_ON):
-        cs = 3;
-        break;
-      case to_u16(CommunicationCodes::PDU_CAEN_PM5V_ON):
-        cs = 0;
-      }
-
-      return true;
-    }
-    else {
-      PDUChannelMap::ch_t cs;
-      const bool ret_mapping = pduChannelMap_.getMapping(code, cs);
-      if (ret_mapping) {
-        const auto result = controlPDU_->setVoltage(cs, arguments[0]);
-        if (result != 0) {
-          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
-          return false;
-        }
-        return true;
-      }
-      else {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
-        return false;
-      }
-    }
+    return applySPICommand(code, argc, arguments);
 #else
     return false;
 #endif
   }
-
   else {
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
     return false;
   }
 
   return false;
+}
+
+bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, const std::vector<uint32_t>& arguments) {
+  if (argc != 1) {
+    return false;
+  }
+  if (is_pdu_enable_commands(code)) {
+    PDUCodeMapDIO::value_t id;
+    const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id);
+    if (ret_mapping && spiManager_) {
+      const bool is_on = PDUCodeMapDIO::isOnCode(code);
+      const auto result = spiManager_->controlGPIO(code, is_on);
+      if (result != 0) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  else {
+    PDUCodeMapCS::value_t cs;
+    const bool ret_mapping = pduCodeMapCS_.getMapping(code, cs);
+    if (ret_mapping) {
+      const auto result = controlPDU_->setVoltageRaw(cs, arguments[0]);
+      if (result != 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+        return false;
+      }
+      return true;
+    }
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
+      return false;
+    }
+  }
 }
 
 } // namespace gramsballoon::pgrams

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <vector>
 
 namespace gramsballoon::pgrams {
 class SPIInterface;
@@ -31,8 +32,7 @@ private:
   std::shared_ptr<SPIInterface> baseInterface_ = nullptr;
 
 public:
-  void setBaseInterface(std::shared_ptr<SPIInterface>&& baseInterface) { baseInterface_ = baseInterface; }
-
+  void setBaseInterface(std::shared_ptr<SPIInterface>& baseInterface) { baseInterface_ = baseInterface; }
   void setMappingChipSelect(std::unique_ptr<VCSMapping>&& mapping) { csMapping_ = std::move(mapping); }
   std::optional<VCSMapping::pair_t> getMappingChipSelect(int multiplexerChannel) const;
   std::optional<VCSMapping::cs_t> getDefaultState() const {
@@ -46,19 +46,9 @@ public:
   template <typename F>
   int executeFunction(int multiplexerChannel, bool csControl, F&& f);
 
-  auto begin() const {
-    static const std::map<int, VCSMapping::pair_t> empty;
-    if (!csMapping_) {
-      return empty.begin();
-    }
-    return csMapping_->begin();
-  }
-  auto end() const {
-    static const std::map<int, VCSMapping::pair_t> empty;
-    if (!csMapping_) {
-      return empty.end();
-    }
-    return csMapping_->end();
+  const std::vector<VCSMapping::pair_t>& Channels() const override {
+    static const std::vector<VCSMapping::pair_t> empty;
+    return csMapping_ ? csMapping_->Channels() : empty;
   }
 
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;

@@ -1,10 +1,16 @@
 #include "GetPDUInfo.hh"
-#include "PDUCSMapping.hh"
+#include "ADC128S102IO.hh"
+#include "SPIManager.hh"
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+#include <utility>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus GetPDUInfo::mod_define() {
   define_parameter("SPIManager_name", &mod_class::spiManagerName_);
   set_parameter_description("SPIManager name for accessing SPI interface");
+  define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
 ANLStatus GetPDUInfo::mod_initialize() {
@@ -27,9 +33,8 @@ ANLStatus GetPDUInfo::mod_initialize() {
     return AS_ERROR;
   }
   adc_ = std::make_shared<ADC128S102IO>();
-  auto csMapping = std::make_unique<PDUCSMapping>();
-  interface->setMappingChipSelect(std::move(csMapping));
   adc_->setSPIInterface(interface);
+  voltages_.reserve(numAdcs_ * ADC128S102IO::MaxChannelsPerADC());
   return AS_OK;
 }
 ANLStatus GetPDUInfo::mod_analyze() {
@@ -51,10 +56,12 @@ ANLStatus GetPDUInfo::mod_analyze() {
 
   for (int cs = 0; cs < numAdcs_; ++cs) {
     adc_->setCS(cs);
-    for (size_t ch = 0; ch < adc_->MaxChannelsPerADC(); ++ch) {
-      const float voltage = adc_->getCurrentVoltage(ch);
-      voltages_.push_back(voltage);
-      std::cout << "PDU Channel " << ch << " (CS " << cs << "): " << voltage << " V" << std::endl;
+    for (size_t ch = 0; ch < ADC128S102IO::MaxChannelsPerADC(); ++ch) {
+      const uint16_t voltage = adc_->getCurrentVoltageADC(ch);
+      if (chatter_ > 2) {
+        std::cout << "PDU Channel " << ch << " (CS " << cs << "): " << voltage << " V" << std::endl;
+      }
+      setVoltage(cs, ch, voltage);
       if (adc_->isError()) {
         std::cerr << "Error reading voltage for CS " << cs << ", channel " << ch << ": " << adc_->getErrorCode() << std::endl;
         if (sendTelemetry_) {
@@ -64,5 +71,17 @@ ANLStatus GetPDUInfo::mod_analyze() {
     }
   }
   return AS_OK;
+}
+
+void GetPDUInfo::setVoltage(int cs, int ch, uint16_t value) {
+  const size_t index = CalIndex(cs, ch);
+  if (index > voltages_.size() || index < 0) {
+    return;
+  }
+  voltages_[index] = value;
+}
+
+constexpr size_t GetPDUInfo::CalIndex(int cs, int ch) {
+  return cs * ADC128S102IO::MaxChannelsPerADC() + ch;
 }
 } // namespace gramsballoon::pgrams

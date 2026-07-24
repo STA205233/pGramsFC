@@ -1,6 +1,5 @@
 #include "ControlPDU.hh"
 #include "ErrorManager.hh"
-#include "PDUCSMapping.hh"
 #include <cstdint>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
@@ -23,12 +22,10 @@ ANLStatus ControlPDU::mod_initialize() {
     return AS_ERROR;
   }
   dac_ = std::make_shared<DAC121S101IO>();
-  auto csMapping_ = std::make_unique<PDUCSMapping>();
   auto interface = spiManager_->Interface();
   if (interface) {
     dac_->setSPIInterface(interface);
-    interface->setMappingChipSelect(std::move(csMapping_));
-    for (auto pair: *interface) {
+    for (auto pair: interface->Channels()) {
       const int ret = initializeDAC(pair.first);
       if (!ret) {
         std::cerr << module_id() << "Error: DAC is not initialized. CS: " << pair.first << std::endl;

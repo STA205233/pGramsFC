@@ -1,6 +1,8 @@
 #include "SPIManager.hh"
+#include "PDUCSMapping.hh"
 #include "SPIInterfaceMultiplexer.hh"
 #include <cstdint>
+#include <memory>
 #ifdef USE_FT232H
 #include "FT232HIO.hh"
 #endif
@@ -23,12 +25,12 @@ ANLStatus SPIManager::mod_define() {
   define_parameter("baudrate", &mod_class::baudrate_);
   define_parameter("spi_config_options", &mod_class::spiConfigOptions_);
   define_parameter("spi_control_type", &mod_class::spiControlType_);
+  define_parameter("use_multiplexer", &mod_class::useMultiplexer_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
 ANLStatus SPIManager::mod_pre_initialize() {
   std::shared_ptr<SPIInterface> base_interface = nullptr;
-  interface_ = std::make_shared<SPIInterfaceMultiplexer>();
   if (spiControlType_ == "baycat") {
 #ifdef USE_BAYCAT
     base_interface = std::make_shared<BayCatSPIIO>();
@@ -49,7 +51,15 @@ ANLStatus SPIManager::mod_pre_initialize() {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
     return AS_ERROR;
   }
-  interface_->setBaseInterface(std::move(base_interface));
+  if (useMultiplexer_) {
+    auto mul_interface = std::make_shared<SPIInterfaceMultiplexer>();
+    mul_interface->setBaseInterface(base_interface);
+    mul_interface->setMappingChipSelect(std::make_unique<PDUCSMapping>());
+    interface_ = mul_interface;
+  }
+  else {
+    interface_ = base_interface;
+  }
   return AS_OK;
 }
 ANLStatus SPIManager::mod_initialize() {

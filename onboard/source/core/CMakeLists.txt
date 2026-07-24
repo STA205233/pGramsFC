@@ -39,7 +39,10 @@ if(GB_USE_SPI)
     src/DAC121S101IO.cc
     src/VCSMapping.cc
     src/PDUCSMapping.cc
-    src/PDUChannelMap.cc
+    src/VPDUCodeMap.cc
+    src/PDUCodeMapCS.cc
+    src/PDUCodeMapDIO.cc
+    src/PDUMapping.cc
   )
   if(GB_USE_FT232H)
     list(APPEND GB_SPI_CORE_CLASSES

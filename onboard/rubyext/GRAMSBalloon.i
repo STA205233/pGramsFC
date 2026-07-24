@@ -10,6 +10,7 @@
 #endif
 #ifndef GB_MAC
 #include "SendTelemetry.hh"
+#include "MeasureOrientationByMHADC.hh"
 #endif
 #ifdef USE_SPI
 #include "SPIManager.hh"

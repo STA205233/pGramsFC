@@ -8,10 +8,10 @@
 #include "SPIManager.hh"
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
+#include <cstdint>
 #include <memory>
-#include <queue>
-#include <sys/select.h>
-#include <sys/time.h>
+#include <string>
+#include <vector>
 namespace gramsballoon {
 class RunIDManager;
 namespace pgrams {
@@ -25,6 +25,8 @@ class SendCommandToDAQComputer;
 class PDUChannelMap;
 class ControlPDU;
 class SPIManager;
+class PDUCodeMapDIO;
+class PDUCodeMapCS;
 
 /**
  * Receive commands from ground.
@@ -58,6 +60,8 @@ public:
 private:
   void getModules();
   bool applyCommand(const std::vector<uint8_t>& command);
+  bool applySPICommand(uint16_t code, const uint16_t argc, const std::vector<uint32_t>& arguments);
+
   std::shared_ptr<pgrams::CommunicationFormat> comdef_ = nullptr;
   uint32_t commandIndex_ = 0;
   uint16_t commandRejectCount_ = 0;
@@ -76,7 +80,9 @@ private:
   MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   MosquittoManager<std::string> *telemetryMosquittoManager_ = nullptr;
 #ifdef USE_SPI
+  SPIManager *spiManager_ = nullptr;
   ControlPDU *controlPDU_ = nullptr;
+  std::string spiManagerName_ = "SPIManager";
 #endif
 
   // communication
@@ -89,7 +95,8 @@ private:
   std::vector<SendCommandToDAQComputer *> sendCommandToDAQComputers_;
   std::vector<std::string> sendCommandToDAQComputerNames_;
 
-  PDUChannelMap& pduChannelMap_;
+  PDUCodeMapCS& pduCodeMapCS_;
+  PDUCodeMapDIO& pduCodeMapDIO_;
 };
 
 } // namespace pgrams

@@ -11,5 +11,10 @@ std::optional<pair_t> VCSMapping::getChipSelect(int multiplexerChannel) const {
 }
 void VCSMapping::setChipSelect(int multiplexerChannel, cs_t chipSelect) {
   csMapping_.insert_or_assign(multiplexerChannel, std::make_pair(csBitRange_, chipSelect));
+  channels_.clear();
+  channels_.reserve(csMapping_.size());
+  for (const auto& [ch, pair]: csMapping_) {
+    channels_.push_back(pair);
+  }
 }
 } // namespace gramsballoon::pgrams

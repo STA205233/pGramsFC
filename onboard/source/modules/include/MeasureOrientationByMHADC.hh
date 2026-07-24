@@ -4,7 +4,6 @@
 #include "OrientationInformation.hh"
 #include "SendTelemetry.hh"
 #include "anlnext/BasicModule.hh"
-#include <regex>
 #include <string>
 namespace gramsballoon::pgrams {
 class SendTelemetry;

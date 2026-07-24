@@ -1,21 +1,14 @@
-
 #ifndef SendTelemetry_H
 #define SendTelemetry_H 1
 
 #include "BaseTelemetryDefinition.hh"
 #include "CommunicationSaver.hh"
 #include "ErrorManager.hh"
-#include "GetComputerStatus.hh"
-#include "GetLabJackData.hh"
-#include "GetMHADCData.hh"
 #include "HubHKTelemetry.hh"
-#include "MHADCMapping.hh"
-#include "MeasureOrientationByMHADC.hh"
-#include "MosquittoManager.hh"
-#include "ReceiveCommand.hh"
 #include "RunIDManager.hh"
 #include <anlnext/BasicModule.hh>
-#include <thread>
+#include <memory>
+#include <string>
 
 namespace gramsballoon {
 
@@ -36,6 +29,10 @@ template <typename T>
 class CommunicationSaver;
 class MHADCMapping;
 class GetComputerStatus;
+class GetPDUInfo;
+class PDUMapping;
+template <typename T>
+class MosquittoIO;
 
 /**
  * Module for Sending telemetry.
@@ -55,7 +52,7 @@ public:
   virtual ~SendTelemetry();
 
 protected:
-  SendTelemetry(const SendTelemetry &r) = default;
+  SendTelemetry(const SendTelemetry& r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -105,6 +102,11 @@ private:
   const GetComputerStatus *getComputerStatus_ = nullptr;
 #endif
   const GetLabJackData *getLabJackData_ = nullptr;
+
+#ifdef USE_SPI
+  const GetPDUInfo *getPduInfo_ = nullptr;
+  std::shared_ptr<PDUMapping> pduMapping_ = nullptr;
+#endif
 };
 
 } /* namespace gramsballoon::pgrams */

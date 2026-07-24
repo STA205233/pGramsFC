@@ -1,8 +1,8 @@
 #ifndef GRAMSBalloon_ADC128S102IO_HH
 #define GRAMSBalloon_ADC128S102IO_HH 1
 #include "SPIInterface.hh"
-#include "cstdint"
-#include <memory>
+#include <array>
+#include <cstdint>
 namespace gramsballoon::pgrams {
 class ADC128S102IO {
 public:
@@ -21,7 +21,9 @@ private:
 
 public:
   float getCurrentVoltage(int ch);
-  bool getAllADCs(std::array<float, 8> &dest);
+  uint16_t getCurrentVoltageADC(int ch);
+  bool getAllADCs(std::array<float, 8>& dest);
+  bool getAllADCs(std::array<uint16_t, 8>& dest);
   float convertVoltage(uint16_t value) const;
   int getErrorCode() const { return errorCode_; }
   bool isError() const { return errorCode_ != 0; }

@@ -2,10 +2,12 @@
 #ifndef SPIManager_H
 #define SPIManager_H 1
 
-#include "SPIInterfaceMultiplexer.hh"
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
-
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
 namespace gramsballoon::pgrams {
 
 class SendTelemetry;
@@ -37,12 +39,13 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  SPIInterfaceMultiplexer *Interface() { return singleton_self()->interface_.get(); }
+  SPIInterface *Interface() { return singleton_self()->interface_.get(); }
   int controlGPIO(uint32_t cs, bool value);
 
 private:
-  std::shared_ptr<SPIInterfaceMultiplexer> interface_ = nullptr;
+  std::shared_ptr<SPIInterface> interface_ = nullptr;
   std::string spiControlType_ = "baycat"; // "baycat" or "ft232h"
+  bool useMultiplexer_ = true;
   int channel_ = 0;
   int baudrate_ = 100000;
   int spiConfigOptions_ = 0;

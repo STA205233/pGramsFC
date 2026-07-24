@@ -1,7 +1,9 @@
 #ifndef SPIInterface_H
 #define SPIInterface_H 1
 
+#include "VCSMapping.hh"
 #include <cstdint>
+#include <vector>
 /**
  * @brief A class of SPI Interface
  *
@@ -56,13 +58,17 @@ public:
   int getCs() const { return cs_; }
   void setCs(int cs) {
     cs_ = cs;
+    channels_ = {{static_cast<VCSMapping::cs_t>(cs_), static_cast<VCSMapping::cs_t>(cs_)}};
   }
+
+  virtual const std::vector<VCSMapping::pair_t>& Channels() const { return channels_; }
 
 private:
   int cs_ = -1;
   unsigned int baudrate_ = 1000000;
   unsigned int configOptions_ = 0;
   bool isOpen_ = false;
+  std::vector<VCSMapping::pair_t> channels_{{static_cast<VCSMapping::cs_t>(cs_), static_cast<VCSMapping::cs_t>(cs_)}};
 };
 
 } // namespace gramsballoon::pgrams
