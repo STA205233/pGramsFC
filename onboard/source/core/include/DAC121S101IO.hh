@@ -51,7 +51,7 @@ private:
   }
 
   float getMaximumVoltage() const {
-    return convertVoltage(0x0fffU);
+    return convertVoltage(0x1000U);
   }
 };
 } // namespace gramsballoon::pgrams

@@ -416,6 +416,7 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
       return false;
     }
   }
+  return false;
 }
 
 } // namespace gramsballoon::pgrams

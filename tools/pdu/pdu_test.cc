@@ -1,6 +1,8 @@
 #include "BayCatSPIIO.hh"
 #include "DAC121S101IO.hh"
 #include "FT232HIO.hh"
+#include "SPIInterfaceMultiplexer.hh"
+#include "PDUCSMapping.hh"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -8,7 +10,8 @@
 using namespace gramsballoon::pgrams;
 int main(int argc, char *argv[]) {
   DAC121S101IO dac;
-  std::unique_ptr<SPIInterface> spiInterface = nullptr;
+  std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
+  std::unique_ptr<SPIInterfaceMultiplexer> spiInterface = std::make_unique<SPIInterfaceMultiplexer>();
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <FT232H or Baycat>" << std::endl;
     return -1;
@@ -16,35 +19,38 @@ int main(int argc, char *argv[]) {
   std::string interfaceType = argv[1];
   if (interfaceType == "Baycat") {
     std::cout << "Using BayCatSPIIO interface" << std::endl;
-    spiInterface = std::make_unique<BayCatSPIIO>();
+    spiInterface2 = std::make_shared<BayCatSPIIO>();
+    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
   }
   else if (interfaceType == "FT232H") {
     std::cout << "Using FT232HIO interface" << std::endl;
-    spiInterface = std::make_unique<FT232HIO>();
+    spiInterface2 = std::make_shared<FT232HIO>();
+    spiInterface2->setConfigOptions(2);
   }
   else {
     std::cerr << "Invalid interface type: " << interfaceType << ". Use 'FT232H' or 'Baycat'." << std::endl;
     return -1;
   }
+  spiInterface2->Open(0);
+  spiInterface->setBaseInterface(std::move(spiInterface2));
+  spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
   dac.setSPIInterface(spiInterface.get());
-  dac.setCS(0);
-  spiInterface->Open(0);
-  spiInterface->setBaudrate(1000000);
-  spiInterface->setConfigOptions(FT232HIO::config::SPI_MODE2);
-  spiInterface->updateSetting();
+  
+  
+  
+  dac.setCS(1);
   //std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
-  dac.setVoltage(1.0f);
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  dac.setVoltage(3.2993f);
   const auto applyStatus = dac.applySetting();
   if (applyStatus != 0) {
     std::cerr << "Failed to apply DAC setting. Status: " << applyStatus << std::endl;
     return applyStatus;
   }
   std::cout << "Current Voltage: " << dac.getCurrentVoltage() << " V" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(5));
+  std::this_thread::sleep_for(std::chrono::seconds(3));
   dac.setVoltage(0.0f);
-  dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_PowerDown_HiZ);
+  //dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_PowerDown_HiZ);
   const auto resetStatus = dac.applySetting();
   if (resetStatus != 0) {
     std::cerr << "Failed to reset DAC voltage. Status: " << resetStatus << std::endl;
