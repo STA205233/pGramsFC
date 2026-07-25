@@ -17,8 +17,9 @@
 
 ### For Onboard System
 
-- versaAPI (for controlling Digital IO and SPI)
+- versaAPI (for controlling Digital IO, SPI and I2C)
 - d2xx (for FT232H)
+- LJM library (for Labjack)
 
 ### For Ground System
 
@@ -27,10 +28,18 @@
 
 ## CMake options
 
-- GB_USE_PGRAMSBALLOON_PATH: Path for pGRAMSBalloon directory
-- GB_USE_BAYCAT_SPI: Switch for Baycat SPI (default: ON)
-- GB_USE_USE_FT232H: Switch for FT232H SPI (default: ON)
-- GB_USE_MYSQL: Switch for MySQL (default: OFF)
+### Variables
+
+- GB_PGRAMSBALLOON_PATH: Path for pGRAMSBalloon directory.
+- GB_USE_BAYCAT: Switch for Baycat (default: ON). This option requires VersaAPI (which works only on Baycat).
+- GB_USE_FT232H: Switch for FT232H SPI (default: ON). This option requires d2xx.
+- GB_USE_MYSQL: Switch for MySQL (default: OFF). This option requires libmysqlconncpp.
+- GB_USE_LJM: Switch for Labjack. This option requires LJM library.
+- GB_USE_I2C: Switch for I2C (defalut: ON). If GB_USE_BAYCAT is ON, this is automatically set to ON, and if you manually set it to ON, only BME drivers is buiit.
+
+### Shortcuts
+
+- GB_GROUND: Shortcut switch for nominal ground system. This includes GB_USE_FT232H=OFF, GB_USE_MYSQL=ON, GB_USE_LJM=OFF, GB_USE_BAYCAT=OFF. This shortcut overrides these options, and you cannot modify these options with this shortcut.
 
 ## Procedure
 
@@ -48,7 +57,7 @@
 
     `git clone https:/github.com/NevisNeutrinos/pGRAMSBalloon`
 
-    You don't have to build or install it.
+    You don't have to build or install it since it is header-only. The pGramsFC is Registered as the submodule of pGRAMSBalloon, so if you get pGramsFC from this repository, you don't need to do this.
 
 3. Install ANLNext
 
@@ -154,6 +163,10 @@
    #### Installing libd2xx
 
     Download source code from FTDI website and place the library file to somewhere.
+
+   #### Installing LJM library
+
+    Download library Installer from LabJack webpage and install it.
 
 2. Install GRAMSBalloon
 
@@ -265,7 +278,7 @@
 
     `mkdir build && cd build`
 
-    `cmake ../onboard -DGB_PGRAMSBALLOON_PATH=~/software/pGRAMSBalloon -DGB_USE_BAYCAT_SPI=OFF -DGB_USE_FT232H=OFF -DGB_USE_MYSQL=ON -DCMAKE_PREFIX_PATH=<install path for mysqlcpp>`
+    `cmake ../onboard -DGB_PGRAMSBALLOON_PATH=~/software/pGRAMSBalloon -DGB_USE_BAYCAT=OFF -DGB_USE_FT232H=OFF -DGB_USE_MYSQL=ON -DGB_USE_LJM=OFF -DCMAKE_PREFIX_PATH=<install path for mysqlcpp>`
 
     You have to specify pGRAMSBalloon directory by option `GB_PGRAMSBALLOON_PATH` and the directory where the mysqlconncpp is installed by option `CMAKE_PREFIX_PATH`.
 
@@ -331,3 +344,17 @@
     If you have MQTT-Explorer, you can monitor the topics and messages being sent and received. (The command is sent in binary format, so you may not be able to read it directly, but you can confirm that the message is being sent.)
 
     ![MQTT-Explorer](MQTT-Explorer.png)
+
+### Custom Installation
+
+If you want to compile the software with custom options. The procedure is the same:
+
+`mkdir build & cd build`
+
+`cmake ../onboard -DGB_USE_LJM=ON -DGB_USE_MYSQL=OFF -DGB_USE_BAYCAT=OFF -DGB_USE_FT232H=OFF -DGB_PGRAMSBALLOON_PATH=<path to pGRAMSBalloon>` (You can freely set the options)
+
+`make -j3`
+
+`make install`
+
+Notes: `-DGB_USE_BAYCAT` is available only on Baycat. Each option requires corresponding library (see [Cmake options](#cmake-options)).
