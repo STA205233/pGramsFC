@@ -6,7 +6,7 @@
 using namespace anlnext;
 using namespace pgrams::communication;
 namespace gramsballoon::pgrams {
-inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, const std::string &module_id) {
+inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, const std::string& module_id) {
   std::cerr << module_id << termutil::red << "[error]" << termutil::reset << "ShutdownSystem module is not enabled." << std::endl;
   if (sendtelemetry) {
     sendtelemetry->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
@@ -85,7 +85,7 @@ ANLStatus ReceiveCommand::mod_initialize() {
     }
   }
 
-  for (const auto &name: sendCommandToDAQComputerNames_) {
+  for (const auto& name: sendCommandToDAQComputerNames_) {
     SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
     if (exist_module(name)) {
       get_module_NC(name, &sendCommandToDAQComputer);
@@ -130,7 +130,7 @@ ANLStatus ReceiveCommand::mod_analyze() {
       std::cout << "ReceiveCommand Payload[" << 0 << "][" << j << "]:" << static_cast<int>(command->payload[j]) << std::endl;
     }
   }
-  const auto &command_payload = command->payload;
+  const auto& command_payload = command->payload;
   const bool applied = applyCommand(command_payload);
   commandSaver_->writeCommandToFile(!applied, command_payload);
   if (!applied) {
@@ -147,7 +147,7 @@ ANLStatus ReceiveCommand::mod_finalize() {
   return AS_OK;
 }
 
-bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
+bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
   commandIndex_++;
   if (chatter_ >= 1) {
     std::cout << "command start" << std::endl;
@@ -259,7 +259,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
-    for (auto &sendCommandToDAQComputer: sendCommandToDAQComputers_) {
+    for (auto& sendCommandToDAQComputer: sendCommandToDAQComputers_) {
       if (sendCommandToDAQComputer) {
         sendCommandToDAQComputer->setEmergencyDaqShutdown(true);
       }
@@ -300,20 +300,20 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_ON) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_DCDC_OFF) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Index: " << arguments[0] << std::endl;
     }
     // TODO: Implement handling
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_OFF) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_DCDC_ON) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Index: " << arguments[0] << std::endl;
     }
     //TODO: Implement handling
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::TOF_Bias_Set_Voltage) && argc == 2) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Voltage) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
     }
