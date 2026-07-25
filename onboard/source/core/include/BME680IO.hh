@@ -13,15 +13,15 @@
 
 #define BME_REGISTER_BYTES 1
 
-/**
- * A class to handle BME680
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-01
- */
 
 namespace gramsballoon::pgrams {
-
+  
+/**
+  * A class to handle BME680
+  *
+  * @author Tsubasa Tamba, Shota Arai
+  * @date 2023-03-01
+  */
 class BME680IO {
 public:
   BME680IO();

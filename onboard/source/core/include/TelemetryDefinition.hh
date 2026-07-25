@@ -8,14 +8,14 @@
 #include <sys/time.h>
 #include <vector>
 
-/**
- * A class to define telemetry
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-23
- */
-
 namespace gramsballoon {
+
+/**
+  * A class to define telemetry
+  *
+  * @author Tsubasa Tamba, Shota Arai
+  * @date 2023-03-23
+  */
 
 enum class TelemetryType {
   HK = 1,
