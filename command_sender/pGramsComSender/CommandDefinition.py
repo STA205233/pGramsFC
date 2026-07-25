@@ -106,8 +106,38 @@ command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisi
 command_collection.add_command("TPC", CommandItem("Reset Run", ""))
 command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ system"))
 command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
-command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Run Number"), CommandParameter("File Number"), CommandParameter("Number of Events"), CommandParameter("Event Stride")]))
-command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "", [CommandParameter("Run Number"), CommandParameter("File Number"), CommandParameter("Event Number"), CommandParameter("Select 1 Random Channel", "Select 1 Random Channel (Y/N)")]))
+command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "",[CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem(
+        "Send Full Event Data",
+        "Send one event with FEM headers, charge middle frame, and light ROIs",
+        [
+            CommandParameter("Run", "Run number"),
+            CommandParameter("File", "File number"),
+            CommandParameter("Event", "Event index in file"),
+            CommandParameter("L lag", "LFEM header from event+n, ADC from event+(n-1)", range=(0, 100)),
+        ],
+    ),
+)
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem(
+        "Start Continuous LBW",
+        "Periodically send per-event LBW metrics from closed readout files",
+        [
+            CommandParameter("Period sec", "Seconds between LBW packets", range=(1, 3600)),
+            CommandParameter("Run", "99999 = auto; fixed run monitors new closed files for that run", range=(0, 99999)),
+            CommandParameter("File", "99999 = latest closed (ignored if Run is 99999)", range=(0, 99999)),
+            CommandParameter("Event stride", "Send every Nth event in the file", range=(1, 10000)),
+        ],
+    ),
+)
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem("Stop Continuous LBW", "Stop periodic LBW telemetry"),
+)
 
 
 command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))
