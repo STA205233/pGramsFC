@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class CommandParameter:
-    def __init__(self, name: str, description: str, range=None):
+    def __init__(self, name: str, description: str | None = None, range=None):
         self.name = name
-        self.description = description
+        self.description = description if description is not None else name
         self.range = range
 
     def __repr__(self) -> str:
@@ -30,7 +30,7 @@ class CommandItem:
         self.description = description
         self.parameters = parameters
         self.file_loadable = file_loadable
-    
+
     def __repr__(self) -> str:
         return f"CommandItem(name={self.name}, description={self.description}, parameters={self.parameters}, file_loadable={self.file_loadable})"
 
@@ -41,7 +41,7 @@ class CommandItem:
         else:
             str_ += "None"
         return str_
-    
+
 
 class CommandDefinition:
     def __init__(self):
@@ -91,6 +91,13 @@ command_collection.add_command("ORC", CommandItem("Boot ToF DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown ToF DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Boot TPC DAQ", ""))
 command_collection.add_command("ORC", CommandItem("Shutdown TPC DAQ", ""))
+command_collection.add_command("ORC", CommandItem("Start PPS", ""))
+command_collection.add_command("ORC", CommandItem("Send Pulse Train", ""))
+command_collection.add_command("ORC", CommandItem("Stop PPS", ""))
+command_collection.add_command("ORC", CommandItem("Restart Orchestrator", ""))
+command_collection.add_command("ORC", CommandItem("Clear Errors", ""))
+command_collection.add_command("ORC", CommandItem("Set Data SSD0", "write to SSD 0"))
+command_collection.add_command("ORC", CommandItem("Set Data SSD1", "write to SSD 1"))
 
 
 command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))], file_loadable=True))
@@ -101,6 +108,36 @@ command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ syst
 command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
 command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
 command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "",[CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem(
+        "Send Full Event Data",
+        "Send one event with FEM headers, charge middle frame, and light ROIs",
+        [
+            CommandParameter("Run", "Run number"),
+            CommandParameter("File", "File number"),
+            CommandParameter("Event", "Event index in file"),
+            CommandParameter("L lag", "LFEM header from event+n, ADC from event+(n-1)", range=(0, 100)),
+        ],
+    ),
+)
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem(
+        "Start Continuous LBW",
+        "Periodically send per-event LBW metrics from closed readout files",
+        [
+            CommandParameter("Period sec", "Seconds between LBW packets", range=(1, 3600)),
+            CommandParameter("Run", "99999 = auto; fixed run monitors new closed files for that run", range=(0, 99999)),
+            CommandParameter("File", "99999 = latest closed (ignored if Run is 99999)", range=(0, 99999)),
+            CommandParameter("Event stride", "Send every Nth event in the file", range=(1, 10000)),
+        ],
+    ),
+)
+command_collection.add_command(
+    "TPCMonitor",
+    CommandItem("Stop Continuous LBW", "Stop periodic LBW telemetry"),
+)
 
 
 command_collection.add_command("TOF", CommandItem("Start DAQ", "Start data acquisition"))
