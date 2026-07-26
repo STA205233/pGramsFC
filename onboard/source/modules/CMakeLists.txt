@@ -28,7 +28,6 @@ set(GB_MODULES
   src/DumpSerial.cc
   src/EncodedSerialCommunicator.cc
   src/GetMHADCData.cc
-  #src/GetCompressorData.cc
   src/GetPressure.cc
   src/PressureGaugeManager.cc
   src/InterpretTelemetry.cc
@@ -36,7 +35,6 @@ set(GB_MODULES
   src/MosquittoManager.cc
   src/ReceiveCommand.cc
   src/DistributeCommand.cc
-  src/MeasureOrientationByMHADC.cc
   src/SocketCommunicationManager.cc
   src/ReceiveStatusFromDAQComputer.cc
   src/DividePacket.cc

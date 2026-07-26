@@ -208,11 +208,6 @@ class SendPacketByMQTT : public anlnext::BasicModule
 public:
   SendPacketByMQTT();
 };
-class MeasureOrientationByMHADC: public anlnext::BasicModule {
-public:
-  MeasureOrientationByMHADC();
-};
-
 class DetectErrorCallbackFromDAQ: public anlnext::BasicModule {
 public:
   DetectErrorCallbackFromDAQ();
