@@ -284,19 +284,35 @@ private:
   floating_t ramUsage_ = 0;
 
   template <typename T>
-  static bool convertVoltageMHADC(T adc_value, floating_t &src);
+  static bool convertVoltageMHADC(T adc_value, floating_t &dest);
   template <typename T>
-  static bool convertRTD(T adc_value, floating_t &src, floating_t offset);
+  static bool convertRTD(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertInclinometer(T adc_value, floating_t &src, floating_t offset);
+  static bool convertInclinometer(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertPDUSiPMVoltage(T adc_value, floating_t &src, floating_t offset);
+  static bool convertPDUSiPMVoltage(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertPDUSiPMCurrent(T adc_value, floating_t &src, floating_t offset);
+  static bool convertPDUSiPMCurrent(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertPDUTPCHVCurrent(T adc_value, floating_t &src, floating_t offset);
+  static bool convertPDUTPCHVCurrent(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertVoltagePDU(T adc_value, floating_t &src);
+  static bool convertPDUTPCHVVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTPCHVTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUMainBatCurrent(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUMainBatVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUMainBatTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUVtoI(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUSiPMPreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPressureRegulator(T adc_value, floating_t &dest, floating_t);
+  template <typename T>
+  static bool convertVoltagePDU(T adc_value, floating_t &dest, floating_t = 0.0);
   template <typename T>
   static bool convertBME680Temp(T value, floating_t &temp_dest, floating_t);
   template <typename T>

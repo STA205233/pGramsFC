@@ -1,7 +1,6 @@
 #ifndef GRAMSBalloon_HubHKTelemetry_HH
 #define GRAMSBalloon_HubHKTelemetry_HH 1
 #include "BaseTelemetryDefinition.hh"
-#include "ConversionConstant.hh"
 #include "ErrorManager.hh"
 #include <array>
 #include <cstddef>
@@ -623,9 +622,7 @@ public:
   inline void setSealedEnclosurePressure(uint16_t v) {
     sealedEnclosurePressure_ = v;
   }
-  inline void setSealedEnclosurePressure(float v) {
-    setSealedEnclosurePressure(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_PRESS));
-  }
+  void setSealedEnclosurePressure(float v);
   inline uint16_t SealedEnclosurePressure() const {
     return sealedEnclosurePressure_;
   }
@@ -633,9 +630,7 @@ public:
   inline void setSealedEnclosureTemperature(uint16_t v) {
     sealedEnclosureTemperature_ = v;
   }
-  inline void setSealedEnclosureTemperature(float v) {
-    setSealedEnclosureTemperature(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_TEMP));
-  }
+  void setSealedEnclosureTemperature(float v);
   inline uint16_t SealedEnclosureTemperature() const {
     return sealedEnclosureTemperature_;
   }
@@ -643,9 +638,7 @@ public:
   inline void setSealedEnclosureHumidity(uint16_t v) {
     sealedEnclosureHumidity_ = v;
   }
-  inline void setSealedEnclosureHumidity(float v) {
-    setSealedEnclosureHumidity(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_HUMID));
-  }
+  void setSealedEnclosureHumidity(float v);
   inline uint16_t SealedEnclosureHumidity() const {
     return sealedEnclosureHumidity_;
   }
@@ -654,9 +647,7 @@ public:
   inline void setLabJackTemperature(uint16_t v) {
     labJackTemperature_ = v;
   }
-  inline void setLabJackTemperature(float v) {
-    setLabJackTemperature(static_cast<uint16_t>(v / conversion::labjack::COEFF_TEMP));
-  }
+  void setLabJackTemperature(float v);
   inline uint16_t LabJackTemperature() const {
     return labJackTemperature_;
   }

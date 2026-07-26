@@ -1,4 +1,5 @@
 #include "HubHKTelemetry.hh"
+#include "ConversionConstant.hh"
 namespace gramsballoon::pgrams {
 uint32_t CompileData(uint16_t v1FromMsb, uint16_t v2FromMsb) {
   const uint32_t ret = (v1FromMsb << 16) + v2FromMsb;
@@ -667,5 +668,21 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
          << ", ramUsage_: " << ramUsage_ << std::endl;
 
   return stream;
+}
+
+void HubHKTelemetry::setSealedEnclosurePressure(float v) {
+  setSealedEnclosurePressure(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_PRESS));
+}
+
+void HubHKTelemetry::setSealedEnclosureTemperature(float v) {
+  setSealedEnclosureTemperature(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_TEMP));
+}
+
+void HubHKTelemetry::setSealedEnclosureHumidity(float v) {
+  setSealedEnclosureHumidity(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_HUMID));
+}
+
+void HubHKTelemetry::setLabJackTemperature(float v) {
+  setLabJackTemperature(static_cast<uint16_t>(v / conversion::labjack::COEFF_TEMP));
 }
 } // namespace gramsballoon::pgrams

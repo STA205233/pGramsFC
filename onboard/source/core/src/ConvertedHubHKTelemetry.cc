@@ -111,9 +111,86 @@ bool ConvertedHubHKTelemetry::convertPDUTPCHVCurrent(T adc_value, floating_t &de
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertVoltagePDU(T adc_value, floating_t &dest) {
+bool ConvertedHubHKTelemetry::convertPDUTPCHVVoltage(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * pdu::COEFF_TPC_HV_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertVoltagePDU(T adc_value, floating_t &dest, floating_t) {
   dest = adc_value / pdu::PRESICION * pdu::V_REF + pdu::CMN_OFFSET;
   return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPressureRegulator(T adc_value, floating_t &dest, floating_t) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage / units::volt * units::Bar;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUTPCHVTemp(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = conversion::pdu::COEFF_TPC_HV_TEMP * voltage + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUMainBatCurrent(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = conversion::pdu::COEFF_MAIN_BAT_CUR * voltage + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUMainBatVoltage(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = conversion::pdu::COEFF_MAIN_BAT_VOL * voltage + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUMainBatTemp(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = conversion::pdu::COEFF_MAIN_BAT_TEMP * voltage + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUVtoI(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * units::A / units::volt + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUSiPMPreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset) {
+  const bool ret = convertPDUVtoI(adc_value, dest, offset);
+  dest *= -1;
+  return ret;
 }
 
 template <typename T>
@@ -191,6 +268,17 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_all_values<NUM_PDU_SIPM, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCurSiPM, pduCurSiPM_, &convertPDUSiPMCurrent);
   ok &= set_all_values<NUM_PDU_SIPM, uint16_t>(raw_telemetry, &HubHKTelemetry::PduVolSiPM, pduVolSiPM_, &convertPDUSiPMVoltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCurTPCHV, pduCurTPCHV_, &convertPDUTPCHVCurrent);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduVolTPCHV, pduVolTPCHV_, &convertPDUTPCHVVoltage);
+  ok &= set_all_values<NUM_PDU_HV_TEMP, uint16_t>(raw_telemetry, &HubHKTelemetry::PduHVTemp, pduHVTemp_, &convertPDUTPCHVTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCurMainBat, pduCurMainBat_, &convertPDUMainBatCurrent);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduVolMainBat, pduVolMainBat_, &convertPDUMainBatVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduMainBatTemp, pduMainBatTemp_, &convertPDUMainBatTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpP2V5Cur, pduSiPMPreAmpP2V5Cur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpP2V5Vol, pduSiPMPreAmpP2V5Vol_, &convertVoltagePDU);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpM5VCur, pduSiPMPreAmpM5VCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpM5VVol, pduSiPMPreAmpM5VVol_, &convertPDUSiPMPreAmpM5VVoltage);
+
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PressureRegulatorVol, pressureRegulatorVol_, &convertPressureRegulator);
 
   // MHADC
   ok &= set_all_values<NUM_INCLINOMETERS, uint16_t>(raw_telemetry, &HubHKTelemetry::Inclinometers, inclinometers_, &convertInclinometer);
