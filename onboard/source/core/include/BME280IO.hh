@@ -12,15 +12,15 @@ struct bme280_dev;
 struct bme280_data;
 struct bme280_settings;
 
-/**
- * A class to handle BME280
- *
- * @author Shota Arai
- * @date 2026-05-08 | Shota Arai | First design
- */
 
 namespace gramsballoon::pgrams {
-
+  
+/**
+  * A class to handle BME280
+  *
+  * @author Shota Arai
+  * @date 2026-05-08 | Shota Arai | First design
+  */
 class BME280IO {
 public:
   BME280IO();

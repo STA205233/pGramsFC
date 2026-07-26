@@ -1,11 +1,3 @@
-/**
- * Module for distributing command to other subsystems.
- *
- * @author Shota Arai
- * @date 2025-02-** | First design
- * @date 2025-03-24 | Delete socket communication feature and make based on SocketCommunicationManager
- *
- */
 #ifndef GB_DistributeCommand_hh
 #define GB_DistributeCommand_hh 1
 #include "MosquittoManager.hh"
@@ -21,6 +13,14 @@ class SendTelemetry;
 template <typename T>
 class MosquittoManager;
 
+/**
+ * Module for distributing command to other subsystems.
+ *
+ * @author Shota Arai
+ * @date 2025-02-** | First design
+ * @date 2025-03-24 | Delete socket communication feature and make based on SocketCommunicationManager
+ *
+ */
 class DistributeCommand: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(DistributeCommand, 2.0);
   ENABLE_PARALLEL_RUN();

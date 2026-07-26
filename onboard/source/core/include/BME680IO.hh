@@ -12,14 +12,15 @@ struct bme68x_dev;
 struct bme68x_data;
 struct bme68x_conf;
 
-/**
- * A class to handle BME680
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-01
- */
-namespace gramsballoon::pgrams {
 
+namespace gramsballoon::pgrams {
+  
+/**
+  * A class to handle BME680
+  *
+  * @author Tsubasa Tamba, Shota Arai
+  * @date 2023-03-01
+  */
 class BME680IO {
 public:
   BME680IO();
