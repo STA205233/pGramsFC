@@ -1,7 +1,16 @@
 #include "ConvertedHubHKTelemetry.hh"
 #include "ConversionConstant.hh"
+#include "DBFieldSink.hh"
+#include "HubHKTelemetry.hh"
 #include "SystemOfUnits.hh"
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
 using namespace gramsballoon::pgrams::units;
 using floating_t = gramsballoon::pgrams::ConvertedHubHKTelemetry::floating_t;
 using namespace gramsballoon::pgrams::conversion;
@@ -149,8 +158,8 @@ bool ConvertedHubHKTelemetry::convertLabJackTemp(T value, floating_t &labjack_te
 }
 
 template <typename T>
-bool convertPressTransducer(T value, floating_t &pressTransducer, floating_t) {
-  pressTransducer = static_cast<floating_t>(value) * labjack::COEFF_VOL * labjack::COEFF_PRESS;
+bool ConvertedHubHKTelemetry::convertPressSensors(T value, floating_t &pressure, floating_t) {
+  pressure = static_cast<floating_t>(value) * labjack::COEFF_VOL * labjack::COEFF_PRESS;
   return true;
 }
 
@@ -206,7 +215,7 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
 
   // labjack
   ok &= set_value(raw_telemetry, &HubHKTelemetry::LabJackTemperature, labJackTemperature_, &convertLabJackTemp);
-  ok &= set_value(raw_telemetry, &HubHKTelemetry::PressureTransducer, pressureTransducer_, &convertPressTransducer);
+  ok &= set_all_values<NUM_PRESSURE_SENSORS, uint16_t>(raw_telemetry, &HubHKTelemetry::PressureSensors, pressureSensors_, &convertPressSensors);
 
   // Hub computer
   hubComputerErrorFlags_ = raw_telemetry->HubComputerErrorFlags();
@@ -339,8 +348,6 @@ std::ostream &ConvertedHubHKTelemetry::print(std::ostream &stream) {
   stream << "rtdVacuumJacket_: ";
   printIterative<NUM_RTD_VACUUM_JACKET>(stream, rtdVacuumJacket_, "degC", degC);
 
-  stream << "pressureTransducer_: " << pressureTransducer_ << std::endl;
-
   stream << "inclinometers_: ";
   printIterative<NUM_INCLINOMETERS>(stream, inclinometers_, "degree", units::degree);
 
@@ -355,7 +362,7 @@ std::ostream &ConvertedHubHKTelemetry::print(std::ostream &stream) {
          << ", sealedEnclosureHumidity_: " << sealedEnclosureHumidity_ << std::endl;
 
   stream << "pressureSensors_: ";
-  printIterative<NUM_PRESSURE_SENSORS>(stream, pressureSensors_);
+  printIterative<NUM_PRESSURE_SENSORS>(stream, pressureSensors_, "Bar", Bar);
 
   stream << "rtd4Wire_: ";
   printIterative<NUM_4_WIRE_RTD>(stream, rtd4Wire_);
@@ -477,7 +484,6 @@ void ConvertedHubHKTelemetry::serialize(DBFieldSink *sink) const {
   for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
     sink->setFieldValue("rtd_vacuum_jacket_" + std::to_string(i), rtdVacuumJacket_[i]);
   }
-  sink->setFieldValue("pressure_transducer", pressureTransducer_);
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->setFieldValue("inclinometer_" + std::to_string(i), inclinometers_[i]);
   }

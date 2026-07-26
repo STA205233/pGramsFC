@@ -270,7 +270,8 @@ void SendTelemetry::setHKTelemetry() {
 #ifdef USE_LJM
   if (getLabJackData_) {
     const auto &analogIn = getLabJackData_->getAnalogIn();
-    telemdef_->setPressureTransducer(analogIn[0]);
+    telemdef_->setPressureSensors<0>(analogIn[0]);
+    telemdef_->setPressureSensors<1>(analogIn[1]);
     telemdef_->setLabJackTemperature(getLabJackData_->getTemperatureDevice());
   }
 #endif

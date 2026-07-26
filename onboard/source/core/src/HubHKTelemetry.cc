@@ -123,7 +123,6 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
   for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
     sink->setFieldValue("rtd_vacuum_jacket_" + std::to_string(i), rtdVacuumJacket_[i]);
   }
-  sink->setFieldValue("pressure_transducer", pressureTransducer_);
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->setFieldValue("inclinometer_" + std::to_string(i), inclinometers_[i]);
   }
@@ -260,7 +259,7 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
     sink->addField("rtd_vacuum_jacket_" + std::to_string(i), static_cast<uint16_t>(0));
   }
-  sink->addField("pressure_transducer", static_cast<uint16_t>(0));
+  //sink->addField("pressure_transducer", static_cast<uint16_t>(0));
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->addField("inclinometer_" + std::to_string(i), static_cast<uint16_t>(0));
   }
@@ -634,8 +633,6 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
 
   stream << "rtdVacuumJacket_: ";
   printIterative<NUM_RTD_VACUUM_JACKET>(stream, rtdVacuumJacket_);
-
-  stream << "pressureTransducer_: " << pressureTransducer_ << std::endl;
 
   stream << "inclinometers_: ";
   printIterative<NUM_INCLINOMETERS>(stream, inclinometers_);

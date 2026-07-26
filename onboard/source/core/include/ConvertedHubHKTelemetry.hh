@@ -2,6 +2,11 @@
 #define GB_ConvertedHubHKTelemetry_hh 1
 #include "DBSerializable.hh"
 #include "HubHKTelemetry.hh"
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <ctime>
+#include <iostream>
 
 #define GETTER_ARRAY_F(name, variable, num)                                   \
   inline const std::array<floating_t, num> &name() const { return variable; } \
@@ -150,8 +155,6 @@ public:
   GETTER_ARRAY_F(RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE)
   GETTER_ARRAY_F(RtdVacuumJacket, rtdVacuumJacket_, NUM_RTD_VACUUM_JACKET)
 
-  inline floating_t PressureTransducer() const { return pressureTransducer_; }
-
   GETTER_ARRAY_F(Inclinometers, inclinometers_, NUM_INCLINOMETERS)
   GETTER_ARRAY_F(RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER)
   GETTER_ARRAY_F(Spare, spare_, NUM_ADC_SPARE)
@@ -259,7 +262,6 @@ private:
   floating_t rtdTof_ = 0;
   std::array<floating_t, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE> rtdOutsideSealedEnclosure_ = {0};
   std::array<floating_t, NUM_RTD_VACUUM_JACKET> rtdVacuumJacket_ = {0};
-  floating_t pressureTransducer_ = 0;
   std::array<floating_t, NUM_INCLINOMETERS> inclinometers_ = {0};
   std::array<floating_t, NUM_RTD_INSIDE_CHAMBER> rtdsInsideChamber_ = {0};
   std::array<floating_t, NUM_ADC_SPARE> spare_ = {0};
@@ -304,7 +306,7 @@ private:
   template <typename T>
   static bool convertLabJackTemp(T value, floating_t &labjack_temp, floating_t);
   template <typename T>
-  static bool convertPressTransducer(T value, floating_t &pressTransducer, floating_t);
+  static bool convertPressSensors(T value, floating_t &pressTransducer, floating_t);
 };
 
 } // namespace gramsballoon::pgrams

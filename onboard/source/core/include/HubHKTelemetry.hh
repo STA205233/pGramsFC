@@ -153,7 +153,6 @@ private:
   uint16_t rtdTof_ = 0;
   std::array<uint16_t, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE> rtdOutsideSealedEnclosure_ = {0};
   std::array<uint16_t, NUM_RTD_VACUUM_JACKET> rtdVacuumJacket_ = {0};
-  uint16_t pressureTransducer_ = 0;
   std::array<uint16_t, NUM_INCLINOMETERS> inclinometers_ = {0};
   std::array<uint16_t, NUM_RTD_INSIDE_CHAMBER> rtdsInsideChamber_ = {0};
   std::array<uint16_t, NUM_ADC_SPARE> spare_ = {0};
@@ -616,16 +615,6 @@ public:
 
   GETTER_SETTER_ARRAY(uint16_t, RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE)
   GETTER_SETTER_ARRAY(uint16_t, RtdVacuumJacket, rtdVacuumJacket_, NUM_RTD_VACUUM_JACKET)
-
-  inline void setPressureTransducer(uint16_t v) {
-    pressureTransducer_ = v;
-  }
-  inline void setPressureTransducer(float v) {
-    setPressureTransducer(static_cast<uint16_t>(v / conversion::labjack::COEFF_VOL));
-  }
-  inline uint16_t PressureTransducer() const {
-    return pressureTransducer_;
-  }
 
   GETTER_SETTER_ARRAY(uint16_t, Inclinometers, inclinometers_, NUM_INCLINOMETERS)
   GETTER_SETTER_ARRAY(uint16_t, RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER)
