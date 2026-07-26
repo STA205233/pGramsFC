@@ -2,7 +2,6 @@
 #define GB_ConvertedHubHKTelemetry_hh 1
 #include "DBSerializable.hh"
 #include "HubHKTelemetry.hh"
-#include "SystemOfUnits.hh"
 
 #define GETTER_ARRAY_F(name, variable, num)                                   \
   inline const std::array<floating_t, num> &name() const { return variable; } \
@@ -302,6 +301,10 @@ private:
   static bool convertBME680Press(T value, floating_t &press_dest, floating_t);
   template <typename T>
   static bool convertBME680Humid(T value, floating_t &humid_dest, floating_t);
+  template <typename T>
+  static bool convertLabJackTemp(T value, floating_t &labjack_temp, floating_t);
+  template <typename T>
+  static bool convertPressTransducer(T value, floating_t &pressTransducer, floating_t);
 };
 
 } // namespace gramsballoon::pgrams

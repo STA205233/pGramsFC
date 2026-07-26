@@ -1,32 +1,24 @@
-
 #ifndef SendTelemetry_H
 #define SendTelemetry_H 1
 
 #include "BaseTelemetryDefinition.hh"
 #include "CommunicationSaver.hh"
 #include "ErrorManager.hh"
-#include "GetComputerStatus.hh"
-#include "GetLabJackData.hh"
-#include "GetMHADCData.hh"
 #include "HubHKTelemetry.hh"
-#include "MHADCMapping.hh"
-#include "MeasureOrientationByMHADC.hh"
 #include "MosquittoManager.hh"
 #include "ReceiveCommand.hh"
 #include "RunIDManager.hh"
 #include <anlnext/BasicModule.hh>
-#include <thread>
 
 namespace gramsballoon {
-
-class MeasureTemperatureWithRTDSensor;
 class RunIDManager;
 } // namespace gramsballoon
 namespace gramsballoon::pgrams {
 class ReceiveCommand;
 class GetMHADCData;
-class GetPressure;
+#ifdef USE_LJM
 class GetLabJackData;
+#endif
 template <typename T>
 class MosquittoManager;
 class BaseTelemetryDefinition;
@@ -35,8 +27,9 @@ class ErrorManager;
 template <typename T>
 class CommunicationSaver;
 class MHADCMapping;
+#ifdef USE_SYSTEM_MODULES
 class GetComputerStatus;
-
+#endif
 /**
  * Module for Sending telemetry.
  *
@@ -104,7 +97,9 @@ private:
 #ifdef USE_SYSTEM_MODULES
   const GetComputerStatus *getComputerStatus_ = nullptr;
 #endif
+#ifdef USE_LJM
   const GetLabJackData *getLabJackData_ = nullptr;
+#endif
 };
 
 } /* namespace gramsballoon::pgrams */

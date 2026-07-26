@@ -1,5 +1,13 @@
 #include "SendTelemetry.hh"
 #include "CommunicationCodes.hh"
+#ifdef USE_SYSTEM_MODULES
+#include "GetComputerStatus.hh"
+#endif
+#ifdef USE_LJM
+#include "GetLabJackData.hh"
+#endif
+#include "GetMHADCData.hh"
+#include "MHADCMapping.hh"
 
 using namespace anlnext;
 
@@ -259,11 +267,17 @@ void SendTelemetry::setHKTelemetry() {
     }
   }
 #endif
+#ifdef USE_LJM
   if (getLabJackData_) {
     const auto &analogIn = getLabJackData_->getAnalogIn();
-    telemdef_->setPressureTransducer(static_cast<uint16_t>(analogIn[0] * 100.0));
-    telemdef_->setPressureRegulator(static_cast<uint16_t>(analogIn[1] * 100.0));
+    telemdef_->setPressureTransducer(analogIn[0]);
+    telemdef_->setLabJackTemperature(getLabJackData_->getTemperatureDevice());
   }
+#endif
+
+#ifdef USE_I2C
+  // TODO: Add implementation
+#endif
 }
 
 } // namespace gramsballoon::pgrams

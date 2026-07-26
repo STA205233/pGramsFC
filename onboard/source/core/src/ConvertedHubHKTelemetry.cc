@@ -142,6 +142,18 @@ bool ConvertedHubHKTelemetry::convertBME680Humid(T value, floating_t &humid_dest
   return true;
 }
 
+template <typename T>
+bool ConvertedHubHKTelemetry::convertLabJackTemp(T value, floating_t &labjack_temp, floating_t) {
+  labjack_temp = static_cast<floating_t>(value) * labjack::COEFF_TEMP;
+  return true;
+}
+
+template <typename T>
+bool convertPressTransducer(T value, floating_t &pressTransducer, floating_t) {
+  pressTransducer = static_cast<floating_t>(value) * labjack::COEFF_VOL * labjack::COEFF_PRESS;
+  return true;
+}
+
 bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   if (!raw_telemetry) return false;
   code_ = raw_telemetry->getContents()->Code();
@@ -193,7 +205,8 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_value(raw_telemetry, &HubHKTelemetry::SealedEnclosureTemperature, sealedEnclosureTemperature_, &convertBME680Temp);
 
   // labjack
-  // TODO: implement
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::LabJackTemperature, labJackTemperature_, &convertLabJackTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PressureTransducer, pressureTransducer_, &convertPressTransducer);
 
   // Hub computer
   hubComputerErrorFlags_ = raw_telemetry->HubComputerErrorFlags();
