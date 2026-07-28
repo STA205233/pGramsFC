@@ -310,6 +310,18 @@ private:
   template <typename T>
   static bool convertPDUSiPMPreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
+  static bool convertPDUSiPMPreAmpTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertChargePreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertChargePreAmpP5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertChargePreAmpTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTofP12VCurrent(T adc_value, floating_t &dest, floating_t offset);
+    template <typename T>
+    static bool convertPDUTofP12VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
   static bool convertPressureRegulator(T adc_value, floating_t &dest, floating_t);
   template <typename T>
   static bool convertVoltagePDU(T adc_value, floating_t &dest, floating_t = 0.0);

@@ -194,6 +194,66 @@ bool ConvertedHubHKTelemetry::convertPDUSiPMPreAmpM5VVoltage(T adc_value, floati
 }
 
 template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUSiPMPreAmpTemp(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!convertVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = conversion::pdu::COEFF_SIPM_PREAMP_TEMP * voltage + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertChargePreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CHARGE_PREAMP_M5V_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertChargePreAmpP5VVoltage(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CHARGE_PREAMP_P5V_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertChargePreAmpTemp(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CHARGE_PREAMP_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUTofP12VCurrent(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_TOF_P12V_CUR + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUTofP12VVoltage(T adc_value, floating_t &dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_TOF_P12V_VOL + offset;
+  return true;
+}
+
+template <typename T>
 bool ConvertedHubHKTelemetry::convertRTD(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltageMHADC(adc_value, voltage)) {
@@ -277,7 +337,14 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpP2V5Vol, pduSiPMPreAmpP2V5Vol_, &convertVoltagePDU);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpM5VCur, pduSiPMPreAmpM5VCur_, &convertPDUVtoI);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpM5VVol, pduSiPMPreAmpM5VVol_, &convertPDUSiPMPreAmpM5VVoltage);
-
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduSiPMPreAmpTemp, pduSiPMPreAmpTemp_, &convertPDUSiPMPreAmpTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpM5VCur, pduChargePreAmpM5VCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpM5VVol, pduChargePreAmpM5VVol_, &convertChargePreAmpM5VVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpP5VCur, pduChargePreAmpP5VCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpP5VVol, pduChargePreAmpP5VVol_, &convertChargePreAmpP5VVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VCur, pduTofP12VCur_, &convertPDUTofP12VCurrent);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VVol, pduTofP12VVol_, &convertPDUTofP12VVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::)
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PressureRegulatorVol, pressureRegulatorVol_, &convertPressureRegulator);
 
   // MHADC

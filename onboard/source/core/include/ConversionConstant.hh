@@ -36,12 +36,19 @@ constexpr double CMN_OFFSET = 0.0 * units::volt;
 
 constexpr double COEFF_SIPM_VOL = 1. / 0.0503;
 constexpr double COEFF_SIPM_CUR = 1. * units::ampere / units::volt;
+constexpr double COEFF_SIPM_PREAMP_TEMP = 1./8e3 * units::kelvin / units::volt;
 constexpr double COEFF_TPC_HV_CUR = 0.08 / 0.3408 * units::milliampere / units::volt;
 constexpr double COEFF_TPC_HV_VOL = 1. / 0.3408;
 constexpr double COEFF_TPC_HV_TEMP = 1e6 / 8.06e3 * units::kelvin / units::volt;
 constexpr double COEFF_MAIN_BAT_CUR = 1.0 * units::ampere / units::volt;
 constexpr double COEFF_MAIN_BAT_VOL = 0.1;
 constexpr double COEFF_MAIN_BAT_TEMP = 1e6 / 9e3 * units::kelvin / units::volt;
+constexpr double COEFF_CHARGE_PREAMP_M5V_VOL = -0.5;
+constexpr double COEFF_CHARGE_PREAMP_P5V_VOL = 0.5;
+constexpr double COEFF_CHARGE_PREAMP_TEMP = 1e6 / 8e3 * units::kelvin / units::volt;
+constexpr double COEFF_TOF_P12V_CUR = 2.0;
+constexpr double COEFF_TOF_P12V_VOL = 1. / 0.2;
+constexpr double COEFF_TOF_P12V_TEMP = 1e6 / 9e3 * units::kelvin / units::volt;
 } // namespace pdu
 
 namespace labjack {
