@@ -254,6 +254,146 @@ bool ConvertedHubHKTelemetry::convertPDUTofP12VVoltage(T adc_value, floating_t &
 }
 
 template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUTofP12VTemp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_TOF_P12V_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Voltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_P3V3_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP5VVoltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_P5V_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisM5VVoltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_M5V_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VVoltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_P12V_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUShaperP3V3Voltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_SHAPER_P3V3_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUShaperM3V3Voltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_SHAPER_M3V3_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUShaperTemp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_SHAPER_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisPM5VTemp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_PM5V_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUPressureRegulatorVoltage(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  } 
+  dest = voltage * conversion::pdu::COEFF_PRESSURE_REGULATOR_VOL + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUTofBiasP5VTemp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_TOF_BIAS_P5V_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VTemp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_P12V_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Temp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_CAEN_NEVIS_P3V3_TEMP + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertPDUCommsBoardTemp(T adc_value, floating_t& dest, floating_t offset) {
+  floating_t voltage;
+  if (!conversionVoltagePDU(adc_value, voltage)) {
+    return false;
+  }
+  dest = voltage * conversion::pdu::COEFF_COMMS_BOARD_TEMP + offset;
+  return true;
+}
+
+template <typename T>
 bool ConvertedHubHKTelemetry::convertRTD(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltageMHADC(adc_value, voltage)) {
@@ -344,8 +484,33 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpP5VVol, pduChargePreAmpP5VVol_, &convertChargePreAmpP5VVoltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VCur, pduTofP12VCur_, &convertPDUTofP12VCurrent);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VVol, pduTofP12VVol_, &convertPDUTofP12VVoltage);
-  ok &= set_value(raw_telemetry, &HubHKTelemetry::)
-  ok &= set_value(raw_telemetry, &HubHKTelemetry::PressureRegulatorVol, pressureRegulatorVol_, &convertPressureRegulator);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VTemp, pduTofP12VTemp_, &convertPDUTofP12VTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP3V3Cur,pduCaenNevisP3V3Cur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP3V3Vol, pduCaenNevisP3V3Vol_, &convertPDUCaenNevisP3V3Voltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP5VCur, pduCaenNevisP5VCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP5VVol, pduCaenNevisP5VVol_, &convertPDUCaenNevisP5VVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisM5VCur, pduCaenNevisM5VCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisM5VVol, pduCaenNevisM5VVol_, &convertPDUCaenNevisM5VVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP12VCur, pduCaenNevisP12VCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP12VVol, pduCaenNevisP12VVol_, &convertPDUCaenNevisP12VVoltage);
+  ok &= set_all_values<NUM_PDU_WARM_TPC_SHAPER, uint16_t>(raw_telemetry, &HubHKTelemetry::PduShaperPCur, pduShaperPCur_, &convertPDUVtoI);
+  ok &= set_all_values<NUM_PDU_WARM_TPC_SHAPER, uint16_t>(raw_telemetry, &HubHKTelemetry::PduShaperMCur, pduShaperMCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduShaperP3V3Vol, pduShaperP3V3Vol_, &convertPDUShaperP3V3Voltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduShaperM3V3Vol, pduShaperM3V3Vol_, &convertPDUShaperM3V3Voltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduShaperTemp, pduShaperTemp_, &convertPDUShaperTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisPM5VTemp, pduCaenNevisPM5VTemp_, &convertPDUCaenNevisPM5VTemp); 
+  ok &= set_all_values<NUM_PDU_CPU, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCPUCur, pduCPUCur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCpuUnusedCur, pduCpuUnusedCur_, &convertVoltagePDU);
+  ok &= set_all_values<NUM_PDU_CPU, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCPUVol, pduCPUVol_, &convertVoltagePDU);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PressureRegulatorVol, pressureRegulatorVol_, &convertPDUPressureRegulatorVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofBiasP5V0Cur, pduTofBiasP5V0Cur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofBiasP5V0Vol, pduTofBiasP5V0Vol_, &convertVoltagePDU);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofBiasP5V1Cur, pduTofBiasP5V1Cur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofBiasP5V1Vol, pduTofBiasP5V1Vol_, &convertVoltagePDU);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofBiasP5VTemp, pduTofBiasP5VTemp_, &convertPDUTofBiasP5VTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP12VTemp, pduCaenNevisP12VTemp_, &convertPDUCaenNevisP12VTemp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP3V3Temp, pduCaenNevisP3V3Temp_, &convertPDUCaenNevisP3V3Temp);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCommsBoardTemp, pduCommsBoardTemp_, &convertPDUCommsBoardTemp);
 
   // MHADC
   ok &= set_all_values<NUM_INCLINOMETERS, uint16_t>(raw_telemetry, &HubHKTelemetry::Inclinometers, inclinometers_, &convertInclinometer);

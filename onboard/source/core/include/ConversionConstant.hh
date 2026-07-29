@@ -46,9 +46,22 @@ constexpr double COEFF_MAIN_BAT_TEMP = 1e6 / 9e3 * units::kelvin / units::volt;
 constexpr double COEFF_CHARGE_PREAMP_M5V_VOL = -0.5;
 constexpr double COEFF_CHARGE_PREAMP_P5V_VOL = 0.5;
 constexpr double COEFF_CHARGE_PREAMP_TEMP = 1e6 / 8e3 * units::kelvin / units::volt;
-constexpr double COEFF_TOF_P12V_CUR = 2.0;
+constexpr double COEFF_TOF_P12V_CUR = 2.0 * units::ampere / units::volt;
 constexpr double COEFF_TOF_P12V_VOL = 1. / 0.2;
 constexpr double COEFF_TOF_P12V_TEMP = 1e6 / 9e3 * units::kelvin / units::volt;
+constexpr double COEFF_CAEN_NEVIS_P3V3_VOL = 1. / 2.0;
+constexpr double COEFF_CAEN_NEVIS_P5V_VOL = 1. / 2.0;
+constexpr double COEFF_CAEN_NEVIS_M5V_VOL = 1. / 2.0;
+constexpr double COEFF_CAEN_NEVIS_P12V_VOL = 1. / 0.167;
+constexpr double COEFF_SHAPER_P3V3_VOL = 1. / 0.5;
+constexpr double COEFF_SHAPER_M3V3_VOL = 1. / 0.5;
+constexpr double COEFF_SHAPER_TEMP = 1e6 / 8e3 * units::kelvin / units::volt;
+constexpr double COEFF_CAEN_NEVIS_PM5V_TEMP = 1e6 / 8e3 * units::kelvin / units::volt;
+constexpr double COEFF_PRESSURE_REGULATOR_VOL = 1.0 * units::Bar / units::volt;
+constexpr double COEFF_TOF_BIAS_P5V_TEMP = 1e6 / 9.09e3 * units::kelvin / units::volt;
+constexpr double COEFF_CAEN_NEVIS_P12V_TEMP = 1e6 / 10e3 * units::kelvin / units::volt;
+constexpr double COEFF_CAEN_NEVIS_P3V3_TEMP = 1e6 / 9.09e3 * units::kelvin / units::volt;
+constexpr double COEFF_COMMS_BOARD_TEMP = 1e6 / 8e3 * units::kelvin / units::volt;
 } // namespace pdu
 
 namespace labjack {
