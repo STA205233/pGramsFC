@@ -1,11 +1,3 @@
-/**
- * Receive commands from ground.
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-01
- */
-
-
 #ifndef RunIDManager_H
 #define RunIDManager_H 1
 
@@ -14,6 +6,13 @@
 
 namespace gramsballoon::pgrams {
 class SendTelemetry;
+
+/**
+ * Module for managing Run ID
+ *
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-03-01
+ */
 class RunIDManager : public anlnext::BasicModule
 {
   DEFINE_ANL_MODULE(RunIDManager, 1.0);

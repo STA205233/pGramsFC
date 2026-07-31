@@ -55,7 +55,7 @@ Confirmation message will be displayed, and choose "OK" to proceed.
 
 After sending the command, the log window will display the result of the command sending.
 
-```
+``` log
 10:11:21 [INFO] Command executed successfully:
 Host: localhost
 Port: 1883
@@ -67,3 +67,7 @@ Subsystem: HUB
 Command name: dummy1
 Arguments: 
 ```
+
+(Added at 2026-07-14)
+
+Argument can also be specified by a file. If you want this, press select the command to send, the button "load from file", select the file, and press the "send" button.

@@ -5,14 +5,14 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-/**
- * A class of SPI Interface
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-01
- * @date 2025-05-02 | Shota Arai | Modified to use the FT232H, major refactoring
- */
 namespace gramsballoon::pgrams {
+/**
+  * A class of SPI Interface
+  *
+  * @author Tsubasa Tamba, Shota Arai
+  * @date 2023-03-01
+  * @date 2025-05-02 | Shota Arai | Modified to use the FT232H, major refactoring
+  */
 class SPIInterface {
 public:
   SPIInterface() = default;

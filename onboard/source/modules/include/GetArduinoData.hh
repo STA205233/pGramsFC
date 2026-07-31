@@ -1,11 +1,3 @@
-/**
- *  Module for communicating with Arduino.
- *
- * @author Shota Arai
- * @date 2024-09-19
- * 
- */
-
 #ifndef GRAMSBalloon_GetArduinoData_hh
 #define GRAMSBalloon_GetArduinoData_hh 1
 #include "EncodedSerialCommunication.hh"
@@ -19,6 +11,13 @@
 namespace gramsballoon::pgrams {
 class SendTelemetry;
 
+/**
+ *  Module for communicating with Arduino.
+ *
+ * @author Shota Arai
+ * @date 2024-09-19
+ * 
+ */
 class GetArduinoData: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(GetArduinoData, 1.0);
   ENABLE_PARALLEL_RUN();

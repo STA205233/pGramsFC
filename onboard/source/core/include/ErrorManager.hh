@@ -7,13 +7,6 @@
 #include <string>
 #include <vector>
 
-/**
- * A class to handle software error
- *
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-04-27
- * @date 2025-10-13 | Changed for pGRAMS
- */
 
 namespace gramsballoon::pgrams {
 enum class Subsystem : uint16_t;
@@ -104,6 +97,14 @@ enum class ErrorType {
   ADC_ACCESS_ERROR = 106,
   OTHER_ERRORS = 127,
 };
+
+/**
+ * A class to handle software error
+ *
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-04-27
+ * @date 2025-10-13 | Changed for pGRAMS
+ */
 class ErrorManager {
 public:
   static constexpr int NUM_ERROR_FLAGS = 4;
