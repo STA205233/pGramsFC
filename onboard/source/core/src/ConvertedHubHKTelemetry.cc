@@ -60,7 +60,7 @@ ConvertedHubHKTelemetry::ConvertedHubHKTelemetry() = default;
 ConvertedHubHKTelemetry::~ConvertedHubHKTelemetry() = default;
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertVoltageMHADC(T adc_value, floating_t &dest) {
+bool ConvertedHubHKTelemetry::convertVoltageMHADC(T adc_value, floating_t &dest, floating_t) {
   if (adc_value >= mhadc::ADC_MAX) {
     std::cerr << "Conversion failed: Open Circuit" << std::endl;
     return false;
@@ -254,7 +254,7 @@ bool ConvertedHubHKTelemetry::convertPDUTofP12VVoltage(T adc_value, floating_t &
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUTofP12VTemp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUTofP12VTemp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -264,7 +264,7 @@ bool ConvertedHubHKTelemetry::convertPDUTofP12VTemp(T adc_value, floating_t& des
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Voltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Voltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -274,7 +274,7 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Voltage(T adc_value, floati
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisP5VVoltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP5VVoltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -284,7 +284,7 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisP5VVoltage(T adc_value, floatin
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisM5VVoltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisM5VVoltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -294,7 +294,7 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisM5VVoltage(T adc_value, floatin
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VVoltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VVoltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -304,7 +304,7 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VVoltage(T adc_value, floati
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUShaperP3V3Voltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUShaperP3V3Voltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -314,7 +314,7 @@ bool ConvertedHubHKTelemetry::convertPDUShaperP3V3Voltage(T adc_value, floating_
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUShaperM3V3Voltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUShaperM3V3Voltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -324,7 +324,7 @@ bool ConvertedHubHKTelemetry::convertPDUShaperM3V3Voltage(T adc_value, floating_
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUShaperTemp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUShaperTemp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -334,7 +334,7 @@ bool ConvertedHubHKTelemetry::convertPDUShaperTemp(T adc_value, floating_t& dest
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisPM5VTemp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisPM5VTemp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -344,17 +344,17 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisPM5VTemp(T adc_value, floating_
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUPressureRegulatorVoltage(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUPressureRegulatorVoltage(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
-  } 
+  }
   dest = voltage * conversion::pdu::COEFF_PRESSURE_REGULATOR_VOL + offset;
   return true;
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUTofBiasP5VTemp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUTofBiasP5VTemp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -364,7 +364,7 @@ bool ConvertedHubHKTelemetry::convertPDUTofBiasP5VTemp(T adc_value, floating_t& 
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VTemp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VTemp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -374,7 +374,7 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisP12VTemp(T adc_value, floating_
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Temp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Temp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -384,7 +384,7 @@ bool ConvertedHubHKTelemetry::convertPDUCaenNevisP3V3Temp(T adc_value, floating_
 }
 
 template <typename T>
-bool ConvertedHubHKTelemetry::convertPDUCommsBoardTemp(T adc_value, floating_t& dest, floating_t offset) {
+bool ConvertedHubHKTelemetry::convertPDUCommsBoardTemp(T adc_value, floating_t &dest, floating_t offset) {
   floating_t voltage;
   if (!convertVoltagePDU(adc_value, voltage)) {
     return false;
@@ -482,10 +482,11 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpM5VVol, pduChargePreAmpM5VVol_, &convertChargePreAmpM5VVoltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpP5VCur, pduChargePreAmpP5VCur_, &convertPDUVtoI);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpP5VVol, pduChargePreAmpP5VVol_, &convertChargePreAmpP5VVoltage);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduChargePreAmpTemp, pduChargePreAmpTemp_, &convertChargePreAmpTemp);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VCur, pduTofP12VCur_, &convertPDUTofP12VCurrent);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VVol, pduTofP12VVol_, &convertPDUTofP12VVoltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduTofP12VTemp, pduTofP12VTemp_, &convertPDUTofP12VTemp);
-  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP3V3Cur,pduCaenNevisP3V3Cur_, &convertPDUVtoI);
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP3V3Cur, pduCaenNevisP3V3Cur_, &convertPDUVtoI);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP3V3Vol, pduCaenNevisP3V3Vol_, &convertPDUCaenNevisP3V3Voltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP5VCur, pduCaenNevisP5VCur_, &convertPDUVtoI);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisP5VVol, pduCaenNevisP5VVol_, &convertPDUCaenNevisP5VVoltage);
@@ -498,7 +499,7 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduShaperP3V3Vol, pduShaperP3V3Vol_, &convertPDUShaperP3V3Voltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduShaperM3V3Vol, pduShaperM3V3Vol_, &convertPDUShaperM3V3Voltage);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduShaperTemp, pduShaperTemp_, &convertPDUShaperTemp);
-  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisPM5VTemp, pduCaenNevisPM5VTemp_, &convertPDUCaenNevisPM5VTemp); 
+  ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCaenNevisPM5VTemp, pduCaenNevisPM5VTemp_, &convertPDUCaenNevisPM5VTemp);
   ok &= set_all_values<NUM_PDU_CPU, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCPUCur, pduCPUCur_, &convertPDUVtoI);
   ok &= set_value(raw_telemetry, &HubHKTelemetry::PduCpuUnusedCur, pduCpuUnusedCur_, &convertVoltagePDU);
   ok &= set_all_values<NUM_PDU_CPU, uint16_t>(raw_telemetry, &HubHKTelemetry::PduCPUVol, pduCPUVol_, &convertVoltagePDU);
@@ -527,6 +528,16 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   ok &= set_all_values<NUM_RTD_OUTSIDE_SEALED_ENCLOSURE, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, &convertRTD);
   ok &= set_all_values<NUM_RTD_VACUUM_JACKET, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdVacuumJacket, rtdVacuumJacket_, &convertRTD);
   ok &= set_all_values<NUM_RTD_INSIDE_CHAMBER, uint16_t>(raw_telemetry, &HubHKTelemetry::RtdsInsideChamber, rtdsInsideChamber_, &convertRTD);
+  ok &= set_all_values<NUM_ADC_SPARE, uint16_t>(raw_telemetry, &HubHKTelemetry::Spare, spare_, &convertVoltageMHADC);
+
+  // Raw values (no conversion formula defined yet)
+  constexpr auto passThrough = +[](uint16_t v, floating_t &dest, floating_t) -> bool {
+    dest = static_cast<floating_t>(v);
+    return true;
+  };
+  ok &= set_all_values<NUM_4_WIRE_RTD, uint16_t>(raw_telemetry, &HubHKTelemetry::Rtd4Wire, rtd4Wire_, passThrough);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasVoltage, tofBiasVoltage_, passThrough);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasTemperature, tofBiasTemperature_, passThrough);
 
   // BME680
   ok &= set_value(raw_telemetry, &HubHKTelemetry::SealedEnclosureHumidity, sealedEnclosureHumidity_, &convertBME680Humid);

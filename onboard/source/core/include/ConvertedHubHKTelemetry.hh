@@ -284,7 +284,7 @@ private:
   floating_t ramUsage_ = 0;
 
   template <typename T>
-  static bool convertVoltageMHADC(T adc_value, floating_t &dest);
+  static bool convertVoltageMHADC(T adc_value, floating_t &dest, floating_t = 0.0);
   template <typename T>
   static bool convertRTD(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
