@@ -25,19 +25,25 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-    chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
-    chain GRAMSBalloon::GetMHADCData
-    with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "MHADCManager"
-    @main_modules << "GetMHADCData"
-    subsystems = ["Orchestrator"]
-    subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
+    # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+    # with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
+    # chain GRAMSBalloon::GetMHADCData
+    # with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
+      # m.set_singleton(0)
+    # end
+    # @main_modules << "MHADCManager"
+    # @main_modules << "GetMHADCData"
+    
+    chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
+    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat")
+    
+    
+    # subsystems = ["Orchestrator"]
+    #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
+    subsystems = []
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
-    subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003, 0x4004, 0x4005], "TPC" => [],"TOF" => [], "Orchestrator" => []}
+    subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [], "Orchestrator" => []}
     subsystem_dead_com_time={"TPCMonitor"=>0, "Orchestrator"=>5000, "TOF"=>0, "TPC"=>0}
     sendCommandToDAQComputer_names = []
     subsystems.each do |subsystem|
@@ -45,7 +51,7 @@ class MyApp < ANL::ANLApp
       @main_modules << "SendCommandToDAQComputer_" + subsystem
     end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command/command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"
@@ -80,16 +86,27 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "DividePacket_#{subsystem}"
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_starlink"
-        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: true, chatter: 1) do |m|
+        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: true, chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "PassTelemetry_#{subsystem}_starlink"
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_iridium"
-        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: false, chatter: 1) do |m|
+        with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: false, chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "PassTelemetry_#{subsystem}_iridium"
     end
+    
+    chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 0) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "MHADCManager"
+    chain GRAMSBalloon::GetMHADCData
+    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "GetMHADCData"
     chain GRAMSBalloon::GetComputerStatus  do |m|
       m.set_singleton(0)
     end
@@ -99,8 +116,8 @@ class MyApp < ANL::ANLApp
           topic: @inifile["Hub"]["iridiumteltopic"],
           starlink_topic: @inifile["Hub"]["teltopic"],
           qos:0,
-          save_telemetry: true,
-          binary_filename_base: "telemetry",
+          save_telemetry: false,
+          binary_filename_base: "telemetry/telemetry",
           num_telem_per_file: 1000,
           chatter: 0,
     ) do |m|
