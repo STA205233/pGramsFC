@@ -440,6 +440,24 @@ bool ConvertedHubHKTelemetry::convertPressSensors(T value, floating_t &pressure,
   return true;
 }
 
+template <typename T>
+bool ConvertedHubHKTelemetry::convertTofSiPMbiasVol(T value, floating_t &tofSipmbiasVol, floating_t offset) {
+  tofSipmbiasVol = value * biascontrol::COEFF_VBIAS + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertTofSiPMTrimVol(T value, floating_t &tofSipmTrimVol, floating_t offset) {
+  tofSipmTrimVol = value * biascontrol::COEFF_VBIAS + offset;
+  return true;
+}
+
+template <typename T>
+bool ConvertedHubHKTelemetry::convertTofSiPMTemp(T value, floating_t &tofSipmTemp, floating_t offset) {
+  tofSipmTemp = value * biascontrol::COEFF_TMON + offset;
+  return true;
+}
+
 bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   if (!raw_telemetry) return false;
   code_ = raw_telemetry->getContents()->Code();
@@ -547,6 +565,10 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
   // labjack
   ok &= set_value(raw_telemetry, &HubHKTelemetry::LabJackTemperature, labJackTemperature_, &convertLabJackTemp);
   ok &= set_all_values<NUM_PRESSURE_SENSORS, uint16_t>(raw_telemetry, &HubHKTelemetry::PressureSensors, pressureSensors_, &convertPressSensors);
+
+  // TOF SiPM Bias
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasVoltage, tofBiasVoltage_, &convertTofSiPMbiasVol);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBias);
 
   // Hub computer
   hubComputerErrorFlags_ = raw_telemetry->HubComputerErrorFlags();

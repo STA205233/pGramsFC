@@ -363,6 +363,12 @@ private:
   static bool convertLabJackTemp(T value, floating_t &labjack_temp, floating_t);
   template <typename T>
   static bool convertPressSensors(T value, floating_t &pressTransducer, floating_t);
+  template <typename T>
+  static bool convertTofSiPMbiasVol(T value, floating_t &tofSipmbiasVol, floating_t offset = 0.);
+  template <typename T>
+  static bool convertTofSiPMTrimVol(T value, floating_t &tofSipmTrimVol, floating_t offset = 0.);
+  template <typename T>
+  static bool convertTofSiPMTemp(T value, floating_t &tofSipmTemp, floating_t offset = 0.);
 };
 
 } // namespace gramsballoon::pgrams

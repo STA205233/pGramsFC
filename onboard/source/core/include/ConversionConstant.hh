@@ -36,7 +36,7 @@ constexpr double CMN_OFFSET = 0.0 * units::volt;
 
 constexpr double COEFF_SIPM_VOL = 1. / 0.0503;
 constexpr double COEFF_SIPM_CUR = 1. * units::ampere / units::volt;
-constexpr double COEFF_SIPM_PREAMP_TEMP = 1./8e3 * units::kelvin / units::volt;
+constexpr double COEFF_SIPM_PREAMP_TEMP = 1. / 8e3 * units::kelvin / units::volt;
 constexpr double COEFF_TPC_HV_CUR = 0.08 / 0.3408 * units::milliampere / units::volt;
 constexpr double COEFF_TPC_HV_VOL = 1. / 0.3408;
 constexpr double COEFF_TPC_HV_TEMP = 1e6 / 8.06e3 * units::kelvin / units::volt;
@@ -69,6 +69,18 @@ constexpr double COEFF_TEMP = 0.01 * units::degC / units::ADC;
 constexpr double COEFF_PRESS = 145.0 * units::psi / (10.0 * units::volt);
 constexpr double COEFF_VOL = 0.01 * units::volt / units::ADC;
 } // namespace labjack
+
+namespace biascontrol {
+constexpr double R1 = 5 * units::Mohm;
+constexpr double R2 = 49.9 * units::kohm;
+constexpr double COEFF_VBIAS = 2.5 / 65536. * ((R1 + R2) / R2) * units::volt / units::ADC;
+
+constexpr double Rtrim = 13. * units::Mohm;
+constexpr double Rset = 1 * units::Mohm;
+constexpr double COEFF_VTRIM = 2.5 / 4096. * Rtrim / Rset * units::volt / units::ADC;
+
+constexpr double COEFF_TMON = 500.0 / 65536 * units::kelvin / units::ADC;
+} // namespace biascontrol
 
 } // namespace gramsballoon::pgrams::conversion
 #endif //GB_RTDConversionConstant_h
