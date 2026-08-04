@@ -7,6 +7,7 @@
 #include "HubHKTelemetry.hh"
 #include "RunIDManager.hh"
 #include <anlnext/BasicModule.hh>
+#include <chrono>
 
 namespace gramsballoon {
 class RunIDManager;
