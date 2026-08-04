@@ -15,12 +15,14 @@ class MyApp < ANL::ANLApp
     @main_modules = []
     chain GRAMSBalloon::TelemMosquittoManager
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
-      m.set_singleton(1)
+      m.set_singleton(0)
     end
+    @main_modules << "TelemMosquittoManager"
     chain GRAMSBalloon::ComMosquittoManager
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
-      m.set_singleton(1)
+      m.set_singleton(0)
     end
+    @main_modules << "ComMosquittoManager"
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
@@ -35,8 +37,10 @@ class MyApp < ANL::ANLApp
     # @main_modules << "GetMHADCData"
     
     chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
-    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat")
-    
+    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat") do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "SPIManager_baycat"
     
     # subsystems = ["Orchestrator"]
     #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
@@ -138,14 +142,13 @@ a = MyApp.new
 
 
 a.num_parallels = 2
-mosquitto_modules = ["TelemMosquittoManager", "ComMosquittoManager"]
 a.modify do |m|
   a.main_modules.each do |mod|
    m.get_parallel_module(1, mod).off
   end
-  mosquitto_modules.each do |mod|
-   m.get_parallel_module(0, mod).off
-  end
+  #mosquitto_modules.each do |mod|
+  # m.get_parallel_module(0, mod).off
+  #end
 end
 #a.run(1, 1)
 a.run(:all, 1000000000)
