@@ -34,23 +34,15 @@ set(D2XX_INCLUDE_DIRS ${D2XX_INC_DIR} ${WIN_TYPES_INC_DIR})
 message("-- D2XX_INCLUDE_DIRS: ${D2XX_INCLUDE_DIRS}")
 message("-- D2XX_LIB: ${D2XX_LIB}")
 include_directories(${D2XX_INCLUDE_DIRS})
-#find_path(MPSSE_INC_DIR
-#  NAMES libmpsse_spi.h REQUIRED
-#  PATHS /usr/local/include)
-message("-- MPSSE_INC_DIR: ${MPSSE_INC_DIR}")
-#find_library(MPSSE_LIB
-#  NAMES libmpsse.so libmpsse.dylib REQUIRED
-#  PATHS /usr/local/lib)
-message("-- MPSSE_LIB: ${MPSSE_LIB}")
 
-#find_path(VERSALOGIC_INC_DIR
-#  NAMES VL_OSALib.h REQUIRED
-#  PATHS /usr/local/include)
-#find_library(VERSALOGIC_LIB
-#  NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
-#  PATHS /usr/local/lib)
-#message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
-#message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+find_path(VERSALOGIC_INC_DIR
+  NAMES VL_OSALib.h REQUIRED
+  PATHS /usr/local/include)
+find_library(VERSALOGIC_LIB
+  NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+  PATHS /usr/local/lib)
+message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
 
 include_directories(
   ${MPSSE_INC_DIR}
