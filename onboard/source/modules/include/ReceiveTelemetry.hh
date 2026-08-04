@@ -1,7 +1,6 @@
 #ifndef ReceiveTelemetry_H
 #define ReceiveTelemetry_H 1
 
-#include "MosquittoManager.hh"
 #include <anlnext/BasicModule.hh>
 #include <chrono>
 #include <deque>
@@ -10,6 +9,8 @@
 namespace gramsballoon::pgrams {
 template <typename T>
 class MosquittoManager;
+template <typename T>
+class MosquittoIO;
 
 class ReceiveTelemetry: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveTelemetry, 1.0);

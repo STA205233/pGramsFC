@@ -165,6 +165,7 @@ private:
 
   //Tof bias
   std::array<uint16_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
+  std::array<uint16_t, NUM_TOF_BIAS> tofBiasTrimVoltage_ = {0};
   std::array<uint16_t, NUM_TOF_BIAS> tofBiasTemperature_ = {0};
 
   //Hub computer
@@ -177,13 +178,13 @@ private:
   // to std::get<> is a template parameter, so an out-of-range index is a
   // compile error rather than a runtime one.
   template <typename Contents, size_t... Is>
-  void interpretTofBias_(const Contents *contents, std::index_sequence<Is...>);
+  void interpretTofBias(const Contents *contents, std::index_sequence<Is...>);
   template <typename Contents, size_t... Is>
-  void interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>);
+  void interpretErrorFlags(const Contents *contents, std::index_sequence<Is...>);
   template <size_t... Is>
-  void updateTofBias_(std::index_sequence<Is...>);
+  void updateTofBias(std::index_sequence<Is...>);
   template <size_t... Is>
-  void updateErrorFlags_(std::index_sequence<Is...>);
+  void updateErrorFlags(std::index_sequence<Is...>);
 
 protected:
   bool interpret() override;
@@ -653,6 +654,7 @@ public:
   }
   GETTER_SETTER_ARRAY(uint16_t, Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD)
   GETTER_SETTER_ARRAY(uint16_t, TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS)
+  GETTER_SETTER_ARRAY(uint16_t, ToFBiasTrimVoltage, tofBiasTrimVoltage_, NUM_TOF_BIAS)
   GETTER_SETTER_ARRAY(uint16_t, TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS)
   GETTER_SETTER_ARRAY(uint32_t, HubComputerErrorFlags, hubComputerErrorFlags_, NUM_ERROR_FLAGS)
 

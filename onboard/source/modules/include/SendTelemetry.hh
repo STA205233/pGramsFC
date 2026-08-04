@@ -5,8 +5,6 @@
 #include "CommunicationSaver.hh"
 #include "ErrorManager.hh"
 #include "HubHKTelemetry.hh"
-#include "MosquittoManager.hh"
-#include "ReceiveCommand.hh"
 #include "RunIDManager.hh"
 #include <anlnext/BasicModule.hh>
 
@@ -21,6 +19,8 @@ class GetLabJackData;
 #endif
 template <typename T>
 class MosquittoManager;
+template <typename T>
+class MosquittoIO;
 class BaseTelemetryDefinition;
 class HubHKtelemetry;
 class ErrorManager;

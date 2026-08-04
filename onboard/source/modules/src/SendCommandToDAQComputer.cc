@@ -1,5 +1,6 @@
 #include "SendCommandToDAQComputer.hh"
 #include "CommunicationCodes.hh"
+#include "DistributeCommand.hh"
 using namespace pgrams::communication;
 using namespace anlnext;
 namespace gramsballoon::pgrams {

@@ -1,5 +1,6 @@
 #include "SendTelemetry.hh"
 #include "CommunicationCodes.hh"
+#include "ReceiveCommand.hh"
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
 #endif
@@ -8,6 +9,8 @@
 #endif
 #include "GetMHADCData.hh"
 #include "MHADCMapping.hh"
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
 
 using namespace anlnext;
 

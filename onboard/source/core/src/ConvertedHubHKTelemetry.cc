@@ -554,8 +554,9 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
     return true;
   };
   ok &= set_all_values<NUM_4_WIRE_RTD, uint16_t>(raw_telemetry, &HubHKTelemetry::Rtd4Wire, rtd4Wire_, passThrough);
-  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasVoltage, tofBiasVoltage_, passThrough);
-  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasTemperature, tofBiasTemperature_, passThrough);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasVoltage, tofBiasVoltage_, &convertTofSiPMbiasVol);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::ToFBiasTrimVoltage, tofBiasTrimVoltage_, &convertTofSiPMTrimVol);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasTemperature, tofBiasTemperature_, &convertTofSiPMTemp);
 
   // BME680
   ok &= set_value(raw_telemetry, &HubHKTelemetry::SealedEnclosureHumidity, sealedEnclosureHumidity_, &convertBME680Humid);
@@ -568,7 +569,7 @@ bool ConvertedHubHKTelemetry::convert(const HubHKTelemetry *raw_telemetry) {
 
   // TOF SiPM Bias
   ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasVoltage, tofBiasVoltage_, &convertTofSiPMbiasVol);
-  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBias);
+  ok &= set_all_values<NUM_TOF_BIAS, uint16_t>(raw_telemetry, &HubHKTelemetry::TofBiasTemperature, tofBiasTemperature_, &convertTofSiPMTemp);
 
   // Hub computer
   hubComputerErrorFlags_ = raw_telemetry->HubComputerErrorFlags();

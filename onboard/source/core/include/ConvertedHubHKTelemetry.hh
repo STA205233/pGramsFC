@@ -275,6 +275,7 @@ private:
 
   //Tof bias
   std::array<floating_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
+  std::array<floating_t, NUM_TOF_BIAS> tofBiasTrimVoltage_ = {0};
   std::array<floating_t, NUM_TOF_BIAS> tofBiasTemperature_ = {0};
 
   //Hub computer

@@ -1,9 +1,7 @@
 #ifndef GB_MosquittoManager_hh
 #define GB_MosquittoManager_hh 1
-#include "ErrorManager.hh"
-#include "MosquittoIO.hh"
-#include "SendTelemetry.hh"
 #include "anlnext/BasicModule.hh"
+#include "mosquittopp.h"
 #include <string>
 
 namespace gramsballoon::pgrams {
@@ -39,7 +37,7 @@ class MosquittoManager: public anlnext::BasicModule {
 public:
   MosquittoManager() = default;
   virtual ~MosquittoManager() {
-    if (doInitialize_) { 
+    if (doInitialize_) {
       mosqpp::lib_cleanup();
     }
     mosquittoIO_.reset();
