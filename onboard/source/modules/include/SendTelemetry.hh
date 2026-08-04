@@ -6,7 +6,9 @@
 #include "CommunicationSaver.hh"
 #include "ErrorManager.hh"
 #include "GetComputerStatus.hh"
+#ifdef USE_LJM
 #include "GetLabJackData.hh"
+#endif
 #include "GetMHADCData.hh"
 #include "HubHKTelemetry.hh"
 #include "MHADCMapping.hh"
