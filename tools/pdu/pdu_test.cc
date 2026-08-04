@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
   if (interfaceType == "Baycat") {
     std::cout << "Using BayCatSPIIO interface" << std::endl;
     spiInterface2 = std::make_shared<BayCatSPIIO>();
-    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
+    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(1, 0)); // SPI mode 1 and MSB first
   }
   else if (interfaceType == "FT232H") {
     std::cout << "Using FT232HIO interface" << std::endl;
@@ -38,17 +38,17 @@ int main(int argc, char *argv[]) {
   
   
   
-  dac.setCS(1);
+  dac.setCS(10); // Chip select 
   //std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
-  dac.setVoltage(3.2993f);
+  dac.setVoltage(3.0f); // voltage control
   const auto applyStatus = dac.applySetting();
   if (applyStatus != 0) {
     std::cerr << "Failed to apply DAC setting. Status: " << applyStatus << std::endl;
     return applyStatus;
   }
   std::cout << "Current Voltage: " << dac.getCurrentVoltage() << " V" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
   dac.setVoltage(0.0f);
   //dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_PowerDown_HiZ);
   const auto resetStatus = dac.applySetting();

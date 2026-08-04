@@ -37,15 +37,17 @@ int main(int argc, char *argv[]) {
   spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
   adc.setSPIInterface(spiInterface.get());
   spiInterface->setBaudrate(1000000);
-  for (int i = 0; i < 17; ++i){
+  for (int i = 0; i < 10; ++i){
     adc.setCS(i);
-    const auto value = adc.getCurrentVoltage(5);
-    if (adc.isError()) {
-      std::cerr << "Failed to read ADC channel 0. Error code: " << adc.getErrorCode() << std::endl;
-      return adc.getErrorCode();
+    for (int j = 0; j < 8; ++j) {
+      const auto value = adc.getCurrentVoltage(j);
+      if (adc.isError()) {
+        std::cerr << "Failed to read ADC channel " << j << " . Error code: " << adc.getErrorCode() << std::endl;
+        return adc.getErrorCode();
+      }
+      std::cout << "Channel " << j << " Voltage: " << value << " V" << std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    std::cout << "Channel 0 Voltage: " << value << " V" << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   const int status2 = spiInterface->Close();
   return status2;
