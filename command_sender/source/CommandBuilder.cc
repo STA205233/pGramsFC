@@ -78,8 +78,20 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(PDU_Cold_SiPM_PreAmp_OFF, 0);
   ADD_CODE_MAP(PDU_Warm_TPC_Shaper_ON, 0);
   ADD_CODE_MAP(PDU_Warm_TPC_Shaper_OFF, 0);
-  ADD_CODE_MAP(PDU_SiPM_ON, 0);
-  ADD_CODE_MAP(PDU_SiPM_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_0_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_0_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_1_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_1_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_2_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_2_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_3_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_3_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_4_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_4_OFF, 0);
+  ADD_CODE_MAP(PDU_SiPM_5_ON, 0);
+  ADD_CODE_MAP(PDU_SiPM_5_OFF, 0);
+  ADD_CODE_MAP(PDU_Tof_ON, 0);
+  ADD_CODE_MAP(PDU_Tof_OFF, 0);
   ADD_CODE_MAP(PDU_CAEN_P3V3_ON, 0);
   ADD_CODE_MAP(PDU_CAEN_P3V3_OFF, 0);
   ADD_CODE_MAP(PDU_CAEN_PM5V_ON, 0);
@@ -109,6 +121,13 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(ORC_Shutdown_Tof_Daq, 0);
   ADD_CODE_MAP(ORC_Boot_Tpc_Daq, 0);
   ADD_CODE_MAP(ORC_Shutdown_Tpc_Daq, 0);
+  ADD_CODE_MAP(ORC_Start_PPS, 0);
+  ADD_CODE_MAP(ORC_Send_Pulse_Train, 0);
+  ADD_CODE_MAP(ORC_Stop_PPS, 0);
+  ADD_CODE_MAP(ORC_Restart_Orchestrator, 0);
+  ADD_CODE_MAP(ORC_Clear_Errors, 0);
+  ADD_CODE_MAP(ORC_Set_Data_SSD0, 0);
+  ADD_CODE_MAP(ORC_Set_Data_SSD1, 0);
 
   ADD_CODE_MAP(TPC_Configure, 1);
   add_code_map(code_map_, "TPC_Configure_File", pgrams::communication::CommunicationCodes::TPC_Configure, 101);
@@ -119,36 +138,35 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TPC_Boot_Monitor, 0);
   ADD_CODE_MAP(TPCMonitor_Query_LB_Data, 4);
   ADD_CODE_MAP(TPCMonitor_Query_Event_Data, 4);
-  ADD_CODE_MAP(TPCMonitor_Start_Continuous_LBW, 4);
-  ADD_CODE_MAP(TPCMonitor_Stop_Continuous_LBW, 0);
-  ADD_CODE_MAP(TPCMonitor_Send_Full_Event_Data, 4);
 
   ADD_CODE_MAP(TOF_Start_DAQ, 0);
   ADD_CODE_MAP(TOF_Stop_DAQ, 0);
   ADD_CODE_MAP(TOF_Reset_DAQ, 0);
-  ADD_CODE_MAP(TOF_Run_Init_System, 0);
-  ADD_CODE_MAP(TOF_Run_Make_Bias_Calib_Table, 0);
-  ADD_CODE_MAP(TOF_Run_Make_Simple_Bias_Set_Table, 0);
-  ADD_CODE_MAP(TOF_Run_Make_Simple_Channel_Map, 0);
-  ADD_CODE_MAP(TOF_Run_Make_Simple_Disc_Set_Table, 0);
-  ADD_CODE_MAP(TOF_Run_Read_Temperature_Sensors, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_TDC_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_QDC_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_SiPM_Data, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration_BN, 0);
-  ADD_CODE_MAP(TOF_Run_Acquire_Threshold_Calibration_D, 0);
-  ADD_CODE_MAP(TOF_Run_Process_Threshold_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Process_TDC_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Process_QDC_Calibration, 0);
-  ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Raw, 0);
-  ADD_CODE_MAP(TOF_Run_Convert_Raw_To_Singles, 0);
-  ADD_CODE_MAP(TOF_Run_Convert_Stg1_To_Stg2, 0);
-  ADD_CODE_MAP(TOF_Run_Process_Coin_Evt_QA, 0);
-
-  ADD_CODE_MAP(TOF_Bias_ON, 0);
-  ADD_CODE_MAP(TOF_Bias_OFF, 0);
-  ADD_CODE_MAP(TOF_Bias_Set_Voltage, 1);
+  ADD_CODE_MAP(TOF_Init_System, 0);
+  ADD_CODE_MAP(TOF_Make_Bias_Calib_Table, 0);
+  ADD_CODE_MAP(TOF_Make_Simple_Bias_Set_Table, 0);
+  ADD_CODE_MAP(TOF_Make_Simple_Channel_Map, 0);
+  ADD_CODE_MAP(TOF_Make_Simple_Disc_Set_Table, 0);
+  ADD_CODE_MAP(TOF_Read_Temperature_Sensors, 0);
+  ADD_CODE_MAP(TOF_Acquire_Threshold_Calibration, 0);
+  ADD_CODE_MAP(TOF_Acquire_TDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Acquire_QDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Acquire_SiPM_Data, 0);
+  ADD_CODE_MAP(TOF_Acquire_Threshold_Calibration_BN, 0);
+  ADD_CODE_MAP(TOF_Acquire_Threshold_Calibration_D, 0);
+  ADD_CODE_MAP(TOF_Process_Threshold_Calibration, 0);
+  ADD_CODE_MAP(TOF_Process_TDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Process_QDC_Calibration, 0);
+  ADD_CODE_MAP(TOF_Convert_Raw_To_Raw, 0);
+  ADD_CODE_MAP(TOF_Convert_Raw_To_Singles, 0);
+  ADD_CODE_MAP(TOF_Convert_Stg1_To_Stg2, 0);
+  ADD_CODE_MAP(TOF_Process_QA_Coin, 0);
+  ADD_CODE_MAP(TOF_Process_QA_Iridium, 0);
+  ADD_CODE_MAP(TOF_Macro_Thermal_Calib, 0);
+  ADD_CODE_MAP(TOF_Macro_Auto_Run_Sequence, 0);
+  ADD_CODE_MAP(TOF_Macro_Pre_Bias_Prep, 0);
+  ADD_CODE_MAP(TOF_Macro_Post_Bias_Prep, 0);
+  ADD_CODE_MAP(TOF_Macro_Cyclic_Run_Loop, 0);
 }
 #undef ADD_CODE_MAP
 
