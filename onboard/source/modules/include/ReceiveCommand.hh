@@ -5,7 +5,9 @@
 #include "CommunicationSaver.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
+#ifdef USE_SPI
 #include "SPIManager.hh"
+#endif
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
 #include <cstdint>
@@ -22,12 +24,13 @@ class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
 class SendCommandToDAQComputer;
+#ifdef USE_SPI
 class PDUChannelMap;
 class ControlPDU;
 class SPIManager;
 class PDUCodeMapDIO;
 class PDUCodeMapCS;
-
+#endif
 /**
  * Receive commands from ground.
  *
@@ -60,7 +63,9 @@ public:
 private:
   void getModules();
   bool applyCommand(const std::vector<uint8_t>& command);
+  #ifdef USE_SPI
   bool applySPICommand(uint16_t code, const uint16_t argc, const std::vector<uint32_t>& arguments);
+  #endif
 
   std::shared_ptr<pgrams::CommunicationFormat> comdef_ = nullptr;
   uint32_t commandIndex_ = 0;
@@ -82,8 +87,8 @@ private:
 #ifdef USE_SPI
   SPIManager *spiManager_ = nullptr;
   ControlPDU *controlPDU_ = nullptr;
+  #endif
   std::string spiManagerName_ = "SPIManager";
-#endif
 
   // communication
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
@@ -94,9 +99,10 @@ private:
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> commandSaver_ = nullptr;
   std::vector<SendCommandToDAQComputer *> sendCommandToDAQComputers_;
   std::vector<std::string> sendCommandToDAQComputerNames_;
-
+#ifdef USE_SPI
   PDUCodeMapCS& pduCodeMapCS_;
   PDUCodeMapDIO& pduCodeMapDIO_;
+  #endif
 };
 
 } // namespace pgrams

@@ -24,7 +24,11 @@ inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, c
   }
   return false;
 }
-ReceiveCommand::ReceiveCommand() : pduCodeMapCS_(PDUCodeMapCS::getInstance()), pduCodeMapDIO_(PDUCodeMapDIO::getInstance()) {
+ReceiveCommand::ReceiveCommand()  
+#ifdef USE_SPI
+: pduCodeMapCS_(PDUCodeMapCS::getInstance()), pduCodeMapDIO_(PDUCodeMapDIO::getInstance()) 
+#endif
+{
   binaryFilenameBase_ = "Command";
   topic_ = "command";
   comdef_ = std::make_shared<CommunicationFormat>();
@@ -382,7 +386,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
 
   return false;
 }
-
+#ifdef USE_SPI
 bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, const std::vector<uint32_t>& arguments) {
   if (argc != 1) {
     return false;
@@ -418,5 +422,5 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
   }
   return false;
 }
-
+#endif
 } // namespace gramsballoon::pgrams

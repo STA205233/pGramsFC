@@ -1,12 +1,14 @@
 #include "SendTelemetry.hh"
 #include "CommunicationCodes.hh"
 #include "GetComputerStatus.hh"
+#ifdef USE_SPI
 #include "GetLabJackData.hh"
-#include "GetMHADCData.hh"
 #include "GetPDUInfo.hh"
+#include "PDUMapping.hh"
+#endif
+#include "GetMHADCData.hh"
 #include "MHADCMapping.hh"
 #include "MosquittoManager.hh"
-#include "PDUMapping.hh"
 #include "ReceiveCommand.hh"
 #include <chrono>
 #include <cstdint>
@@ -22,7 +24,9 @@ SendTelemetry::SendTelemetry() {
   errorManager_ = std::make_shared<ErrorManager>();
   binaryFilenameBase_ = "Telemetry";
   mhadcMapping_ = std::make_shared<MHADCMapping>();
+  #ifdef USE_SPI
   pduMapping_ = std::make_shared<PDUMapping>();
+  #endif
 }
 
 SendTelemetry::~SendTelemetry() = default;
@@ -70,7 +74,9 @@ ANLStatus SendTelemetry::mod_initialize() {
   }
   telemdef_ = std::make_shared<HubHKTelemetry>(true);
   mhadcMapping_->setHKTelemetry(telemdef_);
+  #ifdef USE_SPI
   pduMapping_->setHKTelemetry(telemdef_);
+  #endif
   if (saveTelemetry_) {
     telemetrySaver_ = std::make_shared<CommunicationSaver<std::string>>();
   }
@@ -280,12 +286,13 @@ void SendTelemetry::setHKTelemetry() {
     }
   }
 #endif
+#ifdef USE_LJM
   if (getLabJackData_) {
     const auto &analogIn = getLabJackData_->getAnalogIn();
     telemdef_->setPressureTransducer(static_cast<uint16_t>(analogIn[0] * 100.0));
     telemdef_->setPressureRegulatorVol(static_cast<uint16_t>(analogIn[1] * 100.0));
   }
-
+#endif
 #ifdef USE_SPI
   if (getPduInfo_) {
     constexpr int NUM_CS_PDU = 10;

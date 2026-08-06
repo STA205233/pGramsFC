@@ -54,7 +54,7 @@ ANLStatus SPIManager::mod_pre_initialize() {
   if (useMultiplexer_) {
     auto mul_interface = std::make_shared<SPIInterfaceMultiplexer>();
     mul_interface->setBaseInterface(base_interface);
-    mul_interface->setMappingChipSelect(std::make_unique<PDUCSMapping>());
+    mul_interface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
     interface_ = mul_interface;
   }
   else {
@@ -85,6 +85,7 @@ ANLStatus SPIManager::mod_initialize() {
       sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
     }
   }
+  interface_->updateSetting();
   return AS_OK;
 }
 
