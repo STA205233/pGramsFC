@@ -2,8 +2,8 @@
 
 SCRIPT_DIR="$(cd $(dirname $0); pwd)"
 HOME_DIR=`getent passwd ${SUDO_USER:-$USER} | cut -d: -f6`
-EXE_DIR=$SCRIPT_DIR/../operation/neu_test_20260223
-EXE_PATH=$EXE_DIR/neu_test_20260223.rb
+EXE_DIR=$SCRIPT_DIR/../operation/hubcomputer
+EXE_PATH=$EXE_DIR/hubcomputer.rb
 INSTALL_PATH=/etc/pGRAMS
 ENV_FILE_PATH=${INSTALL_PATH}/pGramsFC.env
 

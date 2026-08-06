@@ -267,5 +267,4 @@ void SendTelemetry::setHKTelemetry() {
   }
 #endif
 }
-
 } // namespace gramsballoon::pgrams
