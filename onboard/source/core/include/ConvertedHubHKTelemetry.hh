@@ -168,8 +168,6 @@ public:
   inline floating_t LabJackTemperature() const { return labJackTemperature_; }
 
   GETTER_ARRAY_F(Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD)
-  GETTER_ARRAY_F(TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS)
-  GETTER_ARRAY_F(TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS)
 
   inline const std::array<uint32_t, NUM_ERROR_FLAGS> &HubComputerErrorFlags() const { return hubComputerErrorFlags_; }
   inline uint32_t HubComputerErrorFlags(size_t idx) const { return hubComputerErrorFlags_[idx]; }
@@ -272,11 +270,6 @@ private:
   std::array<floating_t, NUM_PRESSURE_SENSORS> pressureSensors_ = {0};
   floating_t labJackTemperature_ = 0;
   std::array<floating_t, NUM_4_WIRE_RTD> rtd4Wire_ = {0};
-
-  //Tof bias
-  std::array<floating_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
-  std::array<floating_t, NUM_TOF_BIAS> tofBiasTrimVoltage_ = {0};
-  std::array<floating_t, NUM_TOF_BIAS> tofBiasTemperature_ = {0};
 
   //Hub computer
   std::array<uint32_t, NUM_ERROR_FLAGS> hubComputerErrorFlags_ = {0};

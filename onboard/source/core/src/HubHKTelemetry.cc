@@ -147,12 +147,6 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
     sink->setFieldValue("rtd_4_wire_" + std::to_string(i), rtd4Wire_[i]);
   }
 
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
-    sink->setFieldValue("tof_bias_voltage_" + std::to_string(i), tofBiasVoltage_[i]);
-    sink->setFieldValue("tof_bias_trim_voltage_" + std::to_string(i), tofBiasTrimVoltage_[i]);
-    sink->setFieldValue("tof_bias_temperature_" + std::to_string(i), tofBiasTemperature_[i]);
-  }
-
   for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) {
     sink->setFieldValue("error_flag_" + std::to_string(i), hubComputerErrorFlags_[i]);
   }
@@ -281,11 +275,6 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   for (size_t i = 0; i < NUM_4_WIRE_RTD; ++i) {
     sink->addField("rtd_4_wire_" + std::to_string(i), static_cast<uint16_t>(0));
   }
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
-    sink->addField("tof_bias_voltage_" + std::to_string(i), static_cast<uint16_t>(0));
-    sink->addField("tof_bias_trim_voltage_" + std::to_string(i), static_cast<uint16_t>(0));
-    sink->addField("tof_bias_temperature_" + std::to_string(i), static_cast<uint16_t>(0));
-  }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) {
     sink->addField("error_flag_" + std::to_string(i), static_cast<uint32_t>(0));
   }
@@ -295,20 +284,8 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
 }
 
 template <typename Contents, size_t... Is>
-void HubHKTelemetry::interpretTofBias(const Contents *contents, std::index_sequence<Is...>) {
-  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is)), std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is + 1>(tofBiasVoltage_)), ...);
-  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is)), std::get<2 * Is>(tofBiasTrimVoltage_), std::get<2 * Is + 1>(tofBiasTrimVoltage_)), ...);
-  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is)), std::get<2 * Is>(tofBiasTemperature_), std::get<2 * Is + 1>(tofBiasTemperature_)), ...);
-}
-template <typename Contents, size_t... Is>
 void HubHKTelemetry::interpretErrorFlags(const Contents *contents, std::index_sequence<Is...>) {
   ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is))), ...);
-}
-template <size_t... Is>
-void HubHKTelemetry::updateTofBias(std::index_sequence<Is...>) {
-  (setArguments(ARG_INDEX_TOF_BIAS + Is, CompileData(std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is + 1>(tofBiasVoltage_))), ...);
-  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is, CompileData(std::get<2 * Is>(tofBiasTrimVoltage_), std::get<2 * Is + 1>(tofBiasTrimVoltage_))), ...);
-  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is, CompileData(std::get<2 * Is>(tofBiasTemperature_), std::get<2 * Is + 1>(tofBiasTemperature_))), ...);
 }
 template <size_t... Is>
 void HubHKTelemetry::updateErrorFlags(std::index_sequence<Is...>) {
@@ -416,7 +393,6 @@ bool HubHKTelemetry::interpret() {
   uint16_t dummy = 0;
   DivideData(static_cast<uint32_t>(contents->getArguments(76)), std::get<1>(rtd4Wire_), dummy);
 
-  interpretTofBias(contents, std::make_index_sequence<NUM_TOF_BIAS / 2>{});
   interpretErrorFlags(contents, std::make_index_sequence<NUM_ERROR_FLAGS>{});
 
   constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS * 3 / 2 + NUM_ERROR_FLAGS;
@@ -516,8 +492,6 @@ void HubHKTelemetry::update() {
   setArguments(75, CompileData(labJackTemperature_, std::get<0>(rtd4Wire_)));
   setArguments(76, CompileData(std::get<1>(rtd4Wire_), static_cast<uint16_t>(0)));
 
-  static_assert(NUM_TOF_BIAS % 2 == 0, "NUM_TOF_BIAS is expected to be even.");
-  updateTofBias(std::make_index_sequence<NUM_TOF_BIAS / 2>{});
   updateErrorFlags(std::make_index_sequence<NUM_ERROR_FLAGS>{});
 
   constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
@@ -658,14 +632,6 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "rtd4Wire_: ";
   printIterative<NUM_4_WIRE_RTD>(stream, rtd4Wire_);
 
-  stream << "tofBiasVoltage_: ";
-  printIterative<NUM_TOF_BIAS>(stream, tofBiasVoltage_);
-
-  stream << "tofBiasTrimVoltage_: ";
-  printIterative<NUM_TOF_BIAS>(stream, tofBiasTrimVoltage_);
-
-  stream << "tofBiasTemperature_: ";
-  printIterative<NUM_TOF_BIAS>(stream, tofBiasTemperature_);
 
   stream << "hubComputerErrorFlags_: ";
   printIterative<NUM_ERROR_FLAGS>(stream, hubComputerErrorFlags_);

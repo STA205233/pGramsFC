@@ -9,7 +9,7 @@
 #include <utility>
 
 #define GETTER_SETTER_ARRAY(type, name, variable, num)                             \
-  inline void set##name(const std::array<type, num> &v) { variable = v; }          \
+  inline void set##name(const std::array<type, num>& v) { variable = v; }          \
   inline void set##name(size_t idx, type v) {                                      \
     if (idx >= num) {                                                              \
       std::cerr << "set" << #name << ": index out of range: " << idx << std::endl; \
@@ -21,7 +21,7 @@
   inline void set##name(type v) {                                                  \
     std::get<N>(variable) = v;                                                     \
   }                                                                                \
-  inline const std::array<type, num> &name() const { return variable; }            \
+  inline const std::array<type, num>& name() const { return variable; }            \
   inline type name(size_t idx) const {                                             \
     if (idx >= num) {                                                              \
       std::cerr << #name << ": index out of range: " << idx << std::endl;          \
@@ -74,7 +74,7 @@ public:
 
 public:
   void serialize(DBFieldSink *sink) const override;
-  void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const override;
+  void initializeDBTable(DBFieldSink *sink, const std::string& table_name) const override;
 
 private:
   uint16_t lastCommandCodeHub_ = 0;
@@ -163,11 +163,6 @@ private:
   uint16_t labJackTemperature_ = 0;
   std::array<uint16_t, NUM_4_WIRE_RTD> rtd4Wire_ = {0};
 
-  //Tof bias
-  std::array<uint16_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
-  std::array<uint16_t, NUM_TOF_BIAS> tofBiasTrimVoltage_ = {0};
-  std::array<uint16_t, NUM_TOF_BIAS> tofBiasTemperature_ = {0};
-
   //Hub computer
   std::array<uint32_t, NUM_ERROR_FLAGS> hubComputerErrorFlags_ = {0};
   uint32_t storageSize_ = 0;
@@ -178,11 +173,7 @@ private:
   // to std::get<> is a template parameter, so an out-of-range index is a
   // compile error rather than a runtime one.
   template <typename Contents, size_t... Is>
-  void interpretTofBias(const Contents *contents, std::index_sequence<Is...>);
-  template <typename Contents, size_t... Is>
   void interpretErrorFlags(const Contents *contents, std::index_sequence<Is...>);
-  template <size_t... Is>
-  void updateTofBias(std::index_sequence<Is...>);
   template <size_t... Is>
   void updateErrorFlags(std::index_sequence<Is...>);
 
@@ -191,7 +182,7 @@ protected:
 
 public:
   void update() override;
-  std::ostream &print(std::ostream &stream) override;
+  std::ostream& print(std::ostream& stream) override;
 
   // Getters and setters
 
@@ -653,9 +644,6 @@ public:
     return labJackTemperature_;
   }
   GETTER_SETTER_ARRAY(uint16_t, Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD)
-  GETTER_SETTER_ARRAY(uint16_t, TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS)
-  GETTER_SETTER_ARRAY(uint16_t, ToFBiasTrimVoltage, tofBiasTrimVoltage_, NUM_TOF_BIAS)
-  GETTER_SETTER_ARRAY(uint16_t, TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS)
   GETTER_SETTER_ARRAY(uint32_t, HubComputerErrorFlags, hubComputerErrorFlags_, NUM_ERROR_FLAGS)
 
   inline void setStorageSize(uint32_t v) {
