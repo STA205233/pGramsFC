@@ -1,6 +1,8 @@
 #include "GetEnvironmentalData.hh"
-#include "BME280IO.hh"
+#include "BME680IO.hh"
+#include "bme68x.h"
 #include "I2CInterface.hh"
+#include "I2CManager.hh"
 #include <chrono>
 #include <thread>
 
