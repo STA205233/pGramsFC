@@ -596,63 +596,63 @@ std::ostream& ConvertedHubHKTelemetry::print(std::ostream& stream) {
   stream << "pduCurSiPM_: ";
   printIterative<NUM_PDU_SIPM>(stream, pduCurSiPM_, "A", units::A);
 
-  stream << "pduCurTPCHV_: " << pduCurTPCHV_ / units::mA << " mA, pduVolTPCHV_: " << pduVolTPCHV_ / V << " V" << std::endl;
+  stream << "pduCurTPCHV_: " << pduCurTPCHV_ / units::mA << " mA, pduVolTPCHV_: " << pduVolTPCHV_ / V << " V\n";
 
   stream << "pduHVTemp_: ";
-  printIterative<NUM_PDU_HV_TEMP>(stream, pduHVTemp_, "");
+  printIterative<NUM_PDU_HV_TEMP>(stream, pduHVTemp_, " degC", degC);
 
-  stream << "pduCommsBoardTemp_: " << pduCommsBoardTemp_ << std::endl;
-  stream << "pduSiPMPreAmpP2V5Vol_: " << pduSiPMPreAmpP2V5Vol_
-         << ", pduSiPMPreAmpP2V5Cur_: " << pduSiPMPreAmpP2V5Cur_
-         << ", pduSiPMPreAmpM5VVol_: " << pduSiPMPreAmpM5VVol_
-         << ", pduSiPMPreAmpM5VCur_: " << pduSiPMPreAmpM5VCur_
-         << ", pduSiPMPreAmpTemp_: " << pduSiPMPreAmpTemp_ << std::endl;
-  stream << "pduChargePreAmpP5VVol_: " << pduChargePreAmpP5VVol_
-         << ", pduChargePreAmpP5VCur_: " << pduChargePreAmpP5VCur_
-         << ", pduChargePreAmpM5VVol_: " << pduChargePreAmpM5VVol_
-         << ", pduChargePreAmpM5VCur_: " << pduChargePreAmpM5VCur_
-         << ", pduChargePreAmpTemp_: " << pduChargePreAmpTemp_ << std::endl;
-  stream << "pduTofBiasP5V0Vol_: " << pduTofBiasP5V0Vol_
-         << ", pduTofBiasP5V0Cur_: " << pduTofBiasP5V0Cur_
-         << ", pduTofBiasP5V1Vol_: " << pduTofBiasP5V1Vol_
-         << ", pduTofBiasP5V1Cur_: " << pduTofBiasP5V1Cur_
-         << ", pduTofBiasP5VTemp_: " << pduTofBiasP5VTemp_ << std::endl;
-  stream << "pduTofP12VVol_: " << pduTofP12VVol_
-         << ", pduTofP12VCur_: " << pduTofP12VCur_ << std::endl;
-  stream << "pduCaenNevisP12VVol_: " << pduCaenNevisP12VVol_
-         << ", pduCaenNevisP12VCur_: " << pduCaenNevisP12VCur_
-         << ", pduCaenNevisM5VVol_: " << pduCaenNevisM5VVol_
-         << ", pduCaenNevisM5VCur_: " << pduCaenNevisM5VCur_
-         << ", pduCaenNevisP5VVol_: " << pduCaenNevisP5VVol_
-         << ", pduCaenNevisP5VCur_: " << pduCaenNevisP5VCur_
-         << ", pduCaenNevisP3V3Vol_: " << pduCaenNevisP3V3Vol_
-         << ", pduCaenNevisP3V3Cur_: " << pduCaenNevisP3V3Cur_ << std::endl;
-  stream << "pduShaperP3V3Vol_: " << pduShaperP3V3Vol_
-         << ", pduCaenNevisPM5VTemp_: " << pduCaenNevisPM5VTemp_
-         << ", pduCaenNevisP12VTemp_: " << pduCaenNevisP12VTemp_
-         << ", pduCaenNevisP3V3Temp_: " << pduCaenNevisP3V3Temp_
-         << ", pduShaperTemp_: " << pduShaperTemp_
-         << ", pduShaperM3V3Vol_: " << pduShaperM3V3Vol_ << std::endl;
+  stream << "pduCommsBoardTemp_: " << pduCommsBoardTemp_ / units::degC << " C\n";
+  stream << "pduSiPMPreAmpP2V5Vol_: " << pduSiPMPreAmpP2V5Vol_ / units::volt << " V"
+         << ", pduSiPMPreAmpP2V5Cur_: " << pduSiPMPreAmpP2V5Cur_ / units::ampere << " A"
+         << ", pduSiPMPreAmpM5VVol_: " << pduSiPMPreAmpM5VVol_ / units::volt << " V"
+         << ", pduSiPMPreAmpM5VCur_: " << pduSiPMPreAmpM5VCur_ / units::ampere << " A"
+         << ", pduSiPMPreAmpTemp_: " << pduSiPMPreAmpTemp_ << " degC\n";
+  stream << "pduChargePreAmpP5VVol_: " << pduChargePreAmpP5VVol_ / units::volt << " V"
+         << ", pduChargePreAmpP5VCur_: " << pduChargePreAmpP5VCur_ / units::ampere << " A"
+         << ", pduChargePreAmpM5VVol_: " << pduChargePreAmpM5VVol_ / units::volt << " V"
+         << ", pduChargePreAmpM5VCur_: " << pduChargePreAmpM5VCur_ / units::ampere << " A"
+         << ", pduChargePreAmpTemp_: " << pduChargePreAmpTemp_ / units::degC << " degC\n";
+  stream << "pduTofBiasP5V0Vol_: " << pduTofBiasP5V0Vol_ / units::volt << " V"
+         << ", pduTofBiasP5V0Cur_: " << pduTofBiasP5V0Cur_ / units::ampere << " A"
+         << ", pduTofBiasP5V1Vol_: " << pduTofBiasP5V1Vol_ / units::volt << " V"
+         << ", pduTofBiasP5V1Cur_: " << pduTofBiasP5V1Cur_ / units::ampere << " A"
+         << ", pduTofBiasP5VTemp_: " << pduTofBiasP5VTemp_ / units::degC << " degC\n";
+  stream << "pduTofP12VVol_: " << pduTofP12VVol_ / units::volt << " V"
+         << ", pduTofP12VCur_: " << pduTofP12VCur_ / units::ampere << "\n";
+  stream << "pduCaenNevisP12VVol_: " << pduCaenNevisP12VVol_ / units::volt << " V"
+         << ", pduCaenNevisP12VCur_: " << pduCaenNevisP12VCur_ / units::ampere << " A"
+         << ", pduCaenNevisM5VVol_: " << pduCaenNevisM5VVol_ / units::volt << " V"
+         << ", pduCaenNevisM5VCur_: " << pduCaenNevisM5VCur_ / units::ampere << " A"
+         << ", pduCaenNevisP5VVol_: " << pduCaenNevisP5VVol_ / units::volt << " V"
+         << ", pduCaenNevisP5VCur_: " << pduCaenNevisP5VCur_ / units::ampere << " A"
+         << ", pduCaenNevisP3V3Vol_: " << pduCaenNevisP3V3Vol_ / units::volt << " V"
+         << ", pduCaenNevisP3V3Cur_: " << pduCaenNevisP3V3Cur_ / units::ampere << " A\n";
+  stream << "pduShaperP3V3Vol_: " << pduShaperP3V3Vol_ / units::volt << " V"
+         << ", pduCaenNevisPM5VTemp_: " << pduCaenNevisPM5VTemp_ / units::degC << " degC"
+         << ", pduCaenNevisP12VTemp_: " << pduCaenNevisP12VTemp_ / units::degC << " degC"
+         << ", pduCaenNevisP3V3Temp_: " << pduCaenNevisP3V3Temp_ / units::degC << " degC"
+         << ", pduShaperTemp_: " << pduShaperTemp_ / units::degC << " degC"
+         << ", pduShaperM3V3Vol_: " << pduShaperM3V3Vol_ / units::volt << " V" << std::endl;
 
   stream << "pduShaperPCur_: ";
-  printIterative<NUM_PDU_WARM_TPC_SHAPER>(stream, pduShaperPCur_);
+  printIterative<NUM_PDU_WARM_TPC_SHAPER>(stream, pduShaperPCur_, "A", units::ampere);
 
   stream << "pduShaperMCur_: ";
-  printIterative<NUM_PDU_WARM_TPC_SHAPER>(stream, pduShaperMCur_);
+  printIterative<NUM_PDU_WARM_TPC_SHAPER>(stream, pduShaperMCur_, "A", units::ampere);
 
   stream << "pduCPUCur_: ";
-  printIterative<NUM_PDU_CPU>(stream, pduCPUCur_);
+  printIterative<NUM_PDU_CPU>(stream, pduCPUCur_, "A", units::ampere);
 
-  stream << "pduCpuUnusedCur_: " << pduCpuUnusedCur_ << std::endl;
+  stream << "pduCpuUnusedCur_: " << pduCpuUnusedCur_ / units::ampere << " A" << std::endl;
 
   stream << "pduCPUVol_: ";
-  printIterative<NUM_PDU_CPU>(stream, pduCPUVol_);
+  printIterative<NUM_PDU_CPU>(stream, pduCPUVol_, "V", units::volt);
 
-  stream << "pressureRegulatorVol_: " << pressureRegulatorVol_
-         << ", pduTofP12VTemp_: " << pduTofP12VTemp_
-         << ", pduCurMainBat_: " << pduCurMainBat_
-         << ", pduVolMainBat_: " << pduVolMainBat_
-         << ", pduMainBatTemp_: " << pduMainBatTemp_ << std::endl;
+  stream << "pressureRegulatorVol_: " << pressureRegulatorVol_ / units::volt << " V"
+         << ", pduTofP12VTemp_: " << pduTofP12VTemp_ / units::volt << " V"
+         << ", pduCurMainBat_: " << pduCurMainBat_ / units::ampere << " A"
+         << ", pduVolMainBat_: " << pduVolMainBat_ / units::volt << " V"
+         << ", pduMainBatTemp_: " << pduMainBatTemp_ / units::degC << " degC" << std::endl;
 
   stream << "rtdGondolaFrame_: ";
   printIterative<NUM_RTD_GONDOLA>(stream, rtdGondolaFrame_, "degC", degC);
@@ -686,15 +686,15 @@ std::ostream& ConvertedHubHKTelemetry::print(std::ostream& stream) {
   stream << "spare_: ";
   printIterative<NUM_ADC_SPARE>(stream, spare_);
 
-  stream << "sealedEnclosurePressure_: " << sealedEnclosurePressure_
-         << ", sealedEnclosureTemperature_: " << sealedEnclosureTemperature_
-         << ", sealedEnclosureHumidity_: " << sealedEnclosureHumidity_ << std::endl;
+  stream << "sealedEnclosurePressure_: " << sealedEnclosurePressure_ / degC << " Bar"
+         << ", sealedEnclosureTemperature_: " << sealedEnclosureTemperature_ / degC << " degC"
+         << ", sealedEnclosureHumidity_: " << sealedEnclosureHumidity_ / percent << " %" << std::endl;
 
   stream << "pressureSensors_: ";
   printIterative<NUM_PRESSURE_SENSORS>(stream, pressureSensors_, "Bar", Bar);
 
   stream << "rtd4Wire_: ";
-  printIterative<NUM_4_WIRE_RTD>(stream, rtd4Wire_);
+  printIterative<NUM_4_WIRE_RTD>(stream, rtd4Wire_, "degC", degC);
 
   stream << "hubComputerErrorFlags_: ";
   printIterative<NUM_ERROR_FLAGS>(stream, hubComputerErrorFlags_);
