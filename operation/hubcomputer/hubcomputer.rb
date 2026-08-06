@@ -25,17 +25,7 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-    # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    # with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
-    # chain GRAMSBalloon::GetMHADCData
-    # with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
-      # m.set_singleton(0)
-    # end
-    # @main_modules << "MHADCManager"
-    # @main_modules << "GetMHADCData"
-    # subsystems = ["Orchestrator"]
-    #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
-    subsystems = []
+    subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
     subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [], "Orchestrator" => []}
