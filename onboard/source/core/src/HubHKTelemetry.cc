@@ -285,11 +285,11 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
 
 template <typename Contents, size_t... Is>
 void HubHKTelemetry::interpretErrorFlags(const Contents *contents, std::index_sequence<Is...>) {
-  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is))), ...);
+  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is))), ...);
 }
 template <size_t... Is>
 void HubHKTelemetry::updateErrorFlags(std::index_sequence<Is...>) {
-  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is, std::get<Is>(hubComputerErrorFlags_)), ...);
+  (setArguments(ARG_INDEX_TOF_BIAS + Is, std::get<Is>(hubComputerErrorFlags_)), ...);
 }
 
 template <typename Stream, typename Contents, size_t... Is>
@@ -395,7 +395,7 @@ bool HubHKTelemetry::interpret() {
 
   interpretErrorFlags(contents, std::make_index_sequence<NUM_ERROR_FLAGS>{});
 
-  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS * 3 / 2 + NUM_ERROR_FLAGS;
+  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_ERROR_FLAGS;
   storageSize_ = contents->getArguments(INDEX_UNTIL_HERE);
 
   DivideData(static_cast<uint32_t>(contents->getArguments(INDEX_UNTIL_HERE + 1)), cpuTemperature_, ramUsage_);
@@ -494,7 +494,7 @@ void HubHKTelemetry::update() {
 
   updateErrorFlags(std::make_index_sequence<NUM_ERROR_FLAGS>{});
 
-  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
+  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_ERROR_FLAGS;
   setArguments(INDEX_UNTIL_HERE, storageSize_);
   setArguments(INDEX_UNTIL_HERE + 1, CompileData(cpuTemperature_, ramUsage_));
   setArguments(INDEX_UNTIL_HERE + 2, commandRejectedIndexHub_);

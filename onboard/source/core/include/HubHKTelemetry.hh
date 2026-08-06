@@ -50,10 +50,9 @@ public:
     setType(Subsystem::HUB);
   }
   virtual ~HubHKTelemetry() = default;
-  static constexpr size_t NUM_TOF_BIAS = 200;
   static constexpr size_t NUM_PDU_HV_TEMP = 2;
   static constexpr size_t NUM_PDU_SIPM = 6;
-  static constexpr size_t ARGC = 288;
+  static constexpr size_t ARGC = 88;
   static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
   static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
   static constexpr size_t NUM_RTD_GONDOLA = 4;

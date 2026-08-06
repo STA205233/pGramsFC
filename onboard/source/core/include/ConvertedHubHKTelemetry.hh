@@ -34,7 +34,6 @@ public:
   using floating_t = double;
 
 public:
-  static constexpr size_t NUM_TOF_BIAS = HubHKTelemetry::NUM_TOF_BIAS;
   static constexpr size_t NUM_PDU_HV_TEMP = HubHKTelemetry::NUM_PDU_HV_TEMP;
   static constexpr size_t NUM_PDU_SIPM = HubHKTelemetry::NUM_PDU_SIPM;
   static constexpr size_t ARGC = HubHKTelemetry::ARGC;
