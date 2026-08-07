@@ -23,7 +23,7 @@ ANLStatus GetLabJackData::mod_initialize() {
     return AS_ERROR;
   }
   labjackIO_->printInfo(std::cout);
-  labjackIO_->configure(rangeSetting_, 199, 0, 0);
+  labjackIO_->configure(rangeSetting_, 1, 0, 0);
   return AS_OK;
 }
 ANLStatus GetLabJackData::mod_analyze() {
