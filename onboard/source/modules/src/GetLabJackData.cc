@@ -46,7 +46,7 @@ ANLStatus GetLabJackData::mod_analyze() {
     }
     analogIn_[0] = 0.0;
   }
-  const auto err2 = labjackIO_->read(LabJackAddresses::AIN<1>, analogIn_[1]);
+  const auto err2 = labjackIO_->read(LabJackAddresses::AIN<2>, analogIn_[1]); // All signals are differential, so the next
   if (err2 != 0) {
     char err_str[LJM_STRING_MAX_SIZE];
     LJM_ErrorToString(err2, err_str);
