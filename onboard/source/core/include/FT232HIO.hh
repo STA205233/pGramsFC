@@ -20,7 +20,7 @@ public:
   int MaximumCh() override { return 8; } // TODO: Set actual value
 
 protected:
-  FT232HIO(const FT232HIO&) = delete;
+  FT232HIO(const FT232HIO &) = delete;
 
 public:
   struct config {
@@ -29,7 +29,7 @@ public:
     static constexpr unsigned int SPI_MODE2 = 0x2;
     static constexpr unsigned int SPI_MODE3 = 0x3;
   };
-  int Open(int channel) override;
+  int Open(int channel, const char*) override;
   int Close() override {
     if (!IsOpen()) {
       return 0;
@@ -46,9 +46,6 @@ public:
   int controlGPIO(int cs, bool value) override;
   int controlGPIOBit(uint32_t cs, uint32_t value) override;
   int updateSetting() override;
-  int setSpiMode(int mode) override {
-    return mpsseController_->setSPIMode(mode);
-  }
 
 private:
   std::shared_ptr<mpsse::MPSSEDeviceManager> mpsseDeviceManager_;

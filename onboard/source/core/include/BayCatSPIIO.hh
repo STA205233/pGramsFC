@@ -29,11 +29,8 @@ public:
 public:
   BayCatSPIIO();
   virtual ~BayCatSPIIO() = default;
-  BayCatSPIIO(const BayCatSPIIO&) = delete;
+  BayCatSPIIO(const BayCatSPIIO &) = delete;
   int MaximumCh() override { return 24; }
-  int setSpiMode(int mode) override {
-    return SPISetMode(static_cast<unsigned int>(mode));
-  }
 
 private:
   std::map<int, unsigned int> baudrateList_;
@@ -41,7 +38,7 @@ private:
 public:
   int updateSetting() override;
   void setBaudrate(unsigned int baudrate) override;
-  int Open(int channel) override;
+  int Open(int channel, const char *path) override;
   int Close() override;
   int WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) override;
   int WriteAndRead(int /*cs*/, uint8_t * /*writeBuffer*/, unsigned int /*size*/, uint8_t * /*readBuffer*/, bool csControl) override;

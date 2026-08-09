@@ -51,6 +51,11 @@ if(GB_USE_SPI)
       src/MPSSEDeviceManager.cc
     )
   endif(GB_USE_FT232H)
+  if (GB_USE_MCP2210)
+    list(APPEND GB_SPI_CORE_CLASSES
+      src/MCP2210IO.cc
+    )
+  endif(GB_USE_MCP2210)
 endif(GB_USE_SPI)
 
 if (GB_USE_LJM)

@@ -18,7 +18,7 @@ public:
   virtual ~SPIInterface() = default;
 
 protected:
-  SPIInterface(const SPIInterface&) = delete;
+  SPIInterface(const SPIInterface &) = delete;
   void setIsOpen(bool isOpen) { isOpen_ = isOpen; }
 
 public:
@@ -30,13 +30,12 @@ public:
   bool IsOpen() const { return isOpen_; }
   virtual void setConfigOptions(unsigned int configOptions) { configOptions_ = configOptions; }
   unsigned int ConfigOptions() const { return configOptions_; }
-  virtual int Open(int) { return -1; }
+  virtual int Open(int, const char * = "") { return -1; }
   virtual int Close() { return -1; }
   virtual int WriteThenRead(int, const uint8_t *, unsigned int, uint8_t *, unsigned int, bool = true) { return -1; }
   virtual int WriteAndRead(int, uint8_t *, unsigned int, uint8_t *, bool = true) { return -1; }
   virtual int Write(int, const uint8_t *, unsigned int, bool = true) { return -1; }
   virtual int controlGPIO(int, bool) { return -1; }
-  virtual int setSpiMode(int) { return -1; }
   /**
    *  @brief Control GPIO specified by bit expression
    *  @param csBit Set high to be controlled
@@ -61,7 +60,7 @@ public:
     channels_ = {{static_cast<VCSMapping::cs_t>(cs_), static_cast<VCSMapping::cs_t>(cs_)}};
   }
 
-  virtual const std::vector<VCSMapping::pair_t>& Channels() const { return channels_; }
+  virtual const std::vector<VCSMapping::pair_t> &Channels() const { return channels_; }
 
 private:
   int cs_ = -1;

@@ -83,7 +83,7 @@ int BayCatSPIIO::updateSetting() {
   if (failed) return -1;
   return 0;
 }
-int BayCatSPIIO::Open(int) {
+int BayCatSPIIO::Open(int, const char *) {
   if (IsOpen()) {
     return 0;
   }

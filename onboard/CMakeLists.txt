@@ -19,6 +19,7 @@ set(PROJECT_VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(USE_RUBY ON)
 set(GB_SOCKET_CLIENT OFF)
 set(MY_LIBRARY GRAMSBalloon)
@@ -43,6 +44,7 @@ option(GB_APT_RUBY "installed ruby via apt" OFF)
 option(GB_USE_ROOT "enable root" OFF)
 option(GB_USE_MYSQL "enable mysql" OFF)
 option(GB_USE_LJM "enable LJM library for LabJack devices" ON)
+option(GB_USE_MCP2210 "enable MCP2210 library" OFF)
 
 # # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
@@ -239,10 +241,15 @@ set(MOSQUITTO_LIB PkgConfig::Mosquitto)
 if (GB_USE_LJM)
   find_library(LJM_LIB NAMES LabJackM REQUIRED PATHS /usr/local/lib)
   find_path(LJM_INC_DIR NAMES LabJackM.h REQUIRED PATHS /usr/local/include)
-  message(" -- LJM_LIB: ${LJM_LIB} ")
-  message(" -- LJM_INC_DIR: ${LJM_INC_DIR} ")
+  message("-- LJM_LIB: ${LJM_LIB} ")
+  message("-- LJM_INC_DIR: ${LJM_INC_DIR} ")
   list(APPEND cxx_definitions "-DUSE_LJM")
 endif(GB_USE_LJM)
+
+# MCP2210
+if (GB_USE_MCP2210)
+  find_library(MCP2210_LIB NAMES libmcp2210hid_shared REQUIRED PATHs )
+endif(GB_USE_MCP2210)
 
 # ## subdirectories
 add_subdirectory(source)
