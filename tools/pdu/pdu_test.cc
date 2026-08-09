@@ -37,9 +37,9 @@ int main(int argc, char *argv[]) {
   dac.setSPIInterface(spiInterface.get());
   
   
-  
-  dac.setCS(10); // Chip select 
-  //std::this_thread::sleep_for(std::chrono::seconds(5));
+  for (int i = 10; i < 17; ++i) {
+  dac.setCS(i); // Chip select 
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
   dac.setVoltage(3.0f); // voltage control
   const auto applyStatus = dac.applySetting();
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     return applyStatus;
   }
   std::cout << "Current Voltage: " << dac.getCurrentVoltage() << " V" << std::endl;
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  std::this_thread::sleep_for(std::chrono::seconds(1));
   dac.setVoltage(0.0f);
   //dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_PowerDown_HiZ);
   const auto resetStatus = dac.applySetting();
@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
     return resetStatus;
   }
   std::cout << "Voltage reset to: " << dac.getCurrentVoltage() << " V" << std::endl;
+}
   const int status2 = spiInterface->Close();
   return status2;
 }

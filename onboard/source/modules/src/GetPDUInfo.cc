@@ -39,7 +39,6 @@ ANLStatus GetPDUInfo::mod_initialize() {
 }
 ANLStatus GetPDUInfo::mod_analyze() {
   if (!adc_) {
-    std::cerr << "GetPDUInfo: ADC is not initialized" << std::endl;
     return AS_ERROR;
   }
   if (!adc_->isSPIInterfaceSet()) {
