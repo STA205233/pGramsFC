@@ -25,15 +25,15 @@ public:
   virtual ~SPIInterfaceMultiplexer() = default;
 
 protected:
-  SPIInterfaceMultiplexer(const SPIInterfaceMultiplexer&) = delete;
+  SPIInterfaceMultiplexer(const SPIInterfaceMultiplexer &) = delete;
 
 private:
   std::unique_ptr<VCSMapping> csMapping_ = nullptr;
   std::shared_ptr<SPIInterface> baseInterface_ = nullptr;
 
 public:
-  void setBaseInterface(std::shared_ptr<SPIInterface>& baseInterface) { baseInterface_ = baseInterface; }
-  void setMappingChipSelect(std::unique_ptr<VCSMapping>&& mapping) { csMapping_ = std::move(mapping); }
+  void setBaseInterface(std::shared_ptr<SPIInterface> &baseInterface) { baseInterface_ = baseInterface; }
+  void setMappingChipSelect(std::unique_ptr<VCSMapping> &&mapping) { csMapping_ = std::move(mapping); }
   std::optional<VCSMapping::pair_t> getMappingChipSelect(int multiplexerChannel) const;
   std::optional<VCSMapping::cs_t> getDefaultState() const {
     if (!csMapping_) { return std::nullopt; }
@@ -44,9 +44,9 @@ public:
   int controlGPIOBit(uint32_t cs, uint32_t value) override;
 
   template <typename F>
-  int executeFunction(int multiplexerChannel, bool csControl, F&& f);
+  int executeFunction(int multiplexerChannel, bool csControl, F &&f);
 
-  const std::vector<VCSMapping::pair_t>& Channels() const override {
+  const std::vector<VCSMapping::pair_t> &Channels() const override {
     static const std::vector<VCSMapping::pair_t> empty;
     return csMapping_ ? csMapping_->Channels() : empty;
   }
@@ -67,7 +67,7 @@ public:
       baseInterface_->setBaudrate(baudrate);
     }
   }
-  
+
   void setConfigOptions(unsigned int options) override {
     if (baseInterface_) {
       baseInterface_->setConfigOptions(options);
@@ -79,7 +79,7 @@ public:
 };
 
 template <typename F>
-int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csControl, F&& f) {
+int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csControl, F &&f) {
   const auto mapped = getMappingChipSelect(multiplexerChannel);
   if (!mapped.has_value()) {
     return -1;
@@ -93,7 +93,7 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
     }
   }
 
-  ret = std::forward<F>(f)(-1); // CS control is already handled above via controlGPIOBit; the base interface does not need a real channel.
+  ret = std::forward<F>(f)(); // CS control is already handled above via controlGPIOBit; the base interface does not need a real channel.
 
   if (csControl) {
     const int releaseRet = baseInterface_->controlGPIOBit(static_cast<uint32_t>(mapped->first), getDefaultState().value());
