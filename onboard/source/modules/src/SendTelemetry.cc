@@ -283,5 +283,4 @@ void SendTelemetry::setHKTelemetry() {
   // TODO: Add implementation
 #endif
 }
-
 } // namespace gramsballoon::pgrams

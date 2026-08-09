@@ -18,6 +18,7 @@ class SendTelemetry;
  * @date 2025-09-20 Shota Arai| Changed to template class to handle different types of telemetry. (v2.0)
  * @date 2026-02-05 Shota Arai| Added doInitialize parameter to control mosqpp::lib_init and lib_cleanup calls. (v2.1)
  * @date 2026-02-05 Shota Arai| Multi-threading (v2.2)
+ * @date 2026-07-08 Shota Arai| Use of loop_start() (v2.3)
 **/
 
 template <typename T>
@@ -31,7 +32,7 @@ class MosquittoManager: public anlnext::BasicModule {
     else if constexpr (std::is_same_v<TelemType, std::vector<uint8_t>>)
       return "ComMosquittoManager";
   }
-  std::string __module_version__() const override { return "2.2"; }
+  std::string __module_version__() const override { return "2.3"; }
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -74,7 +75,7 @@ private:
   int chatter_ = 0;
   int timeout_ = 10;
   bool doInitialize_ = false;
-  bool threadedSet_ = true;
+  bool doCleanup_ = false;
   anlnext::ANLStatus HandleError(int error_code);
   CommunicationLinkType linkType_ = CommunicationLinkType::IRIDIUM;
 };
