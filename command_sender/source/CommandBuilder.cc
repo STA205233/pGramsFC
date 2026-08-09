@@ -8,7 +8,7 @@
 #include <iostream>
 #include <tuple>
 namespace {
-uint16_t crc_calc(const std::vector<uint8_t> &byte_array) {
+uint16_t crc_calc(const std::vector<uint8_t>& byte_array) {
   uint16_t crc = 0;
   for (const uint8_t i: byte_array) {
     crc = crc ^ i;
@@ -28,19 +28,19 @@ uint16_t crc_calc(const std::vector<uint8_t> &byte_array) {
 
 namespace gramsballoon {
 
-void replace_all(std::string &s,
-                 const std::string &from,
-                 const std::string &to) {
+void replace_all(std::string& s,
+                 const std::string& from,
+                 const std::string& to) {
   if (from.empty()) return;
 
   std::size_t pos = 0;
   while ((pos = s.find(from, pos)) != std::string::npos) {
     s.replace(pos, from.length(), to);
-    pos += to.length(); // 無限ループ防止
+    pos += to.length();
   }
 }
 
-void add_code_map(std::map<std::string, CommandProperty> &code_map,
+void add_code_map(std::map<std::string, CommandProperty>& code_map,
                   const std::string_view enum_name, const pgrams::communication::CommunicationCodes code,
                   const int argnum) {
   CommandProperty property;
@@ -138,10 +138,14 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TPC_Boot_Monitor, 0);
   ADD_CODE_MAP(TPCMonitor_Query_LB_Data, 4);
   ADD_CODE_MAP(TPCMonitor_Query_Event_Data, 4);
+  //ADD_CODE_MAP(TPCMonitor_Start_Continuous_LBW, 4);
+  //ADD_CODE_MAP(TPCMonitor_Stop_Continuous_LBW, 0);
+  //ADD_CODE_MAP(TPCMonitor_Send_Full_Event_Data, 4);
 
   ADD_CODE_MAP(TOF_Start_DAQ, 0);
   ADD_CODE_MAP(TOF_Stop_DAQ, 0);
   ADD_CODE_MAP(TOF_Reset_DAQ, 0);
+  ADD_CODE_MAP(TOF_Reconnect_Network, 0);
   ADD_CODE_MAP(TOF_Init_System, 0);
   ADD_CODE_MAP(TOF_Make_Bias_Calib_Table, 0);
   ADD_CODE_MAP(TOF_Make_Simple_Bias_Set_Table, 0);
@@ -160,6 +164,8 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Convert_Raw_To_Raw, 0);
   ADD_CODE_MAP(TOF_Convert_Raw_To_Singles, 0);
   ADD_CODE_MAP(TOF_Convert_Stg1_To_Stg2, 0);
+  ADD_CODE_MAP(TOF_Set_FEM_Power_Off, 0);
+  ADD_CODE_MAP(TOF_Set_FEM_Power_On, 0);
   ADD_CODE_MAP(TOF_Process_QA_Coin, 0);
   ADD_CODE_MAP(TOF_Process_QA_Iridium, 0);
   ADD_CODE_MAP(TOF_Macro_Thermal_Calib, 0);
@@ -170,7 +176,7 @@ CommandBuilder::CommandBuilder() {
 }
 #undef ADD_CODE_MAP
 
-CommandProperty CommandBuilder::get_command_property(const std::string &name) const {
+CommandProperty CommandBuilder::get_command_property(const std::string& name) const {
   auto command = code_map_.find(name);
   if (command == code_map_.end()) {
     throw CommandException("Invalid command name");
@@ -179,15 +185,15 @@ CommandProperty CommandBuilder::get_command_property(const std::string &name) co
   return command->second;
 }
 
-uint16_t CommandBuilder::get_command_code(const std::string &name) const {
+uint16_t CommandBuilder::get_command_code(const std::string& name) const {
   return get_command_property(name).code;
 }
 
-int CommandBuilder::get_argnum(const std::string &name) const {
+int CommandBuilder::get_argnum(const std::string& name) const {
   return get_command_property(name).argnum;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<int32_t> &arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<int32_t>& arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);
@@ -224,7 +230,7 @@ std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::v
   return command;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string &name, const std::vector<int32_t> &arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string& name, const std::vector<int32_t>& arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);

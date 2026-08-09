@@ -5,13 +5,8 @@
 #include <string>
 #include "SimpleLoop.hh"
 #include "Sleep.hh"
-#ifndef GB_MAC
 #include "ReceiveCommand.hh"
-#endif
-#ifndef GB_MAC
 #include "SendTelemetry.hh"
-#include "MeasureOrientationByMHADC.hh"
-#endif
 #ifdef USE_SPI
 #include "SPIManager.hh"
 #include "GetPDUInfo.hh"
@@ -119,11 +114,6 @@ class ReceiveTelemetry :  public anlnext::BasicModule
 public:
   ReceiveTelemetry();
 };
-
-//class DumpSerial: public anlnext::BasicModule {
-//public:
-//    DumpSerial();
-//};
 
 class GetMHADCData: public anlnext::BasicModule {
 public:

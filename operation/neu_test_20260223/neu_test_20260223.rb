@@ -14,26 +14,26 @@ class MyApp < ANL::ANLApp
     end
     @main_modules = []
     chain GRAMSBalloon::TelemMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
       m.set_singleton(1)
     end
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_c", time_out: 1) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(1)
     end
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-    # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    # with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
-    # chain GRAMSBalloon::GetMHADCData
-    # with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
-      # m.set_singleton(0)
-    # end
-    # @main_modules << "MHADCManager"
-    # @main_modules << "GetMHADCData"
-    # subsystems = ["Orchestrator"]
+    chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
+    chain GRAMSBalloon::GetMHADCData
+    with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "MHADCManager"
+    @main_modules << "GetMHADCData"
+    subsystems = ["Orchestrator"]
     subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
@@ -66,7 +66,7 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "DistributeCommand_#{subsystem}"
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 2) do |m|
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
@@ -75,7 +75,7 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "ReceiveStatusFromDAQComputer_" + subsystem
       chain GRAMSBalloon::DividePacket, "DividePacket_#{subsystem}"
-        with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: subsystem_starlink[subsystem], overwritten_packet_code: subsystem_overwritten[subsystem], chatter: 2) do |m|
+        with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: subsystem_starlink[subsystem], overwritten_packet_code: subsystem_overwritten[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "DividePacket_#{subsystem}"

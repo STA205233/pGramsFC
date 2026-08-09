@@ -287,6 +287,7 @@ void SendTelemetry::setHKTelemetry() {
   }
 #endif
 #ifdef USE_LJM
+#ifdef USE_LJM
   if (getLabJackData_) {
     const auto &analogIn = getLabJackData_->getAnalogIn();
     telemdef_->setPressureTransducer(static_cast<uint16_t>(analogIn[0] * 100.0));
@@ -310,5 +311,4 @@ void SendTelemetry::setHKTelemetry() {
   }
 #endif
 }
-
 } // namespace gramsballoon::pgrams
