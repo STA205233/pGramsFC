@@ -1,111 +1,153 @@
 #include "MHADCMapping.hh"
 namespace gramsballoon::pgrams {
-bool MHADCMapping::getSetter(int index, HubHKSetterResult &setter) {
+constexpr int MHADCMapping::ChannelMapping(int ADC_index, int channel) {
+  return NUM_CHANNEL_PER_SECTION * ADC_index + channel;
+}
+bool MHADCMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) const {
   switch (index) {
-  case 0:
-    setSetterArrayResult(&HubHKTelemetry::setRtdGondolaFrame, 0, setter);
+  case ChannelMapping(0, 0):
+    setter = &HubHKTelemetry::setRtdGondolaFrame<0>;
     break;
-  case 1:
-    setSetterArrayResult(&HubHKTelemetry::setRtdGondolaFrame, 1, setter);
+  case ChannelMapping(0, 1):
+    setter = &HubHKTelemetry::setRtdGondolaFrame<1>;
     break;
-  case 2:
-    setSetterArrayResult(&HubHKTelemetry::setRtdGondolaFrame, 2, setter);
+  case ChannelMapping(0, 2):
+    setter = &HubHKTelemetry::setRtdGondolaFrame<2>;
     break;
-  case 3:
-    setSetterArrayResult(&HubHKTelemetry::setRtdGondolaFrame, 3, setter);
+  case ChannelMapping(0, 3):
+    setter = &HubHKTelemetry::setRtdGondolaFrame<3>;
     break;
-  case 4:
-    setSetterResult(&HubHKTelemetry::setRtdDaqCrate1, setter);
+  case ChannelMapping(0, 4):
+    setter = &HubHKTelemetry::setInclinometers<0>;
     break;
-  case 5:
-    setSetterResult(&HubHKTelemetry::setRtdDaqCrate2, setter);
+  case ChannelMapping(0, 5):
+    setter = &HubHKTelemetry::setRtdDaqCrate<1>;
     break;
-  case 6:
-    setSetterResult(&HubHKTelemetry::setRtdDaqCrateBackup, setter);
+  case ChannelMapping(1, 0):
+    setter = &HubHKTelemetry::setRtdDaqCrate<2>;
     break;
-  case 7:
-    setSetterResult(&HubHKTelemetry::setRtdShaperFaradayCage1, setter);
+  case ChannelMapping(1, 1):
+    setter = &HubHKTelemetry::setRtdShaperFaradayCage<0>;
     break;
-  case 8:
-    setSetterResult(&HubHKTelemetry::setRtdShaperFaradayCage2, setter);
+  case ChannelMapping(1, 2):
+    setter = &HubHKTelemetry::setRtdShaperFaradayCage<1>;
     break;
-  case 9:
-    setSetterArrayResult(&HubHKTelemetry::setRtdShaperBoard, 0, setter);
+  case ChannelMapping(1, 3):
+    setter = &HubHKTelemetry::setRtdShaperBoard<0>;
     break;
-  case 10:
-    setSetterArrayResult(&HubHKTelemetry::setRtdShaperBoard, 1, setter);
+  case ChannelMapping(1, 4):
+    setter = &HubHKTelemetry::setInclinometers<1>;
     break;
-  case 11:
-    setSetterArrayResult(&HubHKTelemetry::setRtdShaperBoard, 2, setter);
+  case ChannelMapping(1, 5):
+    setter = &HubHKTelemetry::setRtdShaperBoard<2>;
     break;
-  case 12:
-    setSetterArrayResult(&HubHKTelemetry::setRtdShaperBoard, 3, setter);
+  case ChannelMapping(2, 0):
+    setter = &HubHKTelemetry::setRtdShaperBoard<1>;
     break;
-  case 13:
-    setSetterArrayResult(&HubHKTelemetry::setRtdShaperBoard, 4, setter);
+  case ChannelMapping(2, 1):
+    setter = &HubHKTelemetry::setRtdShaperBoard<4>;
     break;
-  case 14:
-    setSetterArrayResult(&HubHKTelemetry::setRtdShaperBoard, 5, setter);
+  case ChannelMapping(2, 2):
+    setter = &HubHKTelemetry::setRtdShaperBoard<5>;
     break;
-  case 15:
-    setSetterResult(&HubHKTelemetry::setRtdHubComputerLocation1, setter);
+  case ChannelMapping(2, 3):
+    setter = &HubHKTelemetry::setRtdHubComputerLocation<0>;
     break;
-  case 16:
-    setSetterResult(&HubHKTelemetry::setRtdHubComputerLocation2, setter);
+  case ChannelMapping(2, 4):
+    setter = &HubHKTelemetry::setRtdHubComputerLocation<1>;
     break;
-  case 17:
-    setSetterResult(&HubHKTelemetry::setRtdTofFpgas, setter);
+  case ChannelMapping(2, 5):
+    setter = &HubHKTelemetry::setRtdTofFpga;
     break;
-  case 18:
-    setSetterResult(&HubHKTelemetry::setRtdTof2, setter);
+  case ChannelMapping(3, 0):
+    setter = &HubHKTelemetry::setRtdTof;
     break;
-  case 19:
-    setSetterResult(&HubHKTelemetry::setRtdSealedEnclosure1WaterTank, setter);
+  case ChannelMapping(3, 1):
+    setter = &HubHKTelemetry::setRtdOutsideSealedEnclosure<0>;
     break;
-  case 20:
-    setSetterResult(&HubHKTelemetry::setRtdSealedEnclosureLocation2, setter);
+  case ChannelMapping(3, 2):
+    setter = &HubHKTelemetry::setRtdShaperBoard<3>;
     break;
-  case 21:
-    setSetterResult(&HubHKTelemetry::setRtdVacuumJacket1, setter);
+  case ChannelMapping(3, 3):
+    setter = &HubHKTelemetry::setRtdVacuumJacket<0>;
     break;
-  case 22:
-    setSetterResult(&HubHKTelemetry::setRtdVacuumJacket2, setter);
+  case ChannelMapping(3, 4):
+    setter = &HubHKTelemetry::setRtdVacuumJacket<1>;
     break;
-  case 23:
-    setSetterResult(&HubHKTelemetry::setRtdVacuumJacket3, setter);
+  case ChannelMapping(3, 5):
+    setter = &HubHKTelemetry::setRtdVacuumJacket<2>;
     break;
-  case 24:
-    setSetterResult(&HubHKTelemetry::setPressureRegulator, setter);
+  case ChannelMapping(4, 0):
+    setter = &HubHKTelemetry::setSpare<0>;
     break;
-  case 25:
-    setSetterResult(&HubHKTelemetry::setPressureTransducer, setter);
+  case ChannelMapping(4, 1):
+    setter = &HubHKTelemetry::setSpare<1>;
     break;
-  case 26:
-    setSetterResult(&HubHKTelemetry::setLiquidLevelMeter, setter);
+  case ChannelMapping(4, 2):
+    setter = &HubHKTelemetry::setSpare<2>;
     break;
-  case 27:
-    setSetterResult(&HubHKTelemetry::setInclinometer, setter);
+  case ChannelMapping(4, 3):
+    setter = &HubHKTelemetry::setSpare<3>;
     break;
-  case 28:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 0, setter);
+  case ChannelMapping(4, 4):
+    setter = &HubHKTelemetry::setSpare<4>;
     break;
-  case 29:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 1, setter);
+  case ChannelMapping(4, 5):
+    setter = &HubHKTelemetry::setSpare<5>;
     break;
-  case 30:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 2, setter);
+  case ChannelMapping(5, 0):
+    setter = &HubHKTelemetry::setSpare<6>;
     break;
-  case 31:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 3, setter);
+  case ChannelMapping(5, 1):
+    setter = &HubHKTelemetry::setSpare<7>;
     break;
-  case 32:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 4, setter);
+  case ChannelMapping(5, 2):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<0>;
     break;
-  case 33:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 5, setter);
+  case ChannelMapping(5, 3):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<1>;
     break;
-  case 34:
-    setSetterArrayResult(&HubHKTelemetry::setRtdsInsideChamber, 6, setter);
+  case ChannelMapping(5, 4):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<2>;
+    break;
+  case ChannelMapping(5, 5):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<3>;
+    break;
+  case ChannelMapping(6, 0):
+    setter = &HubHKTelemetry::setRtdOutsideSealedEnclosure<0>;
+    break;
+  case ChannelMapping(6, 1):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<5>;
+    break;
+  case ChannelMapping(6, 2):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<6>;
+    break;
+  case ChannelMapping(6, 3):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<7>;
+    break;
+  case ChannelMapping(6, 4):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<8>;
+    break;
+  case ChannelMapping(6, 5):
+    setter = &HubHKTelemetry::setRtdsInsideChamber<4>;
+    break;
+  case ChannelMapping(7, 0):
+    setter = &HubHKTelemetry::setRtdDaqCrate<0>;
+    break;
+  case ChannelMapping(7, 1):
+    setter = &HubHKTelemetry::setSpare<8>;
+    break;
+  case ChannelMapping(7, 2):
+    setter = &HubHKTelemetry::setSpare<9>;
+    break;
+  case ChannelMapping(7, 3):
+    setter = &HubHKTelemetry::setSpare<10>;
+    break;
+  case ChannelMapping(7, 4):
+    setter = &HubHKTelemetry::setSpare<11>;
+    break;
+  case ChannelMapping(7, 5):
+    setter = &HubHKTelemetry::setSpare<12>;
     break;
   default:
     break;

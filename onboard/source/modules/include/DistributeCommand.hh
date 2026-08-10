@@ -1,12 +1,11 @@
 #ifndef GB_DistributeCommand_hh
 #define GB_DistributeCommand_hh 1
+#include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 #include "SendTelemetry.hh"
 #include "SocketCommunicationManager.hh"
 #include "anlnext/BasicModule.hh"
-#include "sys/socket.h"
 #include <arpa/inet.h>
-#include <map>
 #include <string>
 namespace gramsballoon::pgrams {
 class SendTelemetry;

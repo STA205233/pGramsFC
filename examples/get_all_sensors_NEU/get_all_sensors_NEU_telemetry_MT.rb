@@ -32,14 +32,6 @@ class MyApp < ANL::ANLApp
           measure_temperature_modules << "MeasureTemperatureWithRTDSensorByArduino_#{i}"
         end
         
-        chain GRAMSBalloon::EncodedSerialCommunicator, "CompressorManager"
-        with_parameters(filename: "/dev/ttyUSB2", baudrate: 13, timeout_usec: 10000, timeout_sec: 0) do |m|
-          m.set_singleton(0)
-        end
-        chain GRAMSBalloon::GetCompressorData
-        with_parameters(EncodedSerialCommunicator_name: "CompressorManager", sleep_for_msec: 10) do |m|
-          m.set_singleton(0)
-        end
         chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_1"
         with_parameters(filename: "/dev/ttyUSB0", baudrate: 4098,  timeout_usec: 10000, timeout_sec: 0) do |m|
           m.set_singleton(0)

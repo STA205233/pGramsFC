@@ -17,34 +17,15 @@ class MyApp < ANL::ANLApp
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
       m.set_singleton(0)
     end
-    @main_modules << "TelemMosquittoManager"
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1) do |m|
       m.set_singleton(0)
     end
-    @main_modules << "ComMosquittoManager"
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-    # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    # with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
-    # chain GRAMSBalloon::GetMHADCData
-    # with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
-      # m.set_singleton(0)
-    # end
-    # @main_modules << "MHADCManager"
-    # @main_modules << "GetMHADCData"
-    
-    chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
-    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat") do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "SPIManager_baycat"
-    
-    # subsystems = ["Orchestrator"]
-    #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
-    subsystems = []
+    subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
     subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [], "Orchestrator" => []}
@@ -55,7 +36,7 @@ class MyApp < ANL::ANLApp
       @main_modules << "SendCommandToDAQComputer_" + subsystem
     end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command/command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"
@@ -102,7 +83,7 @@ class MyApp < ANL::ANLApp
     end
     
     chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 0) do |m|
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 100) do |m|
       m.set_singleton(0)
     end
     @main_modules << "MHADCManager"
@@ -121,7 +102,7 @@ class MyApp < ANL::ANLApp
           starlink_topic: @inifile["Hub"]["teltopic"],
           qos:0,
           save_telemetry: false,
-          binary_filename_base: "telemetry/telemetry",
+          binary_filename_base: "telemetry",
           num_telem_per_file: 1000,
           chatter: 0,
     ) do |m|
@@ -141,11 +122,12 @@ end
 a = MyApp.new
 
 
-a.num_parallels = 2
+a.num_parallels = 1
+mosquitto_modules = ["TelemMosquittoManager", "ComMosquittoManager"]
 a.modify do |m|
-  a.main_modules.each do |mod|
-   m.get_parallel_module(1, mod).off
-  end
+  #a.main_modules.each do |mod|
+  # m.get_parallel_module(1, mod).off
+  #end
   #mosquitto_modules.each do |mod|
   # m.get_parallel_module(0, mod).off
   #end

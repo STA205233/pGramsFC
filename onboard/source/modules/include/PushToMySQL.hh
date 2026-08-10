@@ -1,8 +1,8 @@
 #ifndef GRAMSBalloon_PushToMySQL_hh
 #define GRAMSBalloon_PushToMySQL_hh 1
-#include "InterpretTelemetry.hh"
 #include "MySQLFieldSink.hh"
 #include "MySQLManager.hh"
+#include "VDBDataStore.hh"
 #include "anlnext/BasicModule.hh"
 #include <string>
 #include <vector>
@@ -17,9 +17,10 @@ class MySQLFieldSink;
  * @date 2025-**-** | First design
  * @date 2025-12-14 | Shota Arai | Refactoring (v2.0)
  * @date 2026-02-04 | Shota Arai | Use MySQLManager (v3.0)
+ * @date 2026-07-09 | Shota Arai | Use of VDBDataStore (v3.1)
  */
 class PushToMySQL: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(PushToMySQL, 3.0);
+  DEFINE_ANL_MODULE(PushToMySQL, 3.1);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -37,9 +38,9 @@ public:
 
 private:
   int chatter_ = 0;
-  InterpretTelemetry *HubHKinterpreter_ = nullptr;
-  std::string HubHKInterpreterName_ = "InterpretTelemetry";
-  std::string HubHKtableName_ = "HubHK";
+  const VDBDataStore *dataStore_ = nullptr;
+  std::string dataStoreName_ = "InterpretTelemetry";
+  std::string tableName_ = "HubHK";
 
   MySQLManager *mysqlManager_ = nullptr;
 

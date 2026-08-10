@@ -4,7 +4,6 @@
 #include "MosquittoManager.hh"
 #include "anlnext/BasicModule.hh"
 #include <string>
-#include <vector>
 namespace gramsballoon::pgrams {
 /**
  * @brief Send array interpreted from telemetry to the other subsystem ground software

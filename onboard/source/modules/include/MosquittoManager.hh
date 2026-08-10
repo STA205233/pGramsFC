@@ -1,9 +1,7 @@
 #ifndef GB_MosquittoManager_hh
 #define GB_MosquittoManager_hh 1
-#include "ErrorManager.hh"
-#include "MosquittoIO.hh"
-#include "SendTelemetry.hh"
 #include "anlnext/BasicModule.hh"
+#include "mosquittopp.h"
 #include <string>
 
 namespace gramsballoon::pgrams {
