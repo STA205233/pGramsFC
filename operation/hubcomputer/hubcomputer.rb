@@ -57,7 +57,7 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "DistributeCommand_#{subsystem}"
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 2) do |m|
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
@@ -88,7 +88,7 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "MHADCManager"
     chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 4, sleep_for_msec:1) do |m|
+    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetMHADCData"
