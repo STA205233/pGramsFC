@@ -8,6 +8,7 @@ include_directories(
   ${VERSALOGIC_INC_DIR}
   ${LJM_INC_DIR}
   ${BME_INC_DIR}
+  ${MCP2210_INC_DIR}
 )
   
 link_directories(
@@ -136,6 +137,7 @@ target_link_libraries(GBCore
   ${LJM_LIB}
   ${BME_LIB}
   ${BME280_LIB}
+  ${MCP2210_LIB}
   )
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 
