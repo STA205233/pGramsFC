@@ -1,8 +1,9 @@
 #include "BayCatSPIIO.hh"
 #include "DAC121S101IO.hh"
 #include "FT232HIO.hh"
-#include "SPIInterfaceMultiplexer.hh"
+#include "MCP2210IO.hh"
 #include "PDUCSMapping.hh"
+#include "SPIInterfaceMultiplexer.hh"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -13,7 +14,7 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
   std::unique_ptr<SPIInterfaceMultiplexer> spiInterface = std::make_unique<SPIInterfaceMultiplexer>();
   if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <FT232H or Baycat>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <FT232H, MCP2210 or Baycat>" << std::endl;
     return -1;
   }
   std::string interfaceType = argv[1];
@@ -27,6 +28,11 @@ int main(int argc, char *argv[]) {
     spiInterface2 = std::make_shared<FT232HIO>();
     spiInterface2->setConfigOptions(2);
   }
+  else if (interfaceType == "MCP2210") {
+    std::cout << "Using MCP2210 interface" << std::endl;
+    spiInterface2 = std::make_shared<MCP2210IO>();
+    spiInterface2->setConfigOptions(2);
+  }
   else {
     std::cerr << "Invalid interface type: " << interfaceType << ". Use 'FT232H' or 'Baycat'." << std::endl;
     return -1;
@@ -35,10 +41,8 @@ int main(int argc, char *argv[]) {
   spiInterface->setBaseInterface(spiInterface2);
   spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
   dac.setSPIInterface(spiInterface.get());
-  
-  
-  
-  dac.setCS(10); // Chip select 
+
+  dac.setCS(10); // Chip select
   //std::this_thread::sleep_for(std::chrono::seconds(5));
   dac.setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
   dac.setVoltage(3.0f); // voltage control

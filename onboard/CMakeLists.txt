@@ -98,6 +98,11 @@ else()
   set(GB_USE_VERSA_API OFF)
 endif()
 
+if (GB_USE_MCP2210)
+  set(GB_USE_SPI ON)
+  add_compile_definitions("USE_MCP2210")
+endif()
+
 if (GB_USE_SPI)
   add_compile_definitions("USE_SPI")
 endif()
