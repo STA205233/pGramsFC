@@ -13,15 +13,15 @@
 
 #define BME_REGISTER_BYTES 1
 
-/**
- * A class to handle BME280
- *
- * @author Shota Arai
- * @date 2026-05-08 | Shota Arai | First design
- */
 
 namespace gramsballoon::pgrams {
-
+  
+/**
+  * A class to handle BME280
+  *
+  * @author Shota Arai
+  * @date 2026-05-08 | Shota Arai | First design
+  */
 class BME280IO {
 public:
   BME280IO();

@@ -51,6 +51,17 @@ ANLStatus SPIManager::mod_pre_initialize() {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
     return AS_ERROR;
   }
+  
+  base_interface->setBaudrate(baudrate_);
+  base_interface->setConfigOptions(spiConfigOptions_);
+  const int status = base_interface->Open(channel_);
+  if (status != 0) {
+    std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
+    }
+  }
+  
   if (useMultiplexer_) {
     auto mul_interface = std::make_shared<SPIInterfaceMultiplexer>();
     mul_interface->setBaseInterface(base_interface);
@@ -59,13 +70,6 @@ ANLStatus SPIManager::mod_pre_initialize() {
   }
   else {
     interface_ = base_interface;
-  }
-  return AS_OK;
-}
-ANLStatus SPIManager::mod_initialize() {
-  const std::string send_telem_md = "SendTelemetry";
-  if (exist_module(send_telem_md)) {
-    get_module_NC(send_telem_md, &sendTelemetry_);
   }
 
   if (!interface_) {
@@ -76,16 +80,13 @@ ANLStatus SPIManager::mod_initialize() {
     return AS_ERROR;
   }
 
-  interface_->setBaudrate(baudrate_);
-  interface_->setConfigOptions(spiConfigOptions_);
-  const int status = interface_->Open(channel_);
-  if (status != 0) {
-    std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
-    }
+  return AS_OK;
+}
+ANLStatus SPIManager::mod_initialize() {
+  const std::string send_telem_md = "SendTelemetry";
+  if (exist_module(send_telem_md)) {
+    get_module_NC(send_telem_md, &sendTelemetry_);
   }
-  interface_->updateSetting();
   return AS_OK;
 }
 

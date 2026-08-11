@@ -1,10 +1,3 @@
-/**
- *  Module for communicating with MHADC.
- *
- * @author Shota Arai
- * @date 2024-09-19
- * 
- */
 #ifndef GRAMSBalloon_GetMHADCData_hh
 #define GRAMSBalloon_GetMHADCData_hh 1
 #include "EncodedSerialCommunicator.hh"  
@@ -15,6 +8,13 @@
 namespace gramsballoon::pgrams {
 class SendTelemetry;
 
+/**
+ *  Module for communicating with MHADC.
+ *
+ * @author Shota Arai
+ * @date 2024-09-19
+ * 
+ */
 class GetMHADCData: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(GetMHADCData, 1.0);
   ENABLE_PARALLEL_RUN();

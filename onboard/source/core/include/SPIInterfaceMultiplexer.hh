@@ -93,7 +93,7 @@ int SPIInterfaceMultiplexer::executeFunction(int multiplexerChannel, bool csCont
     }
   }
 
-  ret = std::forward<F>(f)(-1); // CS control is already handled above via controlGPIOBit; the base interface does not need a real channel.
+  ret = std::forward<F>(f)(); // CS control is already handled above via controlGPIOBit; the base interface does not need a real channel.
 
   if (csControl) {
     const int releaseRet = baseInterface_->controlGPIOBit(static_cast<uint32_t>(mapped->first), getDefaultState().value());

@@ -35,8 +35,20 @@ class MyApp < ANL::ANLApp
     # @main_modules << "GetMHADCData"
     
     chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
-    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat", use_multiplexer: false)
-    
+    with_parameters(channel: 0, spi_config_options: 1, spi_control_type: "baycat", use_multiplexer: true) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "SPIManager_baycat"
+    chain GRAMSBalloon::ControlPDU
+    with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "ControlPDU"
+    chain GRAMSBalloon::GetPDUInfo
+    with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "GetPDUInfo"
     
     # subsystems = ["Orchestrator"]
     #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
@@ -147,8 +159,8 @@ a.modify do |m|
    m.get_parallel_module(0, mod).off
   end
 end
-#a.run(1, 1)
-a.run(:all, 1000000000)
+a.run(1, 1)
+#a.run(:all, 1000000000)
 exit_status = 1
 puts "exit_status: #{exit_status}"
 exit exit_status

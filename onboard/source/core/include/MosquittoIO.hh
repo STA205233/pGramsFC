@@ -1,6 +1,7 @@
 #ifndef GB_MosquittoIO_hh
 #define GB_MosquittoIO_hh 1
 #include "mosquittopp.h"
+#include <atomic>
 #include <cstring>
 #include <deque>
 #include <iostream>
@@ -88,23 +89,25 @@ public:
   static int HandleError(int error_code);
   void setVerbose(int verbose) { verbose_ = verbose; }
 
+  bool IsConnected() const { return isConnected_.load(); }
+
 private:
   using mosqpp::mosquittopp::connect;
   using mosqpp::mosquittopp::disconnect;
   using mosqpp::mosquittopp::publish;
-  using mosqpp::mosquittopp::subscribe;
   using mosqpp::mosquittopp::reconnect;
+  using mosqpp::mosquittopp::subscribe;
   std::deque<std::shared_ptr<mqtt::mosquitto_message<V>>> payLoad_;
   std::string host_;
   std::vector<std::string> topicSub_;
   int port_;
   int keepAlive_;
   int verbose_ = 0;
-  bool connected_ = false;
   std::unique_ptr<std::pmr::synchronized_pool_resource> memResource_ = nullptr;
   std::unique_ptr<std::pmr::polymorphic_allocator<mqtt::mosquitto_message<V>>> allocatorMosq_ = nullptr;
   std::shared_ptr<mqtt::mosquitto_message<V>> allocateMessage();
   std::mutex payloadMutex_;
+  std::atomic_bool isConnected_ = false;
 };
 template <typename V>
 int MosquittoIO<V>::Publish(const V &message, const std::string &topic, int qos) {
@@ -126,36 +129,31 @@ int MosquittoIO<std::vector<uint8_t>>::Publish(const std::vector<uint8_t> &messa
 template <typename V>
 MosquittoIO<V>::~MosquittoIO() {
   HandleError(Disconnect());
-  HandleError(mosqpp::lib_cleanup());
 }
 template <typename V>
 int MosquittoIO<V>::Connect() {
-  if (connected_) {
+  if (isConnected_.load()) {
     return 0;
   }
-  const int ret = HandleError(connect(host_.c_str(), port_, keepAlive_));
-  if (ret == 0) {
-    connected_ = true;
-  }
+  const int ret = HandleError(connect_async(host_.c_str(), port_, keepAlive_));
   return ret;
 }
 template <typename V>
 int MosquittoIO<V>::Disconnect() {
-  if (!connected_) {
+  if (!isConnected_.load()) {
     return 0;
   }
   const int ret = HandleError(disconnect());
   if (ret == 0) {
-    connected_ = false;
+    isConnected_.store(false);
   }
   ClearPayload();
-  memResource_.reset();
-  allocatorMosq_.reset();
   return ret;
 }
 template <typename V>
 void MosquittoIO<V>::on_connect(int rc) {
   if (rc == 0) {
+    isConnected_.store(true);
     for (const auto &topic: topicSub_) {
       subscribe(NULL, topic.c_str(), 0);
     }
@@ -176,6 +174,7 @@ void MosquittoIO<V>::on_disconnect(int rc) {
     return;
   }
   if (rc == 0) {
+    isConnected_.store(false);
     std::cout << "Disconnected" << std::endl;
   }
   else {
@@ -275,9 +274,9 @@ inline std::shared_ptr<mqtt::mosquitto_message<V>> MosquittoIO<V>::allocateMessa
 
 template <typename V>
 inline int MosquittoIO<V>::Reconnect() {
-    const auto ret = reconnect();
-    return ret;
-  }
+  const auto ret = reconnect();
+  return ret;
+}
 } // namespace gramsballoon::pgrams
 
 #endif //GB_MosquittoIO_hh

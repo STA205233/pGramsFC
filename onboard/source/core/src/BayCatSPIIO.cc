@@ -104,7 +104,7 @@ int BayCatSPIIO::Open(int, const char *) {
     std::cerr << "updateSetting failed: " << status_update << std::endl;
     return status_update;
   }
-  return status;
+  return 0;
 }
 int BayCatSPIIO::Close() {
   // do nothing. RAII will take care of closing the API when the last BayCatSPIIO object is destructed

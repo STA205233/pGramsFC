@@ -24,22 +24,22 @@ int SPIInterfaceMultiplexer::controlGPIOBit(uint32_t cs, uint32_t value) {
 }
 
 int SPIInterfaceMultiplexer::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) {
-  return executeFunction(cs, csControl, [&](int mappedCs) {
-    return baseInterface_ ? baseInterface_->Write(mappedCs, writeBuffer, size, false) : -1;
+  return executeFunction(cs, csControl, [&]() {
+    return baseInterface_ ? baseInterface_->Write(-1, writeBuffer, size, false) : -1;
   });
 }
 
 int SPIInterfaceMultiplexer::WriteThenRead(
     int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) {
-  return executeFunction(cs, csControl, [&](int mappedCs) {
-    return baseInterface_ ? baseInterface_->WriteThenRead(mappedCs, writeBuffer, wsize, readBuffer, rsize, false) : -1;
+  return executeFunction(cs, csControl, [&]() {
+    return baseInterface_ ? baseInterface_->WriteThenRead(-1, writeBuffer, wsize, readBuffer, rsize, false) : -1;
   });
 }
 
 int SPIInterfaceMultiplexer::WriteAndRead(
     int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) {
-  return executeFunction(cs, csControl, [&](int mappedCs) {
-    return baseInterface_ ? baseInterface_->WriteAndRead(mappedCs, writeBuffer, size, readBuffer, false) : -1;
+  return executeFunction(cs, csControl, [&]() {
+    return baseInterface_ ? baseInterface_->WriteAndRead(-1, writeBuffer, size, readBuffer, false) : -1;
   });
 }
 int SPIInterfaceMultiplexer::Open(int channel, const char *path) {
