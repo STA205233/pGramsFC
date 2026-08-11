@@ -56,7 +56,7 @@ int BayCatSPIIO::updateSetting() {
   }
 
   const unsigned int shift_direction = (options & SPI_SHIFT_DIRECTION_MASK) >> SPI_SHIFT_DIRECTION_OFFSET;
-  if (shift_direction != SPI_DIR_LEFT_ && shift_direction != SPI_DIR_RIGHT_) {
+  if (shift_direction != static_cast<unsigned int>(SPI_DIR_LEFT_) && shift_direction != static_cast<unsigned int>(SPI_DIR_RIGHT_)) {
     std::cerr << "ShiftDirection is invalid: " << SPI_DIR_RIGHT_ << " or " << SPI_DIR_LEFT_ << " are allowed.";
     failed = true;
   }

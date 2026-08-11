@@ -14,41 +14,33 @@ class MyApp < ANL::ANLApp
     end
     @main_modules = []
     chain GRAMSBalloon::TelemMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
       m.set_singleton(1)
     end
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_c", time_out: 1) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(1)
     end
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-    # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    # with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
-    # chain GRAMSBalloon::GetMHADCData
-    # with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
-      # m.set_singleton(0)
-    # end
-    # @main_modules << "MHADCManager"
-    # @main_modules << "GetMHADCData"
     
-    chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
-    with_parameters(channel: 0, spi_config_options: 1, spi_control_type: "baycat", use_multiplexer: true) do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "SPIManager_baycat"
-    chain GRAMSBalloon::ControlPDU
-    with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "ControlPDU"
-    chain GRAMSBalloon::GetPDUInfo
-    with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "GetPDUInfo"
+    #chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
+    #with_parameters(channel: 0, spi_config_options: 1, spi_control_type: "baycat", use_multiplexer: true) do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "SPIManager_baycat"
+    #chain GRAMSBalloon::ControlPDU
+    #with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "ControlPDU"
+    #chain GRAMSBalloon::GetPDUInfo
+    #with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "GetPDUInfo"
     
     # subsystems = ["Orchestrator"]
     #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
@@ -109,16 +101,16 @@ class MyApp < ANL::ANLApp
       @main_modules << "PassTelemetry_#{subsystem}_iridium"
     end
     
-    chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 100) do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "MHADCManager"
-    chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "GetMHADCData"
+    #chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+    #with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 100) do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "MHADCManager"
+    #chain GRAMSBalloon::GetMHADCData
+    #with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "GetMHADCData"
     chain GRAMSBalloon::GetComputerStatus  do |m|
       m.set_singleton(0)
     end
@@ -159,8 +151,8 @@ a.modify do |m|
    m.get_parallel_module(0, mod).off
   end
 end
-a.run(1, 1)
-#a.run(:all, 1000000000)
+#a.run(1, 1)
+a.run(:all, 1000000000)
 exit_status = 1
 puts "exit_status: #{exit_status}"
 exit exit_status
