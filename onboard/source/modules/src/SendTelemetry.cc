@@ -1,8 +1,10 @@
 #include "SendTelemetry.hh"
 #include "CommunicationCodes.hh"
 #include "GetComputerStatus.hh"
-#ifdef USE_SPI
+#ifdef USE_LJM
 #include "GetLabJackData.hh"
+#endif
+#ifdef USE_SPI
 #include "GetPDUInfo.hh"
 #include "PDUMapping.hh"
 #endif

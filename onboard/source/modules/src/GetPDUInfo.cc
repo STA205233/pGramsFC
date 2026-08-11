@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
-#include <utility>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus GetPDUInfo::mod_define() {
@@ -74,13 +73,10 @@ ANLStatus GetPDUInfo::mod_analyze() {
 
 void GetPDUInfo::setVoltage(int cs, int ch, uint16_t value) {
   const size_t index = CalIndex(cs, ch);
-  if (index > voltages_.size() || index < 0) {
+  if (index > voltages_.size()) {
     return;
   }
   voltages_[index] = value;
 }
 
-constexpr size_t GetPDUInfo::CalIndex(int cs, int ch) {
-  return cs * ADC128S102IO::MaxChannelsPerADC() + ch;
-}
 } // namespace gramsballoon::pgrams

@@ -23,16 +23,16 @@ public:
   virtual ~GetPDUInfo() = default;
 
 protected:
-  GetPDUInfo(const GetPDUInfo& r) = default;
+  GetPDUInfo(const GetPDUInfo &r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
   anlnext::ANLStatus mod_initialize() override;
   anlnext::ANLStatus mod_analyze() override;
 
-  bool getVoltage(int cs, int ch, uint16_t& value) const {
+  bool getVoltage(int cs, int ch, uint16_t &value) const {
     const size_t index = CalIndex(cs, ch);
-    if (index > voltages_.size() || index < 0) {
+    if (index > voltages_.size()) {
       return false;
     }
     value = voltages_[index];
@@ -49,7 +49,9 @@ private:
   int chatter_ = 0;
 
   void setVoltage(int cs, int ch, uint16_t value);
-  static constexpr size_t CalIndex(int cs, int ch);
+  static constexpr size_t CalIndex(int cs, int ch) {
+    return cs * ADC128S102IO::MaxChannelsPerADC() + ch;
+  }
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_GetPDUInfo_hh
