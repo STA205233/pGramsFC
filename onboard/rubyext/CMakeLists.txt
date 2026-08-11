@@ -64,7 +64,26 @@ endif()
 set(SWIG_FLAGS ${cxx_definitions})
 add_definitions(${cxx_definitions})
 
+if(ENABLE_SANITIZERS)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(
+      -fsanitize=address,undefined
+      -fno-sanitize-recover=all
+      -fno-omit-frame-pointer
+    )
+
+    add_link_options(
+      -fsanitize=address,undefined
+    )
+    message(NOTICE "-- Sanitizer enabled")
+  else()
+    message(WARNING
+      "ENABLE_SANITIZERS is ON, but the compiler is not GCC or Clang"
+    )
+  endif()
+endif()
+
 message("-- cxx_definitions: ${cxx_definitions}")
 
-########################################################
+# #######################################################
 include(CreateSwigRuby)

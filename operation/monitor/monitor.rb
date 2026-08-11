@@ -31,8 +31,8 @@ class MyApp < ANL::ANLApp
       if subsystem != "TOF"
             chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}_Iridium"
             with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}_Iridium", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
-            chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}"
-            with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
+            #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_#{subsystem}"
+            #with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0)
       elsif subsystem == "TOF"
             chain GRAMSBalloon::SendPacketByMQTT, "SendPacketByMQTT_#{subsystem}_Iridium"
             with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_#{subsystem}_Iridium", MosquittoManager_name: "GroundMosquittoManager", topic: "#{subsystem}_ground_telemetry", qos: 0, chatter: 1)

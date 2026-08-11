@@ -6,10 +6,10 @@ set(CMAKE_INSTALL_PREFIX $ENV{HOME} CACHE PATH "install prefix")
 
 # set(CMAKE_BUILD_TYPE Release CACHE STRING "build type")
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "build type")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -W -Wall" CACHE STRING "CXX_FLAGS for debug")
-set(CMAKE_C_FLAGS_DEBUG "-g -W -Wall" CACHE STRING "C_FLAGS for debug")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -W -Wall" CACHE STRING "CXX_FLAGS for release")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -W -Wall" CACHE STRING "C_FLAGS for release")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -W -Wall -Wextra" CACHE STRING "CXX_FLAGS for debug")
+set(CMAKE_C_FLAGS_DEBUG "-g -W -Wall -Wextra" CACHE STRING "C_FLAGS for debug")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -W -Wall -Wextra" CACHE STRING "CXX_FLAGS for release")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -W -Wall -Wextra" CACHE STRING "C_FLAGS for release")
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -46,6 +46,7 @@ option(GB_USE_LJM "enable LJM library for LabJack devices" ON)
 # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
 option(GB_INSTALL_CMAKE_FILES "install all cmake files" ON)
+option(ENABLE_SANITIZERS "Enable AddressSanitizer and UBSan" OFF)
 set(INSTALL_HEADERS ${GB_INSTALL_HEADERS})
 set(INSTALL_CMAKE_FILES ${GB_INSTALL_CMAKE_FILES})
 
@@ -98,6 +99,25 @@ endif(GB_USE_HSQUICKLOOK)
 if(GB_USE_SYSTEM_MODULES)
   add_compile_definitions("USE_SYSTEM_MODULES")
 endif(GB_USE_SYSTEM_MODULES)
+
+if(ENABLE_SANITIZERS)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(
+      -fsanitize=address,undefined
+      -fno-sanitize-recover=all
+      -fno-omit-frame-pointer
+    )
+
+    add_link_options(
+      -fsanitize=address,undefined
+    )
+    message(NOTICE "-- Sanitizer enabled")
+  else()
+    message(WARNING
+      "ENABLE_SANITIZERS is ON, but the compiler is not GCC or Clang"
+    )
+  endif()
+endif()
 
 # External libraries
 # BOOST
