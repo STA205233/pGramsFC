@@ -30,7 +30,7 @@ public:
   BayCatSPIIO();
   virtual ~BayCatSPIIO() = default;
   BayCatSPIIO(const BayCatSPIIO &) = delete;
-  int MaximumCh() override { return 24; }
+  int MaximumCh() const override { return 24; }
 
 private:
   std::map<int, unsigned int> baudrateList_;

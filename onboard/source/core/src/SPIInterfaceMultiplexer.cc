@@ -42,9 +42,9 @@ int SPIInterfaceMultiplexer::WriteAndRead(
     return baseInterface_ ? baseInterface_->WriteAndRead(mappedCs, writeBuffer, size, readBuffer, false) : -1;
   });
 }
-int SPIInterfaceMultiplexer::Open(int channel) {
+int SPIInterfaceMultiplexer::Open(int channel, const char *path) {
   if (baseInterface_) {
-    const auto status = baseInterface_->Open(channel);
+    const auto status = baseInterface_->Open(channel, path);
     if (status == 0) {
       setIsOpen(true);
     }

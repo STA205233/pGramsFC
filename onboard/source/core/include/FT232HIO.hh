@@ -17,7 +17,7 @@ private:
 public:
   FT232HIO();
   virtual ~FT232HIO() = default;
-  int MaximumCh() override { return 8; } // TODO: Set actual value
+  int MaximumCh() const override { return 8; }
 
 protected:
   FT232HIO(const FT232HIO &) = delete;
@@ -29,7 +29,7 @@ public:
     static constexpr unsigned int SPI_MODE2 = 0x2;
     static constexpr unsigned int SPI_MODE3 = 0x3;
   };
-  int Open(int channel, const char*) override;
+  int Open(int channel, const char *) override;
   int Close() override {
     if (!IsOpen()) {
       return 0;

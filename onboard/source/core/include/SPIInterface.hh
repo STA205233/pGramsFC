@@ -10,6 +10,7 @@
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
  * @date 2025-05-02 | Shota Arai | Modified to use the FT232H, major refactoring
+ * @date 2026-08-11 | Shota Arai | Modified slightly for implementation of the MCP2210
  */
 namespace gramsballoon::pgrams {
 class SPIInterface {
@@ -42,7 +43,7 @@ public:
    *  @param state Specify high / low
    */
   virtual int controlGPIOBit(uint32_t, uint32_t) { return -1; }
-  virtual int MaximumCh() { return 0; }
+  virtual int MaximumCh() const { return 0; }
 
   // Convenience functions that use the cs_ member variable
   int WriteThenRead(const uint8_t *writeBuffer, int wsize, uint8_t *readBuffer, int rsize) {
