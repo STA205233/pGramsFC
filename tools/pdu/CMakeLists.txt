@@ -44,15 +44,28 @@ find_library(VERSALOGIC_LIB
 message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
 message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
 
+# MCP2210
+if (GB_USE_MCP2210)
+  find_library(MCP2210_LIB NAMES mcp2210hid_shared REQUIRED HINTS ${CMAKE_PREFIX_PATH}/bin)
+  find_path(MCP2210_INC_DIR NAMES mcp2210_api.h REQUIRED HINTS ${CMAKE_PREFIX_PATH}/lib/inc)
+  message("-- MCP2210_LIB: ${MCP2210_LIB}")
+  message("-- MCP2210_INC_DIR: ${MCP2210_INC_DIR}")
+else()
+  set(MCP2210_LIB "")
+  set(MCP2210_INC_DIR "")
+endif(GB_USE_MCP2210)
+
 include_directories(
   ${MPSSE_INC_DIR}
   ${VERSALOGIC_INC_DIR}
+  ${MCP2210_INC_DIR}
 )
 add_executable(${MY_LIBRARY} pdu_test.cc)
 target_link_libraries(${MY_LIBRARY}
   GBCore
   ${D2XX_LIB}
   ${VERSALOGIC_LIB}
+  ${MCP2210_LIB}
 )
 target_link_directories(${MY_LIBRARY} PRIVATE
   $ENV{HOME}/lib

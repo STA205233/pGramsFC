@@ -43,7 +43,7 @@ option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
 option(GB_APT_RUBY "installed ruby via apt" OFF)
 option(GB_USE_MYSQL "enable mysql" OFF)
 option(GB_USE_LJM "enable LJM library for LabJack devices" ON)
-option(GB_USE_MCP2210 "enable MCP2210 library" OFF)
+option(GB_USE_MCP2210 "enable MCP2210 library" ON)
 
 # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
@@ -72,6 +72,7 @@ set(GB_USE_MYSQL ON)
 set(GB_USE_SYSTEM_MODULES OFF)
 set(GB_USE_LJM OFF)
 set(GB_USE_BAYCAT OFF)
+set(GB_USE_MCP2210 OFF)
 endif(GB_GROUND)
 
 

@@ -1,6 +1,7 @@
 #include "ADC128S102IO.hh"
 #include "BayCatSPIIO.hh"
 #include "FT232HIO.hh"
+#include "MCP2210IO.hh"
 #include "SPIInterfaceMultiplexer.hh"
 #include "PDUCSMapping.hh"
 #include <chrono>
@@ -14,7 +15,7 @@ int main(int argc, char *argv[]) {
   std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
   std::unique_ptr<SPIInterfaceMultiplexer> spiInterface = std::make_unique<SPIInterfaceMultiplexer>();
   if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <FT232H or Baycat>" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " <FT232H, MCP2210 or Baycat>" << std::endl;
     return -1;
   }
   std::string interfaceType = argv[1];
@@ -26,6 +27,11 @@ int main(int argc, char *argv[]) {
   else if (interfaceType == "FT232H") {
     std::cout << "Using FT232HIO interface" << std::endl;
     spiInterface2 = std::make_shared<FT232HIO>();
+    spiInterface2->setConfigOptions(2);
+  }
+  else if (interfaceType == "MCP2210") {
+    std::cout << "Using MCP2210 interface" << std::endl;
+    spiInterface2 = std::make_shared<MCP2210IO>();
     spiInterface2->setConfigOptions(2);
   }
   else {
