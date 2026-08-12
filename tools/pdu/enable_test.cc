@@ -1,6 +1,6 @@
 #include "BayCatSPIIO.hh"
 #include "FT232HIO.hh"
-#include "SPIInterfaceMultiplexer.hh"
+#include "SPIInterface.hh"
 #include <chrono>
 #include <iostream>
 #include <memory>

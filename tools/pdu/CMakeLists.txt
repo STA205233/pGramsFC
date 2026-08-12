@@ -96,7 +96,7 @@ target_link_directories(enable_test PUBLIC
   $ENV{HOME}/lib/GRAMSBalloon/modules
   $ENV{HOME}/lib/GRAMSBalloon/core
 )
-target_include_directories(pdu_read PUBLIC
+target_include_directories(enable_test PUBLIC
   $ENV{HOME}/include/GRAMSBalloon
   ${MPSSE_INC_DIR}
   ${D2XX_INCLUDE_DIRS}

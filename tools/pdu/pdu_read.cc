@@ -1,6 +1,7 @@
 #include "ADC128S102IO.hh"
 #include "BayCatSPIIO.hh"
 #include "FT232HIO.hh"
+#include "PDUCSMapping.hh"
 #include "SPIInterfaceMultiplexer.hh"
 #include <chrono>
 #include <iostream>
