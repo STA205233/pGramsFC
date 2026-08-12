@@ -1,4 +1,3 @@
-#include "ADC128S102IO.hh"
 #include "BayCatSPIIO.hh"
 #include "FT232HIO.hh"
 #include "SPIInterfaceMultiplexer.hh"
@@ -6,12 +5,14 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+
 using namespace gramsballoon::pgrams;
 
+const int chip_select = 0; // PLEASE MODIFY
+const bool is_high = true; // If high, please specify true, otherwise false.
+
 int main(int argc, char *argv[]) {
-  ADC128S102IO adc(5.0);
   std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
-  std::unique_ptr<SPIInterfaceMultiplexer> spiInterface = std::make_unique<SPIInterfaceMultiplexer>();
   if (argc != 2) {
     std::cerr << "Usage: " << argv[0] << " <FT232H or Baycat>" << std::endl;
     return -1;
@@ -32,22 +33,8 @@ int main(int argc, char *argv[]) {
     return -1;
   }
   spiInterface2->Open(0);
-  spiInterface->setBaseInterface(spiInterface2);
-  spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
-  adc.setSPIInterface(spiInterface.get());
-  spiInterface->setBaudrate(1000000);
-  for (int i = 0; i < 10; ++i){
-    adc.setCS(i);
-    for (int j = 0; j < 8; ++j) {
-      const auto value = adc.getCurrentVoltage(j);
-      if (adc.isError()) {
-        std::cerr << "Failed to read ADC channel " << j << " . Error code: " << adc.getErrorCode() << std::endl;
-        return adc.getErrorCode();
-      }
-      std::cout << "Channel " << j << " Voltage: " << value << " V" << std::endl;
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-  }
-  const int status2 = spiInterface->Close();
+  spiInterface2->controlGPIO(chip_select, is_high);
+  std::this_thread::sleep_for(std::chrono::seconds(5)); // after 5 sec, the process will continue.
+  const int status2 = spiInterface2->Close();
   return status2;
 }

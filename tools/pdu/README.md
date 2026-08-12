@@ -16,7 +16,7 @@ cmake ..
 make
 ```
 
-If you want to read values from ADC, `./pdu_read <Baycat or FT232H>`. You can specify which device you want to use. And if you want to control DAC, you can use `./pdu_test <Baycat or FT232H>`.
+If you want to read values from ADC, `./pdu_read <Baycat or FT232H>`. You can specify which device you want to use. And if you want to control DAC, you can use `./pdu_test <Baycat or FT232H>`. If you want to test enables, you can use `./enable_test <Baycat or FT232H>`.
 
 ## Modification of the code
 
@@ -33,5 +33,15 @@ In pdu_read.cc, you can modify this part:
 ```[cpp]
 adc.setCS(i);
 ```
+
 These channels are expressed in Multiplexer channel.
 After modification, you should recompile the pdu test codes.
+
+In enable_test.cc, you can modify:
+
+```[cpp]
+const int chip_select = 0; // PLEASE MODIFY
+const bool is_high = true; // If high, please specify true, otherwise false.
+```
+
+This channel is not multiplexer channel, just chip select channel (DIOx...).
