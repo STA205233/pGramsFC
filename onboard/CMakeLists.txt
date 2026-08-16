@@ -100,7 +100,12 @@ if(GB_USE_SYSTEM_MODULES)
   add_compile_definitions("USE_SYSTEM_MODULES")
 endif(GB_USE_SYSTEM_MODULES)
 
+string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type_lower)
+
 if(ENABLE_SANITIZERS)
+  if (NOT build_type_lower STREQUAL "debug")
+    message(FATAL_ERROR "Sanitizer is available only on debug build")
+  endif()
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(
       -fsanitize=address,undefined
@@ -239,8 +244,8 @@ set(MOSQUITTO_LIB PkgConfig::Mosquitto)
 if (GB_USE_LJM)
   find_library(LJM_LIB NAMES LabJackM REQUIRED PATHS /usr/local/lib)
   find_path(LJM_INC_DIR NAMES LabJackM.h REQUIRED PATHS /usr/local/include)
-  message(" -- LJM_LIB: ${LJM_LIB} ")
-  message(" -- LJM_INC_DIR: ${LJM_INC_DIR} ")
+  message("-- LJM_LIB: ${LJM_LIB} ")
+  message("-- LJM_INC_DIR: ${LJM_INC_DIR} ")
   add_compile_definitions("USE_LJM")
 else()
   set(LJM_LIB "")
@@ -253,3 +258,18 @@ add_subdirectory(source)
 if(USE_RUBY)
   add_subdirectory(rubyext)
 endif(USE_RUBY)
+
+if(ENABLE_SANITIZERS)
+  message(WARNING
+      "\n"
+      "============================================================\n"
+      "  WARNING: SANITIZER BUILD ENABLED!!!!!\n"
+      "\n"
+      "  ASan + UBSan will be enabled for Debug configuration.\n"
+      "  Sanitizer errors may terminate the application immediately.\n"
+      "  This configuration must NOT be used for normal operation.\n"
+      "  If you don't have any knowledge about this, \n"
+      "  please run cmake with option -DENABLE_SANITIZERS=OFF again.\n"
+      "============================================================"
+  )
+endif()
