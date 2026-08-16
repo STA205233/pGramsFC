@@ -1,0 +1,5 @@
+# LeakSanitizer suppressions.
+leak:libruby
+leak:ruby_init_setproctitle
+leak:onig_compile_ruby
+leak:onig_region_resize
