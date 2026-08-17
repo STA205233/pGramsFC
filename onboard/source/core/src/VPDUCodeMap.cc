@@ -1,14 +1,15 @@
 #include "VPDUCodeMap.hh"
 #include "CommunicationCodes.hh"
+#include <iostream>
 #include <utility>
-
 namespace gramsballoon::pgrams {
 using ::pgrams::communication::CommunicationCodes;
 using value_t = VPDUCodeMap::value_t;
 
-bool VPDUCodeMap::getMapping(com_code_t code, value_t& cs) const {
+bool VPDUCodeMap::getMapping(com_code_t code, value_t &cs) const {
   auto it = mapping_.find(code);
   if (it == mapping_.end()) {
+    std::cout << "VPDUCodeMap: code(" << code << ") is not found" << std::endl;
     return false;
   }
   cs = it->second;

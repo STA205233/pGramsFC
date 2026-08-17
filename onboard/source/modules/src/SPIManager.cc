@@ -113,7 +113,8 @@ int SPIManager::controlGPIO(uint32_t cs, bool value) {
     return -1;
   }
   const uint32_t val = (static_cast<uint32_t>(value) << cs);
-  return interface_->controlGPIOBit(cs, val);
+  const uint32_t csBit = (1 << cs);
+  return interface_->controlGPIOBit(csBit, val);
 }
 
 } // namespace gramsballoon::pgrams
