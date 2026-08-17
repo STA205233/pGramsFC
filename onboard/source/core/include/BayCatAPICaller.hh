@@ -64,6 +64,7 @@ protected:
   static const int SPI_DIR_RIGHT_;
   static const int SPI_SS_SS0_;
   static const int DIO_OUTPUT_;
+  static const int DIO_UNKNOWN_;
   static const int DIO_CHANNEL_HIGH_;
   static const int DIO_CHANNEL_LOW_;
   static const unsigned long I2C_BUS_TYPE_PRIMARY;

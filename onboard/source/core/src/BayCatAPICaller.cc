@@ -14,6 +14,7 @@ const int BayCatAPICaller::SPI_DIR_LEFT_ = SPI_DIR_LEFT;
 const int BayCatAPICaller::SPI_DIR_RIGHT_ = SPI_DIR_RIGHT;
 const int BayCatAPICaller::SPI_SS_SS0_ = SPI_SS_SS0;
 const int BayCatAPICaller::DIO_OUTPUT_ = DIO_OUTPUT;
+const int BayCatAPICaller::DIO_UNKNOWN_ = DIO_UNKNOWN;
 const int BayCatAPICaller::DIO_CHANNEL_HIGH_ = DIO_CHANNEL_HIGH;
 const int BayCatAPICaller::DIO_CHANNEL_LOW_ = DIO_CHANNEL_LOW;
 const int BayCatAPICaller::API_OK = VL_API_OK;
