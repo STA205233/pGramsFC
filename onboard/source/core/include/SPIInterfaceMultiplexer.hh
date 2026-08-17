@@ -46,8 +46,8 @@ public:
   template <typename F>
   int executeFunction(int multiplexerChannel, bool csControl, F &&f);
 
-  const std::vector<VCSMapping::pair_t> &Channels() const override {
-    static const std::vector<VCSMapping::pair_t> empty;
+  const std::vector<int> &Channels() const override {
+    static const std::vector<int> empty;
     return csMapping_ ? csMapping_->Channels() : empty;
   }
 
