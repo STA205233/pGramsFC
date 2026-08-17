@@ -25,10 +25,10 @@ ANLStatus ControlPDU::mod_initialize() {
   auto interface = spiManager_->Interface();
   if (interface) {
     dac_->setSPIInterface(interface);
-    for (auto pair: interface->Channels()) {
-      const int ret = initializeDAC(pair.first);
-      if (!ret) {
-        std::cerr << module_id() << "Error: DAC is not initialized. CS: " << pair.first << std::endl;
+    for (const int ch: interface->Channels()) {
+      const int ret = initializeDAC(ch);
+      if (ret < 0) {
+        std::cerr << module_id() << "Error: DAC is not initialized. CS: " << ch << std::endl;
         if (sendTelemetry_) {
           sendTelemetry_->getErrorManager()->setError(ErrorType::DAC_SETTING_ERROR);
         }

@@ -17,16 +17,16 @@
 using namespace anlnext;
 using namespace pgrams::communication;
 namespace gramsballoon::pgrams {
-inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, const std::string& module_id) {
+inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, const std::string &module_id) {
   std::cerr << module_id << termutil::red << "[error]" << termutil::reset << "ShutdownSystem module is not enabled." << std::endl;
   if (sendtelemetry) {
     sendtelemetry->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
   }
   return false;
 }
-ReceiveCommand::ReceiveCommand()  
+ReceiveCommand::ReceiveCommand()
 #ifdef USE_SPI
-: pduCodeMapCS_(PDUCodeMapCS::getInstance()), pduCodeMapDIO_(PDUCodeMapDIO::getInstance()) 
+    : pduCodeMapCS_(PDUCodeMapCS::getInstance()), pduCodeMapDIO_(PDUCodeMapDIO::getInstance())
 #endif
 {
   binaryFilenameBase_ = "Command";
@@ -103,7 +103,7 @@ ANLStatus ReceiveCommand::mod_analyze() {
       std::cout << "ReceiveCommand Payload[" << 0 << "][" << j << "]:" << static_cast<int>(command->payload[j]) << std::endl;
     }
   }
-  const auto& command_payload = command->payload;
+  const auto &command_payload = command->payload;
   const bool applied = applyCommand(command_payload);
   commandSaver_->writeCommandToFile(!applied, command_payload);
   if (!applied) {
@@ -154,7 +154,7 @@ void ReceiveCommand::getModules() {
     }
   }
 
-  for (const auto& name: sendCommandToDAQComputerNames_) {
+  for (const auto &name: sendCommandToDAQComputerNames_) {
     SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
     if (exist_module(name)) {
       get_module_NC(name, &sendCommandToDAQComputer);
@@ -194,7 +194,7 @@ void ReceiveCommand::getModules() {
 #endif
 }
 
-bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
+bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
   commandIndex_++;
   if (chatter_ >= 1) {
     std::cout << "command start" << std::endl;
@@ -306,7 +306,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
-    for (auto& sendCommandToDAQComputer: sendCommandToDAQComputers_) {
+    for (auto &sendCommandToDAQComputer: sendCommandToDAQComputers_) {
       if (sendCommandToDAQComputer) {
         sendCommandToDAQComputer->setEmergencyDaqShutdown(true);
       }
@@ -369,13 +369,14 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
     // TODO: Implement handling
     return true;
   }
-  else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc == 1) {
+  else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc <= 1) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ":" << std::hex << code << std::dec << " command received.  Voltage: " << arguments[0] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": 0x" << std::hex << code << std::dec << " command for PDU received." << std::endl;
     }
 #ifdef USE_SPI
     return applySPICommand(code, argc, arguments);
 #else
+    std::cerr << termutil::red << "[error]" << termutil::reset << "SPI feature is not available in this build" << std::endl;
     return false;
 #endif
   }
@@ -387,24 +388,29 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t>& command) {
   return false;
 }
 #ifdef USE_SPI
-bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, const std::vector<uint32_t>& arguments) {
-  if (argc != 1) {
-    return false;
-  }
-  if (is_pdu_enable_commands(code)) {
+bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, const std::vector<uint32_t> &arguments) {
+  if (is_pdu_enable_commands(code) && argc == 0) {
+    if (chatter_ > 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is enable command" << std::endl;
+    }
     PDUCodeMapDIO::value_t id;
     const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id);
     if (ret_mapping && spiManager_) {
       const bool is_on = PDUCodeMapDIO::isOnCode(code);
-      const auto result = spiManager_->controlGPIO(code, is_on);
+      if (chatter_ > 3) {
+        std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is " << (is_on ? "on" : "off") << " command" << std::endl;
+      }
+      const auto result = spiManager_->controlGPIO(id, is_on);
       if (result != 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command" << std::hex << code << std::dec << " failed" << std::endl;
         return false;
       }
       return true;
     }
+    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. id: " << id << std::endl;
     return false;
   }
-  else {
+  else if (argc == 1) {
     PDUCodeMapCS::value_t cs;
     const bool ret_mapping = pduCodeMapCS_.getMapping(code, cs);
     if (ret_mapping) {
@@ -420,6 +426,7 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
       return false;
     }
   }
+  std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": invalid number of arguments for " << std::hex << code << std::dec << ", #of args: " << argc << std::endl;
   return false;
 }
 #endif

@@ -12,6 +12,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-02-21 | Shota Arai | Created
  * @date 2026-07-10 | Shota Arai | implementation changed
+ * @date 2026-08-17 | Shota Arai | Channels() returns channel numbers instead of chip select values
  */
 class VCSMapping {
 public:
@@ -22,7 +23,11 @@ public:
   virtual ~VCSMapping() = default;
   std::optional<pair_t> getChipSelect(int multiplexerChannel) const;
   void setChipSelect(int multiplexerChannel, cs_t chipSelect);
-  const std::vector<pair_t>& Channels() const { return channels_; }
+  /**
+   * @brief Return the list of registered multiplexer channel numbers (ascending)
+   * @note Use getChipSelect() to obtain the bit mask / value of each channel.
+   */
+  const std::vector<int>& Channels() const { return channels_; }
   cs_t CsBitRange() const { return csBitRange_; }
   cs_t DefaultState() const { return defaultState_; }
   int NumChannels() const { return static_cast<int>(csMapping_.size()); }
@@ -34,7 +39,7 @@ private:
   cs_t csBitRange_;
   map_t csMapping_;
   cs_t defaultState_;
-  std::vector<pair_t> channels_;
+  std::vector<int> channels_;
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_VCSMapping_hh

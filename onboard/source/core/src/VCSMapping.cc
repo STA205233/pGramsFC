@@ -14,7 +14,7 @@ void VCSMapping::setChipSelect(int multiplexerChannel, cs_t chipSelect) {
   channels_.clear();
   channels_.reserve(csMapping_.size());
   for (const auto& [ch, pair]: csMapping_) {
-    channels_.push_back(pair);
+    channels_.push_back(ch);
   }
 }
 } // namespace gramsballoon::pgrams

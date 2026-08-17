@@ -78,5 +78,4 @@ void GetPDUInfo::setVoltage(int cs, int ch, uint16_t value) {
   }
   voltages_[index] = value;
 }
-
 } // namespace gramsballoon::pgrams

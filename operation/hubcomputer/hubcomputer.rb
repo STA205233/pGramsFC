@@ -151,8 +151,8 @@ a.modify do |m|
    m.get_parallel_module(0, mod).off
   end
 end
-#a.run(1, 1)
-a.run(:all, 1000000000)
+
+a.run(1000000000, 1000000000)
 exit_status = 1
 puts "exit_status: #{exit_status}"
 exit exit_status

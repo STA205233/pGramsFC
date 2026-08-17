@@ -303,8 +303,18 @@ int BayCatSPIIO::controlDIO(const int cs, const bool value) {
   DIOSetChannelLevel(cs, value_);
 
   // final check
-  if (value != (DIOGetChannelLevel(cs) == 1)) {
-    std::cerr << "ControlGPIOBit: failed final check" << std::endl;
+  const unsigned char read_back = DIOGetChannelLevel(cs);
+#ifdef DEBUG_SPI
+  std::cout << "BayCatSPIIO: CS" << cs << " read back " << static_cast<int>(read_back) << std::endl;
+#endif
+  if (value != (read_back == DIO_CHANNEL_HIGH_)) {
+    unsigned char direction_after = DIO_UNKNOWN_;
+    DIOGetChannelDirection(cs, &direction_after);
+    std::cerr << "ControlGPIOBit: failed final check. CS: " << cs
+              << ", expected: " << static_cast<int>(value_)
+              << ", read back: " << static_cast<int>(read_back)
+              << ", direction: " << static_cast<int>(direction_after)
+              << " (" << DIO_OUTPUT_ << " = output)" << std::endl;
     return -1;
   }
   return 0;
@@ -368,8 +378,21 @@ int BayCatSPIIO::controlFPGAGPIO(uint32_t csBit, uint32_t value) {
   std::cout << "AUX_IN (final check): " << std::hex << static_cast<int>(aux_in) << std::dec << std::endl;
 #endif
   const uint32_t ref = value & csBit;
-  if ((aux_in & csBit) != ref) {
-    std::cerr << "ControlGPIOBit: failed final check" << std::endl;
+  const uint32_t actual = static_cast<uint32_t>(aux_in) & csBit;
+  if (actual != ref) {
+    unsigned char dir_raw = 0;
+    unsigned char out_raw = 0;
+    ReadFPGARegister(DIR_GPIO, &dir_raw);
+    ReadFPGARegister(AUX_OUT, &out_raw);
+    std::cerr << "ControlGPIOBit: failed final check. " << std::hex
+              << "csBit(>>16): " << csBit
+              << ", expected: " << ref
+              << ", read back: " << actual
+              << ", mismatched bits: " << (actual ^ ref)
+              << ", AUX_IN(raw): " << static_cast<int>(aux_in)
+              << ", AUX_OUT(raw): " << static_cast<int>(out_raw)
+              << ", DIR_GPIO(raw): " << static_cast<int>(dir_raw) << " (1 = output)"
+              << std::dec << std::endl;
     return -1;
   }
   return 0;

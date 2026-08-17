@@ -51,7 +51,7 @@ ANLStatus SPIManager::mod_pre_initialize() {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
     return AS_ERROR;
   }
-  
+
   base_interface->setBaudrate(baudrate_);
   base_interface->setConfigOptions(spiConfigOptions_);
   const int status = base_interface->Open(channel_);
@@ -61,7 +61,7 @@ ANLStatus SPIManager::mod_pre_initialize() {
       sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
     }
   }
-  
+
   if (useMultiplexer_) {
     auto mul_interface = std::make_shared<SPIInterfaceMultiplexer>();
     mul_interface->setBaseInterface(base_interface);
@@ -112,9 +112,9 @@ int SPIManager::controlGPIO(uint32_t cs, bool value) {
   if (!interface_) {
     return -1;
   }
-  cs = (1 << cs);
   const uint32_t val = (static_cast<uint32_t>(value) << cs);
-  return interface_->controlGPIOBit(cs, val);
+  const uint32_t csBit = (1 << cs);
+  return interface_->controlGPIOBit(csBit, val);
 }
 
 } // namespace gramsballoon::pgrams
