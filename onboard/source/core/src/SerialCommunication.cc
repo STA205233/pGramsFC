@@ -10,7 +10,7 @@ SerialCommunication::SerialCommunication()
   tio_ = std::make_unique<termios>();
 }
 
-SerialCommunication::SerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode) {
+SerialCommunication::SerialCommunication(const std::string& serial_path, speed_t baudrate, mode_t open_mode) {
   tio_ = std::make_unique<termios>();
   serialPath_ = serial_path;
   baudrate_ = baudrate;
@@ -62,18 +62,18 @@ int SerialCommunication::initialize() {
   return 0;
 }
 
-int SerialCommunication::sreadSingle(uint8_t &buf) {
+int SerialCommunication::sreadSingle(uint8_t& buf) {
   const int length = 1;
   const int status = read(fd_, &buf, length);
   return status;
 }
 
-int SerialCommunication::sread(std::vector<uint8_t> &buf, int length) {
+int SerialCommunication::sread(std::vector<uint8_t>& buf, int length) {
   const int status = read(fd_, &buf[0], length);
   return status;
 }
 
-int SerialCommunication::swrite(const std::vector<uint8_t> &buf) {
+int SerialCommunication::swrite(const std::vector<uint8_t>& buf) {
   const int length = buf.size();
   int rem = length;
   std::vector<int> counts;
@@ -101,6 +101,9 @@ int SerialCommunication::swrite(const std::vector<uint8_t> &buf) {
 }
 
 int SerialCommunication::WaitForTimeOut(timeval timeout) {
+  if (!isOpen()) {
+    return -1;
+  }
   fd_set fdset;
   FD_ZERO(&fdset);
   FD_SET(fd_, &fdset);

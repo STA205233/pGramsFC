@@ -20,7 +20,7 @@
 #include <vector>
 
 #ifdef __APPLE__
-#  define TCSETS TIOCSETA
+#define TCSETS TIOCSETA
 #endif
 
 namespace gramsballoon {
@@ -28,22 +28,23 @@ namespace gramsballoon {
 class SerialCommunication {
 public:
   SerialCommunication();
-  SerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode);
+  SerialCommunication(const std::string& serial_path, speed_t baudrate, mode_t open_mode);
   virtual ~SerialCommunication();
   int initialize();
-  int sreadSingle(uint8_t &buf);
-  int sread(std::vector<uint8_t> &buf, int length);
-  int swrite(const std::vector<uint8_t> &buf);
+  int sreadSingle(uint8_t& buf);
+  int sread(std::vector<uint8_t>& buf, int length);
+  int swrite(const std::vector<uint8_t>& buf);
   int WaitForTimeOut(timeval timeout);
   void setBaudrate(speed_t v) { baudrate_ = v; }
-  void setSerialPath(const std::string &s) { serialPath_ = s; }
+  void setSerialPath(const std::string& s) { serialPath_ = s; }
   void setOpenMode(mode_t c) { openMode_ = c; }
 
   int FD() { return fd_; }
+  bool isOpen() const { return fd_ >= 0; }
 
 private:
   std::unique_ptr<termios> tio_ = nullptr;
-  int fd_ = 0;
+  int fd_ = -1;
   speed_t baudrate_ = B9600;
   std::string serialPath_;
   mode_t openMode_;

@@ -38,7 +38,7 @@ class MosquittoManager: public anlnext::BasicModule {
 public:
   MosquittoManager() = default;
   virtual ~MosquittoManager() {
-    if (doInitialize_) {
+    if (doCleanup_) {
       mosqpp::lib_cleanup();
     }
     mosquittoIO_.reset();
@@ -56,7 +56,7 @@ public:
   anlnext::ANLStatus mod_end_run() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  void Publish(TelemType &message, const std::string &topic, int qos) {
+  void Publish(TelemType& message, const std::string& topic, int qos) {
     singleton_self()->mosquittoIO_->Publish(message, topic, qos);
   }
   MosquittoIO<TelemType> *getMosquittoIO() { return singleton_self()->mosquittoIO_.get(); }
