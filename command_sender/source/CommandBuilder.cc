@@ -5,8 +5,6 @@
 #endif
 #include <algorithm>
 #include <cctype>
-#include <iostream>
-#include <tuple>
 namespace {
 uint16_t crc_calc(const std::vector<uint8_t>& byte_array) {
   uint16_t crc = 0;
@@ -167,6 +165,9 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Acquire_Threshold_Calibration_D, 0);
   ADD_CODE_MAP(TOF_Set_FEM_Power_Off, 0);
   ADD_CODE_MAP(TOF_Set_FEM_Power_On, 0);
+  ADD_CODE_MAP(TOF_Start_Asic_Temp_Record, 0);
+  ADD_CODE_MAP(TOF_Stop_Asic_Temp_Record, 0);
+  ADD_CODE_MAP(TOF_Read_Temperature_Sensors_Single, 0);
 
   ADD_CODE_MAP(TOF_Process_Threshold_Calibration, 0);
   ADD_CODE_MAP(TOF_Process_TDC_Calibration, 0);
@@ -180,9 +181,12 @@ CommandBuilder::CommandBuilder() {
 
   ADD_CODE_MAP(TOF_Macro_Thermal_Calib, 0);
   ADD_CODE_MAP(TOF_Macro_Auto_Run_Sequence, 0);
-  ADD_CODE_MAP(TOF_Macro_Pre_Bias_Prep, 0);
-  ADD_CODE_MAP(TOF_Macro_Post_Bias_Prep, 0);
-  ADD_CODE_MAP(TOF_Macro_Cyclic_Run_Loop, 0);
+
+  ADD_CODE_MAP(TOF_Macro_Stage0_Prebreakdown_BN, 0);
+  ADD_CODE_MAP(TOF_Macro_Stage1_Unbiased_TDC, 0);
+  ADD_CODE_MAP(TOF_Macro_Stage2_Prebreakdown_QDC, 0);
+  ADD_CODE_MAP(TOF_Macro_Stage3_Operational_D, 0);
+  ADD_CODE_MAP(TOF_Macro_Auto_Run_Cycle, 0);
 }
 #undef ADD_CODE_MAP
 
