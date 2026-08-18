@@ -108,13 +108,13 @@ if(ENABLE_SANITIZERS)
   endif()
   if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(
-      -fsanitize=address,undefined
+      -fsanitize=address,undefined,thread,memory
       -fno-sanitize-recover=all
       -fno-omit-frame-pointer
     )
 
     add_link_options(
-      -fsanitize=address,undefined
+      -fsanitize=address,undefined,thread,memory
     )
     message(NOTICE "-- Sanitizer enabled")
   else()
