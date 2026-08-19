@@ -51,7 +51,7 @@ SocketCommunication::~SocketCommunication() {
   }
 }
 void SocketCommunication::accept() {
-  std::weak_ptr<SocketCommunication> weak_self = shared_from_this();
+  std::weak_ptr<SocketCommunication> weak_self = weak_from_this();
   acceptor_->async_accept([this, weak_self](const boost::system::error_code& error, boost::asio::ip::tcp::socket socket) {
     auto self = weak_self.lock();
     if (!self) {
