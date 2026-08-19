@@ -10,7 +10,7 @@ FT232HIO::FT232HIO() {
   mpsseDeviceManager_->printDeviceInfo(std::cout);
   mpsseController_ = std::make_shared<mpsse::MPSSEController>();
 }
-int FT232HIO::Open(int channel) {
+int FT232HIO::Open(int channel, const char *) {
   int status = mpsseDeviceManager_->openDevice(channel, *mpsseController_);
   if (status != 0) {
     std::cerr << "FT232HIO::Open: Failed to open device at channel " << channel << std::endl;

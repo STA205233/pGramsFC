@@ -8,6 +8,7 @@ include_directories(
   ${VERSALOGIC_INC_DIR}
   ${LJM_INC_DIR}
   ${BME_INC_DIR}
+  ${MCP2210_INC_DIR}
 )
   
 link_directories(
@@ -51,6 +52,11 @@ if(GB_USE_SPI)
       src/MPSSEDeviceManager.cc
     )
   endif(GB_USE_FT232H)
+  if (GB_USE_MCP2210)
+    list(APPEND GB_SPI_CORE_CLASSES
+      src/MCP2210IO.cc
+    )
+  endif(GB_USE_MCP2210)
 endif(GB_USE_SPI)
 
 if (GB_USE_LJM)
@@ -136,6 +142,7 @@ target_link_libraries(GBCore
   ${LJM_LIB}
   ${BME_LIB}
   ${BME280_LIB}
+  ${MCP2210_LIB}
   )
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 

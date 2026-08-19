@@ -54,7 +54,7 @@ public:
   int Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) override;
   int WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsize, uint8_t *readBuffer, unsigned int rsize, bool csControl) override;
   int WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) override;
-  int Open(int channel) override;
+  int Open(int channel, const char *path) override;
   int Close() override;
   int updateSetting() override {
     if (baseInterface_) {
@@ -73,7 +73,7 @@ public:
       baseInterface_->setConfigOptions(options);
     }
   }
-  int MaximumCh() override {
+  int MaximumCh() const override {
     return csMapping_ ? csMapping_->NumChannels() : 0;
   }
 };
