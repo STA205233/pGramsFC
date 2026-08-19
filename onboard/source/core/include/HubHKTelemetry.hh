@@ -2,10 +2,14 @@
 #define GRAMSBalloon_HubHKTelemetry_HH 1
 #include "BaseTelemetryDefinition.hh"
 #include "ErrorManager.hh"
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
 #include <utility>
 
 #define GETTER_SETTER_ARRAY(type, name, variable, num)                             \
-  inline void set##name(const std::array<type, num> &v) { variable = v; }          \
+  inline void set##name(const std::array<type, num>& v) { variable = v; }          \
   inline void set##name(size_t idx, type v) {                                      \
     if (idx >= num) {                                                              \
       std::cerr << "set" << #name << ": index out of range: " << idx << std::endl; \
@@ -17,7 +21,7 @@
   inline void set##name(type v) {                                                  \
     std::get<N>(variable) = v;                                                     \
   }                                                                                \
-  inline const std::array<type, num> &name() const { return variable; }            \
+  inline const std::array<type, num>& name() const { return variable; }            \
   inline type name(size_t idx) const {                                             \
     if (idx >= num) {                                                              \
       std::cerr << #name << ": index out of range: " << idx << std::endl;          \
@@ -46,10 +50,9 @@ public:
     setType(Subsystem::HUB);
   }
   virtual ~HubHKTelemetry() = default;
-  static constexpr size_t NUM_TOF_BIAS = 200;
   static constexpr size_t NUM_PDU_HV_TEMP = 2;
   static constexpr size_t NUM_PDU_SIPM = 6;
-  static constexpr size_t ARGC = 288;
+  static constexpr size_t ARGC = 88;
   static constexpr size_t NUM_PDU_WARM_TPC_SHAPER = 6;
   static constexpr size_t NUM_ERROR_FLAGS = ErrorManager::NUM_ERROR_FLAGS;
   static constexpr size_t NUM_RTD_GONDOLA = 4;
@@ -70,7 +73,7 @@ public:
 
 public:
   void serialize(DBFieldSink *sink) const override;
-  void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const override;
+  void initializeDBTable(DBFieldSink *sink, const std::string& table_name) const override;
 
 private:
   uint16_t lastCommandCodeHub_ = 0;
@@ -148,7 +151,6 @@ private:
   uint16_t rtdTof_ = 0;
   std::array<uint16_t, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE> rtdOutsideSealedEnclosure_ = {0};
   std::array<uint16_t, NUM_RTD_VACUUM_JACKET> rtdVacuumJacket_ = {0};
-  uint16_t pressureTransducer_ = 0;
   std::array<uint16_t, NUM_INCLINOMETERS> inclinometers_ = {0};
   std::array<uint16_t, NUM_RTD_INSIDE_CHAMBER> rtdsInsideChamber_ = {0};
   std::array<uint16_t, NUM_ADC_SPARE> spare_ = {0};
@@ -160,10 +162,6 @@ private:
   uint16_t labJackTemperature_ = 0;
   std::array<uint16_t, NUM_4_WIRE_RTD> rtd4Wire_ = {0};
 
-  //Tof bias
-  std::array<uint16_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
-  std::array<uint16_t, NUM_TOF_BIAS> tofBiasTemperature_ = {0};
-
   //Hub computer
   std::array<uint32_t, NUM_ERROR_FLAGS> hubComputerErrorFlags_ = {0};
   uint32_t storageSize_ = 0;
@@ -174,20 +172,16 @@ private:
   // to std::get<> is a template parameter, so an out-of-range index is a
   // compile error rather than a runtime one.
   template <typename Contents, size_t... Is>
-  void interpretTofBias_(const Contents *contents, std::index_sequence<Is...>);
-  template <typename Contents, size_t... Is>
-  void interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>);
+  void interpretErrorFlags(const Contents *contents, std::index_sequence<Is...>);
   template <size_t... Is>
-  void updateTofBias_(std::index_sequence<Is...>);
-  template <size_t... Is>
-  void updateErrorFlags_(std::index_sequence<Is...>);
+  void updateErrorFlags(std::index_sequence<Is...>);
 
 protected:
   bool interpret() override;
 
 public:
   void update() override;
-  std::ostream &print(std::ostream &stream) override;
+  std::ostream& print(std::ostream& stream) override;
 
   // Getters and setters
 
@@ -612,13 +606,6 @@ public:
   GETTER_SETTER_ARRAY(uint16_t, RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE)
   GETTER_SETTER_ARRAY(uint16_t, RtdVacuumJacket, rtdVacuumJacket_, NUM_RTD_VACUUM_JACKET)
 
-  inline void setPressureTransducer(uint16_t v) {
-    pressureTransducer_ = v;
-  }
-  inline uint16_t PressureTransducer() const {
-    return pressureTransducer_;
-  }
-
   GETTER_SETTER_ARRAY(uint16_t, Inclinometers, inclinometers_, NUM_INCLINOMETERS)
   GETTER_SETTER_ARRAY(uint16_t, RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER)
   GETTER_SETTER_ARRAY(uint16_t, Spare, spare_, NUM_ADC_SPARE)
@@ -626,6 +613,7 @@ public:
   inline void setSealedEnclosurePressure(uint16_t v) {
     sealedEnclosurePressure_ = v;
   }
+  void setSealedEnclosurePressure(float v);
   inline uint16_t SealedEnclosurePressure() const {
     return sealedEnclosurePressure_;
   }
@@ -633,6 +621,7 @@ public:
   inline void setSealedEnclosureTemperature(uint16_t v) {
     sealedEnclosureTemperature_ = v;
   }
+  void setSealedEnclosureTemperature(float v);
   inline uint16_t SealedEnclosureTemperature() const {
     return sealedEnclosureTemperature_;
   }
@@ -640,6 +629,7 @@ public:
   inline void setSealedEnclosureHumidity(uint16_t v) {
     sealedEnclosureHumidity_ = v;
   }
+  void setSealedEnclosureHumidity(float v);
   inline uint16_t SealedEnclosureHumidity() const {
     return sealedEnclosureHumidity_;
   }
@@ -648,12 +638,11 @@ public:
   inline void setLabJackTemperature(uint16_t v) {
     labJackTemperature_ = v;
   }
+  void setLabJackTemperature(float v);
   inline uint16_t LabJackTemperature() const {
     return labJackTemperature_;
   }
   GETTER_SETTER_ARRAY(uint16_t, Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD)
-  GETTER_SETTER_ARRAY(uint16_t, TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS)
-  GETTER_SETTER_ARRAY(uint16_t, TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS)
   GETTER_SETTER_ARRAY(uint32_t, HubComputerErrorFlags, hubComputerErrorFlags_, NUM_ERROR_FLAGS)
 
   inline void setStorageSize(uint32_t v) {

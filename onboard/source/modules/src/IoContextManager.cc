@@ -8,9 +8,6 @@ ANLStatus IoContextManager::mod_define() {
 ANLStatus IoContextManager::mod_initialize() {
   isRunning_ = std::make_shared<std::atomic<bool>>(false);
   ioContext_ = std::make_shared<boost::asio::io_context>();
-  return AS_OK;
-}
-ANLStatus IoContextManager::mod_begin_run() {
   if (ioContext_) {
     ioThread_ = std::make_shared<std::thread>([this]() {
       ioContext_->run();
@@ -19,20 +16,22 @@ ANLStatus IoContextManager::mod_begin_run() {
   }
   return AS_OK;
 }
+ANLStatus IoContextManager::mod_begin_run() {
+  return AS_OK;
+}
 ANLStatus IoContextManager::mod_analyze() {
   return AS_OK;
 }
 ANLStatus IoContextManager::mod_end_run() {
+  return AS_OK;
+}
+ANLStatus IoContextManager::mod_finalize() {
   if (ioContext_) {
     ioContext_->stop();
   }
   if (ioThread_ && ioThread_->joinable()) {
     ioThread_->join();
   }
-  return AS_OK;
-}
-ANLStatus IoContextManager::mod_finalize() {
-
   return AS_OK;
 }
 } // namespace gramsballoon::pgrams

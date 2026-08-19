@@ -1,4 +1,5 @@
 #include "HubHKTelemetry.hh"
+#include "ConversionConstant.hh"
 namespace gramsballoon::pgrams {
 uint32_t CompileData(uint16_t v1FromMsb, uint16_t v2FromMsb) {
   const uint32_t ret = (v1FromMsb << 16) + v2FromMsb;
@@ -123,7 +124,6 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
   for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
     sink->setFieldValue("rtd_vacuum_jacket_" + std::to_string(i), rtdVacuumJacket_[i]);
   }
-  sink->setFieldValue("pressure_transducer", pressureTransducer_);
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->setFieldValue("inclinometer_" + std::to_string(i), inclinometers_[i]);
   }
@@ -145,11 +145,6 @@ void HubHKTelemetry::serialize(DBFieldSink *sink) const {
   sink->setFieldValue("lab_jack_temperature", labJackTemperature_);
   for (size_t i = 0; i < NUM_4_WIRE_RTD; ++i) {
     sink->setFieldValue("rtd_4_wire_" + std::to_string(i), rtd4Wire_[i]);
-  }
-
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
-    sink->setFieldValue("tof_bias_voltage_" + std::to_string(i), tofBiasVoltage_[i]);
-    sink->setFieldValue("tof_bias_temperature_" + std::to_string(i), tofBiasTemperature_[i]);
   }
 
   for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) {
@@ -260,7 +255,7 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   for (size_t i = 0; i < NUM_RTD_VACUUM_JACKET; ++i) {
     sink->addField("rtd_vacuum_jacket_" + std::to_string(i), static_cast<uint16_t>(0));
   }
-  sink->addField("pressure_transducer", static_cast<uint16_t>(0));
+  //sink->addField("pressure_transducer", static_cast<uint16_t>(0));
   for (size_t i = 0; i < NUM_INCLINOMETERS; ++i) {
     sink->addField("inclinometer_" + std::to_string(i), static_cast<uint16_t>(0));
   }
@@ -280,10 +275,6 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
   for (size_t i = 0; i < NUM_4_WIRE_RTD; ++i) {
     sink->addField("rtd_4_wire_" + std::to_string(i), static_cast<uint16_t>(0));
   }
-  for (size_t i = 0; i < NUM_TOF_BIAS; ++i) {
-    sink->addField("tof_bias_voltage_" + std::to_string(i), static_cast<uint16_t>(0));
-    sink->addField("tof_bias_temperature_" + std::to_string(i), static_cast<uint16_t>(0));
-  }
   for (size_t i = 0; i < NUM_ERROR_FLAGS; ++i) {
     sink->addField("error_flag_" + std::to_string(i), static_cast<uint32_t>(0));
   }
@@ -293,22 +284,12 @@ void HubHKTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &tab
 }
 
 template <typename Contents, size_t... Is>
-void HubHKTelemetry::interpretTofBias_(const Contents *contents, std::index_sequence<Is...>) {
-  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is)), std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is + 1>(tofBiasVoltage_)), ...);
-  (DivideData(static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is)), std::get<2 * Is>(tofBiasTemperature_), std::get<2 * Is + 1>(tofBiasTemperature_)), ...);
-}
-template <typename Contents, size_t... Is>
-void HubHKTelemetry::interpretErrorFlags_(const Contents *contents, std::index_sequence<Is...>) {
-  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is))), ...);
+void HubHKTelemetry::interpretErrorFlags(const Contents *contents, std::index_sequence<Is...>) {
+  ((std::get<Is>(hubComputerErrorFlags_) = static_cast<uint32_t>(contents->getArguments(ARG_INDEX_TOF_BIAS + Is))), ...);
 }
 template <size_t... Is>
-void HubHKTelemetry::updateTofBias_(std::index_sequence<Is...>) {
-  (setArguments(ARG_INDEX_TOF_BIAS + Is, CompileData(std::get<2 * Is>(tofBiasVoltage_), std::get<2 * Is + 1>(tofBiasVoltage_))), ...);
-  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS / 2 + Is, CompileData(std::get<2 * Is>(tofBiasTemperature_), std::get<2 * Is + 1>(tofBiasTemperature_))), ...);
-}
-template <size_t... Is>
-void HubHKTelemetry::updateErrorFlags_(std::index_sequence<Is...>) {
-  (setArguments(ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + Is, std::get<Is>(hubComputerErrorFlags_)), ...);
+void HubHKTelemetry::updateErrorFlags(std::index_sequence<Is...>) {
+  (setArguments(ARG_INDEX_TOF_BIAS + Is, std::get<Is>(hubComputerErrorFlags_)), ...);
 }
 
 template <typename Stream, typename Contents, size_t... Is>
@@ -412,10 +393,9 @@ bool HubHKTelemetry::interpret() {
   uint16_t dummy = 0;
   DivideData(static_cast<uint32_t>(contents->getArguments(76)), std::get<1>(rtd4Wire_), dummy);
 
-  interpretTofBias_(contents, std::make_index_sequence<NUM_TOF_BIAS / 2>{});
-  interpretErrorFlags_(contents, std::make_index_sequence<NUM_ERROR_FLAGS>{});
+  interpretErrorFlags(contents, std::make_index_sequence<NUM_ERROR_FLAGS>{});
 
-  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
+  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_ERROR_FLAGS;
   storageSize_ = contents->getArguments(INDEX_UNTIL_HERE);
 
   DivideData(static_cast<uint32_t>(contents->getArguments(INDEX_UNTIL_HERE + 1)), cpuTemperature_, ramUsage_);
@@ -512,11 +492,9 @@ void HubHKTelemetry::update() {
   setArguments(75, CompileData(labJackTemperature_, std::get<0>(rtd4Wire_)));
   setArguments(76, CompileData(std::get<1>(rtd4Wire_), static_cast<uint16_t>(0)));
 
-  static_assert(NUM_TOF_BIAS % 2 == 0, "NUM_TOF_BIAS is expected to be even.");
-  updateTofBias_(std::make_index_sequence<NUM_TOF_BIAS / 2>{});
-  updateErrorFlags_(std::make_index_sequence<NUM_ERROR_FLAGS>{});
+  updateErrorFlags(std::make_index_sequence<NUM_ERROR_FLAGS>{});
 
-  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_TOF_BIAS + NUM_ERROR_FLAGS;
+  constexpr size_t INDEX_UNTIL_HERE = ARG_INDEX_TOF_BIAS + NUM_ERROR_FLAGS;
   setArguments(INDEX_UNTIL_HERE, storageSize_);
   setArguments(INDEX_UNTIL_HERE + 1, CompileData(cpuTemperature_, ramUsage_));
   setArguments(INDEX_UNTIL_HERE + 2, commandRejectedIndexHub_);
@@ -635,8 +613,6 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "rtdVacuumJacket_: ";
   printIterative<NUM_RTD_VACUUM_JACKET>(stream, rtdVacuumJacket_);
 
-  stream << "pressureTransducer_: " << pressureTransducer_ << std::endl;
-
   stream << "inclinometers_: ";
   printIterative<NUM_INCLINOMETERS>(stream, inclinometers_);
 
@@ -656,11 +632,6 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
   stream << "rtd4Wire_: ";
   printIterative<NUM_4_WIRE_RTD>(stream, rtd4Wire_);
 
-  stream << "tofBiasVoltage_: ";
-  printIterative<NUM_TOF_BIAS>(stream, tofBiasVoltage_);
-
-  stream << "tofBiasTemperature_: ";
-  printIterative<NUM_TOF_BIAS>(stream, tofBiasTemperature_);
 
   stream << "hubComputerErrorFlags_: ";
   printIterative<NUM_ERROR_FLAGS>(stream, hubComputerErrorFlags_);
@@ -670,5 +641,21 @@ std::ostream &HubHKTelemetry::print(std::ostream &stream) {
          << ", ramUsage_: " << ramUsage_ << std::endl;
 
   return stream;
+}
+
+void HubHKTelemetry::setSealedEnclosurePressure(float v) {
+  setSealedEnclosurePressure(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_PRESS));
+}
+
+void HubHKTelemetry::setSealedEnclosureTemperature(float v) {
+  setSealedEnclosureTemperature(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_TEMP));
+}
+
+void HubHKTelemetry::setSealedEnclosureHumidity(float v) {
+  setSealedEnclosureHumidity(static_cast<uint16_t>(v / conversion::bme680::COEFF_BME680_HUMID));
+}
+
+void HubHKTelemetry::setLabJackTemperature(float v) {
+  setLabJackTemperature(static_cast<uint16_t>(v / conversion::labjack::COEFF_TEMP));
 }
 } // namespace gramsballoon::pgrams

@@ -5,13 +5,12 @@
 
 #include "I2CInterface.hh"
 #include "SPIInterface.hh"
-#include "bme280.h"
-#include "bme280_defs.h"
-#include <chrono>
-#include <iostream>
-#include <thread>
+#include <cstdint>
 
 #define BME_REGISTER_BYTES 1
+struct bme280_dev;
+struct bme280_data;
+struct bme280_settings;
 
 
 namespace gramsballoon::pgrams {
@@ -42,6 +41,8 @@ private:
   std::unique_ptr<bme280_data> sensorData_ = nullptr;
   std::unique_ptr<bme280_settings> configure_ = nullptr;
   void setupImpl();
+
+  void appendUnits();
 };
 
 } // namespace gramsballoon::pgrams

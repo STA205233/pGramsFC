@@ -48,6 +48,15 @@ constexpr double Torr = 133.322 * Pa;
 constexpr double Bar = 100000.0 * Pa;
 constexpr double psi = 6894.76 * Pa;
 constexpr double MPa = 1000000.0 * Pa;
+
+// dimensionless value
+constexpr double ADC = 1.0;
+
+// Resistance
+constexpr double ohm = 1.0;
+constexpr double kohm = 1e3;
+constexpr double Mohm = 1e6;
+constexpr double Gohm = 1e9;
 } // namespace gramsballoon::pgrams::units
 
 #endif //GB_SystemOfUnits_hh

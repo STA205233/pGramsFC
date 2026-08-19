@@ -1,12 +1,13 @@
 #ifndef GB_SendPacketByMQTT_hh
 #define GB_SendPacketByMQTT_hh 1
 #include "InterpretTelemetry.hh"
-#include "MosquittoManager.hh"
 #include "anlnext/BasicModule.hh"
 
 namespace gramsballoon::pgrams {
 
 class InterpretTelemetry;
+template <typename T>
+class MosquittoManager;
 
 /**
  * @brief Send CommunicationFormat from telemetry to the other subsystem ground software

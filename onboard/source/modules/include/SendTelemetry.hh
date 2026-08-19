@@ -17,24 +17,27 @@
 #include <chrono>
 
 namespace gramsballoon {
-
-class MeasureTemperatureWithRTDSensor;
 class RunIDManager;
 } // namespace gramsballoon
 namespace gramsballoon::pgrams {
 class ReceiveCommand;
 class GetMHADCData;
-class GetPressure;
+#ifdef USE_LJM
 class GetLabJackData;
+#endif
 template <typename T>
 class MosquittoManager;
+template <typename T>
+class MosquittoIO;
 class BaseTelemetryDefinition;
 class HubHKtelemetry;
 class ErrorManager;
 template <typename T>
 class CommunicationSaver;
 class MHADCMapping;
+#ifdef USE_SYSTEM_MODULES
 class GetComputerStatus;
+#endif
 class GetPDUInfo;
 class PDUMapping;
 template <typename T>
@@ -107,7 +110,9 @@ private:
 #ifdef USE_SYSTEM_MODULES
   const GetComputerStatus *getComputerStatus_ = nullptr;
 #endif
+#ifdef USE_LJM
   const GetLabJackData *getLabJackData_ = nullptr;
+#endif
 
 #ifdef USE_SPI
   const GetPDUInfo *getPduInfo_ = nullptr;

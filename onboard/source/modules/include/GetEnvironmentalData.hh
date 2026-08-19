@@ -1,19 +1,17 @@
 
 #ifndef GetEnvironmentalData_H
 #define GetEnvironmentalData_H 1
-  
-#include "BME680IO.hh"
-#include "I2CInterface.hh"
-#include "I2CManager.hh"
+
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
 #include <chrono>
+#include <memory>
 
 namespace gramsballoon::pgrams {
 
 class I2CManager;
+class I2CInterface;
 class BME680IO;
-class BME280IO;
 class SendTelemetry;
 
 /**

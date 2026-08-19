@@ -15,24 +15,17 @@ class MyApp < ANL::ANLApp
     @main_modules = []
     chain GRAMSBalloon::TelemMosquittoManager
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
-      m.set_singleton(1)
+      m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
-      m.set_singleton(1)
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1) do |m|
+      m.set_singleton(0)
     end
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-    # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    # with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
-    # chain GRAMSBalloon::GetMHADCData
-    # with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
-      # m.set_singleton(0)
-    # end
-    # @main_modules << "MHADCManager"
-    # @main_modules << "GetMHADCData"
+    
     
     chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
     with_parameters(channel: 0, spi_config_options: 1, spi_control_type: "baycat", use_multiplexer: true) do |m|
@@ -50,9 +43,8 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "GetPDUInfo"
     
-    # subsystems = ["Orchestrator"]
-    #subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
-    subsystems = []
+    
+    subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
     subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [], "Orchestrator" => []}
@@ -63,7 +55,7 @@ class MyApp < ANL::ANLApp
       @main_modules << "SendCommandToDAQComputer_" + subsystem
     end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names, SPIManager_name: "SPIManager_baycat") do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"
@@ -84,7 +76,7 @@ class MyApp < ANL::ANLApp
       end
       @main_modules << "DistributeCommand_#{subsystem}"
       chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 2) do |m|
+        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
@@ -149,18 +141,18 @@ end
 a = MyApp.new
 
 
-a.num_parallels = 2
+a.num_parallels = 1
 mosquitto_modules = ["TelemMosquittoManager", "ComMosquittoManager"]
 a.modify do |m|
-  a.main_modules.each do |mod|
-   m.get_parallel_module(1, mod).off
-  end
-  mosquitto_modules.each do |mod|
-   m.get_parallel_module(0, mod).off
-  end
+  #a.main_modules.each do |mod|
+  # m.get_parallel_module(1, mod).off
+  #end
+  #mosquitto_modules.each do |mod|
+  # m.get_parallel_module(0, mod).off
+  #end
 end
-
-a.run(1000000000, 1000000000)
+#a.run(1, 1)
+a.run(:all, 1000000000)
 exit_status = 1
 puts "exit_status: #{exit_status}"
 exit exit_status

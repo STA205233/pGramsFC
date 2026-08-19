@@ -76,9 +76,17 @@ ANLStatus SocketCommunicationManager::mod_initialize() {
 ANLStatus SocketCommunicationManager::mod_analyze() {
   return AS_OK;
 }
+ANLStatus SocketCommunicationManager::mod_end_run() {
+  if (socketCommunication_) {
+    socketCommunication_->close();
+    socketCommunication_.reset();
+  }
+  return AS_OK;
+}
 ANLStatus SocketCommunicationManager::mod_finalize() {
   if (socketCommunication_) {
     socketCommunication_->close();
+    socketCommunication_.reset();
   }
   return AS_OK;
 }
@@ -139,7 +147,7 @@ int SocketCommunicationManager::sendAndWaitForAck(const uint8_t *buf, size_t n, 
   if (chatter_ > 2) std::cout << std::endl;
   return send_result;
 }
-int SocketCommunicationManager::receive(std::vector<uint8_t> &data) {
+int SocketCommunicationManager::receive(std::vector<uint8_t>& data) {
   if (!singleton_self()->socketCommunication_) {
     return -1;
   }

@@ -2,8 +2,6 @@
 #define ReceiveCommand_H 1
 
 #include "CommunicationFormat.hh"
-#include "CommunicationSaver.hh"
-#include "MosquittoManager.hh"
 #include "RunIDManager.hh"
 #ifdef USE_SPI
 #include "SPIManager.hh"
@@ -23,6 +21,8 @@ template <typename T>
 class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
+template <typename T>
+class MosquittoIO;
 class SendCommandToDAQComputer;
 #ifdef USE_SPI
 class PDUChannelMap;

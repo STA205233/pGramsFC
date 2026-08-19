@@ -13,3 +13,9 @@ export PGRAMS_MOSQUITTO_HOST_INTERNAL="localhost"
 export PGRAMS_MOSQUITTO_USER_INTERNAL="user"
 export PGRAMS_MOSQUITTO_PASSWD_INTERNAL="password"
 export PGRAMS_MOSQUITTO_PORT_INTERNAL="1883"
+
+
+export PGRAMS_MYSQL_USER="root"
+export PGRAMS_MYSQL_HOST="localhost"
+export PGRAMS_MYSQL_PASSWD="password"
+export PGRAMS_MYSQL_PORT="33060" # This is not port for classical Mysql protocol, but for xdevAPI

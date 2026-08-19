@@ -5,11 +5,16 @@
 #include "PDUCodeMapCS.hh"
 #include "PDUCodeMapDIO.hh"
 #endif
-#include "SendCommandToDAQComputer.hh"
-#include "SendTelemetry.hh"
 #ifdef USE_SYSTEM_MODULES
 #include "ShutdownSystem.hh"
 #endif
+#include "CommunicationFormat.hh"
+#include "CommunicationSaver.hh"
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
+#include "SendCommandToDAQComputer.hh"
+#include "SendTelemetry.hh"
+
 #include "TerminalColoring.hh"
 #include <cstdint>
 #include <iostream>
@@ -349,22 +354,43 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_DCDC_ON) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_On) && argc == 1) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Index: " << arguments[0] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Ch: " << arguments[0] << std::endl;
     }
     // TODO: Implement handling
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_DCDC_OFF) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Index: " << arguments[0] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Ch: " << arguments[0] << std::endl;
     }
     // TODO: Implement handling
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Voltage) && argc == 2) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Vdef command received. Ch: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
+    }
+    //TODO: Implement handling
+    return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 2) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset command received. Ch: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
+    }
+    //TODO: Implement handling
+    return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query info command received." << std::endl;
+    }
+    //TODO: Implement handling
+    return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Tmux command received. Ch: " << arguments[0] << ", Temp: " << arguments[1] << std::endl;
     }
     // TODO: Implement handling
     return true;

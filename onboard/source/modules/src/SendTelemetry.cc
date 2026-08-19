@@ -1,15 +1,20 @@
 #include "SendTelemetry.hh"
 #include "CommunicationCodes.hh"
-#include "GetComputerStatus.hh"
+#include "GetMHADCData.hh"
+#include "MHADCMapping.hh"
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
+#include "ReceiveCommand.hh"
 #ifdef USE_SPI
-#include "GetLabJackData.hh"
 #include "GetPDUInfo.hh"
 #include "PDUMapping.hh"
 #endif
-#include "GetMHADCData.hh"
-#include "MHADCMapping.hh"
-#include "MosquittoManager.hh"
-#include "ReceiveCommand.hh"
+#ifdef USE_SYSTEM_MODULES
+#include "GetComputerStatus.hh"
+#endif
+#ifdef USE_LJM
+#include "GetLabJackData.hh"
+#endif
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -24,9 +29,9 @@ SendTelemetry::SendTelemetry() {
   errorManager_ = std::make_shared<ErrorManager>();
   binaryFilenameBase_ = "Telemetry";
   mhadcMapping_ = std::make_shared<MHADCMapping>();
-  #ifdef USE_SPI
+#ifdef USE_SPI
   pduMapping_ = std::make_shared<PDUMapping>();
-  #endif
+#endif
 }
 
 SendTelemetry::~SendTelemetry() = default;
@@ -74,9 +79,9 @@ ANLStatus SendTelemetry::mod_initialize() {
   }
   telemdef_ = std::make_shared<HubHKTelemetry>(true);
   mhadcMapping_->setHKTelemetry(telemdef_);
-  #ifdef USE_SPI
+#ifdef USE_SPI
   pduMapping_->setHKTelemetry(telemdef_);
-  #endif
+#endif
   if (saveTelemetry_) {
     telemetrySaver_ = std::make_shared<CommunicationSaver<std::string>>();
   }
@@ -289,8 +294,9 @@ void SendTelemetry::setHKTelemetry() {
 #ifdef USE_LJM
   if (getLabJackData_) {
     const auto &analogIn = getLabJackData_->getAnalogIn();
-    telemdef_->setPressureTransducer(static_cast<uint16_t>(analogIn[0] * 100.0));
-    telemdef_->setPressureRegulatorVol(static_cast<uint16_t>(analogIn[1] * 100.0));
+    telemdef_->setPressureSensors<0>(analogIn[0]);
+    telemdef_->setPressureSensors<1>(analogIn[1]);
+    telemdef_->setLabJackTemperature(getLabJackData_->getTemperatureDevice());
   }
 #endif
 #ifdef USE_SPI
@@ -309,5 +315,10 @@ void SendTelemetry::setHKTelemetry() {
     }
   }
 #endif
+
+#ifdef USE_I2C
+  // TODO: Add implementation
+#endif
 }
+
 } // namespace gramsballoon::pgrams

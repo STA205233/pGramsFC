@@ -43,7 +43,8 @@ private:
   int timeoutUsec_ = 0;
   struct timeval timeoutTv_;
   template <typename T>
-  int receiveImpl(std::vector<T> &data);
+  int receiveImpl(std::vector<T>& data);
+  int localPort_;
 
 public:
   void setMaximumBytes(size_t bytes) {
@@ -75,13 +76,20 @@ public:
   }
   int close() {
     std::lock_guard<std::mutex> lock(*sockMutex_);
-    if (ioContext_) {
-      ioContext_->stop();
+    stopped_->store(true, std::memory_order_release);
+    // Close the acceptor instead of stopping the (shared) io_context: this
+    // cancels the pending async_accept so its handler is released.
+    if (acceptor_) {
+      boost::system::error_code ec_acc;
+      acceptor_->close(ec_acc);
     }
     if (socketAccepted_) {
       boost::system::error_code ec;
       socketAccepted_->close(ec);
       socketAccepted_.reset();
+    }
+    if (!socket_) {
+      return 0;
     }
     boost::system::error_code ec;
     socket_->close(ec);

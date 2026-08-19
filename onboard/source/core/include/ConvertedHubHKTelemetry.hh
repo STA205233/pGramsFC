@@ -2,7 +2,11 @@
 #define GB_ConvertedHubHKTelemetry_hh 1
 #include "DBSerializable.hh"
 #include "HubHKTelemetry.hh"
-#include "SystemOfUnits.hh"
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <ctime>
+#include <iostream>
 
 #define GETTER_ARRAY_F(name, variable, num)                                   \
   inline const std::array<floating_t, num> &name() const { return variable; } \
@@ -30,7 +34,6 @@ public:
   using floating_t = double;
 
 public:
-  static constexpr size_t NUM_TOF_BIAS = HubHKTelemetry::NUM_TOF_BIAS;
   static constexpr size_t NUM_PDU_HV_TEMP = HubHKTelemetry::NUM_PDU_HV_TEMP;
   static constexpr size_t NUM_PDU_SIPM = HubHKTelemetry::NUM_PDU_SIPM;
   static constexpr size_t ARGC = HubHKTelemetry::ARGC;
@@ -151,8 +154,6 @@ public:
   GETTER_ARRAY_F(RtdOutsideSealedEnclosure, rtdOutsideSealedEnclosure_, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE)
   GETTER_ARRAY_F(RtdVacuumJacket, rtdVacuumJacket_, NUM_RTD_VACUUM_JACKET)
 
-  inline floating_t PressureTransducer() const { return pressureTransducer_; }
-
   GETTER_ARRAY_F(Inclinometers, inclinometers_, NUM_INCLINOMETERS)
   GETTER_ARRAY_F(RtdsInsideChamber, rtdsInsideChamber_, NUM_RTD_INSIDE_CHAMBER)
   GETTER_ARRAY_F(Spare, spare_, NUM_ADC_SPARE)
@@ -166,8 +167,6 @@ public:
   inline floating_t LabJackTemperature() const { return labJackTemperature_; }
 
   GETTER_ARRAY_F(Rtd4Wire, rtd4Wire_, NUM_4_WIRE_RTD)
-  GETTER_ARRAY_F(TofBiasVoltage, tofBiasVoltage_, NUM_TOF_BIAS)
-  GETTER_ARRAY_F(TofBiasTemperature, tofBiasTemperature_, NUM_TOF_BIAS)
 
   inline const std::array<uint32_t, NUM_ERROR_FLAGS> &HubComputerErrorFlags() const { return hubComputerErrorFlags_; }
   inline uint32_t HubComputerErrorFlags(size_t idx) const { return hubComputerErrorFlags_[idx]; }
@@ -260,7 +259,6 @@ private:
   floating_t rtdTof_ = 0;
   std::array<floating_t, NUM_RTD_OUTSIDE_SEALED_ENCLOSURE> rtdOutsideSealedEnclosure_ = {0};
   std::array<floating_t, NUM_RTD_VACUUM_JACKET> rtdVacuumJacket_ = {0};
-  floating_t pressureTransducer_ = 0;
   std::array<floating_t, NUM_INCLINOMETERS> inclinometers_ = {0};
   std::array<floating_t, NUM_RTD_INSIDE_CHAMBER> rtdsInsideChamber_ = {0};
   std::array<floating_t, NUM_ADC_SPARE> spare_ = {0};
@@ -272,10 +270,6 @@ private:
   floating_t labJackTemperature_ = 0;
   std::array<floating_t, NUM_4_WIRE_RTD> rtd4Wire_ = {0};
 
-  //Tof bias
-  std::array<floating_t, NUM_TOF_BIAS> tofBiasVoltage_ = {0};
-  std::array<floating_t, NUM_TOF_BIAS> tofBiasTemperature_ = {0};
-
   //Hub computer
   std::array<uint32_t, NUM_ERROR_FLAGS> hubComputerErrorFlags_ = {0};
   floating_t storageSize_ = 0;
@@ -283,25 +277,91 @@ private:
   floating_t ramUsage_ = 0;
 
   template <typename T>
-  static bool convertVoltageMHADC(T adc_value, floating_t &src);
+  static bool convertVoltageMHADC(T adc_value, floating_t &dest, floating_t = 0.0);
   template <typename T>
-  static bool convertRTD(T adc_value, floating_t &src, floating_t offset);
+  static bool convertRTD(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertInclinometer(T adc_value, floating_t &src, floating_t offset);
+  static bool convertInclinometer(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertPDUSiPMVoltage(T adc_value, floating_t &src, floating_t offset);
+  static bool convertPDUSiPMVoltage(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertPDUSiPMCurrent(T adc_value, floating_t &src, floating_t offset);
+  static bool convertPDUSiPMCurrent(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertPDUTPCHVCurrent(T adc_value, floating_t &src, floating_t offset);
+  static bool convertPDUTPCHVCurrent(T adc_value, floating_t &dest, floating_t offset);
   template <typename T>
-  static bool convertVoltagePDU(T adc_value, floating_t &src);
+  static bool convertPDUTPCHVVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTPCHVTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUMainBatCurrent(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUMainBatVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUMainBatTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUVtoI(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUSiPMPreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUSiPMPreAmpTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertChargePreAmpM5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertChargePreAmpP5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertChargePreAmpTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTofP12VCurrent(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTofP12VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTofP12VTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisP3V3Voltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisP5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisM5VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisP12VVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUShaperP3V3Voltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUShaperM3V3Voltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUShaperTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisPM5VTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUPressureRegulatorVoltage(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUTofBiasP5VTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisP12VTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCaenNevisP3V3Temp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPDUCommsBoardTemp(T adc_value, floating_t &dest, floating_t offset);
+  template <typename T>
+  static bool convertPressureRegulator(T adc_value, floating_t &dest, floating_t);
+  template <typename T>
+  static bool convertVoltagePDU(T adc_value, floating_t &dest, floating_t = 0.0);
   template <typename T>
   static bool convertBME680Temp(T value, floating_t &temp_dest, floating_t);
   template <typename T>
   static bool convertBME680Press(T value, floating_t &press_dest, floating_t);
   template <typename T>
   static bool convertBME680Humid(T value, floating_t &humid_dest, floating_t);
+  template <typename T>
+  static bool convertLabJackTemp(T value, floating_t &labjack_temp, floating_t);
+  template <typename T>
+  static bool convertPressSensors(T value, floating_t &pressTransducer, floating_t);
+  template <typename T>
+  static bool convertTofSiPMbiasVol(T value, floating_t &tofSipmbiasVol, floating_t offset = 0.);
+  template <typename T>
+  static bool convertTofSiPMTrimVol(T value, floating_t &tofSipmTrimVol, floating_t offset = 0.);
+  template <typename T>
+  static bool convertTofSiPMTemp(T value, floating_t &tofSipmTemp, floating_t offset = 0.);
 };
 
 } // namespace gramsballoon::pgrams

@@ -1,4 +1,6 @@
 #include "MosquittoManager.hh"
+#include "MosquittoIO.hh"
+#include "SendTelemetry.hh"
 #include "TerminalColoring.hh"
 #include <chrono>
 #include <thread>
@@ -103,14 +105,14 @@ ANLStatus MosquittoManager<T>::mod_end_run() {
   else {
     std::cerr << module_id() << termutil::green << " INFO" << termutil::reset << ": disconnect() succeeded" << std::endl;
   }
-  
+
   for (int i = 0; i < 100; ++i) {
     if (!mosquittoIO_->IsConnected()) {
       break;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
-  
+
   const auto loop_status = mosquittoIO_->loop_stop(mosquittoIO_->IsConnected());
   if (loop_status != MOSQ_ERR_SUCCESS) {
     std::cerr << module_id() << termutil::red << " ERROR" << termutil::reset << ": loop_stop() failed: " << loop_status << std::endl;

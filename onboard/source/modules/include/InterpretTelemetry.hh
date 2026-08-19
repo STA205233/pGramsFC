@@ -16,6 +16,8 @@
 namespace gramsballoon::pgrams {
 class ReceiveTelemetry;
 class BaseTelemetryDefinition;
+template <typename T>
+class CommunicationSaver;
 #ifdef USE_HSQUICKLOOK
 class PushToMongoDB;
 #endif // USE_HSQUICKLOOK

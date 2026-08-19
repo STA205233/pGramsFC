@@ -43,3 +43,4 @@
 **/.DS_Store
 .cache
 .VSCodeCounter
+compile_commands.json
