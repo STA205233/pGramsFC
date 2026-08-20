@@ -130,7 +130,7 @@ command_collection.add_command(
             CommandParameter("Period sec", "Poll interval while waiting for the next closed file", range=(1, 3600)),
             CommandParameter("Run", "99999 = latest run, then newer runs; else only this run", range=(0, 99999)),
             CommandParameter("File", "99999 = latest closed, then newer closed files; else that file# once", range=(0, 99999)),
-            CommandParameter("Event stride", "Average every Nth event (from 0)", range=(1, 10000)),
+            CommandParameter("N event", "Decode events 0..N-1 and average; 99999 = whole file", range=(1, 99999)),
         ],
     ),
 )
