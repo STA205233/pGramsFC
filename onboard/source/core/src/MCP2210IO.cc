@@ -6,7 +6,7 @@ extern "C" {
 #include <cstdint>
 #include <iostream>
 namespace gramsballoon::pgrams {
-MCP2210IO::MCP2210IO() : handler_(-1), spiMode_(0) {}
+MCP2210IO::MCP2210IO() : handler_(-1), spiMode_(0) { constructChannels(); }
 MCP2210IO::~MCP2210IO() = default;
 
 int MCP2210IO::Open(int, const char *path) {
@@ -17,6 +17,7 @@ int MCP2210IO::Open(int, const char *path) {
   }
   setIsOpen(true);
   handler_ = ret;
+  gpio_direction(handler_, ALL_HIGH, 0); // set to output
   return 0;
 }
 
@@ -45,14 +46,10 @@ int MCP2210IO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uin
       return -1;
     }
   }
-  auto ret = spi_data_xfer(handler_, writeBuffer, readBuffer, size, spiMode_, Baudrate(), ALL_HIGH, ALL_HIGH, 0, 0, 0, 0);
+  auto ret = spi_data_xfer(handler_, writeBuffer, readBuffer, size, spiMode_, Baudrate(), ALL_HIGH, ALL_HIGH, 1, 1, 1, 1);
 
   if (ret < 0) {
     std::cerr << "Error: SPI write failed " << ret << std::endl;
-  }
-  else if (ret != static_cast<int>(size)) {
-    std::cerr << "MCP2210IO:: size of transmission is incorrect" << std::endl;
-    ret = -1; // if inconstency size of transmission
   }
   if (csControl) {
     const auto ret_gpio = controlGPIO(cs, true);
@@ -93,15 +90,29 @@ int MCP2210IO::controlGPIO(int cs, bool val) {
     std::cout << "MCP2210IO::controlGPIO: negative cs value" << std::endl;
     return -1;
   }
+
   const int cs_val = (1 << cs);
-  const int val_bit = val ? cs_val : 0;
-  const auto ret = gpio_write(handler_, val_bit, cs_val);
+  const int val_bit = val ? ALL_HIGH : 0;
+  return controlGPIOBit(cs_val, val_bit);
+}
+int MCP2210IO::controlGPIOBit(uint32_t cs, uint32_t state) {
+  if (!IsOpen()) {
+    return -1;
+  }
+  int read_value = 0;
+  const int pre_ret = gpio_read(handler_, &read_value, ALL_HIGH);
+  if (pre_ret < 0) {
+    std::cerr << "MCP2210IO::controlGPIO: Read GPIO failed" << pre_ret << std::endl;
+    return -1;
+  }
+  const int val_bit = (state & cs) | (read_value & (~cs));
+  std::cout << std::hex << "val_bit: " << val_bit << " cs: " << cs << " state: " << state << " read_value: " << read_value << std::dec << std::endl;
+  const int ret = gpio_write(handler_, val_bit, ALL_HIGH);
   if (ret < 0) {
     std::cerr << "MCP2210IO::controlGPIO: Control GPIO failed" << ret << std::endl;
   }
+  gpio_read(handler_, &read_value, ALL_HIGH);
+  std::cout << "read_value: " << std::hex << read_value << std::dec << std::endl;
   return ret;
-}
-int MCP2210IO::controlGPIOBit(uint32_t cs, uint32_t state) {
-  return gpio_write(handler_, state, cs);
 }
 } // namespace gramsballoon::pgrams

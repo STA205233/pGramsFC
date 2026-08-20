@@ -41,19 +41,14 @@ find_path(VERSALOGIC_INC_DIR
 find_library(VERSALOGIC_LIB
   NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
   PATHS /usr/local/lib)
-message(" -- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
-message(" -- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+message("-- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+message("-- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
 
 # MCP2210
-if (GB_USE_MCP2210)
-  find_library(MCP2210_LIB NAMES mcp2210hid_shared REQUIRED HINTS ${CMAKE_PREFIX_PATH}/bin)
-  find_path(MCP2210_INC_DIR NAMES mcp2210_api.h REQUIRED HINTS ${CMAKE_PREFIX_PATH}/lib/inc)
-  message("-- MCP2210_LIB: ${MCP2210_LIB}")
-  message("-- MCP2210_INC_DIR: ${MCP2210_INC_DIR}")
-else()
-  set(MCP2210_LIB "")
-  set(MCP2210_INC_DIR "")
-endif(GB_USE_MCP2210)
+find_library(MCP2210_LIB NAMES mcp2210hid_shared REQUIRED HINTS ${CMAKE_PREFIX_PATH}/bin)
+find_path(MCP2210_INC_DIR NAMES mcp2210_api.h REQUIRED HINTS ${CMAKE_PREFIX_PATH}/lib/inc)
+message("-- MCP2210_LIB: ${MCP2210_LIB}")
+message("-- MCP2210_INC_DIR: ${MCP2210_INC_DIR}")
 
 include_directories(
   ${MPSSE_INC_DIR}
@@ -84,6 +79,7 @@ target_link_libraries(pdu_read
   GBCore
   ${D2XX_LIB}
   ${VERSALOGIC_LIB}
+  ${MCP2210_LIB}
 )
 target_link_directories(pdu_read PRIVATE
   $ENV{HOME}/lib
@@ -102,6 +98,7 @@ target_link_libraries(enable_test
   GBCore
   ${D2XX_LIB}
   ${VERSALOGIC_LIB}
+  ${MCP2210_LIB}
 )
 target_link_directories(enable_test PUBLIC
   $ENV{HOME}/lib

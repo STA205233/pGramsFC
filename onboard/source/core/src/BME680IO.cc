@@ -3,6 +3,7 @@
 #include "bme68x.h"
 #include "bme68x_defs.h"
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <vector>
 

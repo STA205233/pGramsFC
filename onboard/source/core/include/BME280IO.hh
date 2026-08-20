@@ -6,15 +6,15 @@
 #include "I2CInterface.hh"
 #include "SPIInterface.hh"
 #include <cstdint>
+#include <memory>
 
 #define BME_REGISTER_BYTES 1
 struct bme280_dev;
 struct bme280_data;
 struct bme280_settings;
 
-
 namespace gramsballoon::pgrams {
-  
+
 /**
   * A class to handle BME280
   *
