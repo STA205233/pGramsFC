@@ -1,5 +1,7 @@
 #include "MCP2210IO.hh"
+extern "C" {
 #include "mcp2210_api.h"
+}
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
