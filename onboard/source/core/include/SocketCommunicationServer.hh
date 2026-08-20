@@ -43,7 +43,7 @@ private:
   int timeoutUsec_ = 0;
   struct timeval timeoutTv_;
   template <typename T>
-  int receiveImpl(std::vector<T>& data);
+  int receiveImpl(std::vector<T> &data);
   int localPort_;
 
 public:
