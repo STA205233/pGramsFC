@@ -20,9 +20,10 @@ class SPIInterface;
  * @date 2023-03-01
  * @date 2025-05-02 | Shota Arai | Modified to use the FT232H
  * @date 2026-02-20 | Shota Arai | Refactor to use SPIInterfaceMultiplexer and support multiple SPI control types (v2.0)
+ * @date 2026-08-21 | Shota Arai | Added MCP2210 (v2.1)
  */
 class SPIManager: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SPIManager, 2.0);
+  DEFINE_ANL_MODULE(SPIManager, 2.1);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -30,7 +31,7 @@ public:
   virtual ~SPIManager();
 
 protected:
-  SPIManager(const SPIManager& r) = default;
+  SPIManager(const SPIManager &r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -47,6 +48,7 @@ private:
   std::string spiControlType_ = "baycat"; // "baycat" or "ft232h"
   bool useMultiplexer_ = true;
   int channel_ = 0;
+  std::string path_ = "";
   int baudrate_ = 100000;
   int spiConfigOptions_ = 0;
   std::vector<int> chipSelectArray_;

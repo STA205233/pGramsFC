@@ -6,7 +6,9 @@
 #ifdef USE_FT232H
 #include "FT232HIO.hh"
 #endif
-
+#ifdef USE_MCP2210
+#include "MCP2210IO.hh"
+#endif
 #ifdef USE_BAYCAT
 #include "BayCatSPIIO.hh"
 #endif
@@ -22,6 +24,7 @@ SPIManager::~SPIManager() {
 
 ANLStatus SPIManager::mod_define() {
   define_parameter("channel", &mod_class::channel_);
+  define_parameter("path", &mod_class::path_);
   define_parameter("baudrate", &mod_class::baudrate_);
   define_parameter("spi_config_options", &mod_class::spiConfigOptions_);
   define_parameter("spi_control_type", &mod_class::spiControlType_);
@@ -47,6 +50,14 @@ ANLStatus SPIManager::mod_pre_initialize() {
     return AS_ERROR;
 #endif
   }
+  else if (spiControlType_ == "mcp2210") {
+#ifdef USE_MCP2210
+    base_interface = std::make_shared<MCP2210IO>();
+#else
+    std::cerr << "MCP2210 SPI control type is not supported in this build." << std::endl;
+    return AS_ERROR;
+#endif
+  }
   else {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
     return AS_ERROR;
@@ -54,7 +65,7 @@ ANLStatus SPIManager::mod_pre_initialize() {
 
   base_interface->setBaudrate(baudrate_);
   base_interface->setConfigOptions(spiConfigOptions_);
-  const int status = base_interface->Open(channel_);
+  const int status = base_interface->Open(channel_, path_.c_str());
   if (status != 0) {
     std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
     if (sendTelemetry_) {

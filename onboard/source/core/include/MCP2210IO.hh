@@ -10,6 +10,7 @@ namespace gramsballoon::pgrams {
  * @note This function is not thread-safe.
  * @author Shota Arai
  * @date 2026-08-11 | Shota Arai | Created
+ * @date 2026-08-21 | Shota Arai | Finished implementation
  */
 class MCP2210IO final: public SPIInterface {
 public:
@@ -19,9 +20,8 @@ public:
     return mode;
   }
 
-  static constexpr int ALL_HIGH = ~0;
-
 private:
+  static constexpr int ALL_HIGH = ~0;
   int handler_;
   int spiMode_;
   static constexpr size_t NUM_BUF = 128;
