@@ -3,6 +3,7 @@
 #include "bme280.h"
 #include "bme280_defs.h"
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <vector>
 

@@ -58,17 +58,23 @@ public:
   int getCs() const { return cs_; }
   void setCs(int cs) {
     cs_ = cs;
-    channels_ = {cs_};
   }
 
-  virtual const std::vector<int>& Channels() const { return channels_; }
+  virtual const std::vector<int> &Channels() const { return channels_; }
 
 private:
   int cs_ = -1;
   unsigned int baudrate_ = 1000000;
   unsigned int configOptions_ = 0;
   bool isOpen_ = false;
-  std::vector<int> channels_{cs_};
+  std::vector<int> channels_;
+
+protected:
+  void constructChannels() {
+    for (int i = 0; i < MaximumCh(); ++i) {
+      channels_.push_back(i);
+    }
+  }
 };
 
 } // namespace gramsballoon::pgrams

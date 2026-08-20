@@ -19,6 +19,7 @@ BayCatSPIIO::BayCatSPIIO() : SPIInterface(), BayCatAPICaller() {
   baudrateList_.emplace(200000, SPI_CLK_FREQ1_);
   baudrateList_.emplace(400000, SPI_CLK_FREQ2_);
   baudrateList_.emplace(800000, SPI_CLK_FREQ3_);
+  constructChannels();
 }
 void BayCatSPIIO::setBaudrate(unsigned int baudrate) {
   if (baudrateList_.count(baudrate) == 0) {
