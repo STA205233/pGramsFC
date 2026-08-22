@@ -11,7 +11,7 @@ SerialCommunication::SerialCommunication()
   tio_ = std::make_unique<termios>();
 }
 
-SerialCommunication::SerialCommunication(const std::string& serial_path, speed_t baudrate, mode_t open_mode) : timeout_(0) {
+SerialCommunication::SerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode) : timeout_(0) {
   tio_ = std::make_unique<termios>();
   serialPath_ = serial_path;
   baudrate_ = baudrate;
@@ -77,7 +77,10 @@ int SerialCommunication::swrite(const uint8_t *buf, int length) {
   return ret;
 }
 
-int SerialCommunication::waitForReceivable(const std::chrono::microseconds& timeout) {
+int SerialCommunication::waitForReceivable(const std::chrono::microseconds &timeout) {
+  if (fd_ < 0) {
+    return -1;
+  }
   fd_set fdset;
   FD_ZERO(&fdset);
   FD_SET(fd_, &fdset);
@@ -86,7 +89,10 @@ int SerialCommunication::waitForReceivable(const std::chrono::microseconds& time
   return rv;
 }
 
-int SerialCommunication::waitForWritable(const std::chrono::microseconds& timeout) {
+int SerialCommunication::waitForWritable(const std::chrono::microseconds &timeout) {
+  if (fd_ < 0) {
+    return -1;
+  }
   fd_set fdset;
   FD_ZERO(&fdset);
   FD_SET(fd_, &fdset);
@@ -97,7 +103,7 @@ int SerialCommunication::waitForWritable(const std::chrono::microseconds& timeou
 
 int SerialCommunication::Write(const uint8_t *data, int length) {
   return transferExactlyWithTimeout(
-      [this](const std::chrono::microseconds& to) { return waitForWritable(to); },
+      [this](const std::chrono::microseconds &to) { return waitForWritable(to); },
       [this](const uint8_t *d, int l) { return swrite(d, l); },
       data, length);
 }
@@ -122,12 +128,12 @@ int SerialCommunication::Read(uint8_t *data, int length) {
 
 int SerialCommunication::ReadExactly(uint8_t *data, int length) {
   return transferExactlyWithTimeout(
-      [this](const std::chrono::microseconds& to) { return waitForReceivable(to); },
+      [this](const std::chrono::microseconds &to) { return waitForReceivable(to); },
       [this](uint8_t *d, int l) { return sread(d, l); },
       data, length);
 }
 
-timeval SerialCommunication::calTimeVal(const std::chrono::microseconds& time) {
+timeval SerialCommunication::calTimeVal(const std::chrono::microseconds &time) {
   if (time <= std::chrono::microseconds::zero()) {
     return timeval{0, 0};
   }
