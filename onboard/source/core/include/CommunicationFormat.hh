@@ -7,16 +7,16 @@
 #include <ostream>
 #include <sys/time.h>
 #include <vector>
-/**
- * @brief A class to define the command format for the pGRAMS system.
- * @author Tsubasa Tamba, Shota Arai
- * @date 2023-03-25
- * @date 2025-03-11 | Modified to fit the pGRAMS command format.
- * @date 2025-04-01 | Name changed from CommandDefinition to CommunicationFormat
- */
 
 namespace gramsballoon::pgrams {
-
+  
+/**
+  * @brief A class to define the command format for the pGRAMS system.
+  * @author Tsubasa Tamba, Shota Arai
+  * @date 2023-03-25
+  * @date 2025-03-11 | Modified to fit the pGRAMS command format.
+  * @date 2025-04-01 | Name changed from CommandDefinition to CommunicationFormat
+  */
 class CommunicationFormat {
 public:
   CommunicationFormat();

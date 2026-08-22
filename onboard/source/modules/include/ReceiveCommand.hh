@@ -8,11 +8,8 @@
 #include "ControlToFBias.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
-#include "SendCommandToDAQComputer.hh"
-#include "SendTelemetry.hh"
-#include "ShutdownSystem.hh"
 #include <anlnext/BasicModule.hh>
-#include <queue>
+#include <memory>
 #include <sys/select.h>
 #include <sys/time.h>
 namespace gramsballoon {
@@ -24,6 +21,8 @@ template <typename T>
 class CommunicationSaver;
 template <typename T>
 class MosquittoManager;
+template <typename T>
+class MosquittoIO;
 class SendCommandToDAQComputer;
 class ControlToFBias;
 

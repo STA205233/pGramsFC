@@ -26,7 +26,7 @@ ANLStatus EncodedSerialCommunicator::mod_finalize() {
   esc_.reset();
   return AS_OK;
 }
-int EncodedSerialCommunicator::SendComAndGetData(std::string_view command, std::string& data, int sleepfor) {
+int EncodedSerialCommunicator::SendComAndGetData(std::string_view command, std::string& data) {
   esc_->Write(command);
   const int ret = esc_->ReadDataUntilSpecificStr(data, "\r");
   if (chatter_ > 0) {

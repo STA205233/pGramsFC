@@ -1,5 +1,9 @@
 #include "BME280IO.hh"
-#include <iomanip>
+#include "SystemOfUnits.hh"
+#include "bme280.h"
+#include "bme280_defs.h"
+#include <chrono>
+#include <thread>
 #include <vector>
 
 namespace gramsballoon::pgrams {
@@ -104,11 +108,18 @@ int BME280IO::getData() {
   }
   bme280_set_sensor_mode(BME280_POWERMODE_SLEEP, bme280n_.get());
 
+  appendUnits();
   return res;
 }
 
 void BME280IO::printData() {
   std::cout << "Pressure: " << sensorData_->pressure << "\nHumidity: " << sensorData_->humidity << "\nTemperature: " << sensorData_->temperature << std::endl;
+}
+
+void BME280IO::appendUnits() {
+  sensorData_->humidity *= units::percent;
+  sensorData_->temperature *= units::degC;
+  sensorData_->pressure *= units::hPa;
 }
 
 } // namespace gramsballoon::pgrams

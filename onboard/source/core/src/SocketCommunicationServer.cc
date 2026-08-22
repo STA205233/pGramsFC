@@ -16,6 +16,7 @@ SocketCommunication::SocketCommunication(int port) {
   }
   stopped_ = std::make_shared<std::atomic<bool>>(true);
   sockMutex_ = std::make_shared<std::mutex>();
+  localPort_ = port;
 }
 SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context> ioContext, int port) : ioContext_(ioContext) {
   failed_ = std::make_shared<std::atomic<bool>>(false);
@@ -28,13 +29,14 @@ SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context
       acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
           *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
     }
-    catch (const boost::system::system_error &e) {
+    catch (const boost::system::system_error& e) {
       std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
       failed_->store(true, std::memory_order_release);
     }
   }
   stopped_ = std::make_shared<std::atomic<bool>>(false);
   sockMutex_ = std::make_shared<std::mutex>();
+  localPort_ = port;
 }
 SocketCommunication::~SocketCommunication() {
   if (stopped_ && !stopped_->load(std::memory_order_acquire)) {
@@ -49,15 +51,19 @@ SocketCommunication::~SocketCommunication() {
   }
 }
 void SocketCommunication::accept() {
-  auto self = shared_from_this();
-  acceptor_->async_accept([this, self](const boost::system::error_code &error, boost::asio::ip::tcp::socket socket) {
+  std::weak_ptr<SocketCommunication> weak_self = weak_from_this();
+  acceptor_->async_accept([this, weak_self](const boost::system::error_code& error, boost::asio::ip::tcp::socket socket) {
+    auto self = weak_self.lock();
+    if (!self) {
+      return;
+    }
     if (!error) {
       auto newsocket = std::make_shared<boost::asio::ip::tcp::socket>(std::move(socket));
       std::shared_ptr<boost::asio::ip::tcp::socket> oldsocket;
       try {
-        std::cout << "Accepted connection from " << newsocket->remote_endpoint().address().to_string() << ":" << newsocket->remote_endpoint().port() << "(Server port: " << acceptor_->local_endpoint().port() << ")" << std::endl;
+        std::cout << "Accepted connection from " << newsocket->remote_endpoint().address().to_string() << ":" << newsocket->remote_endpoint().port() << "(Server port: " << localPort_ << ")" << std::endl;
       }
-      catch (const boost::system::system_error &e) {
+      catch (const boost::system::system_error& e) {
         std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
       }
 
@@ -83,7 +89,7 @@ void SocketCommunication::accept() {
         }
       }
     }
-    else {
+    else if (error != boost::asio::error::operation_aborted) {
       failed_->store(true, std::memory_order_release);
       std::cerr << "Error in SocketCommunication: Accept failed. Error Code: " << error.message() << std::endl;
     }

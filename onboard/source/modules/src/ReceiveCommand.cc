@@ -1,8 +1,15 @@
 #include "ReceiveCommand.hh"
 #include "CommunicationCodes.hh"
+#include "CommunicationFormat.hh"
+#include "CommunicationSaver.hh"
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
+#include "SendCommandToDAQComputer.hh"
+#include "SendTelemetry.hh"
+#ifdef USE_SYSTEM_MODULES
+#include "ShutdownSystem.hh"
+#endif
 #include "TerminalColoring.hh"
-#include <chrono>
-#include <thread>
 using namespace anlnext;
 using namespace pgrams::communication;
 namespace gramsballoon::pgrams {
@@ -307,9 +314,9 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_DCDC_ON) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_On) && argc == 1) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Index: " << arguments[0] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Ch: " << arguments[0] << std::endl;
     }
     if (controlTofBias_) {
       const int ret = controlTofBias_->enableDCDC(arguments[0]);
@@ -323,9 +330,9 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
 
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_DCDC_OFF) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Index: " << arguments[0] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Ch: " << arguments[0] << std::endl;
     }
     if (controlTofBias_) {
       const int ret = controlTofBias_->disableDCDC(static_cast<uint8_t>(arguments[0] & 0xff));
@@ -340,67 +347,22 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     else {
       return false;
     }
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query info command received." << std::endl;
+    }
+    //TODO: Implement handling
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Voltage) && argc == 5) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << std::hex << arguments[0] << arguments[1] << arguments[2] << arguments[3] << std::dec << ", Voltage: " << arguments[4] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Tmux command received. Index: " << arguments[0] << ", on/off: " << arguments[1] << std::endl;
     }
     if (!controlTofBias_) {
       return false;
     }
-    const int ret = controlTofBias_->setTrimVoltage(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4]);
-    if (ret < 0) {
-      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to change trim voltage" << std::endl;
-      if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
-      }
-      return false;
-    }
-    return true;
-  }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Enable_Temp_Con) && argc == 0) {
-    if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Enable Temp Con received." << std::endl;
-    }
-    if (!controlTofBias_) {
-      return false;
-    }
-    const int ret = controlTofBias_->enableTemperatureCon();
-    if (ret < 0) {
-      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to enable temperature control" << std::endl;
-      if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
-      }
-      return false;
-    }
-    return true;
-  }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Disable_Temp_Con) && argc == 0) {
-    if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Disable Temp Con received." << std::endl;
-    }
-    if (!controlTofBias_) {
-      return false;
-    }
-    const int ret = controlTofBias_->disableTemperatureCon();
-    if (ret < 0) {
-      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to disable temperature control" << std::endl;
-      if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
-      }
-      return false;
-    }
-    return true;
-  }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Default_Temp) && argc == 2) {
-    if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voltage command received. Index: " << std::hex << arguments[0] << std::dec << ", Voltage: " << arguments[1] << std::endl;
-    }
-    if (!controlTofBias_) {
-      return false;
-    }
-    const int ret = controlTofBias_->setDefaultTemperature(arguments[0], arguments[1]);
+    const int ret = controlTofBias_->setTmuxChannel(arguments[0], arguments[1]);
     if (ret < 0) {
       std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to set default temperature" << std::endl;
       if (sendTelemetry_) {

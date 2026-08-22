@@ -38,6 +38,7 @@ public:
   anlnext::ANLStatus mod_pre_initialize() override;
   anlnext::ANLStatus mod_initialize() override;
   anlnext::ANLStatus mod_analyze() override;
+  anlnext::ANLStatus mod_end_run() override;
   anlnext::ANLStatus mod_finalize() override;
   SocketCommunication *getSocketCommunication() {
     return singleton_self()->socketCommunication_.get();
@@ -47,12 +48,18 @@ public:
     return singleton_self()->ackBuffer_;
   }
   int send(const uint8_t *buf, size_t n) {
+    if (!singleton_self()->socketCommunication_) {
+      return -1;
+    }
     return singleton_self()->socketCommunication_->send(buf, n);
   }
   inline int sendAndWaitForAck(const std::vector<uint8_t> &data, const std::vector<uint8_t> &ack) {
     return sendAndWaitForAck(data.data(), data.size(), ack.data(), ack.size());
   }
   inline bool isConnected() const {
+    if (!singleton_self()->socketCommunication_) {
+      return false;
+    }
     return singleton_self()->socketCommunication_->isConnected();
   }
   int receive(std::vector<uint8_t> &data);

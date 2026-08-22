@@ -5,38 +5,48 @@ using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus PushToMySQL::mod_define() {
   define_parameter("chatter", &mod_class::chatter_);
-  define_parameter("HubHKInterpreter_name", &mod_class::HubHKInterpreterName_);
-  set_parameter_description("Module name of InterpretTelemetry for HubHK");
-  define_parameter("HubHK_table_name", &mod_class::HubHKtableName_);
-  set_parameter_description("Table name for HubHK telemetry data");
+  define_parameter("data_store_name", &mod_class::dataStoreName_);
+  set_parameter_description("Module name of data store module");
+  define_parameter("table_name", &mod_class::tableName_);
+  set_parameter_description("Table name for data");
   return AS_OK;
 }
 ANLStatus PushToMySQL::mod_initialize() {
-  if (exist_module(HubHKInterpreterName_)) {
-    get_module_NC(HubHKInterpreterName_, &HubHKinterpreter_);
+  const anlnext::BasicModule *module_ptr = nullptr;
+  if (exist_module(dataStoreName_)) {
+    get_module(dataStoreName_, &module_ptr);
+    dataStore_ = dynamic_cast<const VDBDataStore *>(module_ptr);
+    if (!dataStore_) {
+      std::cerr << module_id() << "::mod_initialize: paramter \"data_store_name\" is not a class inherited from VDBDataStore" << std::endl;
+      return AS_QUIT_ALL_ERROR;
+    }
+  }
+  else {
+    std::cerr << module_id() << "::mod_initialize: module " << dataStoreName_ << " not found" << std::endl;
+    return AS_QUIT_ALL_ERROR;
   }
   if (exist_module("MySQLManager")) {
     get_module_NC("MySQLManager", &mysqlManager_);
   }
   else {
     std::cerr << module_id() << "::mod_initialize MySQLManager module is not found." << std::endl;
-    return AS_QUIT_ERROR;
+    return AS_QUIT_ALL_ERROR;
   }
   auto mysqlIO = mysqlManager_->getMySQLIO();
   mysqlFieldSink_.setMySQLIO(mysqlIO);
-  HubHKinterpreter_->initializeDBTableInSink(&mysqlFieldSink_, HubHKtableName_);
-  if (mysqlIO->CheckTableExistence(HubHKtableName_)) {
+  dataStore_->initializeDBTableInSink(&mysqlFieldSink_, tableName_);
+  if (mysqlIO->CheckTableExistence(tableName_)) {
     if (chatter_ > 0) {
-      std::cout << module_name() << "::mod_initialize: Table (" << HubHKtableName_ << ") already exists." << std::endl;
+      std::cout << module_name() << "::mod_initialize: Table (" << tableName_ << ") already exists." << std::endl;
     }
   }
   else {
     if (chatter_ > 0) {
-      std::cout << module_name() << "::mod_initialize: Table (" << HubHKtableName_ << ") does not exist. Create the table." << std::endl;
+      std::cout << module_name() << "::mod_initialize: Table (" << tableName_ << ") does not exist. Create the table." << std::endl;
     }
-    mysqlIO->CreateTable(HubHKtableName_);
+    mysqlIO->CreateTable(tableName_);
   }
-  mysqlIO->PrintTableInfo(HubHKtableName_);
+  mysqlIO->PrintTableInfo(tableName_);
   return AS_OK;
 }
 ANLStatus PushToMySQL::mod_analyze() {
@@ -44,15 +54,15 @@ ANLStatus PushToMySQL::mod_analyze() {
   if (!mysqlIO->connected()) {
     return AS_OK;
   }
-  if (!HubHKinterpreter_) {
+  if (!dataStore_) {
     std::cerr << module_name() << "::mod_analyze: HubHKinterpreter is not set." << std::endl;
     return AS_OK;
   }
-  if (HubHKinterpreter_->CurrentTelemetryType() == 0) { // no received telemetry
+  if (!dataStore_->hasData()) { // no received telemetry
     return AS_OK;
   }
-  HubHKinterpreter_->pushToDBSink(&mysqlFieldSink_);
-  mysqlIO->Insert(HubHKtableName_);
+  dataStore_->pushToDBSink(&mysqlFieldSink_);
+  mysqlIO->Insert(tableName_);
   return AS_OK;
 }
 ANLStatus PushToMySQL::mod_finalize() {

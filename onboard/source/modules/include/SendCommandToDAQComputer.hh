@@ -1,7 +1,6 @@
 #ifndef GRAMSBalloon_SendCommandToDAQComputer_hh
 #define GRAMSBalloon_SendCommandToDAQComputer_hh 1
 #include "CommunicationFormat.hh"
-#include "DistributeCommand.hh"
 #include "SendTelemetry.hh"
 #include "SocketCommunicationManager.hh"
 #include "anlnext/BasicModule.hh"

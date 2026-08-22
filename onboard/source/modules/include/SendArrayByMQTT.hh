@@ -4,7 +4,6 @@
 #include "MosquittoManager.hh"
 #include "anlnext/BasicModule.hh"
 #include <string>
-#include <vector>
 namespace gramsballoon::pgrams {
 /**
  * @brief Send array interpreted from telemetry to the other subsystem ground software
@@ -28,11 +27,12 @@ public:
   anlnext::ANLStatus mod_analyze() override;
 
 private:
-  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   std::string mosquittoManagerName_ = "MosquittoManager";
   const InterpretTelemetry *interpretTelemetry_ = nullptr;
   std::string interpretTelemetryName_ = "InterpretTelemetry";
-  std::string data_;
+  std::string dataStr_;
+  std::vector<uint8_t> data_;
 
   std::string topic_ = "Telemetry_array";
   int qos_ = 0;

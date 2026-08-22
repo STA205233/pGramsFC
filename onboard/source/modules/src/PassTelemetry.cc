@@ -1,4 +1,6 @@
 #include "PassTelemetry.hh"
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
 #include "SendTelemetry.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {

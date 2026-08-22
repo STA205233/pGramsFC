@@ -1,5 +1,9 @@
 #include "BME680IO.hh"
-#include <iomanip>
+#include "SystemOfUnits.hh"
+#include "bme68x.h"
+#include "bme68x_defs.h"
+#include <chrono>
+#include <thread>
 #include <vector>
 
 namespace gramsballoon::pgrams {
@@ -97,10 +101,12 @@ int BME680IO::getData() {
   bme68x_set_op_mode(BME68X_FORCED_MODE, bme68xn_.get());
   uint8_t ndata = 0;
   const int res = bme68x_get_data(BME68X_FORCED_MODE, sensorData_.get(), &ndata, bme68xn_.get());
-  
+
   if (res != 0) {
     std::cerr << "BME680IO::getData failed: ndata = " << static_cast<int>(ndata) << ", get_data_id = " << res << std::endl;
   }
+
+  appendUnits();
   bme68x_set_op_mode(BME68X_SLEEP_MODE, bme68xn_.get());
 
   return res;
@@ -110,4 +116,9 @@ void BME680IO::printData() {
   std::cout << "Pressure: " << sensorData_->pressure << "\nHumidity: " << sensorData_->humidity << "\nTemperature: " << sensorData_->temperature << std::endl;
 }
 
+void BME680IO::appendUnits() {
+  sensorData_->humidity *= units::percent;
+  sensorData_->temperature *= units::degC;
+  sensorData_->pressure *= units::hPa;
+}
 } // namespace gramsballoon::pgrams

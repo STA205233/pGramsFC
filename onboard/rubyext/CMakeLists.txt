@@ -51,17 +51,8 @@ endif()
 if(GB_USE_HSQUICKLOOK)
   list(APPEND cxx_definitions -DUSE_HSQUICKLOOK)
 endif()
-if(GB_USE_ROOT)
-  list(APPEND cxx_definitions -DUSE_ROOT)
-endif()
 if(GB_USE_MYSQL)
   list(APPEND cxx_definitions -DUSE_MYSQL)
-endif()
-if(GB_MAC)
-  list(APPEND cxx_definitions -DGB_MAC)
-endif()
-if(GB_DEMO_MODE)
-  list(APPEND cxx_definitions -DGB_DEMO_MODE)
 endif()
 if (GB_USE_LJM)
   list(APPEND cxx_definitions -DUSE_LJM)
@@ -73,7 +64,26 @@ endif()
 set(SWIG_FLAGS ${cxx_definitions})
 add_definitions(${cxx_definitions})
 
+if(ENABLE_SANITIZERS)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(
+      -fsanitize=address,undefined
+      -fno-sanitize-recover=all
+      -fno-omit-frame-pointer
+    )
+
+    add_link_options(
+      -fsanitize=address,undefined
+    )
+    message(NOTICE "-- Sanitizer enabled")
+  else()
+    message(WARNING
+      "ENABLE_SANITIZERS is ON, but the compiler is not GCC or Clang"
+    )
+  endif()
+endif()
+
 message("-- cxx_definitions: ${cxx_definitions}")
 
-########################################################
+# #######################################################
 include(CreateSwigRuby)

@@ -29,6 +29,7 @@ set(GB_CORE_CLASSES
   src/MHADCMapping.cc
   src/IridiumPacketPool.cc
   src/ToFBiasController.cc
+  src/ConvertedHubHKTelemetry.cc
 )
 
 if(GB_USE_SPI)
@@ -78,6 +79,11 @@ if(GB_USE_MYSQL)
   set(GB_MYSQL_CORE_CLASSES
     src/MySQLIO.cc
   )
+  set_source_files_properties(
+    src/MySQLIO.cc
+    PROPERTIES
+    COMPILE_OPTIONS "-fno-sanitize=vptr"
+  ) # TO avoid UBSan error in mysqlconncpp
 endif(GB_USE_MYSQL)
 
 set(GB_MOSQUITTO_CORE_CLASSES

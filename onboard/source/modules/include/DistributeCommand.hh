@@ -1,3 +1,17 @@
+#ifndef GB_DistributeCommand_hh
+#define GB_DistributeCommand_hh 1
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
+#include "SendTelemetry.hh"
+#include "SocketCommunicationManager.hh"
+#include "anlnext/BasicModule.hh"
+#include <arpa/inet.h>
+#include <string>
+namespace gramsballoon::pgrams {
+class SendTelemetry;
+template <typename T>
+class MosquittoManager;
+
 /**
  * Module for distributing command to other subsystems.
  *
@@ -6,21 +20,6 @@
  * @date 2025-03-24 | Delete socket communication feature and make based on SocketCommunicationManager
  *
  */
-#ifndef GB_DistributeCommand_hh
-#define GB_DistributeCommand_hh 1
-#include "MosquittoManager.hh"
-#include "SendTelemetry.hh"
-#include "SocketCommunicationManager.hh"
-#include "anlnext/BasicModule.hh"
-#include "sys/socket.h"
-#include <arpa/inet.h>
-#include <map>
-#include <string>
-namespace gramsballoon::pgrams {
-class SendTelemetry;
-template <typename T>
-class MosquittoManager;
-
 class DistributeCommand: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(DistributeCommand, 2.0);
   ENABLE_PARALLEL_RUN();

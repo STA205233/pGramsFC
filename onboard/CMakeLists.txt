@@ -6,10 +6,10 @@ set(CMAKE_INSTALL_PREFIX $ENV{HOME} CACHE PATH "install prefix")
 
 # set(CMAKE_BUILD_TYPE Release CACHE STRING "build type")
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "build type")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -W -Wall" CACHE STRING "CXX_FLAGS for debug")
-set(CMAKE_C_FLAGS_DEBUG "-g -W -Wall" CACHE STRING "C_FLAGS for debug")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -W -Wall" CACHE STRING "CXX_FLAGS for release")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -W -Wall" CACHE STRING "C_FLAGS for release")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -W -Wall -Wextra" CACHE STRING "CXX_FLAGS for debug")
+set(CMAKE_C_FLAGS_DEBUG "-g -W -Wall -Wextra" CACHE STRING "C_FLAGS for debug")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -W -Wall -Wextra" CACHE STRING "CXX_FLAGS for release")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -W -Wall -Wextra" CACHE STRING "C_FLAGS for release")
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -40,55 +40,47 @@ endif()
 message("-- GB_USE_SYSTEM_MODULES: ${GB_USE_SYSTEM_MODULES}")
 option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
 option(GB_APT_RUBY "installed ruby via apt" OFF)
-option(GB_USE_ROOT "enable root" OFF)
 option(GB_USE_MYSQL "enable mysql" OFF)
 option(GB_USE_LJM "enable LJM library for LabJack devices" ON)
 
-# # install options
+# install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
 option(GB_INSTALL_CMAKE_FILES "install all cmake files" ON)
+option(ENABLE_SANITIZERS "Enable AddressSanitizer and UBSan" OFF)
 set(INSTALL_HEADERS ${GB_INSTALL_HEADERS})
 set(INSTALL_CMAKE_FILES ${GB_INSTALL_CMAKE_FILES})
 
-set(GB_PGRAMSBALLOON_PATH ".." CACHE PATH "path to pGramsBalloon")
-if(EXISTS "${GB_PGRAMSBALLOON_PATH}/include/CommunicationCodes.hh")
-  message("-- Found pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
-else()
-  message(FATAL_ERROR "-- Could not find pGramsBalloon headers in ${GB_PGRAMSBALLOON_PATH}")
-endif()
-set(GB_PGRAMSBALLOON_INC_DIR "${GB_PGRAMSBALLOON_PATH}/include")
+set(GB_PGRAMSBALLOON_PATH "../.." CACHE PATH "path to pGramsBalloon")
+find_path(GB_PGRAMSBALLOON_INC_DIR NAMES CommunicationCodes.hh REQUIRED HINTS "${GB_PGRAMSBALLOON_PATH}/include" CMAKE_PREFIX_PATH)
+message("-- Include file of pGRAMSBalloon Found")
+message("-- GB_PGRAMSBALLOON_INC_DIR: ${GB_PGRAMSBALLOON_INC_DIR}")
 
-if (GB_USE_BAYCAT_SPI OR GB_USE_FT232H)
+if (GB_USE_BAYCAT OR GB_USE_FT232H)
   set(GB_USE_SPI ON)
 else()
   set(GB_USE_SPI OFF)
-  endif()
+endif()
   
-  # # shortcut options
-  option(GB_MAC " shortcut " OFF)
-  
-  if(GB_MAC)
-  message("-- GB_MAC is set")
-  message("-- GB_MAC is set ")
-  set(GB_USE_SPI OFF)
-  set(GB_USE_HSQUICKLOOK OFF)
-  set(GB_APT_RUBY OFF)
-  set(GB_USE_MYSQL ON)
-  set(GB_USE_ROOT OFF)
-  set(GB_USE_SYSTEM_MODULES OFF)
-  endif(GB_MAC)
+# shortcut options
+option(GB_GROUND "shortcut for ground system" OFF)
+
+if(GB_GROUND)
+message("-- GB_GROUND is set ")
+set(GB_USE_FT232H OFF)
+set(GB_USE_MYSQL ON)
+set(GB_USE_SYSTEM_MODULES OFF)
+set(GB_USE_LJM OFF)
+set(GB_USE_BAYCAT OFF)
+endif(GB_GROUND)
 
 
 if (GB_USE_FT232H)
-  set(GB_USE_SPI ON)
   add_compile_definitions("USE_FT232H")
 else()
-  set(GB_USE_SPI OFF)
 endif()
 
 if (GB_USE_BAYCAT)
   set(GB_USE_I2C ON)
-  set(GB_USE_SPI ON)
   set(GB_USE_VERSA_API ON)
   add_compile_definitions("USE_BAYCAT")
   add_compile_definitions("USE_VERSA_API")
@@ -100,24 +92,40 @@ message("-- GB_USE_SPI: ${GB_USE_SPI}")
 message("-- GB_USE_I2C: ${GB_USE_I2C}")
 message("-- GB_USE_BAYCAT: ${GB_USE_BAYCAT}")
 
-if(GB_APT_RUBY)
-  set(RUBY_CONFIG_FILE_DIR /usr/include/arm-linux-gnueabihf/ruby-2.7.0)
-endif(GB_APT_RUBY)
-
-if(GB_USE_ROOT)
-  add_compile_definitions(" USE_ROOT ")
-endif(GB_USE_ROOT)
-
 if(GB_USE_HSQUICKLOOK)
-  add_compile_definitions(" USE_HSQUICKLOOK ")
+  add_compile_definitions("USE_HSQUICKLOOK")
 endif(GB_USE_HSQUICKLOOK)
 
 if(GB_USE_SYSTEM_MODULES)
   add_compile_definitions("USE_SYSTEM_MODULES")
 endif(GB_USE_SYSTEM_MODULES)
 
-# ## External libraries
-# ## BOOST ###
+string(TOLOWER "${CMAKE_BUILD_TYPE}" build_type_lower)
+
+if(ENABLE_SANITIZERS)
+  if (NOT build_type_lower STREQUAL "debug")
+    message(FATAL_ERROR "Sanitizer is available only on debug build")
+  endif()
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(
+      -fsanitize=address,undefined
+      -fno-sanitize-recover=all
+      -fno-omit-frame-pointer
+    )
+
+    add_link_options(
+      -fsanitize=address,undefined
+    )
+    message(NOTICE "-- Sanitizer enabled")
+  else()
+    message(WARNING
+      "ENABLE_SANITIZERS is ON, but the compiler is not GCC or Clang"
+    )
+  endif()
+endif()
+
+# External libraries
+# BOOST
 find_package(Boost 1.60.0 REQUIRED CONFIG)
 set(BOOST_INC_DIR ${Boost_INCLUDE_DIRS})
 set(BOOST_LIB_DIR ${Boost_LIBRARY_DIRS})
@@ -161,23 +169,24 @@ if(GB_USE_FT232H)
 else()
   set(D2XX_LIB_DIR "")
   set(D2XX_INCLUDE_DIRS "")
+  set(WIN_TYPES_INC_DIR "")
   set(D2XX_LIB "")
 endif(GB_USE_FT232H)
 
 # VersaLogic
 if (GB_USE_VERSA_API)
-find_path(VERSALOGIC_INC_DIR
-  NAMES VL_OSALib.h REQUIRED
-  PATHS /usr/local/include)
-find_library(VERSALOGIC_LIB
-  NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
-  PATHS /usr/local/lib)
-add_compile_definitions("USE_VERSA_API")
-message("-- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
-message("-- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
+  find_path(VERSALOGIC_INC_DIR
+    NAMES VL_OSALib.h REQUIRED
+    PATHS /usr/local/include CMAKE_PREFIX_PATH)
+  find_library(VERSALOGIC_LIB
+    NAMES libVL_OSALib.so libVL_OSALib.dylib REQUIRED
+    PATHS /usr/local/lib CMAKE_PREFIX_PATH)
+  add_compile_definitions("USE_VERSA_API")
+  message("-- VERSALOGIC_INC_DIR: ${VERSALOGIC_INC_DIR} ")
+  message("-- VERSALOGIC_LIB: ${VERSALOGIC_LIB} ")
 else()
-  set(VERSALOGIC_INC_DIR "")
   set(VERSALOGIC_LIB "")
+  set(VERSALOGIC_INC_LIB "")
 endif(GB_USE_VERSA_API)
 
 # I2C
@@ -188,9 +197,13 @@ if (GB_USE_I2C)
   message("-- BME_LIB: ${BME_LIB}")
   message("-- BME280_LIB: ${BME280_LIB}")
   message("-- BME_INC_DIR: ${BME_INC_DIR}")
+else()
+  set(BME_LIB "")
+  set(BME280_LIB "")
+  set(BME_INC_DIR "")
 endif(GB_USE_I2C)
 
-# ## HSQUICKLOOK ###
+# HSQUICKLOOK
 if(GB_USE_HSQUICKLOOK)
   find_path(HSQUICKLOOK_INC_DIR
     NAMES hsquicklook/DocumentBuilder.hh
@@ -206,22 +219,7 @@ if(GB_USE_HSQUICKLOOK)
   message("-- MONGODB_LIB: ${MONGODB_LIB} ")
 endif(GB_USE_HSQUICKLOOK)
 
-# ## ROOT ###
-if(GB_USE_ROOT)
-  set(ROOTSYS $ENV{ROOTSYS})
-  list(APPEND CMAKE_PREFIX_PATH ${ROOTSYS})
-  find_package(ROOT REQUIRED)
-  set(ROOT_INC_DIR ${ROOT_INCLUDE_DIRS})
-  set(ROOT_LIB_DIR ${ROOT_LIBRARY_DIR})
-  set(ROOT_LIB ${ROOT_LIBRARIES})
-  list(APPEND CMAKE_INSTALL_RPATH ${ROOT_LIBRARY_DIR})
-  message("-- ROOTSYS = ${ROOTSYS} ")
-  message("-- ROOT_INC_DIR = ${ROOT_INC_DIR} ")
-  message("-- ROOT_LIB_DIR = ${ROOT_LIB_DIR} ")
-  message("-- ROOT libraries = ${ROOT_LIB} ")
-endif(GB_USE_ROOT)
-
-# ## MYSQL ###
+# MYSQL
 if(GB_USE_MYSQL)
   find_package(mysql-concpp REQUIRED CONFIG)
   set(MYSQL_INC_DIR ${MYSQL_CONCPP_INCLUDE_DIR})
@@ -230,8 +228,8 @@ if(GB_USE_MYSQL)
   message("-- MYSQL_LIB_DIR: ${MYSQL_INC_DIR}")
   message("-- MYSQL_LIB_DIR: ${MYSQL_LIB_DIR}")
   message("-- MYSQL_LIB: ${MYSQL_LIB}")
-  list(APPEND cxx_definitions "-DUSE_MYSQL")
-else ()
+  add_compile_definitions("USE_MYSQL")
+else()
   set(MYSQL_INC_DIR "")
   set(MYSQL_LIB_DIR "")
   set(MYSQL_LIB "")
@@ -248,7 +246,7 @@ if (GB_USE_LJM)
   find_path(LJM_INC_DIR NAMES LabJackM.h REQUIRED PATHS /usr/local/include)
   message("-- LJM_LIB: ${LJM_LIB} ")
   message("-- LJM_INC_DIR: ${LJM_INC_DIR} ")
-  list(APPEND cxx_definitions "-DUSE_LJM")
+  add_compile_definitions("USE_LJM")
 else()
   set(LJM_LIB "")
   set(LJM_INC_DIR "")
@@ -260,3 +258,18 @@ add_subdirectory(source)
 if(USE_RUBY)
   add_subdirectory(rubyext)
 endif(USE_RUBY)
+
+if(ENABLE_SANITIZERS)
+  message(WARNING
+      "\n"
+      "============================================================\n"
+      "  WARNING: SANITIZER BUILD ENABLED!!!!!\n"
+      "\n"
+      "  ASan + UBSan will be enabled for Debug configuration.\n"
+      "  Sanitizer errors may terminate the application immediately.\n"
+      "  This configuration must NOT be used for normal operation.\n"
+      "  If you don't have any knowledge about this, \n"
+      "  please run cmake with option -DENABLE_SANITIZERS=OFF again.\n"
+      "============================================================"
+  )
+endif()

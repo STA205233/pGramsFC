@@ -1,4 +1,6 @@
 #include "SendArrayByMQTT.hh"
+#include "MosquittoIO.hh"
+#include "MosquittoManager.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus SendArrayByMQTT::mod_define() {
@@ -38,20 +40,22 @@ ANLStatus SendArrayByMQTT::mod_analyze() {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
-  const auto &contents = telemetry->getContents()->Arguments();
+  const auto& contents = telemetry->getContents()->Arguments();
   const auto code = telemetry->getContents()->Code();
   data_.clear();
-  data_ = "{\"code\":" + std::to_string(static_cast<int>(code)) + ",\"argv\":[";
+  dataStr_.clear();
+  dataStr_ = "{\"code\":" + std::to_string(static_cast<int>(code)) + ",\"argv\":[";
   const size_t sz = contents.size();
   for (size_t i = 0; i < sz - 1; i++) {
-    data_ += std::to_string(contents[i]) + ",";
+    dataStr_ += std::to_string(contents[i]) + ",";
   }
   if (sz != 0)
-    data_ += std::to_string(contents[sz - 1]);
-  data_ += "]}";
+    dataStr_ += std::to_string(contents[sz - 1]);
+  dataStr_ += "]}";
+  data_.assign(dataStr_.begin(), dataStr_.end());
   auto mosquitto_io = mosquittoManager_->getMosquittoIO();
   if (chatter_ > 3) {
-    std::cout << "Sending message to MQTT: " << data_ << std::endl;
+    std::cout << "Sending message to MQTT: " << dataStr_ << std::endl;
   }
   const int result = mosquitto_io->Publish(data_, topic_, qos_);
   if (result != MOSQ_ERR_SUCCESS) {

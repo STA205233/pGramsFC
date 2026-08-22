@@ -40,4 +40,4 @@ SpaceBeforeInheritanceColon: false
 SpaceBeforeRangeBasedForLoopColon: false
 AlignTrailingComments: false
 ReflowComments: false
-ReferenceAlignment: Left
+ReferenceAlignment: Right

@@ -1,8 +1,8 @@
 #include "InterpretTelemetry.hh"
 #include "CommunicationCodes.hh"
+#include "CommunicationSaver.hh"
 #include "DateManager.hh"
 #include "HubHKTelemetry.hh"
-#include <sstream>
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
@@ -34,7 +34,7 @@ ANLStatus InterpretTelemetry::mod_initialize() {
     get_module_NC(receiverModuleName_, &receiver_);
   }
   if (telemetryTypeStr_ == "HK") {
-    telemetry_ = std::make_shared<HubHKTelemetry>(true);
+    telemetry_ = std::make_shared<HubHKTelemetry>(true); // Initialize once.
   }
   else if (telemetryTypeStr_ == "Base") {
     telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
@@ -99,14 +99,14 @@ bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
   if (!telemetry_) return false;
   const bool result = telemetry_->parseJSON(telemetryStr);
   if (!result) return false;
-  
+
   if (telemetryTypeStr_ == "HK" && telemetry_->getContents()->Code() == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal)) {
     if (currentRunID_ < 0) {
       currentRunID_ = telemetry_->RunID();
       updateRunIDFile();
     }
   }
-  if (telemetry_->getContents()->Code() == static_cast<uint16_t>(::pgrams::communication::CommunicationCodes::TOF_Callback))
+  if (telemetryTypeStr_ == "Base" && telemetry_->getContents()->Code() == static_cast<uint16_t>(::pgrams::communication::CommunicationCodes::TOF_Callback))
     currentTelemetryType_ = 2;
   if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
