@@ -5,16 +5,17 @@
 #include <string>
 
 namespace gramsballoon::pgrams {
-int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data) {
-  return ReadDataUntilSpecificStr(data, "\n");
+int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data, int max_length) {
+  return ReadDataUntilSpecificStr(data, "\n", max_length);
 }
-int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end) {
+int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length) {
   using std::chrono::steady_clock;
   data.clear();
   uint8_t buf;
   const auto sz_end = end.size();
   auto deadline = steady_clock::now() + Timeout();
-  while (deadline > steady_clock::now() && data.size() < data.capacity()) {
+  data.reserve(max_length);
+  while (deadline > steady_clock::now() && static_cast<int>(data.size()) < max_length && data.size() < data.capacity()) {
     const int ret_to = waitForReceivable(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
     const int err_to = errno;
     if (ret_to < 0 && (err_to == EINTR || err_to == EAGAIN)) {

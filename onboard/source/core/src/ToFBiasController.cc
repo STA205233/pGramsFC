@@ -23,7 +23,7 @@ int ToFBiasController::getOnePacket(std::string &str) {
   }
 
   {
-    const int ret = ReadDataUntilSpecificStr(str, "\r\n");
+    const int ret = ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
     if (ret < 0) {
       return ret;
     }

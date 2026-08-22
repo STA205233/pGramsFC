@@ -2,7 +2,6 @@
 #include "BaseTelemetryDefinition.hh"
 #include "CommunicationCodes.hh"
 #include "CommunicationFormat.hh"
-#include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 #include "SendTelemetry.hh"
 #include "ToFBiasController.hh"

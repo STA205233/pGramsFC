@@ -21,7 +21,7 @@ public:
   anlnext::ANLStatus mod_define() override;
   anlnext::ANLStatus mod_initialize() override;
   anlnext::ANLStatus mod_finalize() override;
-  virtual int SendComAndGetData(std::string_view command, std::string &data);
+  virtual int SendComAndGetData(std::string_view command, std::string &data, int max_length);
   virtual int SendCommand(std::string_view command);
 
 private:

@@ -27,10 +27,10 @@ ANLStatus EncodedSerialCommunicator::mod_finalize() {
   esc_.reset();
   return AS_OK;
 }
-int EncodedSerialCommunicator::SendComAndGetData(std::string_view command, std::string &data) {
+int EncodedSerialCommunicator::SendComAndGetData(std::string_view command, std::string &data, int max_length) {
   esc_->Write(command);
   std::this_thread::sleep_for(std::chrono::microseconds(sleepForusec_));
-  const int ret = esc_->ReadDataUntilSpecificStr(data, "\r");
+  const int ret = esc_->ReadDataUntilSpecificStr(data, "\r", max_length);
   if (chatter_ > 0) {
     std::cout << "data: " << data << std::endl;
     std::cout << "ret: " << ret << std::endl;

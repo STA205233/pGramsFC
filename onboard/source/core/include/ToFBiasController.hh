@@ -14,7 +14,7 @@ namespace gramsballoon::pgrams {
  */
 class ToFBiasController final: public EncodedSerialCommunication, public HKDataSaver<std::string> {
   // for telemetry
-  static constexpr int NUM_DATA = 536;
+  static constexpr int NUM_DATA = 5000;
   // for command
   static constexpr int NUM_DCDC_SETTING = 8;
   static constexpr int NUM_TEMP_SETTING = 16;
