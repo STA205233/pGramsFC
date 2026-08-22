@@ -6,19 +6,18 @@
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-02
+ * @date 2026-08-22 | Shota Arai | Refactored
  */
 
 #include "termios.h"
-#include "unistd.h"
+#include <chrono>
+#include <cstdint>
 #include <fcntl.h>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <vector>
-
 #ifdef __APPLE__
 #define TCSETS TIOCSETA
 #endif
@@ -28,44 +27,38 @@ namespace gramsballoon::pgrams {
 class SerialCommunication {
 public:
   SerialCommunication();
-  SerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode);
+  SerialCommunication(const std::string& serial_path, speed_t baudrate, mode_t open_mode);
   virtual ~SerialCommunication();
   virtual int initialize();
-  int sreadSingle(uint8_t &buf);
-  int sread(std::vector<uint8_t> &buf, int length);
-  int swrite(const std::vector<uint8_t> &buf);
-  int waitForReceivable(timeval &timeout);
-  int waitForWritable(timeval &timeout);
   void setBaudrate(speed_t v) { baudrate_ = v; }
-  void setSerialPath(const std::string &s) { serialPath_ = s; }
+  void setSerialPath(const std::string& s) { serialPath_ = s; }
   void setOpenMode(mode_t c) { openMode_ = c; }
-
+  void setTimeout(const std::chrono::microseconds& timeout) { timeout_ = timeout; }
+  int Write(const uint8_t *data, int length);
+  int Read(uint8_t *data, int length);
+  int ReadExactly(uint8_t *data, int length);
   int FD() { return fd_; }
+  void Close();
 
 protected:
-  template <class FUNCTO, class FUNCTX, class... ARGS>
-  int transferWithTimeout(FUNCTO funcTO, FUNCTX funcTX, timeval &timeout, ARGS &&...args);
+  int sread(uint8_t *buf, int length);
+  int swrite(const uint8_t *buf, int length);
+  int waitForReceivable(const std::chrono::microseconds& timeout);
+  int waitForWritable(const std::chrono::microseconds& timeout);
+  auto Timeout() const { return timeout_; }
 
 private:
   std::unique_ptr<termios> tio_ = nullptr;
-  int fd_ = 0;
+  int fd_ = -1;
   speed_t baudrate_ = B9600;
   std::string serialPath_;
   mode_t openMode_;
-};
+  std::chrono::microseconds timeout_;
 
-template <class FUNCTO, class FUNCTX, class... ARGS>
-inline int SerialCommunication::transferWithTimeout(FUNCTO funcTO, FUNCTX funcTX, timeval &timeout, ARGS &&...args) {
-  const int ret_timeout = funcTO(timeout);
-  if (ret_timeout == 0) {
-    return 0;
-  }
-  else if (ret_timeout < 0) {
-    return ret_timeout;
-  }
-  const int ret_tx = funcTX(std::forward<ARGS>(args)...);
-  return ret_tx;
-}
+  static timeval calTimeVal(const std::chrono::microseconds& time);
+  template <typename FUNCTO, typename FUNCTX, typename T>
+  int transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX, T data, int length);
+};
 
 } // namespace gramsballoon::pgrams
 

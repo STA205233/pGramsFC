@@ -1,57 +1,86 @@
 #include "EncodedSerialCommunication.hh"
+#include <chrono>
+#include <cstdint>
+#include <errno.h>
+#include <string>
+
 namespace gramsballoon::pgrams {
-int EncodedSerialCommunication::ReadData(std::string &data, int length) {
-  data.clear();
-  buf_.resize(length);
-  const int ret = sread(buf_, length);
-  if (ret < 0) {
-    return ret;
-  }
-  data.assign(buf_.begin(), buf_.begin() + ret);
-  return ret;
-}
-int EncodedSerialCommunication::ReadData(char *data, int length) {
-  buf_.clear();
-  buf_.resize(length);
-  const int ret = sread(buf_, length);
-  if (ret < 0) {
-    return ret;
-  }
-  std::copy(buf_.begin(), buf_.begin() + ret, data);
-  return ret;
-}
-int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data) {
+int EncodedSerialCommunication::ReadDataUntilBreak(std::string& data) {
   return ReadDataUntilSpecificStr(data, "\n");
 }
-int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end) {
+int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string& data, const std::string& end) {
+  using std::chrono::steady_clock;
   data.clear();
   uint8_t buf;
-  int cnt = 0;
-  const int sz_end = end.size();
-  int cnt_end = 0;
-  while (true) {
-    if (cnt_end == sz_end) {
+  const auto sz_end = end.size();
+  const auto deadline = steady_clock::now() + Timeout();
+  while (deadline > steady_clock::now() && data.size() < data.capacity()) {
+    const int ret_to = waitForReceivable(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
+    const int err_to = errno;
+    if (ret_to < 0 && (err_to == EINTR || err_to == EAGAIN)) {
+      continue;
+    }
+    else if (ret_to < 0) {
+      return ret_to;
+    }
+    else if (ret_to == 0) {
       break;
     }
-    const int ret = sreadSingle(buf);
-    if (ret < 0) {
+
+    const int ret = sread(&buf, 1);
+    const int err = errno;
+    if (ret < 0 && (err == EINTR || err == EAGAIN)) {
+      continue;
+    }
+    else if (ret < 0) {
       return ret;
     }
+    else if (ret == 0) {
+      break;
+    }
+
     data += static_cast<char>(buf);
-    cnt++;
-    if (cnt_end > 0 && static_cast<char>(buf) != static_cast<char>(end[cnt_end])) {
-      cnt_end = 0;
-    }
-    if (static_cast<char>(buf) == static_cast<char>(end[cnt_end])) {
-      cnt_end++;
-    }
+    const auto sz = data.size();
+    if (sz >= sz_end &&
+        data.compare(sz - sz_end, sz_end, end) == 0) { break; }
   }
-  return cnt;
+  return static_cast<int>(data.size());
 }
-int EncodedSerialCommunication::WriteData(const std::string &data) {
-  buf_.clear();
-  buf_.assign(data.begin(), data.end());
-  const int ret = swrite(buf_);
+
+int EncodedSerialCommunication::ReadExactly(std::string& data, int length) {
+  return impl(
+      [this](uint8_t *d, int l) {
+        return ReadExactly(d, l);
+      },
+      data, length);
+}
+
+int EncodedSerialCommunication::Read(std::string& data, int length) {
+  return impl(
+      [this](uint8_t *d, int l) {
+        return Read(d, l);
+      },
+      data, length);
+}
+
+int EncodedSerialCommunication::Write(std::string_view data) {
+  return Write(reinterpret_cast<const uint8_t *>(data.data()), data.size());
+}
+
+template <typename FUNC>
+int EncodedSerialCommunication::impl(FUNC func, std::string& data, int length) {
+  if (length <= 0) {
+    data.clear();
+    return 0;
+  }
+  data.resize(length);
+  const int ret = func(reinterpret_cast<uint8_t *>(data.data()), length);
+  if (ret >= 0) {
+    data.resize(ret);
+  }
+  else {
+    data.resize(0);
+  }
   return ret;
 }
 } // namespace gramsballoon::pgrams

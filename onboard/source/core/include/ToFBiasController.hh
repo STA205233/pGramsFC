@@ -2,9 +2,7 @@
 #define GB_ToFBiasController_hh 1
 #include "EncodedSerialCommunication.hh"
 #include "HKDataSaver.hh"
-#include "ToFBiasChannel.hh"
 #include <cstdint>
-#include <memory>
 #include <ostream>
 namespace gramsballoon::pgrams {
 
@@ -13,7 +11,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-07-06 | Shota Arai | First version
  */
-class ToFBiasController: public EncodedSerialCommunication, public HKDataSaver<uint8_t> {
+class ToFBiasController final: public EncodedSerialCommunication, public HKDataSaver<std::string> {
   // for telemetry
   static constexpr int NUM_DATA = 536;
   // for command
@@ -27,55 +25,21 @@ public:
   int enableDataStream();
   int disableDataStream();
   int queryFullOutput();
+  int getOnePacket();
   int enableDCDC(uint8_t channel);
   int disableDCDC(uint8_t channel);
   std::ostream& printData(std::ostream& os);
 
-  void setTimeOut(int sec, int usec) {
-    timeOut_.tv_sec = sec;
-    timeOut_.tv_usec = usec;
-  }
-
-  bool HasError() {
-    return hasError_;
-  }
-
-  int initialize() override {
-    const int ret = EncodedSerialCommunication::initialize();
-    if (ret < 0) {
-      hasError_ = true;
-    }
-    else {
-      hasError_ = false;
-    }
-    return ret;
-  }
-
-  size_t Index() const { return index_; }
-
 protected:
-  using EncodedSerialCommunication::ReadData;
   using EncodedSerialCommunication::ReadDataUntilBreak;
   using EncodedSerialCommunication::ReadDataUntilSpecificStr;
   using EncodedSerialCommunication::setBaudrate;
   using EncodedSerialCommunication::setOpenMode;
-  using EncodedSerialCommunication::sread;
-  using EncodedSerialCommunication::sreadSingle;
-  using EncodedSerialCommunication::swrite;
-  using EncodedSerialCommunication::waitForReceivable;
-  using EncodedSerialCommunication::WriteDataWithTimeout;
 
-  int sendCommand(const std::string& data, timeval& timeout);
-  int readData();
-  void interpret(const char *dataStr);
+  int sendCommand(std::string_view data);
 
 private:
-  char dataStr_[NUM_DATA];
-  bool hasError_;
-  size_t index_;
-  std::unique_ptr<ToFBiasChannel<NUM_DCDC_SETTING>> channelForDCDC_ = nullptr;
-  std::unique_ptr<ToFBiasChannel<NUM_TEMP_SETTING>> channelForTemp_ = nullptr;
-  timeval timeOut_ = {0, 100000};
+  std::string dataStr_;
 };
 
 } // namespace gramsballoon::pgrams

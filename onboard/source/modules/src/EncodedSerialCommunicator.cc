@@ -26,20 +26,8 @@ ANLStatus EncodedSerialCommunicator::mod_finalize() {
   esc_.reset();
   return AS_OK;
 }
-int EncodedSerialCommunicator::SendComAndGetData(const std::string &command, std::string &data, int sleepfor) {
-  esc_->WriteData(command);
-  std::this_thread::sleep_for(std::chrono::milliseconds(sleepfor));
-  timeval timeout;
-  timeout.tv_sec = timeout_;
-  timeout.tv_usec = timeoutUsec_;
-  const int rv = esc_->waitForReceivable(timeout);
-  if (rv == -1) {
-    return -1;
-  }
-  if (rv == 0) {
-    std::cout << "TimeOut" << std::endl;
-    return 0;
-  }
+int EncodedSerialCommunicator::SendComAndGetData(std::string_view command, std::string& data, int sleepfor) {
+  esc_->Write(command);
   const int ret = esc_->ReadDataUntilSpecificStr(data, "\r");
   if (chatter_ > 0) {
     std::cout << "data: " << data << std::endl;
@@ -47,8 +35,8 @@ int EncodedSerialCommunicator::SendComAndGetData(const std::string &command, std
   }
   return ret;
 }
-int EncodedSerialCommunicator::SendCommand(const std::string &command) {
-  const int ret = esc_->WriteData(command);
+int EncodedSerialCommunicator::SendCommand(std::string_view command) {
+  const int ret = esc_->Write(command);
   return ret;
 }
 } // namespace gramsballoon::pgrams

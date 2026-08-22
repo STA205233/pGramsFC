@@ -13,7 +13,7 @@ public:
   virtual ~EncodedSerialCommunicator() = default;
 
 protected:
-  EncodedSerialCommunicator(const EncodedSerialCommunicator &r) = default;
+  EncodedSerialCommunicator(const EncodedSerialCommunicator& r) = default;
   std::shared_ptr<EncodedSerialCommunication> GetEncodedSerialCommunication() { return esc_; }
   int GetTimeout() const { return timeout_; }
 
@@ -21,8 +21,8 @@ public:
   anlnext::ANLStatus mod_define() override;
   anlnext::ANLStatus mod_initialize() override;
   anlnext::ANLStatus mod_finalize() override;
-  virtual int SendComAndGetData(const std::string &command, std::string &data, int sleepfor_msec = 500);
-  virtual int SendCommand(const std::string &command);
+  virtual int SendComAndGetData(std::string_view command, std::string& data, int sleepfor_msec = 500);
+  virtual int SendCommand(std::string_view command);
 
 private:
   std::string filename_ = "/dev/ttyACM0";

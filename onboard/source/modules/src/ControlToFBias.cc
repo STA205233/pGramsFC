@@ -29,6 +29,7 @@ ANLStatus ControlToFBias::mod_initialize() {
     }
     return AS_OK;
   }
+  index_ = 0;
   return AS_OK;
 }
 
@@ -47,7 +48,7 @@ ANLStatus ControlToFBias::mod_begin_run() {
 ANLStatus ControlToFBias::mod_end_run() {
   if (controller_) {
     const int ret = controller_->disableDataStream();
-    if (!ret) {
+    if (ret < 0) {
       if (sendTelemetry_) sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
       return AS_OK;
     }
@@ -58,17 +59,9 @@ ANLStatus ControlToFBias::mod_analyze() {
   if (!controller_) {
     return AS_OK;
   }
-  if (controller_->HasError()) {
-    std::cout << "Error in " << module_id() << ", Reconnecting..." << std::endl;
-    controller_->initialize();
-    controller_->enableDataStream();
-  }
-  const auto index = controller_->Index();
-  std::cout << index << std::endl;
   const auto now = std::chrono::steady_clock::now();
-  if (index != lastIndex_) {
+  if (index_ != lastIndex_) {
     lastReceivedTime_ = now;
-    lastIndex_ = index;
   }
   else if (now - lastReceivedTime_ > duration_) {
     std::cerr << module_id() << ": Exceeds last duration" << std::endl;
@@ -77,7 +70,6 @@ ANLStatus ControlToFBias::mod_analyze() {
     }
     std::cout << "Error in " << module_id() << ", Reconnecting..." << std::endl;
     controller_->initialize();
-    controller_->enableDataStream();
     return AS_OK;
   }
   adcData_ = controller_->AdcData();
