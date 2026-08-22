@@ -83,19 +83,27 @@ class MyApp < ANL::ANLApp
     end
     
     chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 100) do |m|
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_usec: 1000) do |m|
       m.set_singleton(0)
     end
     @main_modules << "MHADCManager"
     chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
+    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0) do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetMHADCData"
+    
     chain GRAMSBalloon::GetComputerStatus  do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetComputerStatus"
+    
+    chain GRAMSBalloon::ControlToFBias
+    with_parameters(path: "/dev/ttyUSB0", timeout_usec: 1000, topic: @inifile["Hub"]["teltopic"], starlink_topic: @inifile["Hub"]["iridiumteltopic"]) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "ControlToFBias"
+    
     chain GRAMSBalloon::SendTelemetry
     with_parameters(
           topic: @inifile["Hub"]["iridiumteltopic"],

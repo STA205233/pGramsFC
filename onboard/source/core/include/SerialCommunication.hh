@@ -38,14 +38,19 @@ public:
   int Read(uint8_t *data, int length);
   int ReadExactly(uint8_t *data, int length);
   int FD() { return fd_; }
+  bool IsOpen() const { return fd_ >= 0; }
   void Close();
+  bool HasError() const { return hasError_; }
+  int LastErrno() const { return lastErrno_; }
+  void ClearError();
 
 protected:
   int sread(uint8_t *buf, int length);
   int swrite(const uint8_t *buf, int length);
-  int waitForReceivable(const std::chrono::microseconds& timeout);
-  int waitForWritable(const std::chrono::microseconds& timeout);
+  int waitForReceivable(const std::chrono::microseconds &timeout);
+  int waitForWritable(const std::chrono::microseconds &timeout);
   auto Timeout() const { return timeout_; }
+  void setError(int err);
 
 private:
   std::unique_ptr<termios> tio_ = nullptr;
@@ -54,8 +59,11 @@ private:
   std::string serialPath_;
   mode_t openMode_;
   std::chrono::microseconds timeout_;
+  bool hasError_ = false;
+  int lastErrno_ = 0;
 
-  static timeval calTimeVal(const std::chrono::microseconds& time);
+  static timeval calTimeVal(const std::chrono::microseconds &time);
+  static bool isRecoverable(int err);
   template <typename FUNCTO, typename FUNCTX, typename T>
   int transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX, T data, int length);
 };

@@ -7,6 +7,10 @@
 namespace gramsballoon::pgrams {
 class ToFBiasController;
 class SendTelemetry;
+template <typename T>
+class MosquittoManager;
+class BaseTelemetryDefinition;
+class CommunicationFormat;
 
 class ControlToFBias: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ControlToFBias, 1.0);
@@ -17,7 +21,7 @@ public:
   virtual ~ControlToFBias() = default;
 
 protected:
-  ControlToFBias(const ControlToFBias& r) = default;
+  ControlToFBias(const ControlToFBias &r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -29,23 +33,32 @@ public:
 
   int setVoffset(uint32_t voltage);
   int setTmuxChannel(uint32_t channel, int on_off);
-  int setVdef();
-  int enableDCDC(uint8_t channel);
-  int disableDCDC(uint8_t channel);
+  int setVdef(uint32_t channel, uint32_t voltage);
+  int enableDCDC(uint32_t channel);
+  int disableDCDC(uint32_t channel);
+  int queryFullOutput();
 
 private:
-  SendTelemetry *sendTelemetry_;
+  SendTelemetry *sendTelemetry_ = nullptr;
+  MosquittoManager<std::string> *mosquittoManager_ = nullptr;
+  std::string mosquittoManagerName_ = "TelemMosquittoManager";
+
   std::shared_ptr<ToFBiasController> controller_;
   std::string path_;
-  std::array<uint16_t, 128> adcData_;
-  std::array<uint16_t, 32> tempData_;
-  std::array<uint16_t, 128> dacData_;
-  size_t lastIndex_;
   size_t index_;
+  int timeout_;
   std::chrono::time_point<std::chrono::steady_clock> lastReceivedTime_;
   std::chrono::seconds duration_;
   int minDurationSec_ = 1;
   int chatter_ = 0;
+
+  int qos_ = 0;
+  std::string topic_ = "TB_Telemetry";
+  std::string starlinkTopic_ = "TB_Telemetry_Starlink";
+  std::shared_ptr<BaseTelemetryDefinition> telem_ = nullptr;
+  std::string telemetryStr_;
+
+  void fillPacket(CommunicationFormat *telem, const std::string &str);
 };
 } // namespace gramsballoon::pgrams
 #endif // GB_ControlTofBias_hh

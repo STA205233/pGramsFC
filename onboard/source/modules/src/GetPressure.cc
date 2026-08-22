@@ -64,7 +64,7 @@ ANLStatus GetPressure::mod_analyze() {
       int byte_read = -1;
       for (int k = 0; k < numSentCommandPerTrial_; k++) {
         std::this_thread::sleep_for(std::chrono::microseconds(sleepForUsec_));
-        byte_read = encodedSerialCommunicator_->SendComAndGetData(commands_[i], dat, sleepForUsec_);
+        byte_read = encodedSerialCommunicator_->SendComAndGetData(commands_[i], dat);
       }
       if (byte_read < 0) {
         std::cerr << "Error in GetPressure::mod_analyze: byte_read = " << byte_read << std::endl;

@@ -5,15 +5,15 @@
 #include <string>
 
 namespace gramsballoon::pgrams {
-int EncodedSerialCommunication::ReadDataUntilBreak(std::string& data) {
+int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data) {
   return ReadDataUntilSpecificStr(data, "\n");
 }
-int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string& data, const std::string& end) {
+int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end) {
   using std::chrono::steady_clock;
   data.clear();
   uint8_t buf;
   const auto sz_end = end.size();
-  const auto deadline = steady_clock::now() + Timeout();
+  auto deadline = steady_clock::now() + Timeout();
   while (deadline > steady_clock::now() && data.size() < data.capacity()) {
     const int ret_to = waitForReceivable(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
     const int err_to = errno;
@@ -40,6 +40,7 @@ int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string& data, cons
     }
 
     data += static_cast<char>(buf);
+    deadline = steady_clock::now() + Timeout();
     const auto sz = data.size();
     if (sz >= sz_end &&
         data.compare(sz - sz_end, sz_end, end) == 0) { break; }
@@ -47,7 +48,7 @@ int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string& data, cons
   return static_cast<int>(data.size());
 }
 
-int EncodedSerialCommunication::ReadExactly(std::string& data, int length) {
+int EncodedSerialCommunication::ReadExactly(std::string &data, int length) {
   return impl(
       [this](uint8_t *d, int l) {
         return ReadExactly(d, l);
@@ -55,7 +56,7 @@ int EncodedSerialCommunication::ReadExactly(std::string& data, int length) {
       data, length);
 }
 
-int EncodedSerialCommunication::Read(std::string& data, int length) {
+int EncodedSerialCommunication::Read(std::string &data, int length) {
   return impl(
       [this](uint8_t *d, int l) {
         return Read(d, l);
@@ -68,7 +69,7 @@ int EncodedSerialCommunication::Write(std::string_view data) {
 }
 
 template <typename FUNC>
-int EncodedSerialCommunication::impl(FUNC func, std::string& data, int length) {
+int EncodedSerialCommunication::impl(FUNC func, std::string &data, int length) {
   if (length <= 0) {
     data.clear();
     return 0;

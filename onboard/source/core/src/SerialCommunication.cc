@@ -23,12 +23,28 @@ void SerialCommunication::Close() {
     fd_ = -1;
   }
 }
+
+bool SerialCommunication::isRecoverable(int err) {
+  return err == EINTR || err == EAGAIN || err == EWOULDBLOCK;
+}
+
+void SerialCommunication::ClearError() {
+  hasError_ = false;
+  lastErrno_ = 0;
+}
+
+void SerialCommunication::setError(int err) {
+  hasError_ = true;
+  lastErrno_ = err;
+}
+
 SerialCommunication::~SerialCommunication() {
   Close();
 }
 
 int SerialCommunication::initialize() {
   Close();
+  ClearError();
   cfsetospeed(tio_.get(), baudrate_);
   cfsetispeed(tio_.get(), baudrate_);
   std::cout << "BAUDRATE was set to " << baudrate_ << std::endl;
@@ -39,6 +55,7 @@ int SerialCommunication::initialize() {
   fd_ = open(serialPath_.c_str(), O_RDWR | O_NONBLOCK);
   if (fd_ < 0) {
     std::cout << "Open Error" << std::endl;
+    setError(errno);
     return -1;
   }
   std::cout << "Open Serial port" << std::endl;
@@ -50,17 +67,23 @@ int SerialCommunication::initialize() {
   int status = tcsetattr(fd_, TCSANOW, tio_.get());
   if (status != 0) {
     std::cerr << "tcsetattr failed" << std::endl;
+    setError(errno);
+    Close();
     return -1;
   }
 
   status = ioctl(fd_, TCSETS, tio_.get());
   if (status != 0) {
     std::cout << "ioctl failed" << std::endl;
+    setError(errno);
+    Close();
     return -1;
   }
   status = fcntl(fd_, F_SETFL, openMode_);
   if (status != 0) {
     std::cout << "fcntl failed" << std::endl;
+    setError(errno);
+    Close();
     return -1;
   }
 
@@ -69,16 +92,23 @@ int SerialCommunication::initialize() {
 
 int SerialCommunication::sread(uint8_t *buf, int length) {
   const int status = read(fd_, buf, length);
+  if (status < 0 && !isRecoverable(errno)) {
+    setError(errno);
+  }
   return status;
 }
 
 int SerialCommunication::swrite(const uint8_t *buf, int length) {
   const int ret = write(fd_, buf, length);
+  if (ret < 0 && !isRecoverable(errno)) {
+    setError(errno);
+  }
   return ret;
 }
 
 int SerialCommunication::waitForReceivable(const std::chrono::microseconds &timeout) {
   if (fd_ < 0) {
+    setError(errno);
     return -1;
   }
   fd_set fdset;
@@ -86,11 +116,15 @@ int SerialCommunication::waitForReceivable(const std::chrono::microseconds &time
   FD_SET(fd_, &fdset);
   auto to = calTimeVal(timeout);
   int rv = select(fd_ + 1, &fdset, NULL, NULL, &to);
+  if (rv < 0 && !isRecoverable(errno)) {
+    setError(errno);
+  }
   return rv;
 }
 
 int SerialCommunication::waitForWritable(const std::chrono::microseconds &timeout) {
   if (fd_ < 0) {
+    setError(errno);
     return -1;
   }
   fd_set fdset;
@@ -98,6 +132,9 @@ int SerialCommunication::waitForWritable(const std::chrono::microseconds &timeou
   FD_SET(fd_, &fdset);
   auto to = calTimeVal(timeout);
   int rv = select(fd_ + 1, NULL, &fdset, NULL, &to);
+  if (rv < 0 && !isRecoverable(errno)) {
+    setError(errno);
+  }
   return rv;
 }
 
@@ -149,7 +186,7 @@ int SerialCommunication::transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX
   using std::chrono::steady_clock;
 
   int index = 0;
-  const auto deadline = steady_clock::now() + timeout_;
+  auto deadline = steady_clock::now() + timeout_;
 
   while (index < length && steady_clock::now() < deadline) {
     const int ret_to = functo(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
@@ -172,7 +209,7 @@ int SerialCommunication::transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX
       std::cerr << "SerialCommunication:: error in transfer" << std::endl;
       return ret;
     }
-
+    deadline = steady_clock::now() + timeout_;
     index += ret;
   }
   if (index != length) {

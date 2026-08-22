@@ -2,8 +2,9 @@
 #define GB_ToFBiasController_hh 1
 #include "EncodedSerialCommunication.hh"
 #include "HKDataSaver.hh"
-#include <cstdint>
 #include <ostream>
+#include <string>
+#include <string_view>
 namespace gramsballoon::pgrams {
 
 /**
@@ -20,22 +21,24 @@ class ToFBiasController final: public EncodedSerialCommunication, public HKDataS
 
 public:
   ToFBiasController();
-  ToFBiasController(const std::string& serial_path);
+  ToFBiasController(const std::string &serial_path);
   virtual ~ToFBiasController();
   int enableDataStream();
   int disableDataStream();
   int queryFullOutput();
-  int getOnePacket();
-  int enableDCDC(uint8_t channel);
-  int disableDCDC(uint8_t channel);
-  std::ostream& printData(std::ostream& os);
+  int getOnePacket(std::string &str);
+  int enableDCDC(int channel);
+  int disableDCDC(int channel);
+  int setVoffset(int voltage);
+  int setTmuxChannel(int channel, int on_off);
+  int setVdef(int channel, int voltage);
+  std::ostream &printData(std::ostream &os);
 
 protected:
   using EncodedSerialCommunication::ReadDataUntilBreak;
   using EncodedSerialCommunication::ReadDataUntilSpecificStr;
   using EncodedSerialCommunication::setBaudrate;
   using EncodedSerialCommunication::setOpenMode;
-
   int sendCommand(std::string_view data);
 
 private:

@@ -5,11 +5,12 @@
 #include <cstdint>
 #include <iostream>
 #include <ostream>
+#include <string>
 #include <sys/time.h>
 #include <vector>
 
 namespace gramsballoon::pgrams {
-  
+
 /**
   * @brief A class to define the command format for the pGRAMS system.
   * @author Tsubasa Tamba, Shota Arai
@@ -66,7 +67,7 @@ public:
     updated_ = false;
   }
   void setArguments(uint16_t index, uint32_t argument) {
-    if (index > argc_) {
+    if (index >= argc_) {
       std::cerr << "Error in CommunicationFormat: index(" << index << ") is larger than argc (" << argc_ << ")" << std::endl;
       return;
     }

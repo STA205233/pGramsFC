@@ -9,7 +9,6 @@ ANLStatus GetMHADCData::mod_define() {
   define_parameter("num_section", &mod_class::numSection_);
   define_parameter("channel_per_section", &mod_class::channelPerSection_);
   define_parameter("MHADCManager_name", &mod_class::encodedSerialCommunicatorName_);
-  define_parameter("sleep_for_msec", &mod_class::sleepForMsec_);
   define_parameter("num_trials", &mod_class::numTrials_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
@@ -61,7 +60,7 @@ ANLStatus GetMHADCData::mod_analyze() {
     return AS_OK;
   }
   for (int j = 0; j < numTrials_; j++) {
-    const int byte_read = encodedSerialCommunicator_->SendComAndGetData("a", dat, sleepForMsec_);
+    const int byte_read = encodedSerialCommunicator_->SendComAndGetData("a", dat);
     if (byte_read < 0) {
       if (chatter_ > 5) std::cerr << "Error in GetMHADCData::mod_analyze: byte_read = " << byte_read << std::endl;
       if (sendTelemetry_) {

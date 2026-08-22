@@ -1,8 +1,10 @@
 #include "ToFBiasController.hh"
+#include <string>
+#include <string_view>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
-ToFBiasController::ToFBiasController(const std::string& serial_path) : EncodedSerialCommunication(serial_path, B115200, O_RDWR), HKDataSaver<std::string>(100000, "tof_bias_data", NUM_DATA * sizeof(uint8_t)) {
+ToFBiasController::ToFBiasController(const std::string &serial_path) : EncodedSerialCommunication(serial_path, B115200, O_RDWR), HKDataSaver<std::string>(100000, "tof_bias_data", NUM_DATA * sizeof(uint8_t)) {
   dataStr_.reserve(NUM_DATA);
 }
 ToFBiasController::ToFBiasController() : ToFBiasController("/dev/ttyUSB0") {
@@ -12,20 +14,20 @@ ToFBiasController::~ToFBiasController() {
   disableDataStream();
 }
 
-int ToFBiasController::getOnePacket() {
+int ToFBiasController::getOnePacket(std::string &str) {
   {
     const int ret = enableDataStream();
     if (ret < 0) {
       return ret;
     }
-  } // namespace gramsballoon::pgrams
+  }
 
   {
-    const int ret = ReadDataUntilSpecificStr(dataStr_, "\r\n");
+    const int ret = ReadDataUntilSpecificStr(str, "\r\n");
     if (ret < 0) {
       return ret;
     }
-    saveData(&dataStr_);
+    saveData(&str);
   }
   {
     const int ret = disableDataStream();
@@ -83,15 +85,30 @@ int ToFBiasController::disableDataStream() {
   return ret;
 }
 
-int ToFBiasController::enableDCDC(uint8_t channel) {
+int ToFBiasController::enableDCDC(int channel) {
   return sendCommand("denable " + std::to_string(static_cast<int>(channel)) + " on\r\n");
 }
 
-int ToFBiasController::disableDCDC(uint8_t channel) {
+int ToFBiasController::disableDCDC(int channel) {
   return sendCommand("denable " + std::to_string(static_cast<int>(channel)) + " off\r\n");
 }
 
-std::ostream& ToFBiasController::printData(std::ostream& os) {
+int ToFBiasController::setVoffset(int voltage) {
+  return sendCommand("voffset " + std::to_string(voltage) + "\r\n");
+}
+
+int ToFBiasController::setTmuxChannel(int channel, int on_off) {
+  if (on_off != 0 && on_off != 1) {
+    return -1;
+  }
+  return sendCommand("tmux " + std::to_string(channel) + (on_off == 1 ? " on\r\n" : " off\r\n"));
+}
+
+int ToFBiasController::setVdef(int channel, int voltage) {
+  return sendCommand("tdef " + std::to_string(channel) + " " + std::to_string(voltage) + "\r\n");
+}
+
+std::ostream &ToFBiasController::printData(std::ostream &os) {
   const int ret = queryFullOutput();
   if (ret < 0) {
     os << "Failed to send print command: " << ret;

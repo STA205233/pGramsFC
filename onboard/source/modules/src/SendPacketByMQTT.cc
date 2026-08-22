@@ -1,4 +1,5 @@
 #include "SendPacketByMQTT.hh"
+#include "CommunicationCodes.hh"
 #include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 
@@ -35,10 +36,11 @@ ANLStatus SendPacketByMQTT::mod_initialize() {
 }
 
 ANLStatus SendPacketByMQTT::mod_analyze() {
+  using namespace ::pgrams::communication;
   if (!mosquittoManager_ || !interpretTelemetry_) {
     return AS_OK;
   }
-  if (interpretTelemetry_->CurrentTelemetryType() != 1) {
+  if (interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Telemetry_Normal) || interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Tof_Bias_full) || interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Tof_Bias_summary)) {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();

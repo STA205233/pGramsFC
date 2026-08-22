@@ -67,14 +67,14 @@ ANLStatus InterpretTelemetry::mod_analyze() {
     return AS_OK;
   }
 
-  currentTelemetryType_ = 1;
+  currentTelemetryType_ = 0;
   const auto &telemetry = receiver_->Telemetry();
   const bool status = interpret(telemetry);
   const bool failed = !status;
   if (failed) {
     std::cerr << module_name() << "::mod_analyze Failed to interpret telemetry..." << std::endl;
     telemetrySaver_->writeCommandToFile(failed, telemetry);
-    currentTelemetryType_ = -1;
+    currentTelemetryType_ = 0;
     return AS_OK;
   }
   if (saveTelemetry_) {
@@ -96,18 +96,19 @@ void InterpretTelemetry::updateRunIDFile() {
 }
 
 bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
+  currentTelemetryType_ = 0;
   if (!telemetry_) return false;
   const bool result = telemetry_->parseJSON(telemetryStr);
   if (!result) return false;
 
-  if (telemetryTypeStr_ == "HK" && telemetry_->getContents()->Code() == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal)) {
+  currentTelemetryType_ = telemetry_->getContents()->Code();
+
+  if (telemetryTypeStr_ == "HK" && currentTelemetryType_ == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal)) {
     if (currentRunID_ < 0) {
       currentRunID_ = telemetry_->RunID();
       updateRunIDFile();
     }
   }
-  if (telemetryTypeStr_ == "Base" && telemetry_->getContents()->Code() == static_cast<uint16_t>(::pgrams::communication::CommunicationCodes::TOF_Callback))
-    currentTelemetryType_ = 2;
   if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
   }
