@@ -63,7 +63,7 @@ ANLStatus GetMHADCData::mod_analyze() {
   for (int j = 0; j < numTrials_; j++) {
     const int byte_read = encodedSerialCommunicator_->SendComAndGetData("a", dat, sleepForMsec_);
     if (byte_read < 0) {
-      std::cerr << "Error in GetMHADCData::mod_analyze: byte_read = " << byte_read << std::endl;
+      if (chatter_ > 5) std::cerr << "Error in GetMHADCData::mod_analyze: byte_read = " << byte_read << std::endl;
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::MHADC_COM_ERROR);
       }
