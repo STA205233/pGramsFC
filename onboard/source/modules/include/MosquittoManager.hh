@@ -1,5 +1,6 @@
 #ifndef GB_MosquittoManager_hh
 #define GB_MosquittoManager_hh 1
+#include "MosquittoIO.hh"
 #include "anlnext/BasicModule.hh"
 #include "mosquittopp.h"
 #include <string>
@@ -56,7 +57,7 @@ public:
   anlnext::ANLStatus mod_end_run() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  void Publish(TelemType& message, const std::string& topic, int qos) {
+  void Publish(TelemType &message, const std::string &topic, int qos) {
     singleton_self()->mosquittoIO_->Publish(message, topic, qos);
   }
   MosquittoIO<TelemType> *getMosquittoIO() { return singleton_self()->mosquittoIO_.get(); }
