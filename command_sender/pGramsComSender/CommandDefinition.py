@@ -164,6 +164,9 @@ command_collection.add_command("TOF", CommandItem("Start Asic Temp Record", ""))
 command_collection.add_command("TOF", CommandItem("Stop Asic Temp Record", ""))
 command_collection.add_command("TOF", CommandItem("Read Temperature Sensors Single", ""))
 
+command_collection.add_command("TOF", CommandItem("Monitor Data Stream", ""))
+command_collection.add_command("TOF", CommandItem("Logger Data Stream", ""))
+
 command_collection.add_command("TOF", CommandItem("Process Threshold Calibration", ""))
 command_collection.add_command("TOF", CommandItem("Process TDC Calibration", ""))
 command_collection.add_command("TOF", CommandItem("Process QDC Calibration", ""))

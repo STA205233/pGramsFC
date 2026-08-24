@@ -172,6 +172,9 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Stop_Asic_Temp_Record, 0);
   ADD_CODE_MAP(TOF_Read_Temperature_Sensors_Single, 0);
 
+  ADD_CODE_MAP(TOF_Monitor_Data_Stream, 0);
+  ADD_CODE_MAP(TOF_Logger_Data_Stream, 0);
+
   ADD_CODE_MAP(TOF_Process_Threshold_Calibration, 0);
   ADD_CODE_MAP(TOF_Process_TDC_Calibration, 0);
   ADD_CODE_MAP(TOF_Process_QDC_Calibration, 0);
