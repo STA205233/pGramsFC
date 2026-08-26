@@ -28,7 +28,7 @@ class MyApp < ANL::ANLApp
     subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
-    subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [], "Orchestrator" => []}
+    subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [0x5400, 0x5401], "Orchestrator" => []}
     subsystem_dead_com_time={"TPCMonitor"=>0, "Orchestrator"=>5000, "TOF"=>0, "TPC"=>0}
     sendCommandToDAQComputer_names = []
     subsystems.each do |subsystem|
