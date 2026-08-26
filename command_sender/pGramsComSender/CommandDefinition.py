@@ -78,6 +78,8 @@ command_collection.add_command("Hub", CommandItem("Exec Restart", "Execute the r
 command_collection.add_command("Hub", CommandItem("Reset Error", "Reset the error flags in the hub"))
 command_collection.add_command("Hub", CommandItem("Set Link", "Set the link", [CommandParameter("Link state", "Used link, 0: iridium, 1: starlink", range=(0, 1))]))
 
+command_collection.add_command("PDU", CommandItem("TOF Bias ON", ""))
+command_collection.add_command("PDU", CommandItem("TOF Bias OFF", ""))
 command_collection.add_command("PDU", CommandItem("Cold TPC HV ON", ""))
 command_collection.add_command("PDU", CommandItem("Cold TPC HV OFF", ""))
 command_collection.add_command("PDU", CommandItem("Cold Charge PreAmp ON", ""))

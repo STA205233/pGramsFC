@@ -30,7 +30,7 @@ constexpr double OFFSET_INCLINOMETER = 2.5 * units::volt;
 } // namespace inclinometer
 
 namespace pdu {
-constexpr double V_REF = 3.3 * units::volt;
+constexpr double V_REF = 5.0 * units::volt;
 constexpr double PRESICION = 4096.0;
 constexpr double CMN_OFFSET = 0.0 * units::volt;
 
