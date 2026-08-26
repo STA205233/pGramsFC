@@ -23,12 +23,12 @@ int main(int argc, char *argv[]) {
   if (interfaceType == "Baycat") {
     std::cout << "Using BayCatSPIIO interface" << std::endl;
     spiInterface2 = std::make_shared<BayCatSPIIO>();
-    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
+    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 3 and MSB first
   }
   else if (interfaceType == "FT232H") {
     std::cout << "Using FT232HIO interface" << std::endl;
     spiInterface2 = std::make_shared<FT232HIO>();
-    spiInterface2->setConfigOptions(2);
+    spiInterface2->setConfigOptions(3);
   }
   else if (interfaceType == "MCP2210") {
     std::cout << "Using MCP2210 interface" << std::endl;

@@ -1,9 +1,9 @@
 #include "BayCatSPIIO.hh"
-#define DEBUG_SPI 1
-#ifdef DEBUG_SPI
+//#define DEBUG_SPI 1
 #include <iomanip>
 #include <iostream>
-#endif
+#include <chrono>
+#include <thread> 
 
 #define ERROR_HANDLE(func) \
   {                        \
@@ -56,8 +56,8 @@ int BayCatSPIIO::updateSetting() {
     failed = true;
   }
 
-  const unsigned int shift_direction = (options & SPI_SHIFT_DIRECTION_MASK) >> SPI_SHIFT_DIRECTION_OFFSET;
-  if (shift_direction != static_cast<unsigned int>(SPI_DIR_LEFT_) && shift_direction != static_cast<unsigned int>(SPI_DIR_RIGHT_)) {
+  const unsigned int shift_direction = (options >> SPI_SHIFT_DIRECTION_OFFSET) & SPI_SHIFT_DIRECTION_MASK;
+  if (static_cast<int>(shift_direction) != SPI_DIR_LEFT_ && static_cast<int>(shift_direction) != SPI_DIR_RIGHT_) {
     std::cerr << "ShiftDirection is invalid: " << SPI_DIR_RIGHT_ << " or " << SPI_DIR_LEFT_ << " are allowed.";
     failed = true;
   }
@@ -153,6 +153,7 @@ int BayCatSPIIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int 
       controlGPIO(cs, true);
       return -1;
     }
+    std::this_thread::sleep_for(std::chrono::microseconds(10));
     const auto status_read = SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
     if (status_read != API_OK) {
       std::cerr << "SPIReadDataFrame failed: " << status_read << std::endl;
@@ -204,6 +205,7 @@ int BayCatSPIIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, u
   for (unsigned int i = 0; i < size; ++i) {
     write_data = static_cast<uint32_t>(writeBuffer[i]);
     const auto status_write = SPIWriteDataFrame(SPI_SS_SS0_, &write_data); // assuming not using VL_SPI_SS0
+    std::this_thread::sleep_for(std::chrono::microseconds(10));
     const auto status_read = SPIReadDataFrame(&read_data); // assuming not using VL_SPI_SS0
     if (status_write != API_OK) {
       std::cerr << "SPIWriteDataFrame failed: " << status_write << std::endl;

@@ -46,6 +46,7 @@ private:
   std::shared_ptr<ADC128S102IO> adc_ = nullptr;
   SendTelemetry *sendTelemetry_ = nullptr;
   std::vector<uint16_t> voltages_;
+  double vref_ = 3.3;
   int chatter_ = 0;
 
   void setVoltage(int cs, int ch, uint16_t value);

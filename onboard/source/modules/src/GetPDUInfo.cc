@@ -9,6 +9,7 @@ namespace gramsballoon::pgrams {
 ANLStatus GetPDUInfo::mod_define() {
   define_parameter("SPIManager_name", &mod_class::spiManagerName_);
   set_parameter_description("SPIManager name for accessing SPI interface");
+  define_parameter("v_ref", &mod_class::vref_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -31,9 +32,9 @@ ANLStatus GetPDUInfo::mod_initialize() {
     }
     return AS_ERROR;
   }
-  adc_ = std::make_shared<ADC128S102IO>();
+  adc_ = std::make_shared<ADC128S102IO>(vref_);
   adc_->setSPIInterface(interface);
-  voltages_.reserve(numAdcs_ * ADC128S102IO::MaxChannelsPerADC());
+  voltages_.resize(numAdcs_ * ADC128S102IO::MaxChannelsPerADC());
   return AS_OK;
 }
 ANLStatus GetPDUInfo::mod_analyze() {
@@ -57,7 +58,7 @@ ANLStatus GetPDUInfo::mod_analyze() {
     for (size_t ch = 0; ch < ADC128S102IO::MaxChannelsPerADC(); ++ch) {
       const uint16_t voltage = adc_->getCurrentVoltageADC(ch);
       if (chatter_ > 2) {
-        std::cout << "PDU Channel " << ch << " (CS " << cs << "): " << voltage << " V" << std::endl;
+        std::cout << "PDU Channel " << ch << " (CS " << cs << "): " << adc_->convertVoltage(voltage) << " V" << std::endl;
       }
       setVoltage(cs, ch, voltage);
       if (adc_->isError()) {
