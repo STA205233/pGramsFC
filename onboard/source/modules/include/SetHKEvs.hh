@@ -29,6 +29,7 @@ public:
 private:
   const static std::string evsStr_;
   int durationmSec_ = 1000;
+  int chatter_ = 0;
   std::chrono::milliseconds duration_;
   std::chrono::steady_clock::time_point lastTime_;
 };

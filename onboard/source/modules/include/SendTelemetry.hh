@@ -7,10 +7,8 @@
 #include <memory>
 #include <string>
 
-namespace gramsballoon {
-class RunIDManager;
-} // namespace gramsballoon
 namespace gramsballoon::pgrams {
+class RunIDManager;
 class ReceiveCommand;
 class GetMHADCData;
 #ifdef USE_LJM

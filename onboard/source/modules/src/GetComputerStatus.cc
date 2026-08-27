@@ -1,5 +1,6 @@
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
+#include "SendTelemetry.hh"
 #include <fstream>
 #include <sys/vfs.h>
 
