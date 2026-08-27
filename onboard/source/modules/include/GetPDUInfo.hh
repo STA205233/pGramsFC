@@ -3,7 +3,6 @@
 #include "ADC128S102IO.hh"
 #include "SPIManager.hh"
 #include "anlnext/BasicModule.hh"
-#include <chrono>
 #include <memory>
 #include <string>
 namespace gramsballoon::pgrams {
@@ -49,9 +48,6 @@ private:
   std::vector<uint16_t> voltages_;
   double vref_ = 3.3;
   int chatter_ = 0;
-  std::chrono::time_point<std::chrono::steady_clock> lastMonitorTime_; // [MONITOR]
-  double elapsedSumInInterval_ = 0.0; // [MONITOR]
-  int numAnalyzeInInterval_ = 0; // [MONITOR]
 
   void setVoltage(int cs, int ch, uint16_t value);
   static constexpr size_t CalIndex(int cs, int ch) {

@@ -17,28 +17,13 @@
 #endif
 #include <chrono>
 #include <cstdint>
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
-#include <unistd.h>
 
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
-namespace {
-// [MONITOR]
-long ResidentSetSizeKB() {
-  std::ifstream ifs("/proc/self/statm");
-  if (!ifs) {
-    return -1;
-  }
-  long total = 0;
-  long resident = 0;
-  ifs >> total >> resident;
-  return resident * (sysconf(_SC_PAGESIZE) / 1024);
-}
-} // namespace
 
 SendTelemetry::SendTelemetry() {
   errorManager_ = std::make_shared<ErrorManager>();
@@ -108,26 +93,11 @@ ANLStatus SendTelemetry::mod_initialize() {
     }
   }
   getHKModules();
-  lastMonitorTime_ = std::chrono::steady_clock::now(); // [MONITOR]
   return AS_OK;
 }
 
 ANLStatus SendTelemetry::mod_analyze() {
   if (chatter_ > 0) std::cout << "SendTelemetry::mod_analyze" << std::endl;
-  // [MONITOR]
-  {
-    numAnalyzeInInterval_++;
-    const auto monitor_now = std::chrono::steady_clock::now();
-    if (monitor_now - lastMonitorTime_ >= std::chrono::seconds(1)) {
-      const double interval_sec = std::chrono::duration<double>(monitor_now - lastMonitorTime_).count();
-      std::cout << "[MONITOR] " << module_id()
-                << " loop=" << numAnalyzeInInterval_ / interval_sec << " Hz"
-                << " rss=" << ResidentSetSizeKB() << " kB"
-                << std::endl;
-      lastMonitorTime_ = monitor_now;
-      numAnalyzeInInterval_ = 0;
-    }
-  }
   telemetryStr_.clear();
   if (mosq_ == nullptr) {
     std::cout << module_id() << ": mosq_ is nullptr" << std::endl;

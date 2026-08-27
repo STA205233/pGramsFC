@@ -5,7 +5,6 @@
 #include "IridiumPacketPool.hh"
 #include "ReceiveStatusFromDAQComputer.hh"
 #include "anlnext/BasicModule.hh"
-#include <chrono>
 #include <queue>
 #include <tuple>
 #include <vector>
@@ -102,8 +101,6 @@ private:
   uint32_t index_ = 0;
   uint16_t currentCode_ = 0;
   bool inError_ = false;
-  std::chrono::time_point<std::chrono::steady_clock> lastMonitorTime_; // [MONITOR]
-  size_t pushedPacketsInInterval_ = 0; // [MONITOR]
   static constexpr int MAX_BYTES = 1024;
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> statusSaver_ = nullptr;
   bool saveStatus_ = false;

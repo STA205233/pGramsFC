@@ -94,8 +94,6 @@ private:
   std::chrono::steady_clock::time_point lastSendTime_;
   int chatter_ = 0;
   std::string telemetryStr_ = "";
-  std::chrono::steady_clock::time_point lastMonitorTime_; // [MONITOR]
-  int numAnalyzeInInterval_ = 0; // [MONITOR]
 
   // access to other classes
   ReceiveCommand *receiveCommand_ = nullptr;

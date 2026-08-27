@@ -47,7 +47,7 @@ ANLStatus DividePacket::mod_initialize() {
     statusSaver_->setBinaryFilenameBase(binaryFilenameBase_);
     statusSaver_->setNumCommandPerFile(numStatusPerFile_);
   }
-  lastMonitorTime_ = std::chrono::steady_clock::now(); // [MONITOR]
+
   return AS_OK;
 }
 ANLStatus DividePacket::mod_analyze() {
@@ -144,19 +144,6 @@ ANLStatus DividePacket::mod_analyze() {
       currentPacket_.push_back(byte);
     }
   }
-  // [MONITOR]
-  const auto now = std::chrono::steady_clock::now();
-  if (now - lastMonitorTime_ >= std::chrono::seconds(1)) {
-    const double interval_sec = std::chrono::duration<double>(now - lastMonitorTime_).count();
-    std::cout << "[MONITOR] " << module_id()
-              << " iridium_queue=" << iridiumPacketQueue_->size()
-              << " starlink_queue=" << starlinkPacketQueue_.size()
-              << " current_packet=" << currentPacket_.size()
-              << " pushed=" << static_cast<int>(pushedPacketsInInterval_ / interval_sec) << " /s"
-              << std::endl;
-    lastMonitorTime_ = now;
-    pushedPacketsInInterval_ = 0;
-  }
   return AS_OK;
 }
 ANLStatus DividePacket::mod_finalize() {
@@ -176,7 +163,6 @@ void DividePacket::PushCurrentVector() {
   telem->setType(subsystem_);
   telem->update();
   lastPushedPackets_.push_back(telem);
-  pushedPacketsInInterval_++; // [MONITOR]
   for (const auto &code: starlinkCode_) {
     if (currentCode_ == code) {
       starlinkPacketQueue_.push(telem);
