@@ -4,7 +4,6 @@
 #include "anlnext/BasicModule.hh"
 #include "mosquittopp.h"
 #include <string>
-
 namespace gramsballoon::pgrams {
 enum class CommunicationLinkType : uint32_t {
   IRIDIUM = 0,
@@ -21,9 +20,6 @@ class SendTelemetry;
  * @date 2026-02-05 Shota Arai| Multi-threading (v2.2)
  * @date 2026-07-08 Shota Arai| Use of loop_start() (v2.3)
 **/
-
-template <typename T>
-class MosquittoIO;
 template <typename TelemType>
 class MosquittoManager: public anlnext::BasicModule {
   using mod_class = MosquittoManager<TelemType>;

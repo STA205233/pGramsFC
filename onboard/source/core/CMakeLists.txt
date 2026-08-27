@@ -22,7 +22,6 @@ set(GB_CORE_CLASSES
   src/ErrorManager.cc
   src/DateManager.cc
   src/EncodedSerialCommunication.cc
-  src/OrientationInformation.cc
   src/BaseTelemetryDefinition.cc
   src/HubHKTelemetry.cc
   src/VHKTelemetryMapping.cc

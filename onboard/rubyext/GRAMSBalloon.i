@@ -26,8 +26,6 @@
 #include "I2CManager.hh"
 #endif
 #include "RunIDManager.hh"
-#include "ReadTelemetry.hh"
-#include "DumpSerial.hh"
 #include "GetMHADCData.hh"
 #include "EncodedSerialCommunicator.hh"
 

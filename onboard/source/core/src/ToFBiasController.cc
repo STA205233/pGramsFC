@@ -47,7 +47,7 @@ int ToFBiasController::sendCommand(std::string_view data) {
     }
   }
   {
-    const int ret = ReadDataUntilSpecificStr(dataStr_, "\r\n");
+    const int ret = ReadDataUntilSpecificStr(dataStr_, "\r\n", 50);
     if (ret < 0) {
       std::cerr << "TOFBiasController::sendCommand: failed to receive command code" << ret << std::endl;
       return ret;
@@ -67,7 +67,7 @@ int ToFBiasController::queryFullOutput() {
     std::cerr << "Failed to write data" << std::endl;
     return ret;
   }
-  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "\r\n");
+  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "\r\n", NUM_DATA);
   saveData(&dataStr_);
   return ret2;
 }

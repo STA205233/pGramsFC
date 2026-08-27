@@ -4,7 +4,6 @@ include_directories(
   ${ANLNEXT_INC_DIR}
   ${ROOT_INC_DIR}
   ${BOOST_INC_DIR}
-  ${HSQUICKLOOK_INC_DIR}
   ${MYSQL_INC_DIR}
   ${GB_PGRAMSBALLOON_INC_DIR}
   ${VERSALOGIC_INC_DIR}
@@ -24,8 +23,6 @@ set(GB_MODULES
   src/SimpleLoop.cc
   src/ReceiveTelemetry.cc
   src/RunIDManager.cc
-  src/ReadTelemetry.cc
-  src/DumpSerial.cc
   src/EncodedSerialCommunicator.cc
   src/GetMHADCData.cc
   src/GetPressure.cc
@@ -71,12 +68,6 @@ if(GB_USE_SYSTEM_MODULES)
   )
 endif(GB_USE_SYSTEM_MODULES)
 
-if(GB_USE_HSQUICKLOOK)
-  set(GB_HSQUICKLOOK_MODULES
-    src/PushToMongoDB.cc
-  )
-endif(GB_USE_HSQUICKLOOK)
-
 if(GB_USE_MYSQL)
   set(GB_MYSQL_MODULES
     src/PushToMySQL.cc
@@ -94,7 +85,6 @@ endif(GB_USE_LJM)
 add_library(GBModules SHARED
   ${GB_MODULES}
   ${GB_SYSTEM_MODULES}
-  ${GB_HSQUICKLOOK_MODULES}
   ${GB_ROOT_MODULES}
   ${GB_DEMO_MODULES}
   ${GB_MYSQL_MODULES}
@@ -110,7 +100,6 @@ target_link_libraries(GBModules
   ${D2XX_LIB}
   ${MPSSE_LIB}
   ${MONGODB_LIB}
-  ${HSQUICKLOOK_LIB}
   ${MYSQL_LIB}
   ${MOSQUITTO_LIB}
   ${LJM_LIB}

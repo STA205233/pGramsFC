@@ -17,7 +17,7 @@ protected:
   PressureGaugeManager(const PressureGaugeManager &r) = default;
 
 public:
-  int SendComAndGetData(std::string_view command, std::string &data) override;
+  int SendComAndGetData(std::string_view command, std::string &data, int max_length) override;
 };
 } // namespace gramsballoon::pgrams
 
