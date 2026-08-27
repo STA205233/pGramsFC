@@ -52,6 +52,8 @@
 #endif
 #include "ConvertHubHKTelemetry.hh"
 #include "VDBDataStore.hh"
+#include "VHousekeepingModule.hh"
+#include "SetHKEvs.hh"
 %}
 
 %include "std_vector.i"
@@ -74,13 +76,18 @@ class Sleep : public anlnext::BasicModule
 public:
   Sleep();
 };
+
+class VHousekeepingModule: public anlnext::BasicModule {
+public:
+  VHousekeepingModule();
+};
 #ifdef USE_SPI
 class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
 };
-class GetPDUInfo : public anlnext::BasicModule
+class GetPDUInfo : public VHousekeepingModule
 {
 public:
   GetPDUInfo();
@@ -93,7 +100,7 @@ public:
 #endif
 
 #ifdef USE_SYSTEM_MODULES
-class GetComputerStatus : public anlnext::BasicModule
+class GetComputerStatus : public VHousekeepingModule
 {
 public:
   GetComputerStatus();
@@ -104,7 +111,7 @@ class ReceiveCommand : public anlnext::BasicModule
 public:
   ReceiveCommand();
 };
-class SendTelemetry : public anlnext::BasicModule
+class SendTelemetry : public VHousekeepingModule
 {
 public:
   SendTelemetry();
@@ -115,7 +122,7 @@ public:
   ReceiveTelemetry();
 };
 
-class GetMHADCData: public anlnext::BasicModule {
+class GetMHADCData: public VHousekeepingModule {
 public:
   GetMHADCData();
 };
@@ -225,13 +232,13 @@ public:
   GetPressure();
 };
 #ifdef USE_LJM
-class GetLabJackData: public anlnext::BasicModule {
+class GetLabJackData: public VHousekeepingModule {
 public:
   GetLabJackData();
 };
 #endif
 #ifdef USE_I2C
-class GetEnvironmentalData: public anlnext::BasicModule {
+class GetEnvironmentalData: public VHousekeepingModule {
 public:
   GetEnvironmentalData();
 };
@@ -243,6 +250,11 @@ public:
 class ConvertHubHKTelemetry: public anlnext::BasicModule, public VDBDataStore {
 public:
   ConvertHubHKTelemetry();
+};
+
+class SetHKEvs: public anlnext::BasicModule {
+public:
+  SetHKEvs();
 };
 } // namespace pgrams
 } // namespace GRAMSBalloon

@@ -1,10 +1,14 @@
 #include "SendTelemetry.hh"
+#include "BaseTelemetryDefinition.hh"
 #include "CommunicationCodes.hh"
+#include "CommunicationFormat.hh"
+#include "CommunicationSaver.hh"
 #include "GetMHADCData.hh"
 #include "MHADCMapping.hh"
 #include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 #include "ReceiveCommand.hh"
+#include "RunIDManager.hh"
 #ifdef USE_SPI
 #include "GetPDUInfo.hh"
 #include "PDUMapping.hh"
@@ -15,7 +19,6 @@
 #ifdef USE_LJM
 #include "GetLabJackData.hh"
 #endif
-#include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -40,9 +43,6 @@ ANLStatus SendTelemetry::mod_define() {
   define_parameter("save_telemetry", &mod_class::saveTelemetry_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_telem_per_file", &mod_class::numTelemPerFile_);
-  define_parameter("minimum_send_time", &mod_class::minimumSendTime_);
-  set_parameter_description("Minimum time interval between telemetry sending");
-  set_parameter_unit(1.0, "ms");
   define_parameter("topic", &mod_class::pubTopic_);
   set_parameter_description("MQTT topic for telemetry publishing via Iridium");
   define_parameter("starlink_topic", &mod_class::starlinkTopic_);
@@ -103,10 +103,9 @@ ANLStatus SendTelemetry::mod_analyze() {
     std::cout << module_id() << ": mosq_ is nullptr" << std::endl;
     return AS_OK;
   }
-  if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastSendTime_).count() < minimumSendTime_) {
+  if (!isInHKLoop()) {
     return AS_OK;
   }
-  lastSendTime_ = std::chrono::steady_clock::now();
   telemdef_->setCurrentTime();
   telemdef_->getContentsNC()->setCode(::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal));
   telemdef_->setIndex(telemIndex_);

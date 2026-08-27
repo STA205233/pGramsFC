@@ -41,6 +41,9 @@ ANLStatus GetPDUInfo::mod_analyze() {
   if (!adc_) {
     return AS_ERROR;
   }
+  if (!isInHKLoop()) {
+    return AS_OK;
+  }
   if (!adc_->isSPIInterfaceSet()) {
     if (!spiManager_) {
       return AS_OK;

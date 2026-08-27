@@ -21,6 +21,13 @@ class MyApp < ANL::ANLApp
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(0)
     end
+    
+    chain GRAMSBalloon::SetHKEvs
+    with_parameters(duration_msec: 1000) do |m|
+      m.set_singleton(0)
+    end
+    @main_module << "SetHKEvs"
+    
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end

@@ -3,9 +3,10 @@
 #define GetEnvironmentalData_H 1
 
 #include "SendTelemetry.hh"
+#include "VHousekeepingModule.hh"
 #include <anlnext/BasicModule.hh>
-#include <chrono>
 #include <memory>
+#include <string>
 
 namespace gramsballoon::pgrams {
 
@@ -19,9 +20,10 @@ class SendTelemetry;
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
  * @date 2026-04-12 | Shota Arai | Modified for pGRAMS
+ * @date 2026-08-28 | Shota Arai | Use of VHousekeepingModule
  */
-class GetEnvironmentalData: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(GetEnvironmentalData, 2.0);
+class GetEnvironmentalData: public VHousekeepingModule {
+  DEFINE_ANL_MODULE(GetEnvironmentalData, 2.1);
   ENABLE_PARALLEL_RUN();
 
 public:

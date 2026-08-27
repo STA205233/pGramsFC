@@ -1,20 +1,11 @@
 #ifndef SendTelemetry_H
 #define SendTelemetry_H 1
 
-#include "BaseTelemetryDefinition.hh"
-#include "CommunicationSaver.hh"
 #include "ErrorManager.hh"
-#include "GetComputerStatus.hh"
-#ifdef USE_LJM
-#include "GetLabJackData.hh"
-#endif
-#include "GetMHADCData.hh"
-#include "HubHKTelemetry.hh"
-#include "RunIDManager.hh"
+#include "VHousekeepingModule.hh"
 #include <anlnext/BasicModule.hh>
 #include <memory>
 #include <string>
-#include <chrono>
 
 namespace gramsballoon {
 class RunIDManager;
@@ -30,7 +21,7 @@ class MosquittoManager;
 template <typename T>
 class MosquittoIO;
 class BaseTelemetryDefinition;
-class HubHKtelemetry;
+class HubHKTelemetry;
 class ErrorManager;
 template <typename T>
 class CommunicationSaver;
@@ -38,8 +29,10 @@ class MHADCMapping;
 #ifdef USE_SYSTEM_MODULES
 class GetComputerStatus;
 #endif
+#ifdef USE_SPI
 class GetPDUInfo;
 class PDUMapping;
+#endif
 template <typename T>
 class MosquittoIO;
 
@@ -51,9 +44,10 @@ class MosquittoIO;
  * @date 2025-**-** | v2.0
  * @date 2025-09-20 | Json-wrapped telemetry. (v3.0)
  * @date 2026-02-04 | Add command rejected index for each subsystem. (v3.2)
+ * @date 2026-08-28 | Use of VHousekeepingModule (v3.3)
  */
-class SendTelemetry: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SendTelemetry, 3.2);
+class SendTelemetry: public VHousekeepingModule {
+  DEFINE_ANL_MODULE(SendTelemetry, 3.3);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -61,7 +55,7 @@ public:
   virtual ~SendTelemetry();
 
 protected:
-  SendTelemetry(const SendTelemetry& r) = default;
+  SendTelemetry(const SendTelemetry &r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -90,8 +84,6 @@ private:
   uint32_t telemIndex_ = 0;
   std::string binaryFilenameBase_ = "";
   int numTelemPerFile_ = 1000;
-  int minimumSendTime_ = 1000; // in milliseconds
-  std::chrono::steady_clock::time_point lastSendTime_;
   int chatter_ = 0;
   std::string telemetryStr_ = "";
 

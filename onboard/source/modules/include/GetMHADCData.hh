@@ -1,22 +1,21 @@
 #ifndef GRAMSBalloon_GetMHADCData_hh
 #define GRAMSBalloon_GetMHADCData_hh 1
-#include "EncodedSerialCommunicator.hh"  
-#include "SendTelemetry.hh"
-#include "anlnext/BasicModule.hh"
+#include "VHousekeepingModule.hh"
 #include <regex>
 
 namespace gramsballoon::pgrams {
 class SendTelemetry;
+class EncodedSerialCommunicator;
 
 /**
  *  Module for communicating with MHADC.
  *
  * @author Shota Arai
  * @date 2024-09-19
- * 
+ * @date 2026-08-28  | Use of VHousekeepingModule
  */
-class GetMHADCData: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(GetMHADCData, 1.0);
+class GetMHADCData: public VHousekeepingModule {
+  DEFINE_ANL_MODULE(GetMHADCData, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:

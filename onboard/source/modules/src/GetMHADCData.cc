@@ -1,7 +1,6 @@
 #include "GetMHADCData.hh"
-#include "boost/format.hpp"
-#include <chrono>
-#include <thread>
+#include "EncodedSerialCommunicator.hh"
+#include "SendTelemetry.hh"
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
@@ -9,7 +8,6 @@ ANLStatus GetMHADCData::mod_define() {
   define_parameter("num_section", &mod_class::numSection_);
   define_parameter("channel_per_section", &mod_class::channelPerSection_);
   define_parameter("MHADCManager_name", &mod_class::encodedSerialCommunicatorName_);
-  define_parameter("sleep_for_msec", &mod_class::sleepForMsec_);
   define_parameter("num_trials", &mod_class::numTrials_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
@@ -53,6 +51,9 @@ ANLStatus GetMHADCData::mod_initialize() {
 ANLStatus GetMHADCData::mod_analyze() {
   if (chatter_ > 0) {
     std::cout << "GetMHADCData::mod_analyze" << std::endl;
+  }
+  if (!isInHKLoop()) {
+    return AS_OK;
   }
   std::vector<bool> failed_ch(numCh_, false);
   adcData_.resize(numCh_, 0);

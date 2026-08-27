@@ -2,7 +2,7 @@
 #define GRAMSBalloon_GetPDUInfo_hh 1
 #include "ADC128S102IO.hh"
 #include "SPIManager.hh"
-#include "anlnext/BasicModule.hh"
+#include "VHousekeepingModule.hh"
 #include <memory>
 #include <string>
 namespace gramsballoon::pgrams {
@@ -13,9 +13,10 @@ class SendTelemetry;
  * @brief A module to get PDU information
  * @author Shota Arai
  * @date 2026-02-20 | Shota Arai | Created (v1.0)
+ * @date 2026-08-28  | Use of VHousekeepingModule
  */
-class GetPDUInfo: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(GetPDUInfo, 1.0);
+class GetPDUInfo: public VHousekeepingModule {
+  DEFINE_ANL_MODULE(GetPDUInfo, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:

@@ -1,14 +1,13 @@
 #ifdef USE_SYSTEM_MODULES
 #include "GetComputerStatus.hh"
-#include <sys/vfs.h>
 #include <fstream>
+#include <sys/vfs.h>
 
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
 
-GetComputerStatus::GetComputerStatus()
-{
+GetComputerStatus::GetComputerStatus() {
   tempFile_ = "/sys/class/thermal/thermal_zone0/temp";
   memFile_ = "/proc/meminfo";
   path_ = "/";
@@ -16,8 +15,7 @@ GetComputerStatus::GetComputerStatus()
 
 GetComputerStatus::~GetComputerStatus() = default;
 
-ANLStatus GetComputerStatus::mod_define()
-{
+ANLStatus GetComputerStatus::mod_define() {
   define_parameter("temperature_filename", &mod_class::tempFile_);
   define_parameter("memory_filename", &mod_class::memFile_);
   define_parameter("path", &mod_class::path_);
@@ -26,8 +24,7 @@ ANLStatus GetComputerStatus::mod_define()
   return AS_OK;
 }
 
-ANLStatus GetComputerStatus::mod_initialize()
-{
+ANLStatus GetComputerStatus::mod_initialize() {
   const std::string send_telem_md = "SendTelemetry";
   if (exist_module(send_telem_md)) {
     get_module_NC(send_telem_md, &sendTelemetry_);
@@ -36,8 +33,10 @@ ANLStatus GetComputerStatus::mod_initialize()
   return AS_OK;
 }
 
-ANLStatus GetComputerStatus::mod_analyze()
-{
+ANLStatus GetComputerStatus::mod_analyze() {
+  if (!isInHKLoop()) {
+    return AS_OK;
+  }
   std::ifstream ifstemp(tempFile_);
   ifstemp >> CPUTemperatureADC_;
   CPUTemperature_ = CPUTemperatureADC_ / 1000.0;
@@ -57,27 +56,24 @@ ANLStatus GetComputerStatus::mod_analyze()
       sendTelemetry_->getErrorManager()->setError(ErrorType::GET_MEM_ERROR);
     }
   }
-  if (chatter_>=1) {
+  if (chatter_ >= 1) {
     constexpr uint64_t one = 1;
     std::cout << "CPU Temperature (degreeC): " << CPUTemperature_ << std::endl;
-    std::cout << "Free size (MB): " << capacityFree_ / (one<<20) << std::endl;
-    std::cout << "All size (MB): " << capacityAll_ / (one<<20) << std::endl;
-    std::cout << "RAM size (MB): " << ramTotal_ / (one<<10) << std::endl;
-    std::cout << "RAM available (MB): " << ramAvail_ / (one<<10) << std::endl;
-    std::cout << "RAM usage (MB): " << ramUsage_ / (one<<10) << std::endl;
+    std::cout << "Free size (MB): " << capacityFree_ / (one << 20) << std::endl;
+    std::cout << "All size (MB): " << capacityAll_ / (one << 20) << std::endl;
+    std::cout << "RAM size (MB): " << ramTotal_ / (one << 10) << std::endl;
+    std::cout << "RAM available (MB): " << ramAvail_ / (one << 10) << std::endl;
+    std::cout << "RAM usage (MB): " << ramUsage_ / (one << 10) << std::endl;
   }
 
   return AS_OK;
 }
 
-
-ANLStatus GetComputerStatus::mod_finalize()
-{
+ANLStatus GetComputerStatus::mod_finalize() {
   return AS_OK;
 }
 
-int GetComputerStatus::getCapacity()
-{
+int GetComputerStatus::getCapacity() {
   struct statfs64 capacity;
   int rslt = statfs64(path_.c_str(), &capacity);
   if (rslt < 0) {
@@ -89,7 +85,7 @@ int GetComputerStatus::getCapacity()
   return 0;
 }
 
-int GetComputerStatus::getRAMUsage(){
+int GetComputerStatus::getRAMUsage() {
   std::ifstream ifmem(memFile_);
   if (!ifmem) {
     std::cerr << "Failed to open memory file: " << memFile_ << std::endl;
@@ -128,5 +124,5 @@ int GetComputerStatus::getRAMUsage(){
   }
   return -1;
 }
-} /* namespace gramsballoon */
+} // namespace gramsballoon::pgrams
 #endif

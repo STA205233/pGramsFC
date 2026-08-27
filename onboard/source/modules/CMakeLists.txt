@@ -46,6 +46,8 @@ set(GB_MODULES
   src/SendPacketByMQTT.cc
   src/DetectErrorCallbackFromDAQ.cc
   src/ConvertHubHKTelemetry.cc
+  src/VHousekeepingModule.cc
+  src/SetHKEVvs.cc
 )
 
 if(GB_USE_SPI)

@@ -1,19 +1,19 @@
 #ifndef GB_GetLabJackData_hh
 #define GB_GetLabJackData_hh 1
 #include "LabJackIO.hh"
-#include "SendTelemetry.hh"
-#include "anlnext/BasicModule.hh"
+#include "VHousekeepingModule.hh"
 namespace gramsballoon::pgrams {
 /**
   * @brief A module to get data from a LabJack device.
   * @author Shota Arai
   * @date 2026-04-04  | First version
+  * @date 2026-08-28  | Use of VHousekeepingModule
   */
 
 class SendTelemetry;
-class GetLabJackData: public anlnext::BasicModule {
+class GetLabJackData: public VHousekeepingModule {
   using float32 = LabJackAddresses::float32;
-  DEFINE_ANL_MODULE(GetLabJackData, 1.0);
+  DEFINE_ANL_MODULE(GetLabJackData, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:
