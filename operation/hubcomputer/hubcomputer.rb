@@ -18,7 +18,7 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(0)
     end
     chain GRAMSBalloon::IoContextManager do |m|
@@ -28,7 +28,7 @@ class MyApp < ANL::ANLApp
     
     
     chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
-    with_parameters(channel: 0, spi_config_options: 1, spi_control_type: "baycat", use_multiplexer: true) do |m|
+    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat", use_multiplexer: true) do |m|
       m.set_singleton(0)
     end
     @main_modules << "SPIManager_baycat"
@@ -38,7 +38,7 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "ControlPDU"
     chain GRAMSBalloon::GetPDUInfo
-    with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
+    with_parameters(SPIManager_name: "SPIManager_baycat", chatter: 0, v_ref: 5.0) do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetPDUInfo"
@@ -55,7 +55,7 @@ class MyApp < ANL::ANLApp
       @main_modules << "SendCommandToDAQComputer_" + subsystem
     end
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names, SPIManager_name: "SPIManager_baycat") do |m|
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"
