@@ -57,6 +57,8 @@ private:
   int deadCommunicationTime_ = 1000; // in milliseconds
   std::chrono::milliseconds deadCommunicationTimeChrono_;
   std::chrono::time_point<std::chrono::steady_clock> lastReceivedTime_;
+  std::chrono::time_point<std::chrono::steady_clock> lastMonitorTime_; // [MONITOR]
+  size_t receivedBytesInInterval_ = 0; // [MONITOR]
   static constexpr int MAX_BYTES = 1024;
   bool saveStatus_ = false;
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> statusSaver_ = nullptr;

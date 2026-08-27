@@ -56,6 +56,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_initialize() {
       statusSaver_->setTimeStampStr(runIDManager->TimeStampStr());
     }
   }
+  lastMonitorTime_ = std::chrono::steady_clock::now(); // [MONITOR]
   return AS_OK;
 }
 ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
@@ -87,6 +88,7 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
   const auto result = socketCommunicationManager_->receive(bufTmp_);
   if (result > 0) {
     buffer_.insert(buffer_.end(), bufTmp_.begin(), bufTmp_.begin() + result);
+    receivedBytesInInterval_ += static_cast<size_t>(result); // [MONITOR]
     lastReceivedTime_ = now;
     if (saveStatus_) {
       if (statusSaver_) {
@@ -108,6 +110,16 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, false));
     }
     lastReceivedTime_ = now;
+  }
+  // [MONITOR]
+  if (now - lastMonitorTime_ >= std::chrono::seconds(1)) {
+    const double interval_sec = std::chrono::duration<double>(now - lastMonitorTime_).count();
+    std::cout << "[MONITOR] " << module_id()
+              << " buffer=" << buffer_.size() << " B"
+              << " in=" << static_cast<int>(receivedBytesInInterval_ / interval_sec) << " B/s"
+              << std::endl;
+    lastMonitorTime_ = now;
+    receivedBytesInInterval_ = 0;
   }
   return AS_OK;
 }

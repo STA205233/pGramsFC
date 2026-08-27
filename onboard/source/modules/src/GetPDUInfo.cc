@@ -1,6 +1,7 @@
 #include "GetPDUInfo.hh"
 #include "ADC128S102IO.hh"
 #include "SPIManager.hh"
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -35,9 +36,11 @@ ANLStatus GetPDUInfo::mod_initialize() {
   adc_ = std::make_shared<ADC128S102IO>(vref_);
   adc_->setSPIInterface(interface);
   voltages_.resize(numAdcs_ * ADC128S102IO::MaxChannelsPerADC());
+  lastMonitorTime_ = std::chrono::steady_clock::now(); // [MONITOR]
   return AS_OK;
 }
 ANLStatus GetPDUInfo::mod_analyze() {
+  const auto analyze_start = std::chrono::steady_clock::now(); // [MONITOR]
   if (!adc_) {
     return AS_ERROR;
   }
@@ -68,6 +71,20 @@ ANLStatus GetPDUInfo::mod_analyze() {
         }
       }
     }
+  }
+  // [MONITOR]
+  const auto now = std::chrono::steady_clock::now();
+  elapsedSumInInterval_ += std::chrono::duration<double, std::milli>(now - analyze_start).count();
+  numAnalyzeInInterval_++;
+  if (now - lastMonitorTime_ >= std::chrono::seconds(1)) {
+    const double interval_sec = std::chrono::duration<double>(now - lastMonitorTime_).count();
+    std::cout << "[MONITOR] " << module_id()
+              << " called=" << numAnalyzeInInterval_ / interval_sec << " /s"
+              << " analyze=" << elapsedSumInInterval_ / numAnalyzeInInterval_ << " ms"
+              << std::endl;
+    lastMonitorTime_ = now;
+    elapsedSumInInterval_ = 0.0;
+    numAnalyzeInInterval_ = 0;
   }
   return AS_OK;
 }
