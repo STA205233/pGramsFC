@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <errno.h>
 #include <string>
+#include <iostream>
 
 namespace gramsballoon::pgrams {
 int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data, int max_length) {
@@ -29,6 +30,7 @@ int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, cons
     }
 
     const int ret = sread(&buf, 1);
+    std::cout << static_cast<char>(buf);
     const int err = errno;
     if (ret < 0 && (err == EINTR || err == EAGAIN)) {
       continue;

@@ -53,21 +53,32 @@ int ToFBiasController::sendCommand(std::string_view data) {
       return ret;
     }
     if (dataStr_ == "OK!\r\n") {
+      std::cout << dataStr_ << std::endl;
       return 0;
     }
     else {
+      std::cerr << "TOFBiasController::sendCommand: Cannot find OK (dataStr_: " << dataStr_ << ")" << std::endl;
       return -13;
     }
   }
 }
 
 int ToFBiasController::queryFullOutput() {
-  const int ret = sendCommand("p\r\n");
+  const int ret = Write("p\r\n");
   if (ret < 0) {
-    std::cerr << "Failed to write data" << std::endl;
+    std::cerr << "ToFBiasController::queryFullOutput(): Failed to write data" << std::endl;
     return ret;
   }
-  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "\r\n", NUM_DATA);
+  isFullOutputQueried_ = true;
+  return ret;
+}
+int ToFBiasController::getFullOutput() {
+  if (!isFullOutputQueried_) return -50;
+  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "OK!\r\n", 10000);
+  if (ret2 < 0) {
+    return 0;
+  }
+  isFullOutputQueried_ = false;
   saveData(&dataStr_);
   return ret2;
 }
@@ -75,7 +86,7 @@ int ToFBiasController::queryFullOutput() {
 int ToFBiasController::enableDataStream() {
   const int ret = sendCommand("data on\r\n");
   if (ret < 0) {
-    std::cerr << "Failed to write data" << std::endl;
+    std::cerr << "ToFBiasController::enableDataStream(): Failed to write data" << std::endl;
     return ret;
   }
   return ret;

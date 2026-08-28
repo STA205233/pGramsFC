@@ -26,6 +26,7 @@ public:
   int enableDataStream();
   int disableDataStream();
   int queryFullOutput();
+  int getFullOutput();
   int getOnePacket(std::string &str);
   int enableDCDC(int channel);
   int disableDCDC(int channel);
@@ -43,6 +44,7 @@ protected:
 
 private:
   std::string dataStr_;
+  bool isFullOutputQueried_ = false;
 };
 
 } // namespace gramsballoon::pgrams

@@ -70,7 +70,7 @@ void HKDataSaver<DataType>::openFileForWrite() {
   }
   std::ostringstream filename_sout;
   filename_sout << filenameBase_ << "_" << std::setfill('0') << std::right << std::setw(6) << fileIndex_ << ".dat";
-  file_.open(filename_sout.str(), std::ios::binary);
+  file_.open(filename_sout.str(), std::ios::binary | std::ios::app);
   if (!file_) {
     std::cerr << "Failed to open file: " << filename_sout.str() << std::endl;
     return;
