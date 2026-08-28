@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
   spiInterface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
   adc.setSPIInterface(spiInterface.get());
   spiInterface->setBaudrate(1000000);
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 4; i < 5; ++i) {
     adc.setCS(i);
     for (int j = 0; j < 8; ++j) {
       const auto value = adc.getCurrentVoltage(j);

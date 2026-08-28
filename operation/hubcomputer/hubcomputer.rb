@@ -23,10 +23,10 @@ class MyApp < ANL::ANLApp
     end
     
     chain GRAMSBalloon::SetHKEvs
-    with_parameters(duration_msec: 1000) do |m|
+    with_parameters(duration_msec: 1000, chatter: 0) do |m|
       m.set_singleton(0)
     end
-    @main_module << "SetHKEvs"
+    @main_modules << "SetHKEvs"
     
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)

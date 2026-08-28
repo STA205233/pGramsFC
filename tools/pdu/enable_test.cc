@@ -9,8 +9,8 @@
 
 using namespace gramsballoon::pgrams;
 
-const int chip_select = 0; // PLEASE MODIFY
-const bool is_high = true; // If high, please specify true, otherwise false.
+const int chip_select = 5; // PLEASE MODIFY (DIO pin # starts at 1. Subtract 1 from DIO # and put it here)
+const bool is_high = false; // If high, please specify true, otherwise false.
 
 int main(int argc, char *argv[]) {
   std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
@@ -42,11 +42,15 @@ int main(int argc, char *argv[]) {
   }
   spiInterface2->Open(0, path.c_str());
   spiInterface2->controlGPIOBit(~0, 0);
-  for (auto ch: spiInterface2->Channels()) {
-    spiInterface2->controlGPIO(ch, is_high);
-    std::this_thread::sleep_for(std::chrono::seconds(1)); // after 5 sec, the process will continue.
-    spiInterface2->controlGPIO(ch, !is_high);
-  }
+
+  spiInterface2->controlGPIO(chip_select, is_high);
+  std::cout << "Set pin " << chip_select << " to " << is_high << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(1)); // pause for a sec
+  //for (auto ch: spiInterface2->Channels()) {
+  //  spiInterface2->controlGPIO(ch, is_high);
+  //  std::this_thread::sleep_for(std::chrono::seconds(1)); // after 5 sec, the process will continue.
+  //  spiInterface2->controlGPIO(ch, !is_high);
+  //}
   const int status2 = spiInterface2->Close();
   return status2;
 }
