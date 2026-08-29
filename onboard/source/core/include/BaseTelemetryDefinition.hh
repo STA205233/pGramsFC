@@ -59,7 +59,7 @@ protected:
     constructed_ = false;
     return contents_->setArgc(argc);
   }
-  void setArguments(uint16_t index, int32_t argument) {
+  void setArguments(uint16_t index, uint32_t argument) {
     if (!contents_) {
       std::cerr << "Contents is not set!" << std::endl;
       return;

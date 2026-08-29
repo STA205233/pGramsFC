@@ -1,14 +1,15 @@
 #include "ControlToFBias.hh"
-#include "BaseTelemetryDefinition.hh"
 #include "CommunicationCodes.hh"
-#include "CommunicationFormat.hh"
 #include "MosquittoManager.hh"
 #include "SendTelemetry.hh"
 #include "ToFBiasController.hh"
+#include "ToFBiasTelemetry.hh"
 #include <cstdint>
 using namespace anlnext;
+using ::pgrams::communication::TelemetryCodes;
+using ::pgrams::communication::to_telem_u16;
 namespace gramsballoon::pgrams {
-ControlToFBias::ControlToFBias() : mosquittoManager_(nullptr), controller_(nullptr), timeout_(50000) {}
+ControlToFBias::ControlToFBias() : mosquittoManager_(nullptr), fullPacketStatus_(FullOutputStatus::WAITING), controller_(nullptr), timeout_(50000) {}
 
 anlnext::ANLStatus ControlToFBias::mod_define() {
   define_parameter("path", &mod_class::path_);
@@ -34,15 +35,13 @@ ANLStatus ControlToFBias::mod_initialize() {
   index_ = 0;
   telemetryStr_.reserve(1000);
 
-  telem_ = std::make_shared<BaseTelemetryDefinition>(true);
+  telem_ = std::make_shared<ToFBiasTelemetry>(true);
   controller_ = std::make_shared<ToFBiasController>(path_);
   controller_->setTimeout(std::chrono::microseconds(timeout_));
   const int init_res = controller_->initialize();
   if (init_res != 0) {
     std::cerr << "Error in opening file " << path_ << std::endl;
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
-    }
+    treatError();
     return AS_OK;
   }
   return AS_OK;
@@ -55,7 +54,7 @@ ANLStatus ControlToFBias::mod_end_run() {
   if (controller_) {
     const int ret = controller_->disableDataStream();
     if (ret < 0) {
-      if (sendTelemetry_) sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+      treatError();
       return AS_OK;
     }
   }
@@ -68,33 +67,44 @@ ANLStatus ControlToFBias::mod_analyze() {
   if (controller_->HasError()) {
     const int ret = controller_->initialize();
     if (ret < 0) {
-      if (sendTelemetry_) sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+      treatError();
       return AS_OK;
     }
   }
+
+  // For full output status
+  if (fullPacketStatus_ == FullOutputStatus::REQUESTING) { // Requested from commands
+    const int ret = controller_->queryFullOutput();
+    if (ret < 0) {
+      treatError();
+      return AS_OK;
+    }
+    fullPacketStatus_ = FullOutputStatus::REQUESTED;
+  }
+  else if (fullPacketStatus_ == FullOutputStatus::REQUESTED) {
+    const int ret = controller_->getFullOutput();
+    telemetryStr_.clear();
+    telemetryStr_ = controller_->getData();
+    if (ret < 0) {
+      treatError();
+      return AS_OK;
+    }
+    sendPacket(telemetryStr_, TelemetryCodes::HUB_Tof_Bias_full);
+    lastReceivedTime_ = std::chrono::steady_clock::now(); // reset counter for telemetry
+    return AS_OK;
+  }
+
   const auto now = std::chrono::steady_clock::now();
   if (now - lastReceivedTime_ > duration_) {
     telemetryStr_.clear();
     const int packet_result = controller_->getOnePacket(telemetryStr_);
     if (packet_result >= 0) {
       if (mosquittoManager_) {
-        const auto &topic = (mosquittoManager_->getLinkType() == CommunicationLinkType::STARLINK) ? starlinkTopic_ : topic_;
-        telem_->setType(Subsystem::HUB);
-        const auto &cont_sptr = telem_->getContentsSptr();
-        fillPacket(cont_sptr.get(), telemetryStr_);
-        telemetryStr_.clear();
-        cont_sptr->setCode(::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal));
-        telem_->setIndex(index_);
-        telem_->setCurrentTime();
-        telem_->construct(telemetryStr_);
-        mosquittoManager_->Publish(telemetryStr_, topic, qos_);
-        ++index_;
+        sendPacket(telemetryStr_, TelemetryCodes::HUB_Tof_Bias_summary);
       }
     }
     else {
-      if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
-      }
+      treatError();
     }
     lastReceivedTime_ = now;
     return AS_OK;
@@ -109,9 +119,7 @@ ANLStatus ControlToFBias::mod_finalize() {
 int ControlToFBias::setVoffset(uint32_t voltage) {
   const auto ret = singleton_self()->controller_->setVoffset(voltage);
   if (ret < 0) {
-    if (singleton_self()->sendTelemetry_) {
-      singleton_self()->sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
-    }
+    treatError();
   }
   return ret;
 }
@@ -155,20 +163,32 @@ int ControlToFBias::setVdef(uint32_t channel, uint32_t voltage) {
   return ret;
 }
 
-void ControlToFBias::fillPacket(CommunicationFormat *com, const std::string &str) {
-  const int sz_str = str.size();
-  const int sz = (sz_str + 3) / 4;
-  com->setArgc(sz);
-  auto d = str.data();
-  for (int i = 0; i < sz; ++i) {
-    uint32_t v = 0;
-    for (int j = 0; j < 4; ++j) {
-      const int index = i * 4 + j;
-      uint32_t vv = index < sz_str ? static_cast<uint8_t>(d[index]) : 0;
-      v |= (vv << (24 - j * 8));
-    }
-    com->setArguments(i, v);
+void ControlToFBias::sendPacket(const std::string &str, TelemetryCodes code) {
+  const auto &topic = (mosquittoManager_->getLinkType() == CommunicationLinkType::STARLINK) ? starlinkTopic_ : topic_;
+  telem_->setType(Subsystem::HUB);
+  const auto &cont_sptr = telem_->getContentsSptr();
+  telem_->setArguments(str);
+  telemetryStr_.clear();
+  cont_sptr->setCode(to_telem_u16(code));
+  telem_->setIndex(index_);
+  telem_->setCurrentTime();
+  telem_->construct(telemetryStr_);
+  mosquittoManager_->Publish(telemetryStr_, topic, qos_);
+  ++index_;
+}
+
+void ControlToFBias::treatError() {
+  if (singleton_self()->sendTelemetry_) {
+    singleton_self()->sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
   }
 }
 
+int ControlToFBias::queryFullOutput() {
+  if (singleton_self()->fullPacketStatus_ != FullOutputStatus::WAITING) {
+    std::cerr << module_id() << ": Full Output is already requested" << std::endl;
+    return -1;
+  }
+  singleton_self()->fullPacketStatus_ = FullOutputStatus::REQUESTING;
+  return 0;
+}
 } // namespace gramsballoon::pgrams

@@ -29,6 +29,7 @@ set(GB_CORE_CLASSES
   src/IridiumPacketPool.cc
   src/ToFBiasController.cc
   src/ConvertedHubHKTelemetry.cc
+  src/ToFBiasTelemetry.cc
 )
 
 if(GB_USE_SPI)

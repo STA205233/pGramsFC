@@ -34,6 +34,7 @@ public:
   int setTmuxChannel(int channel, int on_off);
   int setVdef(int channel, int voltage);
   std::ostream &printData(std::ostream &os);
+  const std::string &getData() const { return dataStr_; }
 
 protected:
   using EncodedSerialCommunication::ReadDataUntilBreak;

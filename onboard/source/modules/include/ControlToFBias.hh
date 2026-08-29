@@ -3,13 +3,16 @@
 #include "anlnext/BasicModule.hh"
 #include <chrono>
 #include <memory>
+namespace pgrams::communication {
+enum class TelemetryCodes : uint16_t;
+}
 
 namespace gramsballoon::pgrams {
 class ToFBiasController;
 class SendTelemetry;
 template <typename T>
 class MosquittoManager;
-class BaseTelemetryDefinition;
+class ToFBiasTelemetry;
 class CommunicationFormat;
 
 class ControlToFBias: public anlnext::BasicModule {
@@ -43,6 +46,14 @@ private:
   MosquittoManager<std::string> *mosquittoManager_ = nullptr;
   std::string mosquittoManagerName_ = "TelemMosquittoManager";
 
+  enum class FullOutputStatus {
+    WAITING,
+    REQUESTING,
+    REQUESTED
+  };
+
+  FullOutputStatus fullPacketStatus_;
+
   std::shared_ptr<ToFBiasController> controller_;
   std::string path_;
   size_t index_;
@@ -55,10 +66,11 @@ private:
   int qos_ = 0;
   std::string topic_ = "TB_Telemetry";
   std::string starlinkTopic_ = "TB_Telemetry_Starlink";
-  std::shared_ptr<BaseTelemetryDefinition> telem_ = nullptr;
+  std::shared_ptr<ToFBiasTelemetry> telem_ = nullptr;
   std::string telemetryStr_;
 
-  void fillPacket(CommunicationFormat *telem, const std::string &str);
+  void treatError();
+  void sendPacket(const std::string &str, ::pgrams::communication::TelemetryCodes code);
 };
 } // namespace gramsballoon::pgrams
 #endif // GB_ControlTofBias_hh
