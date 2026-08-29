@@ -38,12 +38,14 @@ ANLStatus ControlToFBias::mod_initialize() {
   telem_ = std::make_shared<ToFBiasTelemetry>(true);
   controller_ = std::make_shared<ToFBiasController>(path_);
   controller_->setTimeout(std::chrono::microseconds(timeout_));
+  telemetryStr_.reserve(10000);
   const int init_res = controller_->initialize();
   if (init_res != 0) {
     std::cerr << "Error in opening file " << path_ << std::endl;
     treatError();
     return AS_OK;
   }
+  controller_->refresh();
   return AS_OK;
 }
 

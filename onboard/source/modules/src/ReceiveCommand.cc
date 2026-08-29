@@ -326,9 +326,9 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
       }
+      return true;
     }
-
-    return true;
+    return false;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
     if (chatter_ >= 1) {
@@ -343,6 +343,26 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
         }
         return false;
       }
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query Info command received." << std::endl;
+    }
+    if (controlTofBias_) {
+      const int ret = controlTofBias_->queryFullOutput();
+      if (ret < 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+        }
+        return false;
+      }
+      return true;
     }
     else {
       return false;

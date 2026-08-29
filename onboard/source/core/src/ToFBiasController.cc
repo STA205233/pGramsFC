@@ -1,6 +1,8 @@
 #include "ToFBiasController.hh"
 #include <string>
 #include <string_view>
+#include <chrono>
+#include <thread>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
@@ -26,6 +28,7 @@ int ToFBiasController::getOnePacket(std::string &str) {
   }
 
   {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     const int ret = ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
     if (ret < 0) {
       disableDataStream();
@@ -79,7 +82,7 @@ int ToFBiasController::queryFullOutput() {
 }
 int ToFBiasController::getFullOutput() {
   if (!isFullOutputQueried_) return -50;
-  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "OK!\r\n", 10000);
+  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "OK!\r\n", NUM_DATA);
   if (ret2 < 0) {
     return ret2;
   }
@@ -126,5 +129,12 @@ int ToFBiasController::setTmuxChannel(int channel, int on_off) {
 
 int ToFBiasController::setVdef(int channel, int voltage) {
   return sendCommand("tdef " + std::to_string(channel) + " " + std::to_string(voltage) + "\r\n");
+}
+
+int ToFBiasController::refresh() {
+  dataStr_.clear();
+  const int ret = Read(dataStr_, NUM_DATA);
+  dataStr_.clear();
+  return ret;
 }
 } // namespace gramsballoon::pgrams
