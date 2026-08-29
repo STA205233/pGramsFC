@@ -75,6 +75,8 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(HUB_TB_Set_Tmux, 2);
   ADD_CODE_MAP(HUB_TB_Query_bias_info, 0);
 
+  ADD_CODE_MAP(PDU_Tof_Bias_ON, 0);
+  ADD_CODE_MAP(PDU_Tof_Bias_OFF, 0);
   ADD_CODE_MAP(PDU_Cold_TPC_HV_ON, 0);
   ADD_CODE_MAP(PDU_Cold_TPC_HV_OFF, 0);
   ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_ON, 0);

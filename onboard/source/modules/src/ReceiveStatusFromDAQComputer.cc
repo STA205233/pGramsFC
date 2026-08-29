@@ -1,4 +1,6 @@
 #include "ReceiveStatusFromDAQComputer.hh"
+#include "CommunicationSaver.hh"
+#include "RunIDManager.hh"
 #include <iomanip>
 using namespace anlnext;
 namespace gramsballoon::pgrams {

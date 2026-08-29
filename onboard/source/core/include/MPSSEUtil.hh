@@ -2,6 +2,7 @@
 #define GRAMSBalloon_MPSSEUtil_hh 1
 #include <iostream>
 #define SPI_DEBUG
+#undef SPI_DEBUG
 #ifdef SPI_DEBUG
 #define DBG(msg) \
   std::cout << __func__ << " in " << __FILE__ << ":" << __LINE__ << ": " << msg << std::endl;
@@ -62,20 +63,20 @@ constexpr uint8_t SPI_MODE_MSK(int mode) {
 constexpr uint8_t SPI_Initial_State(int mode) {
   switch (mode) {
   case 0:
-    return 0b1000;
+    return 0b11111000;
   case 1:
-    return 0b1000;
+    return 0b11111000;
   case 2:
-    return 0b1001;
+    return 0b11111001;
   case 3:
-    return 0b1001;
+    return 0b11111001;
   default:
     break;
   }
   throw std::invalid_argument("Invalid SPI mode");
 }
 
-constexpr uint8_t SPI_DIRECTION_MSK = 0x0B; // SK, DO, CS as output
+constexpr uint8_t SPI_DIRECTION_MSK = 0xFB; // SK, DO, CS as output
 constexpr uint8_t SPI_CLK_DO_DI = 0b00000111; // SK, DO, as output
 
 } // namespace spi_masks

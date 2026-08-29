@@ -44,6 +44,8 @@ set(GB_MODULES
   src/DetectErrorCallbackFromDAQ.cc
   src/ControlToFBias.cc
   src/ConvertHubHKTelemetry.cc
+  src/VHousekeepingModule.cc
+  src/SetHKEvs.cc
 )
 
 if(GB_USE_SPI)

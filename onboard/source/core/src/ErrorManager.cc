@@ -1,7 +1,5 @@
 #include "ErrorManager.hh"
-#include <chrono>
 #include <sys/time.h>
-#include <thread>
 
 namespace gramsballoon::pgrams {
 
@@ -18,7 +16,7 @@ void ErrorManager::setError(ErrorType v) {
   errorCode_[shift / 32] |= (one << (shift % 32));
 }
 
-int ErrorManager::strToBit(const std::string &s) {
+int ErrorManager::strToBit(const std::string& s) {
   std::optional<ErrorType> op = magic_enum::enum_cast<ErrorType>(s);
   if (!op.has_value()) {
     return -1;

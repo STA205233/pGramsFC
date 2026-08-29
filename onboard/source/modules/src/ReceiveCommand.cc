@@ -1,15 +1,24 @@
 #include "ReceiveCommand.hh"
 #include "CommunicationCodes.hh"
+#ifdef USE_SPI
+#include "ControlPDU.hh"
+#include "PDUCodeMapCS.hh"
+#include "PDUCodeMapDIO.hh"
+#endif
+#ifdef USE_SYSTEM_MODULES
+#include "ShutdownSystem.hh"
+#endif
 #include "CommunicationFormat.hh"
 #include "CommunicationSaver.hh"
 #include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 #include "SendCommandToDAQComputer.hh"
 #include "SendTelemetry.hh"
-#ifdef USE_SYSTEM_MODULES
-#include "ShutdownSystem.hh"
-#endif
+
 #include "TerminalColoring.hh"
+#include <cstdint>
+#include <iostream>
+
 using namespace anlnext;
 using namespace pgrams::communication;
 namespace gramsballoon::pgrams {
@@ -20,7 +29,11 @@ inline bool error_in_shutdown_system_not_enabled(SendTelemetry *sendtelemetry, c
   }
   return false;
 }
-ReceiveCommand::ReceiveCommand() {
+ReceiveCommand::ReceiveCommand()
+#ifdef USE_SPI
+    : pduCodeMapCS_(PDUCodeMapCS::getInstance()), pduCodeMapDIO_(PDUCodeMapDIO::getInstance())
+#endif
+{
   binaryFilenameBase_ = "Command";
   topic_ = "command";
   comdef_ = std::make_shared<CommunicationFormat>();
@@ -33,6 +46,7 @@ ANLStatus ReceiveCommand::mod_define() {
   define_parameter("timeout_sec", &mod_class::timeoutSec_);
   define_parameter("save_command", &mod_class::saveCommand_);
   define_parameter("SendCommandToDAQComputer_names", &mod_class::sendCommandToDAQComputerNames_);
+  define_parameter("SPIManager_name", &mod_class::spiManagerName_);
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
   define_parameter("num_command_per_file", &mod_class::numCommandPerFile_);
   define_parameter("topic", &mod_class::topic_);
@@ -42,21 +56,7 @@ ANLStatus ReceiveCommand::mod_define() {
 }
 
 ANLStatus ReceiveCommand::mod_initialize() {
-  const std::string send_telem_md = "SendTelemetry";
-  if (exist_module(send_telem_md)) {
-    get_module_NC(send_telem_md, &sendTelemetry_);
-  }
-#ifdef USE_SYSTEM_MODULES
-  const std::string shutdown_system_md = "ShutdownSystem";
-  if (exist_module(shutdown_system_md)) {
-    get_module_NC(shutdown_system_md, &shutdownSystem_);
-  }
-#endif
-  const std::string run_id_manager_md = "RunIDManager";
-  if (exist_module(run_id_manager_md)) {
-    get_module_NC(run_id_manager_md, &runIDManager_);
-  }
-
+  // Get mandatory modules
   const std::string mosq_md = "ComMosquittoManager";
   if (exist_module(mosq_md)) {
     get_module_NC(mosq_md, &mosquittoManager_);
@@ -74,44 +74,8 @@ ANLStatus ReceiveCommand::mod_initialize() {
     std::cerr << "MosquittoIO is nullptr" << std::endl;
     return AS_ERROR;
   }
-  const int sub_result = mosq_->Subscribe(topic_, qos_);
-  if (sub_result != 0) {
-    std::cerr << "Error in ReceiveCommand::mod_initialize: Subscribing MQTT failed. Error Message: " << mosqpp::strerror(sub_result) << std::endl;
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::MQTT_COM_ERROR);
-    }
-  }
 
-  if (exist_module("TelemMosquittoManager")) {
-    get_module_NC("TelemMosquittoManager", &telemetryMosquittoManager_);
-  }
-  else {
-    std::cerr << "Error in ReceiveCommand::mod_initialize: TelemMosquittoManager module not found." << std::endl;
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
-    }
-  }
-
-  for (const auto &name: sendCommandToDAQComputerNames_) {
-    SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
-    if (exist_module(name)) {
-      get_module_NC(name, &sendCommandToDAQComputer);
-      sendCommandToDAQComputers_.push_back(sendCommandToDAQComputer);
-    }
-    else {
-      std::cerr << "Error in ReceiveCommand::mod_initialize: SendCommandToDAQComputer module " << name << " not found." << std::endl;
-      if (sendTelemetry_) {
-        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
-      }
-    }
-  }
-
-  if (exist_module("ControlToFBias")) {
-    get_module_NC("ControlToFBias", &controlTofBias_);
-  }
-  else {
-    std::cout << module_id() << ": ControlToFBias not found" << std::endl;
-  }
+  getModules();
 
   if (saveCommand_) {
     commandSaver_->setBinaryFilenameBase(binaryFilenameBase_);
@@ -159,6 +123,88 @@ ANLStatus ReceiveCommand::mod_analyze() {
 
 ANLStatus ReceiveCommand::mod_finalize() {
   return AS_OK;
+}
+
+void ReceiveCommand::getModules() {
+  const std::string send_telem_md = "SendTelemetry";
+  if (exist_module(send_telem_md)) {
+    get_module_NC(send_telem_md, &sendTelemetry_);
+  }
+#ifdef USE_SYSTEM_MODULES
+  const std::string shutdown_system_md = "ShutdownSystem";
+  if (exist_module(shutdown_system_md)) {
+    get_module_NC(shutdown_system_md, &shutdownSystem_);
+  }
+#endif
+  const std::string run_id_manager_md = "RunIDManager";
+  if (exist_module(run_id_manager_md)) {
+    get_module_NC(run_id_manager_md, &runIDManager_);
+  }
+
+  const int sub_result = mosq_->Subscribe(topic_, qos_);
+  if (sub_result != 0) {
+    std::cerr << "Error in ReceiveCommand::mod_initialize: Subscribing MQTT failed. Error Message: " << mosqpp::strerror(sub_result) << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::MQTT_COM_ERROR);
+    }
+  }
+
+  if (exist_module("TelemMosquittoManager")) {
+    get_module_NC("TelemMosquittoManager", &telemetryMosquittoManager_);
+  }
+  else {
+    std::cerr << "Error in ReceiveCommand::mod_initialize: TelemMosquittoManager module not found." << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+    }
+  }
+
+  for (const auto &name: sendCommandToDAQComputerNames_) {
+    SendCommandToDAQComputer *sendCommandToDAQComputer = nullptr;
+    if (exist_module(name)) {
+      get_module_NC(name, &sendCommandToDAQComputer);
+      sendCommandToDAQComputers_.push_back(sendCommandToDAQComputer);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: SendCommandToDAQComputer module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+
+  if (exist_module("ControlToFBias")) {
+    get_module_NC("ControlToFBias", &controlTofBias_);
+  }
+  else {
+    std::cout << module_id() << ": ControlToFBias not found" << std::endl;
+  }
+
+#ifdef USE_SPI
+  {
+    const std::string name = "ControlPDU";
+    if (exist_module(name)) {
+      get_module_NC(name, &controlPDU_);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: ControlPDU module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+  {
+    if (exist_module(spiManagerName_)) {
+      get_module_NC(spiManagerName_, &spiManager_);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: SPIManager module " << spiManagerName_ << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+#endif
 }
 
 bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
@@ -227,8 +273,8 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::SHUTDOWN_REJECTED);
-        return false;
       }
+      return false;
     }
     return true;
 #else
@@ -244,8 +290,8 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::REBOOT_REJECTED);
-        return false;
       }
+      return false;
     }
     return true;
 #else
@@ -261,8 +307,8 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": ShutdownSystem module not found." << std::endl;
       if (sendTelemetry_) {
         sendTelemetry_->getErrorManager()->setError(ErrorType::REBOOT_REJECTED);
-        return false;
       }
+      return false;
     }
     return true;
 #else
@@ -309,7 +355,9 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     else {
       std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": MosquittoManager module not found." << std::endl;
-      sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
       return false;
     }
     return true;
@@ -392,6 +440,17 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
+  else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc <= 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": 0x" << std::hex << code << std::dec << " command for PDU received." << std::endl;
+    }
+#ifdef USE_SPI
+    return applySPICommand(code, argc, arguments);
+#else
+    std::cerr << termutil::red << "[error]" << termutil::reset << "SPI feature is not available in this build" << std::endl;
+    return false;
+#endif
+  }
   else {
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
     return false;
@@ -399,5 +458,47 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
 
   return false;
 }
-
+#ifdef USE_SPI
+bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, const std::vector<uint32_t> &arguments) {
+  if (is_pdu_enable_commands(code) && argc == 0) {
+    if (chatter_ > 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is enable command" << std::endl;
+    }
+    PDUCodeMapDIO::value_t id;
+    const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id);
+    if (ret_mapping && spiManager_) {
+      const bool is_on = PDUCodeMapDIO::isOnCode(code);
+      if (chatter_ > 3) {
+        std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is " << (is_on ? "on" : "off") << " command" << std::endl;
+      }
+      const auto result = spiManager_->controlGPIO(id, is_on);
+      if (result != 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command" << std::hex << code << std::dec << " failed" << std::endl;
+        return false;
+      }
+      return true;
+    }
+    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. id: " << id << std::endl;
+    return false;
+  }
+  else if (argc == 1) {
+    PDUCodeMapCS::value_t cs;
+    const bool ret_mapping = pduCodeMapCS_.getMapping(code, cs);
+    if (ret_mapping) {
+      const auto result = controlPDU_->setVoltageRaw(cs, arguments[0]);
+      if (result != 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+        return false;
+      }
+      return true;
+    }
+    else {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": implementation error for command: " << std::hex << code << std::dec << std::endl;
+      return false;
+    }
+  }
+  std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": invalid number of arguments for " << std::hex << code << std::dec << ", #of args: " << argc << std::endl;
+  return false;
+}
+#endif
 } // namespace gramsballoon::pgrams

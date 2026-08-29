@@ -1,5 +1,3 @@
-
-
 #ifndef ReceiveCommand_H
 #define ReceiveCommand_H 1
 
@@ -8,10 +6,15 @@
 #include "ControlToFBias.hh"
 #include "MosquittoManager.hh"
 #include "RunIDManager.hh"
+#ifdef USE_SPI
+#include "SPIManager.hh"
+#endif
+#include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
+#include <cstdint>
 #include <memory>
-#include <sys/select.h>
-#include <sys/time.h>
+#include <string>
+#include <vector>
 namespace gramsballoon {
 class RunIDManager;
 namespace pgrams {
@@ -26,6 +29,13 @@ class MosquittoIO;
 class SendCommandToDAQComputer;
 class ControlToFBias;
 
+#ifdef USE_SPI
+class PDUChannelMap;
+class ControlPDU;
+class SPIManager;
+class PDUCodeMapDIO;
+class PDUCodeMapCS;
+#endif
 /**
  * Receive commands from ground.
  *
@@ -43,7 +53,7 @@ public:
   virtual ~ReceiveCommand();
 
 protected:
-  ReceiveCommand(const ReceiveCommand &r) = default;
+  ReceiveCommand(const ReceiveCommand& r) = default;
 
 public:
   anlnext::ANLStatus mod_define() override;
@@ -56,7 +66,12 @@ public:
   uint16_t CommandRejectCount() { return singleton_self()->commandRejectCount_; }
 
 private:
-  bool applyCommand(const std::vector<uint8_t> &command);
+  void getModules();
+  bool applyCommand(const std::vector<uint8_t>& command);
+  #ifdef USE_SPI
+  bool applySPICommand(uint16_t code, const uint16_t argc, const std::vector<uint32_t>& arguments);
+  #endif
+
   std::shared_ptr<pgrams::CommunicationFormat> comdef_ = nullptr;
   uint32_t commandIndex_ = 0;
   uint16_t commandRejectCount_ = 0;
@@ -75,8 +90,13 @@ private:
   MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   MosquittoManager<std::string> *telemetryMosquittoManager_ = nullptr;
   ControlToFBias *controlTofBias_ = nullptr;
+#ifdef USE_SPI
+  SPIManager *spiManager_ = nullptr;
+  ControlPDU *controlPDU_ = nullptr;
+  #endif
+  std::string spiManagerName_ = "SPIManager";
 
-  //communication
+  // communication
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
   std::string topic_ = "command";
   int qos_ = 0;
@@ -85,6 +105,10 @@ private:
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> commandSaver_ = nullptr;
   std::vector<SendCommandToDAQComputer *> sendCommandToDAQComputers_;
   std::vector<std::string> sendCommandToDAQComputerNames_;
+#ifdef USE_SPI
+  PDUCodeMapCS& pduCodeMapCS_;
+  PDUCodeMapDIO& pduCodeMapDIO_;
+  #endif
 };
 
 } // namespace pgrams

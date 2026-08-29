@@ -1,29 +1,20 @@
 #include "VCSMapping.hh"
-#include <iostream>
+#include <utility>
 namespace gramsballoon::pgrams {
-std::optional<uint32_t> VCSMapping::getChipSelect(int multiplexerChannel) const {
-  if (multiplexerChannel < 0) {
+using cs_t = VCSMapping::cs_t;
+using pair_t = VCSMapping::pair_t;
+std::optional<pair_t> VCSMapping::getChipSelect(int multiplexerChannel) const {
+  if (csMapping_.count(multiplexerChannel) == 0) {
     return std::nullopt;
   }
-
-  const auto index = static_cast<std::size_t>(multiplexerChannel);
-  if (index >= csMapping_.size()) {
-    return std::nullopt;
-  }
-
-  return csMapping_[index];
+  return csMapping_.at(multiplexerChannel);
 }
-void VCSMapping::setChipSelect(int multiplexerChannel, uint32_t chipSelect) {
-  if (multiplexerChannel < 0) {
-    std::cerr << "VCSMapping::setChipSelect error: multiplexerChannel cannot be negative." << std::endl;
-    return;
+void VCSMapping::setChipSelect(int multiplexerChannel, cs_t chipSelect) {
+  csMapping_.insert_or_assign(multiplexerChannel, std::make_pair(csBitRange_, chipSelect));
+  channels_.clear();
+  channels_.reserve(csMapping_.size());
+  for (const auto& [ch, pair]: csMapping_) {
+    channels_.push_back(ch);
   }
-
-  const auto index = static_cast<size_t>(multiplexerChannel);
-  if (index >= csMapping_.size()) {
-    csMapping_.resize(index + 1, 0);
-  }
-
-  csMapping_[index] = chipSelect;
 }
 } // namespace gramsballoon::pgrams

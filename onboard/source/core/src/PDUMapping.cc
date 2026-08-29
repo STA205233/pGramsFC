@@ -249,7 +249,4 @@ bool PDUMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) const
   }
   return true;
 }
-constexpr int PDUMapping::ChannelMapping(int multiplexer_channel, int adc_ch) {
-  return NUM_CH_PER_CHIP_SELECT * multiplexer_channel + adc_ch;
-}
 } // namespace gramsballoon::pgrams

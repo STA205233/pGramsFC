@@ -1,8 +1,9 @@
 #include "ControlPDU.hh"
-#include "PDUCommandCSMapping.hh"
+#include "ErrorManager.hh"
+#include <cstdint>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
-ControlPDU::ControlPDU() : BasicModule(), spiManager_(nullptr), sendTelemetry_(nullptr), dac_(nullptr) {}
+ControlPDU::ControlPDU() : spiManager_(nullptr), sendTelemetry_(nullptr), dac_(nullptr) {}
 ANLStatus ControlPDU::mod_define() {
   define_parameter("SPIManager_name", &mod_class::spiManagerName_);
   set_parameter_description("SPIManager name for accessing SPI interface");
@@ -20,13 +21,19 @@ ANLStatus ControlPDU::mod_initialize() {
     }
     return AS_ERROR;
   }
-  dac_ = std::make_shared<DAC121S101IO>(); // TODO: chip select pin number
-  auto csMapping_ = std::make_unique<PDUCommandCSMapping>();
-  maxPDUChannels_ = csMapping_->MaximumCh();
+  dac_ = std::make_shared<DAC121S101IO>();
   auto interface = spiManager_->Interface();
   if (interface) {
     dac_->setSPIInterface(interface);
-    interface->setMappingChipSelect(std::move(csMapping_));
+    for (const int ch: interface->Channels()) {
+      const int ret = initializeDAC(ch);
+      if (ret < 0) {
+        std::cerr << module_id() << "Error: DAC is not initialized. CS: " << ch << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorType::DAC_SETTING_ERROR);
+        }
+      }
+    }
   }
   else {
     std::cerr << "ControlPDU: SPI interface is not initialized" << std::endl;
@@ -38,24 +45,37 @@ ANLStatus ControlPDU::mod_initialize() {
   return AS_OK;
 }
 
-int ControlPDU::initializeDAC() {
+int ControlPDU::initializeDAC(int cs) {
   if (singleton_self()->dac_->isSPIInterfaceSet()) {
     singleton_self()->dac_->setOperationMode(DAC121S101Mode::DAC121S101_MODE_NORMAL);
     singleton_self()->dac_->setVoltage(0.0);
     int status = 0;
 
-    for (int cs = 0; cs < maxPDUChannels_; ++cs) {
-      singleton_self()->dac_->setCS(cs);
-      status = singleton_self()->dac_->applySetting();
-      if (status < 0) {
-        std::cerr << "Failed to apply DAC setting: " << status << std::endl;
-        if (singleton_self()->sendTelemetry_) {
-          singleton_self()->sendTelemetry_->getErrorManager()->setError(ErrorType::DAC_SETTING_ERROR);
-        }
+    singleton_self()->dac_->setCS(cs);
+    status = singleton_self()->dac_->applySetting();
+    if (status < 0) {
+      std::cerr << "Failed to apply DAC setting: " << status << std::endl;
+      if (singleton_self()->sendTelemetry_) {
+        singleton_self()->sendTelemetry_->getErrorManager()->setError(ErrorType::DAC_SETTING_ERROR);
       }
     }
     return status;
   }
   return -1;
+}
+int ControlPDU::setVoltage(int cs, float voltage) {
+  dac_->setVoltage(voltage);
+  dac_->setCS(cs);
+  const int status = dac_->applySetting();
+  return status;
+}
+int ControlPDU::setVoltageRaw(int cs, uint16_t voltage) {
+  const bool is_set_successful = dac_->setVoltage(dac_->convertVoltage(voltage));
+  if (!is_set_successful) {
+    return -1;
+  }
+  dac_->setCS(cs);
+  const int status = dac_->applySetting();
+  return status;
 }
 } // namespace gramsballoon::pgrams

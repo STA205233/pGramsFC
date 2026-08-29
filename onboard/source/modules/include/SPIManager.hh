@@ -2,10 +2,12 @@
 #ifndef SPIManager_H
 #define SPIManager_H 1
 
-#include "SPIInterfaceMultiplexer.hh"
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
-
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
 namespace gramsballoon::pgrams {
 
 class SendTelemetry;
@@ -18,9 +20,10 @@ class SPIInterface;
  * @date 2023-03-01
  * @date 2025-05-02 | Shota Arai | Modified to use the FT232H
  * @date 2026-02-20 | Shota Arai | Refactor to use SPIInterfaceMultiplexer and support multiple SPI control types (v2.0)
+ * @date 2026-08-21 | Shota Arai | Added MCP2210 (v2.1)
  */
 class SPIManager: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(SPIManager, 2.0);
+  DEFINE_ANL_MODULE(SPIManager, 2.1);
   ENABLE_PARALLEL_RUN();
 
 public:
@@ -37,12 +40,15 @@ public:
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  SPIInterfaceMultiplexer *Interface() { return singleton_self()->interface_.get(); }
+  SPIInterface *Interface() { return singleton_self()->interface_.get(); }
+  int controlGPIO(uint32_t cs, bool value);
 
 private:
-  std::shared_ptr<SPIInterfaceMultiplexer> interface_ = nullptr;
+  std::shared_ptr<SPIInterface> interface_ = nullptr;
   std::string spiControlType_ = "baycat"; // "baycat" or "ft232h"
+  bool useMultiplexer_ = true;
   int channel_ = 0;
+  std::string path_ = "";
   int baudrate_ = 100000;
   int spiConfigOptions_ = 0;
   std::vector<int> chipSelectArray_;

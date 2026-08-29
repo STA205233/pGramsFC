@@ -19,6 +19,7 @@ set(PROJECT_VERSION 1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(USE_RUBY ON)
 set(GB_SOCKET_CLIENT OFF)
 set(MY_LIBRARY GRAMSBalloon)
@@ -42,6 +43,7 @@ option(GB_USE_HSQUICKLOOK "enable hsquicklook" OFF)
 option(GB_APT_RUBY "installed ruby via apt" OFF)
 option(GB_USE_MYSQL "enable mysql" OFF)
 option(GB_USE_LJM "enable LJM library for LabJack devices" ON)
+option(GB_USE_MCP2210 "enable MCP2210 library" ON)
 
 # install options
 option(GB_INSTALL_HEADERS "install all header files" ON)
@@ -71,6 +73,7 @@ set(GB_USE_MYSQL ON)
 set(GB_USE_SYSTEM_MODULES OFF)
 set(GB_USE_LJM OFF)
 set(GB_USE_BAYCAT OFF)
+set(GB_USE_MCP2210 OFF)
 endif(GB_GROUND)
 
 
@@ -86,6 +89,15 @@ if (GB_USE_BAYCAT)
   add_compile_definitions("USE_VERSA_API")
 else()
   set(GB_USE_VERSA_API OFF)
+endif()
+
+if (GB_USE_MCP2210)
+  set(GB_USE_SPI ON)
+  add_compile_definitions("USE_MCP2210")
+endif()
+
+if (GB_USE_SPI)
+  add_compile_definitions("USE_SPI")
 endif()
 
 message("-- GB_USE_SPI: ${GB_USE_SPI}")
@@ -235,6 +247,17 @@ else()
   set(LJM_LIB "")
   set(LJM_INC_DIR "")
 endif(GB_USE_LJM)
+
+# MCP2210
+if (GB_USE_MCP2210)
+  find_library(MCP2210_LIB NAMES mcp2210hid_shared REQUIRED HINTS ${CMAKE_PREFIX_PATH}/bin)
+  find_path(MCP2210_INC_DIR NAMES mcp2210_api.h REQUIRED HINTS ${CMAKE_PREFIX_PATH}/lib/inc)
+  message("-- MCP2210_LIB: ${MCP2210_LIB}")
+  message("-- MCP2210_INC_DIR: ${MCP2210_INC_DIR}")
+else()
+  set(MCP2210_LIB "")
+  set(MCP2210_INC_DIR "")
+endif(GB_USE_MCP2210)
 
 # ## subdirectories
 add_subdirectory(source)

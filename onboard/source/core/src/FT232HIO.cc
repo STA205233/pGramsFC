@@ -1,4 +1,6 @@
 #include "FT232HIO.hh"
+#include "ftd2xx.h"
+#include <cstdint>
 #include <iostream>
 namespace gramsballoon::pgrams {
 FT232HIO::FT232HIO() {
@@ -7,8 +9,9 @@ FT232HIO::FT232HIO() {
   std::cout << "MPSSE Devices: " << num_device << std::endl;
   mpsseDeviceManager_->printDeviceInfo(std::cout);
   mpsseController_ = std::make_shared<mpsse::MPSSEController>();
+  constructChannels();
 }
-int FT232HIO::Open(int channel) {
+int FT232HIO::Open(int channel, const char *) {
   int status = mpsseDeviceManager_->openDevice(channel, *mpsseController_);
   if (status != 0) {
     std::cerr << "FT232HIO::Open: Failed to open device at channel " << channel << std::endl;
@@ -38,7 +41,7 @@ int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsi
   if (num_transfered < 0) {
     return num_transfered;
   }
-  if (num_transfered != (wsize + rsize)) {
+  if (num_transfered != static_cast<int>(wsize + rsize)) {
     std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
   }
@@ -48,6 +51,9 @@ int FT232HIO::WriteThenRead(int cs, const uint8_t *writeBuffer, unsigned int wsi
   return 0;
 }
 int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint8_t *readBuffer, bool csControl) {
+  if (!csControl) {
+    cs = -1; // No CS control
+  }
   if (csControl) {
     const auto status_cs_low = controlGPIO(cs, false);
     if (status_cs_low != 0) {
@@ -56,7 +62,10 @@ int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint
     }
   }
   int num_transfered = mpsseController_->write_readSPI(writeBuffer, size, readBuffer, cs);
-  if (num_transfered != size) {
+  if (num_transfered < 0) {
+    return num_transfered;
+  }
+  if (num_transfered != static_cast<int>(size)) {
     std::cerr << "SPI_ReadWrite: Not all bytes were written" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
   }
@@ -70,34 +79,31 @@ int FT232HIO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uint
   return num_transfered;
 }
 int FT232HIO::Write(int cs, const uint8_t *writeBuffer, unsigned int size, bool csControl) {
-  if (csControl) {
-    const auto status_cs_low = controlGPIO(cs, false);
-    if (status_cs_low != 0) {
-      std::cerr << "controlGPIO failed: " << status_cs_low << std::endl;
-      return -1;
-    }
+  if (!csControl) {
+    cs = -1; // No CS control
   }
   writeBuffer_.clear();
+  std::cout << "write Buffer: ";
   for (int i = 0; i < static_cast<int>(size); ++i) {
     writeBuffer_.push_back(writeBuffer[i]);
+    std::cout << std::hex << static_cast<int>(writeBuffer[i]) << " ";
   }
+  std::cout << std::endl;
   const int num_transfered = mpsseController_->writeSPI(&writeBuffer_[0], size, cs);
   if (num_transfered != static_cast<int>(size)) {
     std::cerr << "SPI_Write: Not all bytes were written" << std::endl;
     return -static_cast<int>(FT_OTHER_ERROR);
-  }
-  if (csControl) {
-    const auto status_cs_high = controlGPIO(cs, true);
-    if (status_cs_high != 0) {
-      std::cerr << "controlGPIO failed: " << status_cs_high << std::endl;
-      return -1;
-    }
   }
   return num_transfered;
 }
 int FT232HIO::controlGPIO(int cs, bool value) {
   return mpsseController_->writeGPIO(cs, value);
 }
+
+int FT232HIO::controlGPIOBit(uint32_t csBit, uint32_t value) {
+  return mpsseController_->writeGPIOMulti(static_cast<uint16_t>(csBit & 0xffff), static_cast<uint16_t>(value & 0xffff));
+}
+
 int FT232HIO::updateSetting() {
   const unsigned int baudrate = Baudrate();
   const unsigned int configOptions = ConfigOptions();

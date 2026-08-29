@@ -1,34 +1,45 @@
 #ifndef GRAMSBalloon_VCSMapping_hh
 #define GRAMSBalloon_VCSMapping_hh 1
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <vector>
 namespace gramsballoon::pgrams {
 
 /**
  * @brief A virtual class for mapping multiplexer channels to chip select values
+ * @note This class converts the multiplexer channel to actual GPIO pin assign
  * @author Shota Arai
  * @date 2026-02-21 | Shota Arai | Created
+ * @date 2026-07-10 | Shota Arai | implementation changed
+ * @date 2026-08-17 | Shota Arai | Channels() returns channel numbers instead of chip select values
  */
 class VCSMapping {
 public:
-  VCSMapping() = default;
+  using cs_t = uint32_t;
+  using pair_t = std::pair<cs_t, cs_t>; // first: bit to be controlled, second: actual value when enabled
+  using map_t = std::map<int, pair_t>;
+  VCSMapping(cs_t csBitRange = 0x00U, cs_t defaultState = 0x00) : csBitRange_(csBitRange), defaultState_(defaultState) {}
   virtual ~VCSMapping() = default;
-  std::optional<uint32_t> getChipSelect(int multiplexerChannel) const;
-  void setChipSelect(int multiplexerChannel, uint32_t chipSelect);
-  int MaximumCh() const { return static_cast<int>(csMapping_.size()); }
+  std::optional<pair_t> getChipSelect(int multiplexerChannel) const;
+  void setChipSelect(int multiplexerChannel, cs_t chipSelect);
+  /**
+   * @brief Return the list of registered multiplexer channel numbers (ascending)
+   * @note Use getChipSelect() to obtain the bit mask / value of each channel.
+   */
+  const std::vector<int>& Channels() const { return channels_; }
+  cs_t CsBitRange() const { return csBitRange_; }
+  cs_t DefaultState() const { return defaultState_; }
+  int NumChannels() const { return static_cast<int>(csMapping_.size()); }
 
 protected:
   virtual void registerMapping() = 0;
-  void reserveSize(int size) {
-    if (size < 0) {
-      return;
-    }
-    csMapping_.reserve(static_cast<size_t>(size));
-  }
 
 private:
-  std::vector<uint32_t> csMapping_;
+  cs_t csBitRange_;
+  map_t csMapping_;
+  cs_t defaultState_;
+  std::vector<int> channels_;
 };
 } // namespace gramsballoon::pgrams
 #endif // GRAMSBalloon_VCSMapping_hh

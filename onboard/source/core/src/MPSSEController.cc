@@ -1,6 +1,7 @@
 #include "MPSSEController.hh"
 #include "MPSSEUtil.hh"
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <thread>
 namespace gramsballoon::pgrams::mpsse {
@@ -84,27 +85,23 @@ int MPSSEController::writeSPI(uint8_t *data, unsigned int size, int cs) {
   }
   std::cout << std::endl;
 #endif
-  uint16_t status;
-  readCurrentPinStatus(status);
-  status &= ~(1 << (cs + 3)); // Keep high byte
+  if (cs >= 0) {
+    writeGPIO(cs + 4, false);
+  }
   cmdBuffer_.clear();
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(spiWriteCommand_);
   cmdBuffer_.push_back(static_cast<uint8_t>((size - 1) & 0xFF)); // Length LSB
   cmdBuffer_.push_back(static_cast<uint8_t>(((size - 1) >> 8) & 0xFF)); // Length MSB
   for (unsigned int i = 0; i < size; ++i) {
     cmdBuffer_.push_back(data[i]);
   }
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  status |= (1 << (cs + 3)); // Keep high byte
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   const int writtenBytes = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
+  if (cs >= 0) {
+    writeGPIO(cs + 4, true);
+  }
   if (writtenBytes < 0) {
-    std::cerr << "SPI_Write is failed: " << status << std::endl;
+    std::cerr << "SPI_Write is failed: " << writtenBytes << std::endl;
     return writtenBytes;
   }
   return static_cast<int>(size);
@@ -118,52 +115,66 @@ int MPSSEController::write_readSPI(uint8_t *dataToSend, unsigned int size, uint8
   }
   std::cout << std::endl;
 #endif
-  uint16_t status;
-  readCurrentPinStatus(status);
-  status &= ~(1 << (cs + 3)); // Keep high byte
+  if (cs >= 0) {
+    writeGPIO(cs + 4, false);
+  }
   cmdBuffer_.clear();
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(spiWriteReadCommand_);
   cmdBuffer_.push_back(static_cast<uint8_t>((size - 1) & 0xFF)); // Length LSB
   cmdBuffer_.push_back(static_cast<uint8_t>(((size - 1) >> 8) & 0xFF)); // Length MSB
   for (unsigned int i = 0; i < size; ++i) {
     cmdBuffer_.push_back(dataToSend[i]);
   }
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  status |= (1 << (cs + 3)); // Keep high byte
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
   cmdBuffer_.push_back(commands::SEND_IMMEDIATE_CMD);
   const int writtenBytes = writeMPSSE(cmdBuffer_);
   cmdBuffer_.clear();
+  if (cs >= 0) {
+    writeGPIO(cs + 4, true);
+  }
   if (writtenBytes < 0) {
-    std::cerr << "SPI_Write_Read is failed: " << status << std::endl;
+    std::cerr << "SPI_Write_Read is failed: " << writtenBytes << std::endl;
     return writtenBytes;
   }
   return readMPSSE(dataToReceive, size);
 }
 
-int MPSSEController::writeGPIO(int pin, bool value) {
-  uint16_t status;
-  readCurrentPinStatus(status);
-  if (value) {
-    status |= (1 << (pin + 3)); // Keep high byte
-  }
-  else {
-    status &= ~(1 << (pin + 3)); // Keep high byte
-  }
-  cmdBuffer_.clear();
-  cmdBuffer_.push_back(commands::SET_LOW_BYTE_STATE_CMD);
-  cmdBuffer_.push_back(status & 0xFF); // Keep current pin states
-  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK);
-  writeMPSSE(cmdBuffer_);
-  cmdBuffer_.clear();
-  return 0;
+int MPSSEController::writeGPIOMulti(uint16_t bitExpression, bool value) {
+  return writeGPIOMulti(bitExpression, value ? bitExpression : static_cast<uint16_t>(0));
 }
 
-int MPSSEController::readCurrentPinStatus(uint16_t &status) {
+int MPSSEController::writeGPIOMulti(uint16_t bitExpression, uint16_t data) {
+  uint16_t status;
+  const auto ret = readCurrentPinStatus(status);
+  if (ret < 0) {
+    return ret;
+  }
+  status = static_cast<uint16_t>((status & ~bitExpression) | (data & bitExpression));
+  uint8_t command;
+  uint8_t data_byte;
+  cmdBuffer_.clear();
+  if ((bitExpression & 0xff00) > 0) {
+    command = commands::SET_HIGH_BYTE_STATE_CMD;
+    data_byte = (status >> 8) & 0xFF; // Keep low byte
+    cmdBuffer_.push_back(command);
+    cmdBuffer_.push_back(data_byte);
+  }
+  if ((bitExpression & 0x00ff) > 0) {
+    command = commands::SET_LOW_BYTE_STATE_CMD;
+    data_byte = status & 0xFF; // Keep low byte
+    cmdBuffer_.push_back(command);
+    cmdBuffer_.push_back(data_byte);
+  }
+  cmdBuffer_.push_back(spi_masks::SPI_DIRECTION_MSK); // This time assumes only for spi.
+  const auto ret2 = writeMPSSE(cmdBuffer_);
+  cmdBuffer_.clear();
+  return ret2;
+}
+
+int MPSSEController::writeGPIO(int pin, bool value) {
+  return writeGPIOMulti((1 << pin), value);
+}
+
+int MPSSEController::readCurrentPinStatus(uint16_t& status) {
   uint8_t cmd[3] = {commands::GET_LOW_BYTE_STATE_CMD, commands::GET_HIGH_BYTE_STATE_CMD, commands::SEND_IMMEDIATE_CMD}; // Command to read low byte
   writeMPSSE(cmd, sizeof(cmd));
   uint8_t readData[2] = {0, 0};
@@ -172,7 +183,7 @@ int MPSSEController::readCurrentPinStatus(uint16_t &status) {
   return 0;
 }
 
-int MPSSEController::writeMPSSE(std::vector<uint8_t> &data) {
+int MPSSEController::writeMPSSE(std::vector<uint8_t>& data) {
   return writeMPSSE(data.data(), data.size());
 }
 int MPSSEController::writeMPSSE(uint8_t *data, unsigned int size) {
@@ -191,7 +202,7 @@ int MPSSEController::writeMPSSE(uint8_t *data, unsigned int size) {
   }
   return static_cast<int>(numWritten);
 }
-int MPSSEController::readMPSSE(std::vector<uint8_t> &data, unsigned int size) {
+int MPSSEController::readMPSSE(std::vector<uint8_t>& data, unsigned int size) {
   return readMPSSE(data.data(), size);
 }
 int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
@@ -205,7 +216,6 @@ int MPSSEController::readMPSSE(uint8_t *data, unsigned int size) {
     total += n;
 
     if (total < size) {
-      // tight loop を避ける（timeout 0ms だと延々0バイトになりやすい）
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
   }

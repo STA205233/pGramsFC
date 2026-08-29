@@ -1,4 +1,6 @@
 #include "GetMHADCData.hh"
+#include "EncodedSerialCommunicator.hh"
+#include "SendTelemetry.hh"
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
@@ -51,6 +53,9 @@ ANLStatus GetMHADCData::mod_analyze() {
   dat_.clear();
   if (chatter_ > 0) {
     std::cout << "GetMHADCData::mod_analyze" << std::endl;
+  }
+  if (!isInHKLoop()) {
+    return AS_OK;
   }
   std::vector<bool> failed_ch(numCh_, false);
   adcData_.resize(numCh_, 0);
