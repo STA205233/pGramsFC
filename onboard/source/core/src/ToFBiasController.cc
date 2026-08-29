@@ -1,8 +1,6 @@
 #include "ToFBiasController.hh"
 #include <string>
 #include <string_view>
-#include <thread>
-#include <chrono>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
@@ -83,7 +81,7 @@ int ToFBiasController::getFullOutput() {
   if (!isFullOutputQueried_) return -50;
   const int ret2 = ReadDataUntilSpecificStr(dataStr_, "OK!\r\n", 10000);
   if (ret2 < 0) {
-    return 0;
+    return ret2;
   }
   isFullOutputQueried_ = false;
   saveData(&dataStr_);
@@ -129,15 +127,4 @@ int ToFBiasController::setTmuxChannel(int channel, int on_off) {
 int ToFBiasController::setVdef(int channel, int voltage) {
   return sendCommand("tdef " + std::to_string(channel) + " " + std::to_string(voltage) + "\r\n");
 }
-
-std::ostream &ToFBiasController::printData(std::ostream &os) {
-  const int ret = queryFullOutput();
-  if (ret < 0) {
-    os << "Failed to send print command: " << ret;
-    return os;
-  }
-  os << dataStr_;
-  return os;
-}
-
 } // namespace gramsballoon::pgrams
