@@ -28,7 +28,6 @@ int ToFBiasController::getOnePacket(std::string &str) {
   }
 
   {
-    std::this_thread::sleep_for(std::chrono::seconds(1));
     const int ret = ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
     if (ret < 0) {
       disableDataStream();

@@ -114,9 +114,7 @@ ANLStatus ControlToFBias::mod_analyze() {
       if (chatter_ > 1) {
         std::cout << telemetryStr_ << std::endl;
       }
-      if (mosquittoManager_) {
-        sendPacket(telemetryStr_, TelemetryCodes::HUB_Tof_Bias_summary);
-      }
+      sendPacket(telemetryStr_, TelemetryCodes::HUB_Tof_Bias_summary);
     }
     else {
       treatError();
@@ -179,6 +177,7 @@ int ControlToFBias::setVdef(uint32_t channel, uint32_t voltage) {
 }
 
 void ControlToFBias::sendPacket(const std::string &str, TelemetryCodes code) {
+  if (!mosquittoManager_) return;
   const auto &topic = (mosquittoManager_->getLinkType() == CommunicationLinkType::STARLINK) ? starlinkTopic_ : topic_;
   telem_->setType(Subsystem::HUB);
   const auto &cont_sptr = telem_->getContentsSptr();
