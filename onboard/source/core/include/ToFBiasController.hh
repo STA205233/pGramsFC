@@ -2,7 +2,7 @@
 #define GB_ToFBiasController_hh 1
 #include "EncodedSerialCommunication.hh"
 #include "HKDataSaver.hh"
-#include <ostream>
+#include <chrono>
 #include <string>
 #include <string_view>
 namespace gramsballoon::pgrams {
@@ -46,6 +46,7 @@ protected:
 private:
   std::string dataStr_;
   bool isFullOutputQueried_ = false;
+  std::chrono::microseconds firstTimeout_;
 };
 
 } // namespace gramsballoon::pgrams

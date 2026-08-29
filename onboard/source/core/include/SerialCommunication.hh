@@ -51,6 +51,7 @@ protected:
   int waitForWritable(const std::chrono::microseconds &timeout);
   auto Timeout() const { return timeout_; }
   void setError(int err);
+  void flush();
 
 private:
   std::unique_ptr<termios> tio_ = nullptr;

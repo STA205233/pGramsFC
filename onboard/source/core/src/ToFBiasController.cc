@@ -1,12 +1,12 @@
 #include "ToFBiasController.hh"
+#include <chrono>
 #include <string>
 #include <string_view>
-#include <chrono>
 #include <thread>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
-ToFBiasController::ToFBiasController(const std::string &serial_path) : EncodedSerialCommunication(serial_path, B115200, O_RDWR), HKDataSaver<std::string>(100000, "tof_bias_data", NUM_DATA * sizeof(uint8_t)) {
+ToFBiasController::ToFBiasController(const std::string &serial_path) : EncodedSerialCommunication(serial_path, B115200, O_RDWR), HKDataSaver<std::string>(100000, "tof_bias_data", NUM_DATA * sizeof(uint8_t)), firstTimeout_(1000000) {
   dataStr_.reserve(NUM_DATA);
 }
 ToFBiasController::ToFBiasController() : ToFBiasController("/dev/ttyUSB0") {
@@ -20,19 +20,15 @@ int ToFBiasController::getOnePacket(std::string &str) {
   {
     const int ret = enableDataStream();
     if (ret < 0) {
-      disableDataStream();
-      ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
-      str.clear();
+      refresh();
       return ret;
     }
   }
 
   {
-    const int ret = ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
+    const int ret = ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA, firstTimeout_);
     if (ret < 0) {
-      disableDataStream();
-      ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
-      str.clear();
+      refresh();
       return ret;
     }
     saveData(&str);
@@ -47,6 +43,7 @@ int ToFBiasController::getOnePacket(std::string &str) {
 }
 
 int ToFBiasController::sendCommand(std::string_view data) {
+  flush();
   {
     const int ret = Write(data);
     if (ret < 0) {

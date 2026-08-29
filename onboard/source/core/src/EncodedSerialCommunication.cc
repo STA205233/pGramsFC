@@ -3,21 +3,29 @@
 #include <cstdint>
 #include <errno.h>
 #include <string>
-#include <iostream>
 
 namespace gramsballoon::pgrams {
 int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data, int max_length) {
   return ReadDataUntilSpecificStr(data, "\n", max_length);
 }
-int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length) {
+int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length, std::optional<std::chrono::microseconds> first_timeout) {
   using std::chrono::steady_clock;
   data.clear();
   uint8_t buf;
+  bool is_first_time = true;
   const auto sz_end = end.size();
-  auto deadline = steady_clock::now() + Timeout();
+  auto deadline = steady_clock::now();
   data.reserve(max_length);
   while (deadline > steady_clock::now() && static_cast<int>(data.size()) < max_length && data.size() < data.capacity()) {
-    const int ret_to = waitForReceivable(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
+    int ret_to;
+    if (is_first_time && first_timeout.has_value()) {
+      ret_to = waitForReceivable(first_timeout.value());
+      is_first_time = false;
+      deadline = steady_clock::now() + Timeout();
+    }
+    else {
+      ret_to = waitForReceivable(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
+    }
     const int err_to = errno;
     if (ret_to < 0 && (err_to == EINTR || err_to == EAGAIN)) {
       continue;

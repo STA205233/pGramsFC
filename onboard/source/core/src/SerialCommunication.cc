@@ -219,4 +219,8 @@ int SerialCommunication::transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX
   return index;
 }
 
+void SerialCommunication::flush() {
+  tcflush(fd_, TCIOFLUSH);
+}
+
 } /* namespace gramsballoon::pgrams */
