@@ -14,7 +14,7 @@ int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, cons
   uint8_t buf;
   bool is_first_time = true;
   const auto sz_end = end.size();
-  auto deadline = steady_clock::now();
+  auto deadline = steady_clock::now()+ Timeout();
   data.reserve(max_length);
   while (deadline > steady_clock::now() && static_cast<int>(data.size()) < max_length && data.size() < data.capacity()) {
     int ret_to;
