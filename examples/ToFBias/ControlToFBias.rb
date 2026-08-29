@@ -22,7 +22,7 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "IoContextManager"
     chain GRAMSBalloon::ControlToFBias
-    with_parameters(path: "/dev/ttyUSB0", chatter: 2, minimum_duration_sec: 10) do |m|
+    with_parameters(path: "/dev/ttyUSB0", chatter: 2, minimum_duration_sec: 10, timeout_usec: 5000) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ControlToFBias"

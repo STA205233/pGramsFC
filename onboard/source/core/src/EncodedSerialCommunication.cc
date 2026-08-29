@@ -8,11 +8,12 @@ namespace gramsballoon::pgrams {
 int EncodedSerialCommunication::ReadDataUntilBreak(std::string &data, int max_length) {
   return ReadDataUntilSpecificStr(data, "\n", max_length);
 }
-int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length, std::optional<std::chrono::microseconds> first_timeout) {
+int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length, bool &found ,std::optional<std::chrono::microseconds> first_timeout) {
   using std::chrono::steady_clock;
   data.clear();
   uint8_t buf;
   bool is_first_time = true;
+  found = false;
   const auto sz_end = end.size();
   auto deadline = steady_clock::now()+ Timeout();
   data.reserve(max_length);
@@ -53,7 +54,7 @@ int EncodedSerialCommunication::ReadDataUntilSpecificStr(std::string &data, cons
     deadline = steady_clock::now() + Timeout();
     const auto sz = data.size();
     if (sz >= sz_end &&
-        data.compare(sz - sz_end, sz_end, end) == 0) { break; }
+        data.compare(sz - sz_end, sz_end, end) == 0) { found = true; break; }
   }
   return static_cast<int>(data.size());
 }

@@ -85,11 +85,14 @@ ANLStatus ControlToFBias::mod_analyze() {
   }
   else if (fullPacketStatus_ == FullOutputStatus::REQUESTED) {
     const int ret = controller_->getFullOutput();
-    fullPacketStatus_ = FullOutputStatus::WAITING;
     if (ret < 0) {
       treatError();
       return AS_OK;
     }
+    else if (ret == 0) { // Data is not ready yet.
+      return AS_OK;
+    }
+    fullPacketStatus_ = FullOutputStatus::WAITING;
     telemetryStr_.clear();
     telemetryStr_ = controller_->getData();
     if (chatter_ > 0) {

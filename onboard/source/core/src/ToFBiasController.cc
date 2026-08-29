@@ -8,9 +8,11 @@
 namespace gramsballoon::pgrams {
 ToFBiasController::ToFBiasController(const std::string &serial_path) : EncodedSerialCommunication(serial_path, B115200, O_RDWR), HKDataSaver<std::string>(100000, "tof_bias_data", NUM_DATA * sizeof(uint8_t)), firstTimeout_(1000000) {
   dataStr_.reserve(NUM_DATA);
+  fullOutputStr_.reserve(NUM_FULL_DATA);
 }
 ToFBiasController::ToFBiasController() : ToFBiasController("/dev/ttyUSB0") {
   dataStr_.reserve(NUM_DATA);
+  fullOutputStr_.reserve(NUM_FULL_DATA);
 }
 ToFBiasController::~ToFBiasController() {
   disableDataStream();
@@ -43,7 +45,7 @@ int ToFBiasController::getOnePacket(std::string &str) {
 }
 
 int ToFBiasController::sendCommand(std::string_view data) {
-  flush();
+  refresh();
   {
     const int ret = Write(data);
     if (ret < 0) {
@@ -68,6 +70,8 @@ int ToFBiasController::sendCommand(std::string_view data) {
 }
 
 int ToFBiasController::queryFullOutput() {
+  refresh();
+  fullOutputStr_.clear();
   const int ret = Write("p\r\n");
   if (ret < 0) {
     std::cerr << "ToFBiasController::queryFullOutput(): Failed to write data" << std::endl;
@@ -78,13 +82,18 @@ int ToFBiasController::queryFullOutput() {
 }
 int ToFBiasController::getFullOutput() {
   if (!isFullOutputQueried_) return -50;
-  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "OK!\r\n", NUM_DATA);
+  bool is_ready = false;
+  const int ret2 = ReadDataUntilSpecificStr(dataStr_, "OK!\r\n", NUM_DATA, is_ready);
   if (ret2 < 0) {
     return ret2;
   }
-  isFullOutputQueried_ = false;
-  saveData(&dataStr_);
-  return ret2;
+  fullOutputStr_.insert(fullOutputStr_.end(), dataStr_.begin(), dataStr_.begin() + ret2);
+  if (is_ready) {
+    isFullOutputQueried_ = false;
+    saveData(&fullOutputStr_);
+    return ret2;
+  }
+  return 0;
 }
 
 int ToFBiasController::enableDataStream() {

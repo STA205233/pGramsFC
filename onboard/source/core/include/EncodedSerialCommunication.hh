@@ -13,7 +13,11 @@ public:
   EncodedSerialCommunication() = default;
   virtual ~EncodedSerialCommunication() = default;
   EncodedSerialCommunication(const std::string &serial_path, speed_t baudrate, mode_t open_mode) : SerialCommunication(serial_path, baudrate, open_mode) {}
-  int ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length, std::optional<std::chrono::microseconds> first_timeout = std::nullopt);
+  int ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length, bool &found, std::optional<std::chrono::microseconds> first_timeout = std::nullopt);
+  int ReadDataUntilSpecificStr(std::string &data, const std::string &end, int max_length, std::optional<std::chrono::microseconds> first_timeout = std::nullopt) {
+    bool f;
+    return ReadDataUntilSpecificStr(data, end, max_length, f, first_timeout);
+  }
   int ReadDataUntilBreak(std::string &data, int mex_length);
   int Read(std::string &data, int length);
   int ReadExactly(std::string &data, int length);
