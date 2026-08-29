@@ -14,7 +14,7 @@ class MyApp < ANL::ANLApp
     @main_modules = []
     sendCommandToDAQComputer_names = []
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, threaded_set: true, device_id: "hubcomputer_c", time_out: 1) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, do_initialize:true, do_cleanup: true, device_id: "hubcomputer_c", time_out: 1) do |m|
       m.set_singleton(1)
     end
     chain GRAMSBalloon::IoContextManager do |m|
@@ -22,7 +22,7 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "IoContextManager"
     chain GRAMSBalloon::ControlToFBias
-    with_parameters(path: "/dev/ttyUSB0", chatter: 0, minimum_duration_sec:3600) do |m|
+    with_parameters(path: "/dev/ttyUSB0", chatter: 2, minimum_duration_sec: 10) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ControlToFBias"
@@ -31,11 +31,6 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"
-    chain GRAMSBalloon::Sleep
-    with_parameters(sleep_sec: 1) do |m|
-      m.set_singleton(0)
-    end 
-    @main_modules << "Sleep"
   end
 end
 

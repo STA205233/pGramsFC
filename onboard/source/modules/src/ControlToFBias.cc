@@ -83,11 +83,18 @@ ANLStatus ControlToFBias::mod_analyze() {
   }
   else if (fullPacketStatus_ == FullOutputStatus::REQUESTED) {
     const int ret = controller_->getFullOutput();
-    telemetryStr_.clear();
-    telemetryStr_ = controller_->getData();
+    fullPacketStatus_ = FullOutputStatus::WAITING;
     if (ret < 0) {
       treatError();
       return AS_OK;
+    }
+    telemetryStr_.clear();
+    telemetryStr_ = controller_->getData();
+    if (chatter_ > 0) {
+      std::cout<< module_id() << ": Full Output was taken" << std::endl; 
+    }
+    if (chatter_ > 1) {
+      std::cout << telemetryStr_ << std::endl;
     }
     sendPacket(telemetryStr_, TelemetryCodes::HUB_Tof_Bias_full);
     lastReceivedTime_ = std::chrono::steady_clock::now(); // reset counter for telemetry
@@ -99,6 +106,12 @@ ANLStatus ControlToFBias::mod_analyze() {
     telemetryStr_.clear();
     const int packet_result = controller_->getOnePacket(telemetryStr_);
     if (packet_result >= 0) {
+      if (chatter_ > 0) {
+        std::cout << module_id() << ": Summary output was taken" << std::endl;
+      }
+      if (chatter_ > 1) {
+        std::cout << telemetryStr_ << std::endl;
+      }
       if (mosquittoManager_) {
         sendPacket(telemetryStr_, TelemetryCodes::HUB_Tof_Bias_summary);
       }

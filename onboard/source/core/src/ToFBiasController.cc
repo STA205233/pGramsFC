@@ -1,6 +1,8 @@
 #include "ToFBiasController.hh"
 #include <string>
 #include <string_view>
+#include <thread>
+#include <chrono>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
@@ -18,6 +20,9 @@ int ToFBiasController::getOnePacket(std::string &str) {
   {
     const int ret = enableDataStream();
     if (ret < 0) {
+      disableDataStream();
+      ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
+      str.clear();
       return ret;
     }
   }
@@ -25,6 +30,9 @@ int ToFBiasController::getOnePacket(std::string &str) {
   {
     const int ret = ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
     if (ret < 0) {
+      disableDataStream();
+      ReadDataUntilSpecificStr(str, "\r\n", NUM_DATA);
+      str.clear();
       return ret;
     }
     saveData(&str);
@@ -53,7 +61,6 @@ int ToFBiasController::sendCommand(std::string_view data) {
       return ret;
     }
     if (dataStr_ == "OK!\r\n") {
-      std::cout << dataStr_ << std::endl;
       return 0;
     }
     else {
@@ -93,6 +100,10 @@ int ToFBiasController::enableDataStream() {
 }
 int ToFBiasController::disableDataStream() {
   const int ret = sendCommand("data off\r\n");
+  if (ret < 0) {
+    std::cerr << "ToFBiasController::disableDataStream(): Failed to write data" << std::endl;
+    return ret;
+  }
   return ret;
 }
 

@@ -52,6 +52,6 @@ bool ToFBiasTelemetry::toStr(std::string &str) const {
     }
   }
 
-  return (str.size() < contents->Argc() * 4) && str.size() >= (contents->Argc() * 4 - 4);
+  return (static_cast<int>(str.size()) < contents->Argc() * 4) && static_cast<int>(str.size()) >= (contents->Argc() * 4 - 4);
 }
 } // namespace gramsballoon::pgrams
