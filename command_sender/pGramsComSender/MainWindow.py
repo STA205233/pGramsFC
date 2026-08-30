@@ -8,10 +8,24 @@ from pGramsComSender.CommandExecuter import CommandExecuter
 from pGramsComSender.ConfirmationWindow import ConfirmationWindow
 from pGramsComSender import ToolTip
 from pGramsComSender.NumberEntryGroup import NumberEntryGroup
+from pGramsComSender.ExclusiveButton import ExclusiveCheckButton
 from tkinter import messagebox, filedialog
 import tkinter.ttk as ttk
 import logging
 from pGramsComSender.CommandDefinition import command_collection as command_collection
+from enum import Enum
+
+
+class CommunicationType(Enum):
+    IRIDIUM = "iridium"
+    STARLINK = "starlink"
+
+    @staticmethod
+    def convert(string: str):
+        if string.lower() == "iridium":
+            return CommunicationType.IRIDIUM
+        elif string.lower() == "starlink" or string.lower() == "star_link":
+            return CommunicationType.STARLINK
 
 
 class TextHandler(logging.Handler):
@@ -44,6 +58,7 @@ class MainWindow(Window):
     class ArgumentMode(Enum):
         Manual = 1
         File = 2
+
     def __init__(self, root, logger, executable_prefix="") -> None:
         super().__init__(root, "CommandSender", geometry=GUIGeometry(1200, 700), grab_set=False)
         self.__current_command = None
@@ -53,6 +68,7 @@ class MainWindow(Window):
         self.current_subsystem = "Hub"
         self.argument_loader = ArgumentFileLoader(logger)
         self.__arg_mode = self.ArgumentMode.Manual
+        self.__comm_button = ExclusiveCheckButton("white", "gray")
         self._create_widgets()
 
     def _create_widgets(self):
@@ -125,10 +141,14 @@ class MainWindow(Window):
         bottom_subframe.place(relheight=0.65, relwidth=0.6, relx=0.05, rely=0.3, anchor="nw")
         self.__entry = NumberEntryGroup(bottom_subframe, bg="white", fg="black", font=("Arial", 16), cursor="xterm")
         self.__entry.pack(fill="both", expand=True)
-        tk.Button(bottom_frame, text="Send", command=self._on_send_command, width=10, bg=bottom_bg).place(relx=0.7, rely=0.3, anchor="w")
-        tk.Button(bottom_frame, text="Load from file", command=self._on_load_from_file, width=10, bg=bottom_bg).place(relx=0.7, rely=0.7, anchor="w")
-        tk.Button(bottom_frame, text="Exit", command=window.quit, width=10, bg=bottom_bg).place(relx=0.85, rely=0.3, anchor="w")
-        tk.Button(bottom_frame, text="Reset", command=self.reset_command, width=10, bg=bottom_bg).place(relx=0.85, rely=0.7, anchor="w")
+        self.__comm_button.produce("starlink", bottom_frame, text="Starlink", width=10, selectcolor="blue").place(relx=0.66, rely=0.7, anchor="w")
+        self.__comm_button.produce("iridium", bottom_frame, text="Iridium", width=10, selectcolor="blue").place(relx=0.66, rely=0.3, anchor="w")
+        self.__comm_button.set_true("iridium")
+
+        tk.Button(bottom_frame, text="Send", command=self._on_send_command, width=10, bg=bottom_bg).place(relx=0.76, rely=0.3, anchor="w")
+        tk.Button(bottom_frame, text="Load from file", command=self._on_load_from_file, width=10, bg=bottom_bg).place(relx=0.76, rely=0.7, anchor="w")
+        tk.Button(bottom_frame, text="Exit", command=window.quit, width=10, bg=bottom_bg).place(relx=0.88, rely=0.3, anchor="w")
+        tk.Button(bottom_frame, text="Reset", command=self.reset_command, width=10, bg=bottom_bg).place(relx=0.88, rely=0.7, anchor="w")
         self.logger.info("GUI initialized successfully.")
 
     @property
@@ -138,7 +158,7 @@ class MainWindow(Window):
     @current_command.setter
     def current_command(self, command):
         raise RuntimeError("current_command is read-only")
-    
+
     def _on_load_from_file(self):
         if self.__current_command is None:
             self.logger.warning("No command selected to load arguments for")
@@ -194,9 +214,11 @@ class MainWindow(Window):
             messagebox.showerror("Invalid Input", str(e))
             return
         command_all = self.compile_command(self.__current_command, args_str)
+        current_link = CommunicationType.convert(self.__comm_button.current_selection)
+        assert current_link
         if self.__current_command:
             window = super()._getWindow()
-            ConfirmationWindow(window, self.__executer, self.current_subsystem, command_all, self.logger)
+            ConfirmationWindow(window, self.__executer, self.current_subsystem, command_all, current_link.value, self.logger)
             self.reset_command()
 
     def run(self):
@@ -213,13 +235,12 @@ class MainWindow(Window):
                 child.state(['!disabled'])
             except Exception:
                 pass
-    
+
     def get_arguments(self):
         if self.__arg_mode == self.ArgumentMode.Manual:
             return self.__entry.get_numbers()
         elif self.__arg_mode == self.ArgumentMode.File:
             return self.argument_loader.args
-            
 
 
 def make_scrollable_tab(notebook: ttk.Notebook):
@@ -253,16 +274,13 @@ def make_scrollable_tab(notebook: ttk.Notebook):
                 vbar.pack(side="right", fill="y")
             tab_container._scroll_enabled = True
 
-
     inner.bind("<Configure>", lambda e: update_scroll_state())
-
 
     def on_canvas_configure(event):
         canvas.itemconfigure(window_id, width=event.width)
         update_scroll_state()
 
     canvas.bind("<Configure>", on_canvas_configure)
-
 
     def on_mousewheel(event):
         if getattr(tab_container, "_scroll_enabled", False):
@@ -276,7 +294,6 @@ def make_scrollable_tab(notebook: ttk.Notebook):
 
     tab_container.bind("<Enter>", bind_wheel)
     tab_container.bind("<Leave>", unbind_wheel)
-
 
     tab_container._scroll_enabled = False
     tab_container.after(0, update_scroll_state)
