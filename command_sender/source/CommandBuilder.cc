@@ -147,6 +147,9 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TPC_Boot_Monitor, 0);
   ADD_CODE_MAP(TPCMonitor_Query_LB_Data, 4);
   ADD_CODE_MAP(TPCMonitor_Query_Event_Data, 4);
+  ADD_CODE_MAP(TPCMonitor_Start_Continuous_LBW, 4);
+  ADD_CODE_MAP(TPCMonitor_Stop_Continuous_LBW, 0);
+  ADD_CODE_MAP(TPCMonitor_Send_Full_Event_Data, 4);
 
   ADD_CODE_MAP(TOF_Start_DAQ, 0);
   ADD_CODE_MAP(TOF_Stop_DAQ, 0);
@@ -170,6 +173,9 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Start_Asic_Temp_Record, 0);
   ADD_CODE_MAP(TOF_Stop_Asic_Temp_Record, 0);
   ADD_CODE_MAP(TOF_Read_Temperature_Sensors_Single, 0);
+
+  ADD_CODE_MAP(TOF_Monitor_Data_Stream, 0);
+  ADD_CODE_MAP(TOF_Logger_Data_Stream, 0);
 
   ADD_CODE_MAP(TOF_Process_Threshold_Calibration, 0);
   ADD_CODE_MAP(TOF_Process_TDC_Calibration, 0);
