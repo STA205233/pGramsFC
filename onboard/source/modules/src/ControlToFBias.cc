@@ -33,7 +33,6 @@ ANLStatus ControlToFBias::mod_initialize() {
 
   duration_ = std::chrono::seconds(minDurationSec_);
   index_ = 0;
-  telemetryStr_.reserve(1000);
 
   telem_ = std::make_shared<ToFBiasTelemetry>(true);
   controller_ = std::make_shared<ToFBiasController>(path_);

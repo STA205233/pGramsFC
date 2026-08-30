@@ -142,7 +142,7 @@ class MyApp < ANL::ANLApp
     @main_modules << "GetComputerStatus"
     
     chain GRAMSBalloon::ControlToFBias
-    with_parameters(path: "/dev/ttyUSB0", timeout_usec: 5000, topic: @inifile["Hub"]["teltopic"], starlink_topic: @inifile["Hub"]["iridiumteltopic"],chatter: 0, minimum_duration_sec: 600) do |m|
+    with_parameters(path: "/dev/ttyUSB0", timeout_usec: 5000, topic: @inifile["TOFBias"]["teltopic"], starlink_topic: @inifile["TOFBias"]["iridiumteltopic"],chatter: 0, minimum_duration_sec: 600) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ControlToFBias"
