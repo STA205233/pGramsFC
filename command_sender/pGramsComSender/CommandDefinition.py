@@ -148,18 +148,18 @@ command_collection.add_command("TPC", CommandItem("Stop Run", "Stop data acquisi
 command_collection.add_command("TPC", CommandItem("Reset Run", ""))
 command_collection.add_command("TPC", CommandItem("Boot DAQ", "Boot the DAQ system"))
 command_collection.add_command("TPC", CommandItem("Boot Monitor", "Boot the monitoring system"))
-command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
-command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")]))
+command_collection.add_command("TPCMonitor", CommandItem("Query LB Data", "Query the hardware status", [CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")])) # deprecated
+command_collection.add_command("TPCMonitor", CommandItem("Query Event Data", "",[CommandParameter("Data type", "Type of data to query"), CommandParameter("", ""), CommandParameter("", ""), CommandParameter("", "")])) # deprecated
 command_collection.add_command(
     "TPCMonitor",
     CommandItem(
         "Send Full Event Data",
-        "Send one event with FEM headers, charge middle frame, and light ROIs",
+        "One event: FEM headers, charge [248,520), all light ROIs, then 0x4005",
         [
-            CommandParameter("Run", "Run number"),
-            CommandParameter("File", "File number"),
-            CommandParameter("Event", "Event index in file"),
-            CommandParameter("L lag", "LFEM header from event+n, ADC from event+(n-1)", range=(0, 100)),
+            CommandParameter("Run", "99999 = latest closed run", range=(0, 99999)),
+            CommandParameter("File", "99999 = latest closed file", range=(0, 99999)),
+            CommandParameter("Event", "99999 = last event in file", range=(0, 99999)),
+            CommandParameter("L lag", "LFEM header from event+n, ADC from event+(n-1); 99999 = auto-match LFEM f#", range=(0, 99999)),
         ],
     ),
 )
@@ -167,12 +167,12 @@ command_collection.add_command(
     "TPCMonitor",
     CommandItem(
         "Start Continuous LBW",
-        "Periodically send per-event LBW metrics from closed readout files",
+        "Background thread: each new closed file → one 0x4001 average (no resend). 99999 run/file independent. Lives until Stop.",
         [
-            CommandParameter("Period sec", "Seconds between LBW packets", range=(1, 3600)),
-            CommandParameter("Run", "99999 = auto; fixed run monitors new closed files for that run", range=(0, 99999)),
-            CommandParameter("File", "99999 = latest closed (ignored if Run is 99999)", range=(0, 99999)),
-            CommandParameter("Event stride", "Send every Nth event in the file", range=(1, 10000)),
+            CommandParameter("Period sec", "Poll interval while waiting for the next closed file", range=(1, 3600)),
+            CommandParameter("Run", "99999 = latest run, then newer runs; else only this run", range=(0, 99999)),
+            CommandParameter("File", "99999 = latest closed, then newer closed files; else that file# once", range=(0, 99999)),
+            CommandParameter("N event", "Decode events 0..N-1 and average; 99999 = whole file", range=(1, 99999)),
         ],
     ),
 )
@@ -204,6 +204,9 @@ command_collection.add_command("TOF", CommandItem("Set FEM Power On", ""))
 command_collection.add_command("TOF", CommandItem("Start Asic Temp Record", ""))
 command_collection.add_command("TOF", CommandItem("Stop Asic Temp Record", ""))
 command_collection.add_command("TOF", CommandItem("Read Temperature Sensors Single", ""))
+
+command_collection.add_command("TOF", CommandItem("Monitor Data Stream", ""))
+command_collection.add_command("TOF", CommandItem("Logger Data Stream", ""))
 
 command_collection.add_command("TOF", CommandItem("Process Threshold Calibration", ""))
 command_collection.add_command("TOF", CommandItem("Process TDC Calibration", ""))

@@ -5,22 +5,23 @@ from pGramsComSender import GUIgeometry
 
 
 class ConfirmationWindow(pGramsComSender.Window.Window):
-    def __init__(self, root, executer, subsystem, command_all, logger) -> None:
+    def __init__(self, root, executer, subsystem, command_all, communication: str, logger) -> None:
         super().__init__(root, "Notification", geometry=GUIgeometry.GUIGeometry(300, 150), grab_set=True)
         self.executer = executer
         self.command_all = command_all
         self.subsystem = subsystem
+        self.communication = communication
         self.logger = logger
         self._create_widgets()
 
     def _create_widgets(self):
         window = super()._getWindow()
-        tk.Label(window, text=f"Command to send to {self.subsystem}\n{self.command_all}\nConfirm?").pack()
-        tk.Button(window, text="OK", command=lambda: self.__do_OK(self.subsystem, self.command_all)).pack()
+        tk.Label(window, text=f"Command to send to {self.subsystem}\n{self.command_all} via {self.communication}\nConfirm?").pack()
+        tk.Button(window, text="OK", command=lambda: self.__do_OK(self.subsystem, self.command_all, self.communication)).pack()
         tk.Button(window, text="Cancel", command=self.__do_Cancel).pack()
 
-    def __do_OK(self, subsystem, command_all):
-        self.executer.execute_command(command_all, subsystem)
+    def __do_OK(self, subsystem, command_all, communication):
+        self.executer.execute_command(command_all, subsystem, communication)
         window = super()._getWindow()
         window.destroy()
 

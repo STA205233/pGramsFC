@@ -17,6 +17,7 @@ class MyApp < ANL::ANLApp
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_t", time_out: 1, do_initialize: true) do |m|
       m.set_singleton(0)
     end
+
     chain GRAMSBalloon::ComMosquittoManager
     with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(0)
@@ -54,53 +55,68 @@ class MyApp < ANL::ANLApp
     subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
-    subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003], "TPC" => [],"TOF" => [], "Orchestrator" => []}
+    # 0x4004/0x4005 are full-event FEM headers + complete marker (Starlink-only, large packets).
+    subsystem_starlink={"TPCMonitor"=>[0x4002, 0x4003, 0x4004, 0x4005], "TPC" => [],"TOF" => [], "Orchestrator" => []}
     subsystem_dead_com_time={"TPCMonitor"=>0, "Orchestrator"=>5000, "TOF"=>0, "TPC"=>0}
     sendCommandToDAQComputer_names = []
     subsystems.each do |subsystem|
-      sendCommandToDAQComputer_names << "SendCommandToDAQComputer_" + subsystem
-      @main_modules << "SendCommandToDAQComputer_" + subsystem
+      sendCommandToDAQComputer_names << "SendCommandToDAQComputer_" + subsystem # SendCommandToDAQComputer_names is used for only emergency_DAQ_shutdown.
     end
-    chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 0, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names, SPIManager_name: "SPIManager_baycat") do |m|
-      m.set_singleton(0)
+    comms = ["iridium", ""]
+    
+    comms.each do |com|
+      chain GRAMSBalloon::ReceiveCommand, "ReceiveCommand#{com}"
+      with_parameters(topic: @inifile["Hub"]["#{com}comtopic"], chatter: 0, qos: 0, binary_filename_base: "command/command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+        m.set_singleton(0)
+      end
+      @main_modules << "ReceiveCommand#{com}"
     end
-    @main_modules << "ReceiveCommand"
+    
     subsystems.each do |subsystem|
       chain GRAMSBalloon::SocketCommunicationManager, "SocketCommunicationManager_" + subsystem
       with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["comport"].to_i, subsystem: subsystemInts[subsystem], timeout: 100, chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "SocketCommunicationManager_" + subsystem
+      
       chain GRAMSBalloon::SocketCommunicationManager, "SocketCommunicationManager_#{subsystem}_rsv"
-      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["telport"].to_i, timeout: 100, subsystem: subsystemInts[subsystem], chatter: 1000) do |m|
+      with_parameters(ip: @inifile[subsystem]["ip"], port: @inifile[subsystem]["telport"].to_i, timeout: 100, subsystem: subsystemInts[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "SocketCommunicationManager_#{subsystem}_rsv"
-      chain GRAMSBalloon::DistributeCommand, "DistributeCommand_#{subsystem}"
-      with_parameters(topic: @inifile[subsystem]["comtopic"], chatter: 1) do |m|
-        m.set_singleton(0)
+      
+      comms.each do |com|
+        chain GRAMSBalloon::DistributeCommand, "DistributeCommand_#{subsystem}#{com}"
+        with_parameters(topic: @inifile[subsystem]["#{com}comtopic"], chatter: 1) do |m|
+          m.set_singleton(0)
+        end
+        @main_modules << "DistributeCommand_#{subsystem}#{com}"
+        
+        chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem + com
+          with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}#{com}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
+          m.set_singleton(0)
+        end
+        @main_modules << "SendCommandToDAQComputer_" + subsystem + com
       end
-      @main_modules << "DistributeCommand_#{subsystem}"
-      chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem
-        with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
-        m.set_singleton(0)
-      end
+      
       chain GRAMSBalloon::ReceiveStatusFromDAQComputer, "ReceiveStatusFromDAQComputer_" + subsystem
         with_parameters(SocketCommunicationManager_name:"SocketCommunicationManager_#{subsystem}_rsv", dead_communication_time: subsystem_dead_com_time[subsystem], subsystem: subsystemInts[subsystem],chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "ReceiveStatusFromDAQComputer_" + subsystem
+      
       chain GRAMSBalloon::DividePacket, "DividePacket_#{subsystem}"
         with_parameters(ReceiveStatusFromDAQComputer_name: "ReceiveStatusFromDAQComputer_#{subsystem}", starlink_code: subsystem_starlink[subsystem], overwritten_packet_code: subsystem_overwritten[subsystem], chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "DividePacket_#{subsystem}"
+      
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_starlink"
         with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: true, chatter: 0) do |m|
         m.set_singleton(0)
       end
       @main_modules << "PassTelemetry_#{subsystem}_starlink"
+      
       chain GRAMSBalloon::PassTelemetry, "PassTelemetry_#{subsystem}_iridium"
         with_parameters(DividePacket_name: "DividePacket_#{subsystem}", topic: @inifile[subsystem]["iridiumteltopic"], starlink_topic:@inifile[subsystem]["teltopic"], is_starlink_only: false, chatter: 0) do |m|
         m.set_singleton(0)
@@ -113,6 +129,7 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     @main_modules << "MHADCManager"
+    
     chain GRAMSBalloon::GetMHADCData
     with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0) do |m|
       m.set_singleton(0)
@@ -136,13 +153,14 @@ class MyApp < ANL::ANLApp
           starlink_topic: @inifile["Hub"]["teltopic"],
           qos:0,
           save_telemetry: false,
-          binary_filename_base: "telemetry",
-          num_telem_per_file: 1000,
+          binary_filename_base: "telemetry/telemetry",
+          num_telem_per_file: 10000,
           chatter: 0,
     ) do |m|
       m.set_singleton(0)
     end
     @main_modules << "SendTelemetry"
+
     chain GRAMSBalloon::RunIDManager
     with_parameters(
       filename: ENV["HOME"] + "/settings/run_id/run_id.txt"

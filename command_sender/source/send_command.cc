@@ -10,6 +10,10 @@
 #include <string>
 
 using namespace gramsballoon::pgrams;
+#define TO_STRING(x) #x
+#ifndef COM_TYPE
+#define COM_TYPE ""
+#endif
 
 std::string mapping_subsystem_name(const std::string &subsystem_name) {
   if (subsystem_name == "HUB" || subsystem_name == "PDU") {
@@ -42,7 +46,9 @@ std::string get_topic(const std::string &subsystem_name, const std::string &inif
     std::cerr << "INI parser error: " << e.message() << " in file " << e.filename() << " at line " << e.line() << std::endl;
     return "";
   }
-  const boost::optional<std::string> topic_opt = pt.get_optional<std::string>(mapped_name + ".comtopic");
+  const std::string com_type = std::string(COM_TYPE) == "starlink" ? "" : "iridium";
+  const boost::optional<std::string> topic_opt = pt.get_optional<std::string>(mapped_name + "." + com_type + "comtopic");
+  std::cout << mapped_name + "." + com_type + "comtopic" << std::endl;
   if (!topic_opt) {
     std::cerr << "No topic found for subsystem " << mapped_name << std::endl;
     return "";
