@@ -193,7 +193,6 @@ int SerialCommunication::transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX
     const int ret_to = functo(std::chrono::duration_cast<std::chrono::microseconds>(deadline - steady_clock::now()));
     if (ret_to < 0 && (errno == EINTR)) { continue; }
     else if (ret_to < 0) {
-      std::cerr << "SerialCommunication:: error in timeout" << std::endl;
       return ret_to;
     }
     else if (ret_to == 0) {
@@ -207,7 +206,6 @@ int SerialCommunication::transferExactlyWithTimeout(FUNCTO functo, FUNCTX funcTX
     }
     else if (ret < 0 && (err == EINTR || err == EAGAIN)) { continue; }
     else if (ret < 0) {
-      std::cerr << "SerialCommunication:: error in transfer" << std::endl;
       return ret;
     }
     deadline = steady_clock::now() + timeout_;
