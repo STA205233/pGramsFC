@@ -3,6 +3,7 @@
 #include "CommunicationSaver.hh"
 #include "DateManager.hh"
 #include "HubHKTelemetry.hh"
+#include "ToFBiasTelemetry.hh"
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
@@ -39,17 +40,13 @@ ANLStatus InterpretTelemetry::mod_initialize() {
   else if (telemetryTypeStr_ == "Base") {
     telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
   }
-
+  else if (telemetryTypeStr_ == "TOFBias") {
+    telemetry_ = std::make_shared<ToFBiasTelemetry>(true);
+  }
   else {
     std::cerr << module_name() << "::mod_initialize: Unknown telemetry type " << telemetryTypeStr_ << std::endl;
     telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
   }
-#ifdef USE_HSQUICKLOOK
-  const std::string pusher_module_name = "PushToMongoDB";
-  if (exist_module(pusher_module_name)) {
-    get_module_NC(pusher_module_name, &pusher_);
-  }
-#endif // USE_HSQUICKLOOK
   telemetrySaver_->setNumCommandPerFile(numTelemPerFile_);
   telemetrySaver_->setBinaryFilenameBase(binaryFilenameBase_);
   telemetrySaver_->setRunID(0); // dummy

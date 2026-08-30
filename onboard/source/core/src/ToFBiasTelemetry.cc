@@ -2,12 +2,17 @@
 #include <fstream>
 #include <ostream>
 namespace gramsballoon::pgrams {
-ToFBiasTelemetry::ToFBiasTelemetry(bool instantiateContents) : BaseTelemetryDefinition(instantiateContents) {}
+ToFBiasTelemetry::ToFBiasTelemetry(bool instantiateContents) : BaseTelemetryDefinition(instantiateContents), cached_(false) { cache_.reserve(0); }
 std::ostream &ToFBiasTelemetry::print(std::ostream &stream) {
-
+  BaseTelemetryDefinition::print(stream);
+  interpret();
+  stream << cache_;
   return stream;
 }
 std::ofstream &ToFBiasTelemetry::write(std::ofstream &stream) {
+  BaseTelemetryDefinition::write(stream);
+  interpret();
+  stream << cache_;
   return stream;
 }
 
@@ -38,20 +43,26 @@ bool divide(std::string &str, uint32_t v) {
   return true; // continue loop
 }
 
-bool ToFBiasTelemetry::toStr(std::string &str) const {
+bool ToFBiasTelemetry::interpret() {
+  cache_.reserve(10000); // this function is used on ground
   auto contents = getContents();
   if (!contents) {
     return false;
   }
-  str.clear();
+  if (cached_) {
+    return true;
+  }
+  cache_.clear();
   const int sz = contents->Argc();
   for (int i = 0; i < sz; ++i) {
     const uint32_t v = contents->getArguments(i);
-    if (!divide(str, v)) {
+    if (!divide(cache_, v)) {
       break;
     }
   }
 
-  return (static_cast<int>(str.size()) <= contents->Argc() * 4) && static_cast<int>(str.size()) >= (contents->Argc() * 4 - 4);
+  const bool ret = (static_cast<int>(cache_.size()) <= contents->Argc() * 4) && static_cast<int>(cache_.size()) >= (contents->Argc() * 4 - 4);
+  if (ret) cached_ = true;
+  return ret;
 }
 } // namespace gramsballoon::pgrams

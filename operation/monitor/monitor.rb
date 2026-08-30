@@ -13,11 +13,11 @@ class MyApp < ANL::ANLApp
       exit 1
     end
     chain GRAMSBalloon::TelemMosquittoManager, "TelemMosquittoManager"
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 100, device_id: "Ground", do_initialize: true) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 10, chatter: 0, device_id: "Ground", do_initialize: true) do |m|
       m.set_singleton(0)
     end
     chain GRAMSBalloon::ComMosquittoManager, "GroundMosquittoManager"
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST_INTERNAL"], port: ENV["PGRAMS_MOSQUITTO_PORT_INTERNAL"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD_INTERNAL"], user: ENV["PGRAMS_MOSQUITTO_USER_INTERNAL"], keep_alive: 10, chatter: 100, device_id: "Ground_hub")
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST_INTERNAL"], port: ENV["PGRAMS_MOSQUITTO_PORT_INTERNAL"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD_INTERNAL"], user: ENV["PGRAMS_MOSQUITTO_USER_INTERNAL"], keep_alive: 10, chatter: 0, device_id: "Ground_hub", do_cleanup: true)
     subsystems = ["Orchestrator", "TPC", "TOF", "TPCMonitor"]
     for subsystem in subsystems
       chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_#{subsystem}"
@@ -53,11 +53,20 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::InterpretTelemetry, "InterpretHKTelemetry_Starlink"
     with_parameters(receiver_module_name: "ReceiveTelemetry_HK_Starlink", run_ID_filename: ENV["HOME"] + "/settings/run_id/run_id_ground.txt", save_telemetry: false, num_telem_per_file: 1000, chatter: 0, telemetry_type: "HK")
     chain GRAMSBalloon::ConvertHubHKTelemetry, "ConvertHubHKTelemetry_Starlink"
-    with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", verbose: 5)
+    with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", verbose: 0)
     #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK"
     #with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
     #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK_Starlink"
     #with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry_Starlink", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
+    
+    chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_TB"
+    with_parameters(topic: @inifile["TOFBias"]["iridiumteltopic"], chatter: 0)
+    chain GRAMSBalloon::InterpretTelemetry, "InterpretTBTelemetry"
+    with_parameters(receiver_module_name: "ReceiveTelemetry_TB", save_telemetry: false, num_telem_per_file: 1000, chatter: 10, telemetry_type: "TOFBias")
+    chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_TB_Starlink"
+    with_parameters(topic: @inifile["TOFBias"]["teltopic"], chatter: 0)
+    chain GRAMSBalloon::InterpretTelemetry, "InterpretTBTelemetry_Starlink"
+    with_parameters(receiver_module_name: "ReceiveTelemetry_TB_Starlink", save_telemetry: false, num_telem_per_file: 1000, chatter: 10, telemetry_type: "TOFBias")
     
     chain GRAMSBalloon::MySQLManager
     with_parameters(host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk")
