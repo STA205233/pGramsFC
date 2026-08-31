@@ -61,12 +61,12 @@ ConvertedHubHKTelemetry::~ConvertedHubHKTelemetry() = default;
 
 template <typename T>
 bool ConvertedHubHKTelemetry::convertVoltageMHADC(T adc_value, floating_t &dest, floating_t) {
-  if (adc_value >= mhadc::ADC_MAX) {
-    std::cerr << "Conversion failed: Open Circuit" << std::endl;
-    return false;
+  if (adc_value > mhadc::ADC_MAX) {
+    //std::cerr << "Conversion failed: Open Circuit" << std::endl;
+    return true;
   }
   auto adc_float = static_cast<floating_t>(adc_value);
-  dest = adc_float * (mhadc::VREF / mhadc::ADC_MAX_FLOAT) + mhadc::CMN_OFFSET;
+  dest = adc_float * (mhadc::VMAX / mhadc::ADC_MAX_FLOAT) + mhadc::CMN_OFFSET;
   return true;
 }
 
@@ -399,15 +399,12 @@ bool ConvertedHubHKTelemetry::convertRTD(T adc_value, floating_t &dest, floating
   if (!convertVoltageMHADC(adc_value, voltage)) {
     return false;
   }
-  floating_t L_tmp = -(std::sqrt(17.59246 - 0.00232 * voltage) - 3.908) / 0.00116 * kelvin;
+  const floating_t L_R = voltage * 1000.0 / (mhadc::VMAX - voltage);
+  floating_t L_tmp = -(std::sqrt(17.59246 - 0.00232 * L_R) - 3.908) / 0.00116 * kelvin;
   L_tmp += 273.15;
   const floating_t L_correction = L_tmp + offset;
-  if (L_correction > 73) {
-    dest = L_correction;
-    std::cerr << "Conversion failed: Short!" << std::endl;
-    return true;
-  }
-  return false;
+  dest = L_correction;
+  return true;
 }
 
 template <typename T>

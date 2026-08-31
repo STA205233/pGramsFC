@@ -46,14 +46,14 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::InterpretTelemetry, "InterpretHKTelemetry"
     with_parameters(receiver_module_name: "ReceiveTelemetry_HK", run_ID_filename: ENV["HOME"] + "/settings/run_id/run_id_ground.txt", save_telemetry: false, num_telem_per_file: 1000, chatter: 0, telemetry_type: "HK")
     chain GRAMSBalloon::ConvertHubHKTelemetry, "ConvertHubHKTelemetry"
-    with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry")
+    with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", verbose: 0)
     
     chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_HK_Starlink"
     with_parameters(topic: @inifile["Hub"]["teltopic"], chatter: 0)
     chain GRAMSBalloon::InterpretTelemetry, "InterpretHKTelemetry_Starlink"
     with_parameters(receiver_module_name: "ReceiveTelemetry_HK_Starlink", run_ID_filename: ENV["HOME"] + "/settings/run_id/run_id_ground.txt", save_telemetry: false, num_telem_per_file: 1000, chatter: 0, telemetry_type: "HK")
     chain GRAMSBalloon::ConvertHubHKTelemetry, "ConvertHubHKTelemetry_Starlink"
-    with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", verbose: 0)
+    with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry_Starlink", verbose: 0)
     #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK"
     #with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
     #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK_Starlink"
@@ -62,11 +62,11 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_TB"
     with_parameters(topic: @inifile["TOFBias"]["iridiumteltopic"], chatter: 0)
     chain GRAMSBalloon::InterpretTelemetry, "InterpretTBTelemetry"
-    with_parameters(receiver_module_name: "ReceiveTelemetry_TB", save_telemetry: false, num_telem_per_file: 1000, chatter: 10, telemetry_type: "TOFBias")
+    with_parameters(receiver_module_name: "ReceiveTelemetry_TB", save_telemetry: false, num_telem_per_file: 1000, chatter: 0, telemetry_type: "TOFBias")
     chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_TB_Starlink"
     with_parameters(topic: @inifile["TOFBias"]["teltopic"], chatter: 0)
     chain GRAMSBalloon::InterpretTelemetry, "InterpretTBTelemetry_Starlink"
-    with_parameters(receiver_module_name: "ReceiveTelemetry_TB_Starlink", save_telemetry: false, num_telem_per_file: 1000, chatter: 10, telemetry_type: "TOFBias")
+    with_parameters(receiver_module_name: "ReceiveTelemetry_TB_Starlink", save_telemetry: false, num_telem_per_file: 1000, chatter: 0, telemetry_type: "TOFBias")
     
     chain GRAMSBalloon::MySQLManager
     with_parameters(host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk")
