@@ -51,9 +51,6 @@ ANLStatus GetMHADCData::mod_initialize() {
 
 ANLStatus GetMHADCData::mod_analyze() {
   dat_.clear();
-  if (chatter_ > 0) {
-    std::cout << "GetMHADCData::mod_analyze" << std::endl;
-  }
   if (!isInHKLoop()) {
     return AS_OK;
   }

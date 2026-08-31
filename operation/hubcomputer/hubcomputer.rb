@@ -131,7 +131,7 @@ class MyApp < ANL::ANLApp
     @main_modules << "MHADCManager"
     
     chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0) do |m|
+    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 3) do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetMHADCData"
