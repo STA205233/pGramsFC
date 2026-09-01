@@ -70,7 +70,7 @@ CommandBuilder::CommandBuilder() {
 
   ADD_CODE_MAP(HUB_TB_Bias_On, 1);
   ADD_CODE_MAP(HUB_TB_Bias_Off, 1);
-  ADD_CODE_MAP(HUB_TB_Set_V_Offset, 2);
+  ADD_CODE_MAP(HUB_TB_Set_V_Offset, 1);
   ADD_CODE_MAP(HUB_TB_Set_V_Def, 2);
   ADD_CODE_MAP(HUB_TB_Set_Tmux, 2);
   ADD_CODE_MAP(HUB_TB_Query_bias_info, 0);
