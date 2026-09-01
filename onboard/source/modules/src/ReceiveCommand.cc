@@ -418,9 +418,19 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query info command received." << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Vdef command received." << std::endl;
     }
-    //TODO: Implement handling
+    if (controlTofBias_) {
+      const int ret = controlTofBias_->setVdef(arguments[0], arguments[1]);
+      if (ret < 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+        }
+        return false;
+      }
+      return true;
+    }
     return true;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
