@@ -40,7 +40,7 @@ ANLStatus SendPacketByMQTT::mod_analyze() {
   if (!mosquittoManager_ || !interpretTelemetry_) {
     return AS_OK;
   }
-  if (interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Telemetry_Normal) || interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Tof_Bias_full) || interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Tof_Bias_summary)) {
+  if (interpretTelemetry_->CurrentTelemetryType() == 0) {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
