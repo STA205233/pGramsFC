@@ -38,7 +38,7 @@ ANLStatus SendPacketByMQTT::mod_analyze() {
   if (!mosquittoManager_ || !interpretTelemetry_) {
     return AS_OK;
   }
-  if (interpretTelemetry_->CurrentTelemetryType() != 1) {
+  if (interpretTelemetry_->CurrentTelemetryType() == 0) {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
