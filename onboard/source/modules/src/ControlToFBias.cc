@@ -44,6 +44,7 @@ ANLStatus ControlToFBias::mod_initialize() {
     treatError();
     return AS_OK;
   }
+  controller_->disableDataStream();
   controller_->refresh();
   return AS_OK;
 }

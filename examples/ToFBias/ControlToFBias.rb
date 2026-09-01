@@ -22,12 +22,12 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "IoContextManager"
     chain GRAMSBalloon::ControlToFBias
-    with_parameters(path: "/dev/ttyUSB0", chatter: 2, minimum_duration_sec: 10, timeout_usec: 5000) do |m|
+    with_parameters(path: "/dev/ttyUSB0", chatter: 2, minimum_duration_sec: 10, timeout_usec: 100000) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ControlToFBias"
     chain GRAMSBalloon::ReceiveCommand
-    with_parameters(topic: @inifile["Hub"]["comtopic"], chatter: 5, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+    with_parameters(topic: @inifile["TOFBias"]["comtopic"], chatter: 5, qos: 0, binary_filename_base: "command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ReceiveCommand"

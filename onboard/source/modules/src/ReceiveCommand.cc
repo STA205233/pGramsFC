@@ -450,6 +450,23 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
+    else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset received. Voff: " << arguments[0] << std::endl;
+    }
+    if (!controlTofBias_) {
+      return false;
+    }
+    const int ret = controlTofBias_->setVoffset(arguments[0]);
+    if (ret < 0) {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to set Voffset" << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+      }
+      return false;
+    }
+    return true;
+  }
   else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc <= 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": 0x" << std::hex << code << std::dec << " command for PDU received." << std::endl;

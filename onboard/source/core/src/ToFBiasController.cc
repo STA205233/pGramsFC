@@ -114,11 +114,11 @@ int ToFBiasController::disableDataStream() {
 }
 
 int ToFBiasController::enableDCDC(int channel) {
-  return sendCommand("denable " + std::to_string(static_cast<int>(channel)) + " on\r\n");
+  return sendCommand("enable " + std::to_string(static_cast<int>(channel)) + " on\r\n");
 }
 
 int ToFBiasController::disableDCDC(int channel) {
-  return sendCommand("denable " + std::to_string(static_cast<int>(channel)) + " off\r\n");
+  return sendCommand("enable " + std::to_string(static_cast<int>(channel)) + " off\r\n");
 }
 
 int ToFBiasController::setVoffset(int voltage) {
@@ -133,7 +133,7 @@ int ToFBiasController::setTmuxChannel(int channel, int on_off) {
 }
 
 int ToFBiasController::setVdef(int channel, int voltage) {
-  return sendCommand("tdef " + std::to_string(channel) + " " + std::to_string(voltage) + "\r\n");
+  return sendCommand("vdef " + std::to_string(channel) + " " + std::to_string(voltage) + "\r\n");
 }
 
 int ToFBiasController::refresh() {
