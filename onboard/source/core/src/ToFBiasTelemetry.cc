@@ -70,12 +70,10 @@ bool ToFBiasTelemetry::interpret() {
 void ToFBiasTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &table_name) const {
 
   // For Full output
-  sink->changeTable(table_name + "_full");
   BaseTelemetryDefinition::initializeDBTable(sink, table_name);
   sink->addField("full_output", "");
 
   // For Summary
-  //BaseTelemetryDefinition::initializeDBTable(sink, table_name + "_summary");
 }
 
 void ToFBiasTelemetry::serialize(DBFieldSink *sink) const {
@@ -84,7 +82,6 @@ void ToFBiasTelemetry::serialize(DBFieldSink *sink) const {
   }
   BaseTelemetryDefinition::serialize(sink);
   if (getContents()->Code() == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Tof_Bias_full)) {
-    //sink->changeTable();
     sink->setFieldValue("full_output", cache_);
   }
 }

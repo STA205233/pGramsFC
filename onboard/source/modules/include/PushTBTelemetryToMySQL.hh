@@ -12,7 +12,7 @@ namespace mysql {
 class MySQLIO;
 }
 
-class PushTBTelemetryToMySQL final: anlnext::BasicModule {
+class PushTBTelemetryToMySQL final: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(PushTBTelemetryToMySQL, 1.0);
   ENABLE_PARALLEL_RUN();
 
