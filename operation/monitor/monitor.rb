@@ -74,7 +74,7 @@ class MyApp < ANL::ANLApp
     chain GRAMSBalloon::PushTBTelemetryToMySQL, "PushToMySQL_TB"
     with_parameters(InterpretTelemetry_name: "InterpretTBTelemetry", table_name_full: "TofBias_full", table_name_summary: "TofBias_summary", chatter: 0)
     chain GRAMSBalloon::PushTBTelemetryToMySQL, "PushToMySQL_TB_Starlink"
-    with_parameters(InterpretTelemetry_name: "InterpretTBTelemetry_Starlink", table_name: "TofBias_full", table_name_summary: "TofBias_summary", chatter: 0)
+    with_parameters(InterpretTelemetry_name: "InterpretTBTelemetry_Starlink", table_name_full: "TofBias_full", table_name_summary: "TofBias_summary", chatter: 0)
     
     chain GRAMSBalloon::TreatToFCallback,"TreatToFCallback_Iridium"
     with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_TOF_Iridium", table_name: "ToFCallback",chatter: 0)
