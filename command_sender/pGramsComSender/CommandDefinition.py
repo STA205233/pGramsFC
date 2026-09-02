@@ -4,14 +4,14 @@ from enum import Enum
 class CommandParameter:
     def __init__(self, name: str, description: str | None = None, range=None):
         self.name = name
-        self.description = description if description is not None else name
+        self.description = description if description is not None else ""
         self.range = range
 
     def __repr__(self) -> str:
         return f"CommandParameter(name={self.name}, description={self.description}, range={self.range})"
 
     def __str__(self) -> str:
-        return f"{self.name} : {self.description}. {self.range}" if self.range else f"{self.name} : {self.description}"
+        return f"{self.name} : {self.description} {self.range}" if self.range else f"{self.name} : {self.description}"
 
     def get_range(self):
         return self.range
@@ -77,6 +77,11 @@ command_collection.add_command("Hub", CommandItem("Prepare Restart", "Prepare th
 command_collection.add_command("Hub", CommandItem("Exec Restart", "Execute the restart of the hub"))
 command_collection.add_command("Hub", CommandItem("Reset Error", "Reset the error flags in the hub"))
 command_collection.add_command("Hub", CommandItem("Set Link", "Set the link", [CommandParameter("Link state", "Used link, 0: iridium, 1: starlink", range=(0, 1))]))
+command_collection.add_command("Hub", CommandItem("TB Bias ON", "Enable Bias Control", [CommandParameter("Ch", "Channel",range=(0, 7))]))
+command_collection.add_command("Hub", CommandItem("TB Bias OFF", "Disable Bias Control", [CommandParameter("Ch", "Channel",range=(0, 7))]))
+command_collection.add_command("Hub", CommandItem("TB Set V offset", "Set V Offset", [CommandParameter("Voffset", range=(0, 20))]))
+command_collection.add_command("Hub", CommandItem("TB Set V def", "Set V def", [CommandParameter("Ch", "Channel",range=(0, 127)), CommandParameter("Vdef", range=(136, 172))]))
+command_collection.add_command("Hub",CommandItem("TB Set Tmux", "Set T mux channel",[CommandParameter("Ch", range=(0, 15)), CommandParameter("Thermometer Select", "0: primary, 1: secondary", range=(0, 1))]))
 
 command_collection.add_command("PDU", CommandItem("TOF Bias ON", ""))
 command_collection.add_command("PDU", CommandItem("TOF Bias OFF", ""))
