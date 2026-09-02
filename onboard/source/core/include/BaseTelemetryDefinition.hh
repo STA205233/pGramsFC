@@ -72,6 +72,14 @@ protected:
   }
 
 public:
+  virtual void reset() {
+    if (contents_) {
+      contents_->setCode(0);
+      contents_->setArgc(0);
+      contents_->CommandNC().clear();
+    }
+    constructed_ = false;
+  }
   void setRunID(int runId) {
     constructed_ = false;
     runid_ = runId;

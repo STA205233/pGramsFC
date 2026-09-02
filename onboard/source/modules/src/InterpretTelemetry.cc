@@ -59,12 +59,15 @@ ANLStatus InterpretTelemetry::mod_analyze() {
     std::cerr << module_name() << "::mod_analyze: Receiver is nullptr" << std::endl;
     return AS_ERROR;
   }
+  if (!telemetry_) {
+    return AS_ERROR;
+  }
+  telemetry_->reset();
+  currentTelemetryType_ = 0;
   if (!(receiver_->Valid())) {
-    currentTelemetryType_ = 0;
     return AS_OK;
   }
 
-  currentTelemetryType_ = 0;
   const auto &telemetry = receiver_->Telemetry();
   const bool status = interpret(telemetry);
   const bool failed = !status;
@@ -93,7 +96,6 @@ void InterpretTelemetry::updateRunIDFile() {
 }
 
 bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
-  currentTelemetryType_ = 0;
   if (!telemetry_) return false;
   const bool result = telemetry_->parseJSON(telemetryStr);
   if (!result) return false;

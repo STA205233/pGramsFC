@@ -1,8 +1,13 @@
 #include "ToFBiasTelemetry.hh"
+#include "BaseTelemetryDefinition.hh"
+#include "CommunicationCodes.hh"
+#include "DBFieldSink.hh"
+#include <cstdint>
 #include <fstream>
 #include <ostream>
+#include <string>
 namespace gramsballoon::pgrams {
-ToFBiasTelemetry::ToFBiasTelemetry(bool instantiateContents) : BaseTelemetryDefinition(instantiateContents), cached_(false) { cache_.reserve(0); }
+ToFBiasTelemetry::ToFBiasTelemetry(bool instantiateContents) : BaseTelemetryDefinition(instantiateContents) { cache_.reserve(0); }
 std::ostream &ToFBiasTelemetry::print(std::ostream &stream) {
   BaseTelemetryDefinition::print(stream);
   interpret();
@@ -49,9 +54,6 @@ bool ToFBiasTelemetry::interpret() {
   if (!contents) {
     return false;
   }
-  if (cached_) {
-    return true;
-  }
   cache_.clear();
   const int sz = contents->Argc();
   for (int i = 0; i < sz; ++i) {
@@ -62,7 +64,33 @@ bool ToFBiasTelemetry::interpret() {
   }
 
   const bool ret = (static_cast<int>(cache_.size()) <= contents->Argc() * 4) && static_cast<int>(cache_.size()) >= (contents->Argc() * 4 - 4);
-  if (ret) cached_ = true;
   return ret;
+}
+
+void ToFBiasTelemetry::initializeDBTable(DBFieldSink *sink, const std::string &table_name) const {
+
+  // For Full output
+  const std::string table_name_for_full_output = table_name + "_full";
+  BaseTelemetryDefinition::initializeDBTable(sink, table_name_for_full_output);
+  sink->addField("full_output", "");
+
+  // For Summary
+  //const std::string table_name_for_summary = table_name + "_summary";
+  //BaseTelemetryDefinition::initializeDBTable(sink, table_name_for_summary);
+}
+
+void ToFBiasTelemetry::serialize(DBFieldSink *sink) const {
+  if (!getContents() || getContents()->Code() == 0) {
+    return;
+  }
+  BaseTelemetryDefinition::serialize(sink);
+  if (getContents()->Code() == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Tof_Bias_full)) {
+    sink->setFieldValue("full_output", cache_);
+  }
+}
+
+void ToFBiasTelemetry::reset() {
+  BaseTelemetryDefinition::reset();
+  cache_.clear();
 }
 } // namespace gramsballoon::pgrams
