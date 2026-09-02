@@ -1,8 +1,9 @@
 #include "ToFBiasController.hh"
 #include <chrono>
+#include <cstdint>
+#include <iostream>
 #include <string>
 #include <string_view>
-#include <thread>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
@@ -59,7 +60,8 @@ int ToFBiasController::sendCommand(std::string_view data) {
       std::cerr << "TOFBiasController::sendCommand: failed to receive command code" << ret << std::endl;
       return ret;
     }
-    if (dataStr_ == "OK!\r\n") {
+    constexpr char suffix[] = "OK!\r\n";
+    if (dataStr_.rfind(suffix) == (dataStr_.length() - sizeof(suffix))) { // To handle the output of setting Voffset.
       return 0;
     }
     else {
