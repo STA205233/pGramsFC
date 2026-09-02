@@ -53,6 +53,7 @@
 #include "VDBDataStore.hh"
 #include "VHousekeepingModule.hh"
 #include "SetHKEvs.hh"
+#include "PushTBTelemetryToMySQL.hh"
 %}
 
 %include "std_vector.i"
@@ -68,33 +69,39 @@ class SimpleLoop : public anlnext::BasicModule
 {
 public:
   SimpleLoop();
+  ~SimpleLoop();
 };
 namespace pgrams{
 class Sleep : public anlnext::BasicModule
 {
 public:
   Sleep();
+  ~Sleep();
 };
 
 class VHousekeepingModule: public anlnext::BasicModule {
 public:
   VHousekeepingModule();
+  ~VHousekeepingModule();
 };
 #ifdef USE_SPI
 class SPIManager : public anlnext::BasicModule
 {
 public:
   SPIManager();
+  ~SPIManager();
 };
 class GetPDUInfo : public VHousekeepingModule
 {
 public:
   GetPDUInfo();
+  ~GetPDUInfo();
 };
 class ControlPDU : public anlnext::BasicModule
 {
 public:
   ControlPDU();
+  ~ControlPDU();
 };
 #endif
 
@@ -103,63 +110,76 @@ class GetComputerStatus : public VHousekeepingModule
 {
 public:
   GetComputerStatus();
+  ~GetComputerStatus();
 };
 #endif
 class ReceiveCommand : public anlnext::BasicModule
 {
 public:
   ReceiveCommand();
+  ~ReceiveCommand();
 };
 class SendTelemetry : public VHousekeepingModule
 {
 public:
   SendTelemetry();
+  ~SendTelemetry();
 };
 class ReceiveTelemetry :  public anlnext::BasicModule
 {
 public:
   ReceiveTelemetry();
+  ~ReceiveTelemetry();
 };
 
 class GetMHADCData: public VHousekeepingModule {
 public:
   GetMHADCData();
+  ~GetMHADCData();
 };
 
 class EncodedSerialCommunicator: public anlnext::BasicModule {
 public:
   EncodedSerialCommunicator();
+  ~EncodedSerialCommunicator();
 };
 
 class IoContextManager: public anlnext::BasicModule{
 public:
   IoContextManager();
+  ~IoContextManager();
 };
 class ReceiveStatusFromDAQComputer: public anlnext::BasicModule{
 public:
   ReceiveStatusFromDAQComputer();
+  ~ReceiveStatusFromDAQComputer();
 };
 class SocketCommunicationManager: public anlnext::BasicModule{
 public:
   SocketCommunicationManager();
+  ~SocketCommunicationManager();
 };
 class SendCommandToDAQComputer: public anlnext::BasicModule {
 public:
   SendCommandToDAQComputer();
+  ~SendCommandToDAQComputer();
 };
 #ifdef USE_MYSQL
 class PushToMySQL : public anlnext::BasicModule
 {
 public:
   PushToMySQL();
+  ~PushToMySQL();
 };
 class TreatToFCallback: public anlnext::BasicModule {
 public:
   TreatToFCallback();
+  ~TreatToFCallback();
 };
 class MySQLManager: public anlnext::BasicModule {
 public:
   MySQLManager();
+  ~MySQLManager();
 };
 #endif
 template <typename TelemType>
@@ -167,97 +187,116 @@ class MosquittoManager: public anlnext::BasicModule
 {
 public:
   MosquittoManager();
+  ~MosquittoManager();
 };
 class DistributeCommand: public anlnext::BasicModule {
 public:
   DistributeCommand();
+  ~DistributeCommand();
 };
 class DividePacket: public anlnext::BasicModule {
 public:
   DividePacket();
+  ~DividePacket();
 };
 class PassTelemetry: public anlnext::BasicModule {
 public:
   PassTelemetry();
+  ~PassTelemetry();
 };
-%nodefaultctor VDBDataStore;
-class VDBDataStore
-{
-public:
-};
-class InterpretTelemetry : public anlnext::BasicModule, public VDBDataStore
+class InterpretTelemetry : public anlnext::BasicModule
 {
 public:
   InterpretTelemetry();
+  ~InterpretTelemetry();
 };
 #ifdef USE_SYSTEM_MODULES
 class ShutdownSystem : public anlnext::BasicModule
 {
 public:
   ShutdownSystem();
+  ~ShutdownSystem();
 };
 #endif
 class RunIDManager : public anlnext::BasicModule
 {
 public:
   RunIDManager();
+  ~RunIDManager();
 };
 
 class SendArrayByMQTT : public anlnext::BasicModule
 {
 public:
   SendArrayByMQTT();
+  ~SendArrayByMQTT();
 };
 
 class SendPacketByMQTT : public anlnext::BasicModule
 {
 public:
   SendPacketByMQTT();
+  ~SendPacketByMQTT();
 };
 
 class DetectErrorCallbackFromDAQ: public anlnext::BasicModule {
 public:
   DetectErrorCallbackFromDAQ();
+  ~DetectErrorCallbackFromDAQ();
 };
 
 class PressureGaugeManager: public anlnext::BasicModule
 {
 public:
   PressureGaugeManager();
+  ~PressureGaugeManager();
 };
 
 class GetPressure: public anlnext::BasicModule {
 public:
   GetPressure();
+  ~GetPressure();
 };
 class ControlToFBias: public anlnext::BasicModule {
 public:
   ControlToFBias();
+  ~ControlToFBias();
 };
 #ifdef USE_LJM
 class GetLabJackData: public VHousekeepingModule {
 public:
   GetLabJackData();
+  ~GetLabJackData();
 };
 #endif
 #ifdef USE_I2C
 class GetEnvironmentalData: public VHousekeepingModule {
 public:
   GetEnvironmentalData();
+  ~GetEnvironmentalData();
 };
 class I2CManager: public anlnext::BasicModule {
 public:
   I2CManager();
+  ~I2CManager();
 };
 #endif
 class ConvertHubHKTelemetry: public anlnext::BasicModule, public VDBDataStore {
 public:
   ConvertHubHKTelemetry();
+  ~ConvertHubHKTelemetry();
 };
 
 class SetHKEvs: public anlnext::BasicModule {
 public:
   SetHKEvs();
+  ~SetHKEvs();
+};
+
+class PushTBTelemetryToMySQL: public anlnext::BasicModule {
+public:
+  PushTBTelemetryToMySQL();
+  ~PushTBTelemetryToMySQL();
 };
 } // namespace pgrams
 } // namespace GRAMSBalloon

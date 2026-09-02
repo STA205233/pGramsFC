@@ -54,10 +54,6 @@ class MyApp < ANL::ANLApp
     with_parameters(receiver_module_name: "ReceiveTelemetry_HK_Starlink", run_ID_filename: ENV["HOME"] + "/settings/run_id/run_id_ground.txt", save_telemetry: false, num_telem_per_file: 1000, chatter: 0, telemetry_type: "HK")
     chain GRAMSBalloon::ConvertHubHKTelemetry, "ConvertHubHKTelemetry_Starlink"
     with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry_Starlink", verbose: 0)
-    #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK"
-    #with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
-    #chain GRAMSBalloon::SendArrayByMQTT, "SendArrayByMQTT_HK_Starlink"
-    #with_parameters(InterpretTelemetry_name: "InterpretHKTelemetry_Starlink", MosquittoManager_name: "GroundMosquittoManager", topic: "HK_ground_telemetry", qos: 0, chatter: 0)
     
     chain GRAMSBalloon::ReceiveTelemetry, "ReceiveTelemetry_TB"
     with_parameters(topic: @inifile["TOFBias"]["iridiumteltopic"], chatter: 0)
@@ -70,19 +66,15 @@ class MyApp < ANL::ANLApp
     
     chain GRAMSBalloon::MySQLManager
     with_parameters(host: ENV["PGRAMS_MYSQL_HOST"], user: ENV["PGRAMS_MYSQL_USER"], password: ENV["PGRAMS_MYSQL_PASSWD"], database: "hub_hk")
-    #chain GRAMSBalloon::PushToMySQL
-    #with_parameters(data_store_name: "InterpretHKTelemetry", chatter: 0)
-    #chain GRAMSBalloon::PushToMySQL, "PushToMySQL_Starlink"
-    #with_parameters(data_store_name: "InterpretHKTelemetry_Starlink", chatter: 0)
     
     chain GRAMSBalloon::PushToMySQL, "PushToMySQL_Converted"
     with_parameters(data_store_name: "ConvertHubHKTelemetry", table_name: "HubHK_converted", chatter: 0)
     chain GRAMSBalloon::PushToMySQL, "PushToMySQL_Converted_Starlink"
     with_parameters(data_store_name: "ConvertHubHKTelemetry_Starlink", table_name: "HubHK_converted",chatter: 0)
-    chain GRAMSBalloon::PushToMySQL, "PushToMySQL_TB"
-    with_parameters(data_store_name: "InterpretTBTelemetry", table_name: "TofBias", chatter: 0)
-    chain GRAMSBalloon::PushToMySQL, "PushToMySQL_TB_Starlink"
-    with_parameters(data_store_name: "InterpretTBTelemetry_Starlink", table_name: "TofBias", chatter: 0)
+    chain GRAMSBalloon::PushTBTelemetryToMySQL, "PushToMySQL_TB"
+    with_parameters(InterpretTelemetry_name: "InterpretTBTelemetry", table_name_full: "TofBias_full", table_name_summary: "TofBias_summary", chatter: 0)
+    chain GRAMSBalloon::PushTBTelemetryToMySQL, "PushToMySQL_TB_Starlink"
+    with_parameters(InterpretTelemetry_name: "InterpretTBTelemetry_Starlink", table_name: "TofBias_full", table_name_summary: "TofBias_summary", chatter: 0)
     
     chain GRAMSBalloon::TreatToFCallback,"TreatToFCallback_Iridium"
     with_parameters(InterpretTelemetry_name: "InterpretBaseTelemetry_TOF_Iridium", table_name: "ToFCallback",chatter: 0)

@@ -46,6 +46,7 @@ set(GB_MODULES
   src/ConvertHubHKTelemetry.cc
   src/VHousekeepingModule.cc
   src/SetHKEvs.cc
+  src/PushTBTelemetryToMySQL.cc
 )
 
 if(GB_USE_SPI)

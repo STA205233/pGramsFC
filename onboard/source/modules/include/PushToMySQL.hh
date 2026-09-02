@@ -8,9 +8,9 @@
 #include <vector>
 
 namespace gramsballoon {
-class InterpretTelemetry;
 namespace pgrams {
 class MySQLFieldSink;
+class InterpretTelemetry;
 /**
  * @brief Module for pushing telemetry data to MySQL database.
  * @author Shota Arai
