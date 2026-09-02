@@ -121,6 +121,9 @@ public:
     }
     return schema_->getTable(table_name, false).existsInDatabase();
   }
+  bool hasTable(const std::string &table_name) const {
+    return tables_.find(table_name) != tables_.end();
+  }
   void CreateTable(const std::string &table_name);
   template <typename T>
   void AddColumn(const std::string &table_name, const std::string &col_name) {

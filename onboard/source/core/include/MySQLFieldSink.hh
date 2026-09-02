@@ -32,6 +32,13 @@ public:
     tableName_ = table_name;
     mysqlIO_->AddTable(table_name);
   }
+  bool changeTable(const std::string &table_name) override {
+    if (mysqlIO_->hasTable(table_name)) {
+      tableName_ = table_name;
+      return true;
+    }
+    return false;
+  }
   void addField(const std::string &field_name, double) override {
     addFieldImpl<double>(field_name);
   }

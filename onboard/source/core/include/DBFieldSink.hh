@@ -1,7 +1,7 @@
 #ifndef GRAMSBalloon_DBFieldSink_hh
 #define GRAMSBalloon_DBFieldSink_hh 1
+#include <cstdint>
 #include <string>
-#include <vector>
 namespace gramsballoon::pgrams {
 
 /**
@@ -14,6 +14,7 @@ public:
   DBFieldSink() = default;
   virtual ~DBFieldSink() = default;
   virtual void initializeTable(const std::string & /*table_name*/) {}
+  virtual bool changeTable(const std::string & /*table_name*/) { return false; }
   virtual void setFieldValue(const std::string & /*field_name*/, const uint8_t & /*value*/) {}
   virtual void setFieldValue(const std::string & /*field_name*/, const int16_t & /*value*/) {}
   virtual void setFieldValue(const std::string & /*field_name*/, const uint16_t & /*value*/) {}
