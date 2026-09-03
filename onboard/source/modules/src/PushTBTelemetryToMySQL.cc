@@ -3,6 +3,7 @@
 #include "InterpretTelemetry.hh"
 #include "MySQLFieldSink.hh"
 #include "MySQLManager.hh"
+#include "ToFBiasTelemetry.hh"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -45,25 +46,41 @@ ANLStatus PushTBTelemetryToMySQL::mod_initialize() {
 
   auto mysqlIO = mysqlManager_->getMySQLIO();
 
-  initializeMysqlField(mysqlFieldSinkForFull_.get(), mysqlIO, tableNameForFullOutput_);
-  initializeMysqlField(mysqlFieldSinkForSummary_.get(), mysqlIO, tableNameForSummaryOutput_);
   return AS_OK;
 }
-void PushTBTelemetryToMySQL::initializeMysqlField(MySQLFieldSink *field_sink, mysql::MySQLIO *mysql_io, const std::string &table_name) {
-  field_sink->setMySQLIO(mysql_io);
-  interpretTelemetry_->initializeDBTableInSink(field_sink, tableNameForFullOutput_);
+void PushTBTelemetryToMySQL::initializeMysqlField(mysql::MySQLIO *mysql_io) {
+  mysqlFieldSinkForFull_->setMySQLIO(mysql_io);
+  const ToFBiasTelemetry *telemetry = dynamic_cast<const ToFBiasTelemetry *>(interpretTelemetry_->getTelemetry());
+  telemetry->initializeDBTableFull(mysqlFieldSinkForFull_.get(), tableNameForFullOutput_);
   if (mysql_io->CheckTableExistence(tableNameForFullOutput_)) {
     if (chatter_ > 0) {
-      std::cout << module_name() << "::mod_initialize: Table (" << table_name << ") already exists." << std::endl;
+      std::cout << module_name() << "::mod_initialize: Table (" << tableNameForFullOutput_ << ") already exists." << std::endl;
     }
   }
   else {
     if (chatter_ > 0) {
-      std::cout << module_name() << "::mod_initialize: Table (" << table_name << ") does not exist. Create the table." << std::endl;
+      std::cout << module_name() << "::mod_initialize: Table (" << tableNameForFullOutput_ << ") does not exist. Create the table." << std::endl;
     }
-    mysql_io->CreateTable(table_name);
+    mysql_io->CreateTable(tableNameForFullOutput_);
   }
-  mysql_io->PrintTableInfo(table_name);
+  mysql_io->PrintTableInfo(tableNameForFullOutput_);
+
+  // summary
+  mysqlFieldSinkForSummary_->setMySQLIO(mysql_io);
+  telemetry->initializeDBTableSummary(mysqlFieldSinkForSummary_.get(), tableNameForSummaryOutput_);
+  if (mysql_io->CheckTableExistence(tableNameForSummaryOutput_)) {
+    if (chatter_ > 0) {
+      std::cout << module_name() << "::mod_initialize: Table (" << tableNameForSummaryOutput_ << ") already exists." << std::endl;
+    }
+  }
+  else {
+    if (chatter_ > 0) {
+      std::cout << module_name() << "::mod_initialize: Table (" << tableNameForSummaryOutput_ << ") does not exist. Create the table." << std::endl;
+    }
+    mysql_io->CreateTable(tableNameForSummaryOutput_);
+  }
+
+  mysql_io->PrintTableInfo(tableNameForSummaryOutput_);
 }
 
 ANLStatus PushTBTelemetryToMySQL::mod_analyze() {

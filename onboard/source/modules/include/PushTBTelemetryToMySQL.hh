@@ -42,7 +42,7 @@ private:
   std::shared_ptr<MySQLFieldSink> mysqlFieldSinkForSummary_ = nullptr;
 
 private:
-  void initializeMysqlField(MySQLFieldSink *field_sink, mysql::MySQLIO *mysql_io, const std::string &table_name);
+  void initializeMysqlField(mysql::MySQLIO *mysql_io);
 };
 } // namespace gramsballoon::pgrams
 #endif //GB_PushTBTelemetryToMySQL_hh
