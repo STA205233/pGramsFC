@@ -215,22 +215,6 @@ else()
   set(BME_INC_DIR "")
 endif(GB_USE_I2C)
 
-# HSQUICKLOOK
-if(GB_USE_HSQUICKLOOK)
-  find_path(HSQUICKLOOK_INC_DIR
-    NAMES hsquicklook/DocumentBuilder.hh
-    PATHS $ENV{HSQUICKLOOK_INSTALL}/include /usr/local/include $ENV{HOME}/include)
-  find_library(HSQUICKLOOK_LIB
-    NAMES HSQuickLookAnalyzer
-    PATHS $ENV{HSQUICKLOOK_INSTALL}/lib /usr/local/lib $ENV{HOME}/lib)
-  message("-- HSQUICKLOOK_INC_DIR: ${HSQUICKLOOK_INC_DIR} ")
-  message("-- HSQUICKLOOK_LIB: ${HSQUICKLOOK_LIB} ")
-
-  find_package(mongocxx REQUIRED)
-  set(MONGODB_LIB mongo::mongocxx_shared)
-  message("-- MONGODB_LIB: ${MONGODB_LIB} ")
-endif(GB_USE_HSQUICKLOOK)
-
 # MYSQL
 if(GB_USE_MYSQL)
   find_package(mysql-concpp REQUIRED CONFIG)

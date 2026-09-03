@@ -62,6 +62,9 @@ public:
   void addField(const std::string &field_name, const std::string &) override {
     addFieldImpl<std::string>(field_name);
   }
+  void addField(const std::string &field_name, const Text &) override {
+    addFieldImpl<Text>(field_name);
+  }
   template <typename T>
   void addFieldImpl(const std::string &field_name) {
     if (!mysqlIO_) {

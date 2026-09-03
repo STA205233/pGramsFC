@@ -71,7 +71,8 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
     return AS_OK;
   }
   if (sc->isFailed()) {
-    std::cerr << module_id() << "::mod_analyze(): Socket Communication is failed." << std::endl;
+    if (chatter_ > 2)
+      std::cerr << module_id() << "::mod_analyze(): Socket Communication is failed." << std::endl;
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->setError(ErrorManager::GetDaqComErrorType(subsystem_, true));
     }

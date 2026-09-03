@@ -2,6 +2,9 @@
 #define ReceiveCommand_H 1
 
 #include "CommunicationFormat.hh"
+#include "CommunicationSaver.hh"
+#include "ControlToFBias.hh"
+#include "MosquittoManager.hh"
 #include "RunIDManager.hh"
 #ifdef USE_SPI
 #include "SPIManager.hh"
@@ -24,6 +27,8 @@ class MosquittoManager;
 template <typename T>
 class MosquittoIO;
 class SendCommandToDAQComputer;
+class ControlToFBias;
+
 #ifdef USE_SPI
 class PDUChannelMap;
 class ControlPDU;
@@ -84,6 +89,7 @@ private:
   RunIDManager *runIDManager_ = nullptr;
   MosquittoManager<std::vector<uint8_t>> *mosquittoManager_ = nullptr;
   MosquittoManager<std::string> *telemetryMosquittoManager_ = nullptr;
+  ControlToFBias *controlTofBias_ = nullptr;
 #ifdef USE_SPI
   SPIManager *spiManager_ = nullptr;
   ControlPDU *controlPDU_ = nullptr;

@@ -26,9 +26,9 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "IoContextManager"
     chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 10)
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_usec: 10)
     chain GRAMSBalloon::GetMHADCData
-    with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, sleep_for_msec: 0, MHADCManager_name: "MHADCManager") do |m|
+    with_parameters(channel_per_section: 6, num_section: 8, chatter: 0, MHADCManager_name: "MHADCManager") do |m|
       m.set_singleton(0)
     end
     @main_modules << "MHADCManager"

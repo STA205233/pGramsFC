@@ -1,9 +1,9 @@
 #ifndef GB_MosquittoManager_hh
 #define GB_MosquittoManager_hh 1
+#include "MosquittoIO.hh"
 #include "anlnext/BasicModule.hh"
 #include "mosquittopp.h"
 #include <string>
-
 namespace gramsballoon::pgrams {
 enum class CommunicationLinkType : uint32_t {
   IRIDIUM = 0,
@@ -20,9 +20,6 @@ class SendTelemetry;
  * @date 2026-02-05 Shota Arai| Multi-threading (v2.2)
  * @date 2026-07-08 Shota Arai| Use of loop_start() (v2.3)
 **/
-
-template <typename T>
-class MosquittoIO;
 template <typename TelemType>
 class MosquittoManager: public anlnext::BasicModule {
   using mod_class = MosquittoManager<TelemType>;
@@ -56,7 +53,7 @@ public:
   anlnext::ANLStatus mod_end_run() override;
   anlnext::ANLStatus mod_finalize() override;
 
-  void Publish(TelemType& message, const std::string& topic, int qos) {
+  void Publish(TelemType &message, const std::string &topic, int qos) {
     singleton_self()->mosquittoIO_->Publish(message, topic, qos);
   }
   MosquittoIO<TelemType> *getMosquittoIO() { return singleton_self()->mosquittoIO_.get(); }

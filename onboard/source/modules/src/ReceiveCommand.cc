@@ -172,6 +172,14 @@ void ReceiveCommand::getModules() {
       }
     }
   }
+
+  if (exist_module("ControlToFBias")) {
+    get_module_NC("ControlToFBias", &controlTofBias_);
+  }
+  else {
+    std::cout << module_id() << ": ControlToFBias not found" << std::endl;
+  }
+
 #ifdef USE_SPI
   {
     const std::string name = "ControlPDU";
@@ -358,42 +366,117 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Ch: " << arguments[0] << std::endl;
     }
-    // TODO: Implement handling
-    return true;
+    if (controlTofBias_) {
+      const int ret = controlTofBias_->enableDCDC(arguments[0]);
+      if (ret < 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to enable DCDC" << std::endl;
+      }
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+      }
+      return true;
+    }
+    return false;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Ch: " << arguments[0] << std::endl;
     }
-    // TODO: Implement handling
-  }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
-    if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Vdef command received. Ch: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
+    if (controlTofBias_) {
+      const int ret = controlTofBias_->disableDCDC(static_cast<uint8_t>(arguments[0] & 0xff));
+      if (ret < 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to disable DCDC" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+        }
+        return false;
+      }
+      return true;
     }
-    //TODO: Implement handling
-    return true;
-  }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 2) {
-    if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset command received. Ch: " << arguments[0] << ", Voltage: " << arguments[1] << std::endl;
+    else {
+      return false;
     }
-    //TODO: Implement handling
-    return true;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query info command received." << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query Info command received." << std::endl;
     }
-    //TODO: Implement handling
+    if (controlTofBias_) {
+      const int ret = controlTofBias_->queryFullOutput();
+      if (ret < 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+        }
+        return false;
+      }
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Vdef command received." << std::endl;
+    }
+    if (controlTofBias_) {
+      const int ret = controlTofBias_->setVdef(arguments[0], arguments[1]);
+      if (ret < 0) {
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+        if (sendTelemetry_) {
+          sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+        }
+        return false;
+      }
+      return true;
+    }
     return true;
   }
   else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
     if (chatter_ >= 1) {
-      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Tmux command received. Ch: " << arguments[0] << ", Temp: " << arguments[1] << std::endl;
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Tmux command received. Index: " << arguments[0] << ", on/off: " << arguments[1] << std::endl;
     }
-    // TODO: Implement handling
+    if (!controlTofBias_) {
+      return false;
+    }
+    const int ret = controlTofBias_->setTmuxChannel(arguments[0], arguments[1]);
+    if (ret < 0) {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to set default temperature" << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+      }
+      return false;
+    }
     return true;
+  }
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset received. Voff: " << arguments[0] << std::endl;
+    }
+    if (!controlTofBias_) {
+      return false;
+    }
+    const int ret = controlTofBias_->setVoffset(arguments[0]);
+    if (ret < 0) {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to set Voffset" << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+      }
+      return false;
+    }
+    return true;
+  }
+  else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc <= 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": 0x" << std::hex << code << std::dec << " command for PDU received." << std::endl;
+    }
+#ifdef USE_SPI
+    return applySPICommand(code, argc, arguments);
+#else
+    std::cerr << termutil::red << "[error]" << termutil::reset << "SPI feature is not available in this build" << std::endl;
+    return false;
+#endif
   }
   else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc <= 1) {
     if (chatter_ >= 1) {

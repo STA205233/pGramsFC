@@ -9,9 +9,9 @@ constexpr double CMN_OFFSET = 0;
 
 namespace mhadc {
 // Conversion for MHADC
-constexpr int ADC_MAX = 2715;
+constexpr int ADC_MAX = 4096;
 constexpr double ADC_MAX_FLOAT = static_cast<double>(ADC_MAX);
-constexpr double VREF = 3.3 * units::volt;
+constexpr double VMAX = 5.0 * units::volt;
 constexpr double CMN_OFFSET = 0 * units::volt;
 } // namespace mhadc
 

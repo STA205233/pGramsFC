@@ -27,7 +27,7 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     chain GRAMSBalloon::EncodedSerialCommunicator,"MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter:100, timeout_sec: 10, timeout_usec: 10)
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter:100, timeout_usec: 10000010)
     #chain GRAMSBalloon::GetMHADCData
     #with_parameters(MHADCManager_name: "MHADCManager",channel_per_section: 6, num_section: 8, chatter: 100, sleep_for_msec:1)
     chain GRAMSBalloon::GetComputerStatus

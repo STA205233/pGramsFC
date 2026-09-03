@@ -1,4 +1,5 @@
 #include "TreatToFCallback.hh"
+#include "CommunicationCodes.hh"
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus TreatToFCallback::mod_define() {
@@ -44,11 +45,12 @@ ANLStatus TreatToFCallback::mod_initialize() {
   return AS_OK;
 }
 ANLStatus TreatToFCallback::mod_analyze() {
+  using namespace ::pgrams::communication;
   if (!interpretTelemetry_) {
     std::cerr << module_id() << ": " << interpretTelemetryName_ << "is nullptr" << std::endl;
     return AS_ERROR;
   }
-  if (interpretTelemetry_->CurrentTelemetryType() != 2) {
+  if (interpretTelemetry_->CurrentTelemetryType() != to_telem_u16(TelemetryCodes::TOF_Callback)) {
     return AS_OK;
   }
   auto mysqlIO = mysqlManager_->getMySQLIO();

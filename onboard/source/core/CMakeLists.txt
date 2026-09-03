@@ -23,13 +23,14 @@ set(GB_CORE_CLASSES
   src/ErrorManager.cc
   src/DateManager.cc
   src/EncodedSerialCommunication.cc
-  src/OrientationInformation.cc
   src/BaseTelemetryDefinition.cc
   src/HubHKTelemetry.cc
   src/VHKTelemetryMapping.cc
   src/MHADCMapping.cc
   src/IridiumPacketPool.cc
+  src/ToFBiasController.cc
   src/ConvertedHubHKTelemetry.cc
+  src/ToFBiasTelemetry.cc
 )
 
 if(GB_USE_SPI)
@@ -118,7 +119,7 @@ add_library(GBCore SHARED
   ${GB_I2C_CORE_CLASSES}
   ${GB_VERSA_API_CORE_CLASSES}
   )
-message(DEBUG "GBCore:   
+message(DEBUG "-- Classes to be compile as GBCore:
   ${GB_CORE_CLASSES}
   ${GB_SPI_CORE_CLASSES}
   ${GB_LJM_CORE_CLASSES}
@@ -144,6 +145,19 @@ target_link_libraries(GBCore
   ${BME280_LIB}
   ${MCP2210_LIB}
   )
+message(DEBUG "-- Libraries to be linked with GBCore:
+ ${BOOST_LIB}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
+  ${WAVEFORMS_LIB}
+  ${ICM20948_LIB}
+  ${MYSQL_LIB}
+  ${MOSQUITTO_LIB}
+  ${VERSALOGIC_LIB}
+  ${LJM_LIB}
+  ${BME_LIB}
+  ${BME280_LIB}
+")
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 
 install(TARGETS GBCore LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

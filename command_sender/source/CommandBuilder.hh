@@ -30,8 +30,8 @@ public:
   uint16_t get_command_code(const std::string &name) const;
   int get_argnum(const std::string &name) const;
 
-  std::vector<uint8_t> make_byte_array(const std::string &name, const std::vector<int32_t> &arg_array) const;
-  std::vector<uint8_t> make_byte_array(uint16_t name, const std::vector<int32_t> &arg_array) const;
+  std::vector<uint8_t> make_byte_array(const std::string &name, const std::vector<uint32_t> &arg_array) const;
+  std::vector<uint8_t> make_byte_array(uint16_t name, const std::vector<uint32_t> &arg_array) const;
 
 private:
   std::map<std::string, CommandProperty> code_map_;

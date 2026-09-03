@@ -45,24 +45,25 @@ ANLStatus GetMHADCData::mod_initialize() {
     }
     return AS_ERROR;
   }
+  dat_.reserve(1000);
   return AS_OK;
 }
 
 ANLStatus GetMHADCData::mod_analyze() {
-  if (chatter_ > 0) {
-    std::cout << "GetMHADCData::mod_analyze" << std::endl;
+  dat_.clear();
+  if (!isInHKLoop()) {
+    return AS_OK;
   }
   if (!isInHKLoop()) {
     return AS_OK;
   }
   std::vector<bool> failed_ch(numCh_, false);
   adcData_.resize(numCh_, 0);
-  std::string dat;
   if (!encodedSerialCommunicator_) {
     return AS_OK;
   }
   for (int j = 0; j < numTrials_; j++) {
-    const int byte_read = encodedSerialCommunicator_->SendComAndGetData("a", dat, sleepForMsec_);
+    const int byte_read = encodedSerialCommunicator_->SendComAndGetData("a", dat_, 1000);
     if (byte_read < 0) {
       if (chatter_ > 5) std::cerr << "Error in GetMHADCData::mod_analyze: byte_read = " << byte_read << std::endl;
       if (sendTelemetry_) {
@@ -77,19 +78,19 @@ ANLStatus GetMHADCData::mod_analyze() {
       continue;
     }
     if (chatter_ > 1) {
-      std::cout << "Received message: " << dat << std::endl;
+      std::cout << "Received message: " << dat_ << std::endl;
     }
     bool success = true;
     for (int i = 0; i < numCh_; i++) {
       std::smatch m;
-      std::regex_search(dat, m, regs_[i]);
+      std::regex_search(dat_, m, regs_[i]);
       try {
         adcData_[i] = std::stoi(m[1].str());
         failed_ch[i] = false;
       }
       catch (const std::invalid_argument &e) {
         std::cerr << "Ch " << i << " data cannot be converted." << std::endl;
-        std::cerr << "Data: " << dat << std::endl;
+        std::cerr << "Data: " << dat_ << std::endl;
         adcData_[i] = 0;
         failed_ch[i] = true;
         success = false;

@@ -1,6 +1,8 @@
 #ifndef GRAMSBalloon_PressureGaugeManager_hh
 #define GRAMSBalloon_PressureGaugeManager_hh 1
 #include "EncodedSerialCommunicator.hh"
+#include <string>
+#include <string_view>
 
 namespace gramsballoon::pgrams {
 class PressureGaugeManager: public EncodedSerialCommunicator {
@@ -15,7 +17,7 @@ protected:
   PressureGaugeManager(const PressureGaugeManager &r) = default;
 
 public:
-  int SendComAndGetData(const std::string &command, std::string &data, int sleepfor_msec = 500) override;
+  int SendComAndGetData(std::string_view command, std::string &data, int max_length) override;
 };
 } // namespace gramsballoon::pgrams
 
