@@ -45,6 +45,7 @@ ANLStatus PushTBTelemetryToMySQL::mod_initialize() {
   mysqlFieldSinkForSummary_ = std::make_shared<MySQLFieldSink>();
 
   auto mysqlIO = mysqlManager_->getMySQLIO();
+  initializeMysqlField(mysqlIO);
 
   return AS_OK;
 }

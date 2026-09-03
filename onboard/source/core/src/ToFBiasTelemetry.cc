@@ -182,7 +182,7 @@ void ToFBiasTelemetry::initializeDBTableFull(DBFieldSink *sink, const std::strin
 
   // For Full output
   BaseTelemetryDefinition::initializeDBTable(sink, table_name);
-  sink->addField("full_output", "");
+  sink->addField("full_output", Text());
 }
 void ToFBiasTelemetry::initializeDBTableSummary(DBFieldSink *sink, const std::string &table_name) const {
   // For Summary

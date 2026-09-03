@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <string>
 namespace gramsballoon::pgrams {
-
+class Text {};
 /**
  * @brief Interface class for database field sink
  * @author Shota Arai
@@ -34,6 +34,7 @@ public:
   virtual void addField(const std::string & /*field_name*/, float /*dummy*/) {}
   virtual void addField(const std::string & /*field_name*/, double /*dummy*/) {}
   virtual void addField(const std::string & /*field_name*/, const std::string & /*dummy*/) {}
+  virtual void addField(const std::string & /*field_name*/, const Text & /*dummy*/) {}
 };
 } // namespace gramsballoon::pgrams
 #endif //GRAMSBalloon_DBFieldSink_hh
