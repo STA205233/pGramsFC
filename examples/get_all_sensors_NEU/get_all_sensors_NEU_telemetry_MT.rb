@@ -9,7 +9,7 @@ class MyApp < ANL::ANLApp
           m.set_singleton(1)
         end
         # chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-        # with_parameters(filename: "/dev/ttyAMA0", baudrate:9600, timeout_sec: 0, timeout_usec: 100)
+        # with_parameters(filename: "/dev/ttyAMA0", baudrate:9600, timeout_usec: 100)
         # chain GRAMSBalloon::GetMHADCData
         # with_parameters(num_ch: 32, sleep_for_msec: 10, MHADCManager_name: "MHADCManager", chatter: 0)
         chain GRAMSBalloon::Sleep
@@ -33,7 +33,7 @@ class MyApp < ANL::ANLApp
         end
         
         chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_1"
-        with_parameters(filename: "/dev/ttyUSB0", baudrate: 4098,  timeout_usec: 10000, timeout_sec: 0) do |m|
+        with_parameters(filename: "/dev/ttyUSB0", baudrate: 4098,  timeout_usec: 10000) do |m|
           m.set_singleton(0)
         end
         chain GRAMSBalloon::GetPressure, "GetPressure_1"
@@ -41,7 +41,7 @@ class MyApp < ANL::ANLApp
           m.set_singleton(0)
         end
         #chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_2"
-        #with_parameters(filename: "/dev/ttyUSB1", baudrate: 4098, timeout_usec: 0, timeout_sec: 1) do |m|
+        #with_parameters(filename: "/dev/ttyUSB1", baudrate: 4098, timeout_usec: 1000000) do |m|
         #  m.set_singleton(0)
         #end
         #chain GRAMSBalloon::GetPressure, "GetPressure_2"

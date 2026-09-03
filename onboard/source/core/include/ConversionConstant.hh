@@ -9,9 +9,9 @@ constexpr double CMN_OFFSET = 0;
 
 namespace mhadc {
 // Conversion for MHADC
-constexpr int ADC_MAX = 2715;
+constexpr int ADC_MAX = 4096;
 constexpr double ADC_MAX_FLOAT = static_cast<double>(ADC_MAX);
-constexpr double VREF = 3.3 * units::volt;
+constexpr double VMAX = 5.0 * units::volt;
 constexpr double CMN_OFFSET = 0 * units::volt;
 } // namespace mhadc
 
@@ -30,7 +30,7 @@ constexpr double OFFSET_INCLINOMETER = 2.5 * units::volt;
 } // namespace inclinometer
 
 namespace pdu {
-constexpr double V_REF = 3.3 * units::volt;
+constexpr double V_REF = 5.0 * units::volt;
 constexpr double PRESICION = 4096.0;
 constexpr double CMN_OFFSET = 0.0 * units::volt;
 

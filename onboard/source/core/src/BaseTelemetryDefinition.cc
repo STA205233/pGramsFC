@@ -152,14 +152,14 @@ bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
     }
     else {
       contents_->interpret();
-      contents_->update();
+      //contents_->update(); // contents_->setData() already fills the contents_->command_
     }
   }
   catch (const std::exception &e) {
     std::cerr << "BaseTelemetryDefinition::parseJSON error: command conversion failed: " << e.what() << std::endl;
     is_success = false;
   }
-  interpret();
+  is_success &= interpret();
   return is_success;
 }
 std::ostream &operator<<(std::ostream &os, const Subsystem &subsystem) {

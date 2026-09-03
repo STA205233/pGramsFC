@@ -1,4 +1,5 @@
 #include "ConvertHubHKTelemetry.hh"
+#include "CommunicationCodes.hh"
 #include "ConvertedHubHKTelemetry.hh"
 #include "HubHKTelemetry.hh"
 using namespace anlnext;
@@ -27,7 +28,8 @@ ANLStatus ConvertHubHKTelemetry::mod_initialize() {
 }
 
 ANLStatus ConvertHubHKTelemetry::mod_analyze() {
-  if (interpretTelemetry_->CurrentTelemetryType() == 1) { // HK
+  using namespace ::pgrams::communication;
+  if (interpretTelemetry_->CurrentTelemetryType() == to_telem_u16(TelemetryCodes::HUB_Telemetry_Normal)) { // HK
     const bool result = convertedTelemetry_->convert(rawTelemetry_.get());
     if (verbose_ > 3) {
       convertedTelemetry_->print(std::cout);

@@ -1,4 +1,5 @@
 #include "SendArrayByMQTT.hh"
+#include "CommunicationCodes.hh"
 #include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 using namespace anlnext;
@@ -33,6 +34,7 @@ ANLStatus SendArrayByMQTT::mod_initialize() {
   return AS_OK;
 }
 ANLStatus SendArrayByMQTT::mod_analyze() {
+  using namespace ::pgrams::communication;
   if (!mosquittoManager_ || !interpretTelemetry_) {
     return AS_OK;
   }
@@ -40,7 +42,7 @@ ANLStatus SendArrayByMQTT::mod_analyze() {
     return AS_OK;
   }
   const auto telemetry = interpretTelemetry_->getTelemetry();
-  const auto& contents = telemetry->getContents()->Arguments();
+  const auto &contents = telemetry->getContents()->Arguments();
   const auto code = telemetry->getContents()->Code();
   data_.clear();
   dataStr_.clear();

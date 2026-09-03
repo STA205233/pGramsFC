@@ -90,6 +90,13 @@ struct SqlType<std::string> {
   }
 };
 
+template <>
+struct SqlType<Text> {
+  static std::string name() {
+    return "TEXT(" + std::to_string(6000) + ")";
+  }
+};
+
 using value_t = mysqlx::Value;
 using table_t = std::map<std::string, std::pair<std::optional<value_t>, std::string>>; // column_name -> (value, type)
 /**
@@ -121,6 +128,9 @@ public:
     }
     return schema_->getTable(table_name, false).existsInDatabase();
   }
+  bool hasTable(const std::string &table_name) const {
+    return tables_.find(table_name) != tables_.end();
+  }
   void CreateTable(const std::string &table_name);
   template <typename T>
   void AddColumn(const std::string &table_name, const std::string &col_name) {
@@ -134,7 +144,12 @@ public:
       std::cerr << col_name << "is already resisgered in Table(" << table_name << ")" << std::endl;
       return;
     }
-    it->second.insert(std::make_pair(col_name, std::make_pair(std::nullopt, SqlType<T>::name())));
+    if constexpr (std::is_same_v<T, Text>) {
+      it->second.insert(std::make_pair(col_name, std::make_pair(std::nullopt, SqlType<T>::name())));
+    }
+    else {
+      it->second.insert(std::make_pair(col_name, std::make_pair(std::nullopt, SqlType<T>::name())));
+    }
   }
   void SetItem(const std::string &table_name, const std::string &col_name, const mysqlx::Value &value);
   bool hasKeyInTable(const std::string &table_name, const std::string &col_name) {

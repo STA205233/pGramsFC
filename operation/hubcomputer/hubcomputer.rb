@@ -19,15 +19,39 @@ class MyApp < ANL::ANLApp
     end
 
     chain GRAMSBalloon::ComMosquittoManager
-    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1) do |m|
+    with_parameters(host: ENV["PGRAMS_MOSQUITTO_HOST"], port: ENV["PGRAMS_MOSQUITTO_PORT"].to_i, password: ENV["PGRAMS_MOSQUITTO_PASSWD"], user: ENV["PGRAMS_MOSQUITTO_USER"], keep_alive: 60, chatter: 0, device_id: "hubcomputer_c", time_out: 1, do_cleanup: true) do |m|
       m.set_singleton(0)
     end
-
+    
+    chain GRAMSBalloon::SetHKEvs
+    with_parameters(duration_msec: 1000, chatter: 0) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "SetHKEvs"
+    
     chain GRAMSBalloon::IoContextManager do |m|
       m.set_singleton(0)
     end
     @main_modules << "IoContextManager"
-
+    
+    
+    chain GRAMSBalloon::SPIManager, "SPIManager_baycat"
+    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "baycat", use_multiplexer: true) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "SPIManager_baycat"
+    chain GRAMSBalloon::ControlPDU
+    with_parameters(SPIManager_name: "SPIManager_baycat") do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "ControlPDU"
+    chain GRAMSBalloon::GetPDUInfo
+    with_parameters(SPIManager_name: "SPIManager_baycat", chatter: 0, v_ref: 5.0) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "GetPDUInfo"
+    
+    
     subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}
     subsystemInts = {"Hub" => 0, "TPC" => 2, "TPCMonitor"=> 3,"TOF" => 4, "Orchestrator" => 1}
@@ -67,9 +91,13 @@ class MyApp < ANL::ANLApp
           m.set_singleton(0)
         end
         @main_modules << "DistributeCommand_#{subsystem}#{com}"
-        
+        if com == "" 
+          duration = 1000
+        else 
+          duration = -1
+        end
         chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem + com
-          with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}#{com}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
+          with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: duration, DistributeCommand_name: "DistributeCommand_#{subsystem}#{com}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
           m.set_singleton(0)
         end
         @main_modules << "SendCommandToDAQComputer_" + subsystem + com
@@ -101,13 +129,13 @@ class MyApp < ANL::ANLApp
     end
     
     chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_sec: 0, timeout_usec: 100) do |m|
+    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_usec: 1000) do |m|
       m.set_singleton(0)
     end
     @main_modules << "MHADCManager"
     
     chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 0, sleep_for_msec:1) do |m|
+    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter: 3) do |m|
       m.set_singleton(0)
     end
     @main_modules << "GetMHADCData"
@@ -116,6 +144,12 @@ class MyApp < ANL::ANLApp
       m.set_singleton(0)
     end
     @main_modules << "GetComputerStatus"
+    
+    chain GRAMSBalloon::ControlToFBias
+    with_parameters(path: "/dev/ttyUSB0", timeout_usec: 100000, MosquittoManager_name: "TelemMosquittoManager", topic: @inifile["TOFBias"]["iridiumteltopic"], starlink_topic: @inifile["TOFBias"]["teltopic"], chatter: 4, minimum_duration_sec: 10) do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "ControlToFBias"
     
     chain GRAMSBalloon::SendTelemetry
     with_parameters(

@@ -4,16 +4,17 @@
 namespace gramsballoon::pgrams {
 
 /**
- * @brief A class for mapping PDU commands to multiplexer chip select values
+ * @brief A class for mapping PDU CS to multiplexer chip select values
  * @author Shota Arai
  * @date 2026-02-21 | Shota Arai | Created
+ * @date 2026-07-22 | Shota Arai | Rename
  */
-class PDUCommandCSMapping: public VCSMapping {
+class PDUCSMapping: public VCSMapping {
 public:
-  PDUCommandCSMapping() : VCSMapping() {
+  PDUCSMapping(cs_t csBitRange = 0x01ff0000, cs_t defaultState = 0x0100000) : VCSMapping(csBitRange, defaultState) {
     registerMapping();
   }
-  virtual ~PDUCommandCSMapping() = default;
+  virtual ~PDUCSMapping() = default;
 
 protected:
   void registerMapping() override;

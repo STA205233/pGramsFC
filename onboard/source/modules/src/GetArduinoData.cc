@@ -37,7 +37,7 @@ ANLStatus GetArduinoData::mod_analyze() {
     timeval timeout;
     timeout.tv_sec = timeout_;
     timeout.tv_usec = timeoutUsec_;
-    const int rv = esc_->WaitForTimeOut(timeout);
+    const int rv = esc_->waitForReceivable(timeout);
     if (rv == -1) {
       std::cerr << "Error in GetArduinoData::mod_analyze: rv = -1" << std::endl;
       if (sendTelemetry_) {

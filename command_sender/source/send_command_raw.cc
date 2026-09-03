@@ -15,9 +15,9 @@ int main(int argc, char *argv[]) {
   }
 
   uint16_t code = std::stoi(argv[2]);
-  std::vector<int32_t> arg_array;
+  std::vector<uint32_t> arg_array;
   for (int i = 3; i < argc; i++) {
-    arg_array.push_back(std::stoi(argv[i]));
+    arg_array.push_back(std::stoul(argv[i]));
   }
   
   const int result_init = mosqpp::lib_init();

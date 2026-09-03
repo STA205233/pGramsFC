@@ -1,14 +1,14 @@
 #ifndef GRAMSBalloon_ADC128S102IO_HH
 #define GRAMSBalloon_ADC128S102IO_HH 1
 #include "SPIInterface.hh"
-#include "cstdint"
-#include <memory>
+#include <array>
+#include <cstdint>
 namespace gramsballoon::pgrams {
 class ADC128S102IO {
 public:
   ADC128S102IO(float supply_voltage_in_V = 3.3) : LSB_(supply_voltage_in_V / 4096), halfLSB_(LSB_ * 0.5) {}
   virtual ~ADC128S102IO() = default;
-  static constexpr int MaxChannelsPerADC() { return 8; }
+  static constexpr size_t MaxChannelsPerADC() { return 8; }
 
 private:
   SPIInterface *spiInterface_ = nullptr;
@@ -20,11 +20,14 @@ private:
   int errorCode_ = 0;
 
 public:
-  float convertVoltage(uint16_t value);
   float getCurrentVoltage(int ch);
+  uint16_t getCurrentVoltageADC(int ch);
+  bool getAllADCs(std::array<float, 8>& dest);
+  bool getAllADCs(std::array<uint16_t, 8>& dest);
   float convertVoltage(uint16_t value) const;
   int getErrorCode() const { return errorCode_; }
   bool isError() const { return errorCode_ != 0; }
+  void resetError() { errorCode_ = 0; }
   void setSPIInterface(SPIInterface *spiInterface) { spiInterface_ = spiInterface; }
   bool isSPIInterfaceSet() const { return spiInterface_ != nullptr; }
   void setCS(int cs) { cs_ = cs; }

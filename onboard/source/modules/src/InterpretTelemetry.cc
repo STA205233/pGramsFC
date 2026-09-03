@@ -3,6 +3,7 @@
 #include "CommunicationSaver.hh"
 #include "DateManager.hh"
 #include "HubHKTelemetry.hh"
+#include "ToFBiasTelemetry.hh"
 using namespace anlnext;
 
 namespace gramsballoon::pgrams {
@@ -39,17 +40,13 @@ ANLStatus InterpretTelemetry::mod_initialize() {
   else if (telemetryTypeStr_ == "Base") {
     telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
   }
-
+  else if (telemetryTypeStr_ == "TOFBias") {
+    telemetry_ = std::make_shared<ToFBiasTelemetry>(true);
+  }
   else {
     std::cerr << module_name() << "::mod_initialize: Unknown telemetry type " << telemetryTypeStr_ << std::endl;
     telemetry_ = std::make_shared<BaseTelemetryDefinition>(true);
   }
-#ifdef USE_HSQUICKLOOK
-  const std::string pusher_module_name = "PushToMongoDB";
-  if (exist_module(pusher_module_name)) {
-    get_module_NC(pusher_module_name, &pusher_);
-  }
-#endif // USE_HSQUICKLOOK
   telemetrySaver_->setNumCommandPerFile(numTelemPerFile_);
   telemetrySaver_->setBinaryFilenameBase(binaryFilenameBase_);
   telemetrySaver_->setRunID(0); // dummy
@@ -62,19 +59,22 @@ ANLStatus InterpretTelemetry::mod_analyze() {
     std::cerr << module_name() << "::mod_analyze: Receiver is nullptr" << std::endl;
     return AS_ERROR;
   }
+  if (!telemetry_) {
+    return AS_ERROR;
+  }
+  telemetry_->reset();
+  currentTelemetryType_ = 0;
   if (!(receiver_->Valid())) {
-    currentTelemetryType_ = 0;
     return AS_OK;
   }
 
-  currentTelemetryType_ = 1;
   const auto &telemetry = receiver_->Telemetry();
   const bool status = interpret(telemetry);
   const bool failed = !status;
   if (failed) {
     std::cerr << module_name() << "::mod_analyze Failed to interpret telemetry..." << std::endl;
     telemetrySaver_->writeCommandToFile(failed, telemetry);
-    currentTelemetryType_ = -1;
+    currentTelemetryType_ = 0;
     return AS_OK;
   }
   if (saveTelemetry_) {
@@ -100,14 +100,14 @@ bool InterpretTelemetry::interpret(const std::string &telemetryStr) {
   const bool result = telemetry_->parseJSON(telemetryStr);
   if (!result) return false;
 
-  if (telemetryTypeStr_ == "HK" && telemetry_->getContents()->Code() == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal)) {
+  currentTelemetryType_ = telemetry_->getContents()->Code();
+
+  if (telemetryTypeStr_ == "HK" && currentTelemetryType_ == ::pgrams::communication::to_telem_u16(::pgrams::communication::TelemetryCodes::HUB_Telemetry_Normal)) {
     if (currentRunID_ < 0) {
       currentRunID_ = telemetry_->RunID();
       updateRunIDFile();
     }
   }
-  if (telemetryTypeStr_ == "Base" && telemetry_->getContents()->Code() == static_cast<uint16_t>(::pgrams::communication::CommunicationCodes::TOF_Callback))
-    currentTelemetryType_ = 2;
   if (result && chatter_ > 0) {
     telemetry_->print(std::cout);
   }

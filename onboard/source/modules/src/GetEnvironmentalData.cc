@@ -3,8 +3,7 @@
 #include "bme68x.h"
 #include "I2CInterface.hh"
 #include "I2CManager.hh"
-#include <chrono>
-#include <thread>
+#include <memory>
 
 using namespace anlnext;
 
@@ -60,6 +59,9 @@ ANLStatus GetEnvironmentalData::mod_initialize() {
 }
 
 ANLStatus GetEnvironmentalData::mod_analyze() {
+  if (!isInHKLoop()) {
+    return AS_OK;
+  }
   const int status = bme680io_->getData();
   if (status != 0) {
     std::cerr << "Failed to get environmental data." << std::endl;

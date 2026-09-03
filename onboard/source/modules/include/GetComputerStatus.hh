@@ -1,3 +1,13 @@
+#ifndef GetRaspiStatus_H
+#define GetRaspiStatus_H 1
+#ifdef USE_SYSTEM_MODULES
+#include "VHousekeepingModule.hh"
+#include <anlnext/BasicModule.hh>
+#include <cstdint>
+
+namespace gramsballoon::pgrams {
+
+class SendTelemetry;
 /**
  * GetComputerStatus sample module of the ANL Next framework
  *
@@ -5,20 +15,8 @@
  * @date
  *
  */
-
-#ifndef GetRaspiStatus_H
-#define GetRaspiStatus_H 1
-#ifdef USE_SYSTEM_MODULES
-#include "SendTelemetry.hh"
-#include <anlnext/BasicModule.hh>
-#include <cstdint>
-
-namespace gramsballoon::pgrams {
-
-class SendTelemetry;
-
-class GetComputerStatus: public anlnext::BasicModule {
-  DEFINE_ANL_MODULE(GetComputerStatus, 1.0);
+class GetComputerStatus: public VHousekeepingModule {
+  DEFINE_ANL_MODULE(GetComputerStatus, 1.1);
   ENABLE_PARALLEL_RUN();
 
 public:

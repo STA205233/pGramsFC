@@ -5,6 +5,7 @@ namespace gramsballoon::pgrams {
 
 /**
  * @brief A class for PDU telemetry order mapping
+ * @note This class is used for Telemetry Creation
  * @author Shota Arai
  * @date 2026-02-20 | Shota Arai | Created
  */
@@ -15,10 +16,12 @@ public:
   static constexpr int NUM_CH_PER_CHIP_SELECT = 8;
 
 protected:
-  bool getSetter(int index, VHKTelemetryMapping::Setter &setter) const override;
+  bool getSetter(int index, VHKTelemetryMapping::Setter& setter) const override;
 
 public:
-  static constexpr int ChannelMapping(int multiplexer_channel, int adc_ch);
+  static constexpr int ChannelMapping(int multiplexer_channel, int adc_ch) {
+    return NUM_CH_PER_CHIP_SELECT * multiplexer_channel + adc_ch;
+  }
 };
 } // namespace gramsballoon::pgrams
 

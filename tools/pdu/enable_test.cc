@@ -1,0 +1,56 @@
+#include "BayCatSPIIO.hh"
+#include "FT232HIO.hh"
+#include "MCP2210IO.hh"
+#include "SPIInterface.hh"
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <thread>
+
+using namespace gramsballoon::pgrams;
+
+const int chip_select = 5; // PLEASE MODIFY (DIO pin # starts at 1. Subtract 1 from DIO # and put it here)
+const bool is_high = false; // If high, please specify true, otherwise false.
+
+int main(int argc, char *argv[]) {
+  std::shared_ptr<SPIInterface> spiInterface2 = nullptr;
+  if (argc != 2) {
+    std::cerr << "Usage: " << argv[0] << " <FT232H, MCP2210 or Baycat>" << std::endl;
+    return -1;
+  }
+  std::string interfaceType = argv[1];
+  std::string path = "";
+  if (interfaceType == "Baycat") {
+    std::cout << "Using BayCatSPIIO interface" << std::endl;
+    spiInterface2 = std::make_shared<BayCatSPIIO>();
+    spiInterface2->setConfigOptions(BayCatSPIIO::MakeOption(2, 0)); // SPI mode 2 and MSB first
+  }
+  else if (interfaceType == "FT232H") {
+    std::cout << "Using FT232HIO interface" << std::endl;
+    spiInterface2 = std::make_shared<FT232HIO>();
+    spiInterface2->setConfigOptions(2);
+  }
+  else if (interfaceType == "MCP2210") {
+    std::cout << "Using MCP2210 interface" << std::endl;
+    path = "/dev/hidraw0";
+    spiInterface2 = std::make_shared<MCP2210IO>();
+    spiInterface2->setConfigOptions(2);
+  }
+  else {
+    std::cerr << "Invalid interface type: " << interfaceType << ". Use 'FT232H' or 'Baycat', 'MCP2210'." << std::endl;
+    return -1;
+  }
+  spiInterface2->Open(0, path.c_str());
+  spiInterface2->controlGPIOBit(~0, 0);
+
+  spiInterface2->controlGPIO(chip_select, is_high);
+  std::cout << "Set pin " << chip_select << " to " << is_high << std::endl;
+  std::this_thread::sleep_for(std::chrono::seconds(1)); // pause for a sec
+  //for (auto ch: spiInterface2->Channels()) {
+  //  spiInterface2->controlGPIO(ch, is_high);
+  //  std::this_thread::sleep_for(std::chrono::seconds(1)); // after 5 sec, the process will continue.
+  //  spiInterface2->controlGPIO(ch, !is_high);
+  //}
+  const int status2 = spiInterface2->Close();
+  return status2;
+}

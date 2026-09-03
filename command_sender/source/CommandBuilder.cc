@@ -70,11 +70,13 @@ CommandBuilder::CommandBuilder() {
 
   ADD_CODE_MAP(HUB_TB_Bias_On, 1);
   ADD_CODE_MAP(HUB_TB_Bias_Off, 1);
-  ADD_CODE_MAP(HUB_TB_Set_V_Offset, 2);
+  ADD_CODE_MAP(HUB_TB_Set_V_Offset, 1);
   ADD_CODE_MAP(HUB_TB_Set_V_Def, 2);
   ADD_CODE_MAP(HUB_TB_Set_Tmux, 2);
   ADD_CODE_MAP(HUB_TB_Query_bias_info, 0);
 
+  ADD_CODE_MAP(PDU_Tof_Bias_ON, 0);
+  ADD_CODE_MAP(PDU_Tof_Bias_OFF, 0);
   ADD_CODE_MAP(PDU_Cold_TPC_HV_ON, 0);
   ADD_CODE_MAP(PDU_Cold_TPC_HV_OFF, 0);
   ADD_CODE_MAP(PDU_Cold_Charge_PreAmp_ON, 0);
@@ -213,7 +215,7 @@ int CommandBuilder::get_argnum(const std::string& name) const {
   return get_command_property(name).argnum;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<int32_t>& arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<uint32_t>& arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);
@@ -250,7 +252,7 @@ std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::v
   return command;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string& name, const std::vector<int32_t>& arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string& name, const std::vector<uint32_t>& arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);

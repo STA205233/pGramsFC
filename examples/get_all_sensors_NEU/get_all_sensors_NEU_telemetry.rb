@@ -5,7 +5,7 @@ require 'GRAMSBalloon'
 class MyApp < ANL::ANLApp
     def setup()
        chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-       with_parameters(filename: "/dev/ttyACM1", baudrate:9600, timeout_sec: 0, timeout_usec: 100)
+       with_parameters(filename: "/dev/ttyACM1", baudrate:9600, timeout_usec: 100)
        chain GRAMSBalloon::GetMHADCData
        with_parameters(num_ch: 32, sleep_for_msec: 10, MHADCManager_name: "MHADCManager", chatter: 0)
       chain GRAMSBalloon::MosquittoManager
@@ -37,11 +37,11 @@ class MyApp < ANL::ANLApp
       end
       
       chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_1"
-      with_parameters(filename: "/dev/ttyUSB0", baudrate: 4098,  timeout_usec: 10000, timeout_sec: 0)
+      with_parameters(filename: "/dev/ttyUSB0", baudrate: 4098,  timeout_usec: 10000)
       chain GRAMSBalloon::GetPressure, "GetPressure_1"
       with_parameters(EncodedSerialCommunicator_name:"PressureCommunicator_1", sleep_for_msec: 10, channel: 2, chatter: 0, type: "jp")
       #chain GRAMSBalloon::PressureGaugeManager, "PressureCommunicator_2"
-      #with_parameters(filename: "/dev/ttyUSB1", baudrate: 4098, timeout_usec: 0, timeout_sec: 1)
+      #with_parameters(filename: "/dev/ttyUSB1", baudrate: 4098, timeout_usec: 1000000)
       #chain GRAMSBalloon::GetPressure, "GetPressure_2"
       #with_parameters(EncodedSerialCommunicator_name:"PressureCommunicator_2", sleep_for_msec: 10, channel: 1, chatter: 1)
       chain GRAMSBalloon::SendTelemetry

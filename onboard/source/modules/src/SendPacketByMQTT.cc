@@ -1,4 +1,5 @@
 #include "SendPacketByMQTT.hh"
+#include "CommunicationCodes.hh"
 #include "MosquittoIO.hh"
 #include "MosquittoManager.hh"
 
@@ -35,6 +36,7 @@ ANLStatus SendPacketByMQTT::mod_initialize() {
 }
 
 ANLStatus SendPacketByMQTT::mod_analyze() {
+  using namespace ::pgrams::communication;
   if (!mosquittoManager_ || !interpretTelemetry_) {
     return AS_OK;
   }

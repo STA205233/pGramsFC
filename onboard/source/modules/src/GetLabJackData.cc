@@ -1,4 +1,5 @@
 #include "GetLabJackData.hh"
+#include "SendTelemetry.hh"
 #include <iostream>
 using namespace anlnext;
 namespace gramsballoon::pgrams {
@@ -29,6 +30,9 @@ ANLStatus GetLabJackData::mod_initialize() {
 ANLStatus GetLabJackData::mod_analyze() {
   if (!labjackIO_) {
     return AS_ERROR;
+  }
+  if (!isInHKLoop()) {
+    return AS_OK;
   }
   if (!labjackIO_->isOpen()) {
     const auto open_result = labjackIO_->open();

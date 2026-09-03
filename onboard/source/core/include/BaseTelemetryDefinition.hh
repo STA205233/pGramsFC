@@ -59,7 +59,7 @@ protected:
     constructed_ = false;
     return contents_->setArgc(argc);
   }
-  void setArguments(uint16_t index, int32_t argument) {
+  void setArguments(uint16_t index, uint32_t argument) {
     if (!contents_) {
       std::cerr << "Contents is not set!" << std::endl;
       return;
@@ -72,6 +72,14 @@ protected:
   }
 
 public:
+  virtual void reset() {
+    if (contents_) {
+      contents_->setCode(0);
+      contents_->setArgc(0);
+      contents_->CommandNC().clear();
+    }
+    constructed_ = false;
+  }
   void setRunID(int runId) {
     constructed_ = false;
     runid_ = runId;

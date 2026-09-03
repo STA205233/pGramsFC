@@ -8,6 +8,7 @@ include_directories(
   ${VERSALOGIC_INC_DIR}
   ${LJM_INC_DIR}
   ${BME_INC_DIR}
+  ${MCP2210_INC_DIR}
 )
   
 link_directories(
@@ -22,13 +23,14 @@ set(GB_CORE_CLASSES
   src/ErrorManager.cc
   src/DateManager.cc
   src/EncodedSerialCommunication.cc
-  src/OrientationInformation.cc
   src/BaseTelemetryDefinition.cc
   src/HubHKTelemetry.cc
   src/VHKTelemetryMapping.cc
   src/MHADCMapping.cc
   src/IridiumPacketPool.cc
+  src/ToFBiasController.cc
   src/ConvertedHubHKTelemetry.cc
+  src/ToFBiasTelemetry.cc
 )
 
 if(GB_USE_SPI)
@@ -38,8 +40,11 @@ if(GB_USE_SPI)
     src/ADC128S102IO.cc
     src/DAC121S101IO.cc
     src/VCSMapping.cc
-    src/PDUTelemetryCSMapping.cc
-    src/PDUCommandCSMapping.cc
+    src/PDUCSMapping.cc
+    src/VPDUCodeMap.cc
+    src/PDUCodeMapCS.cc
+    src/PDUCodeMapDIO.cc
+    src/PDUMapping.cc
   )
   if(GB_USE_FT232H)
     list(APPEND GB_SPI_CORE_CLASSES
@@ -48,6 +53,11 @@ if(GB_USE_SPI)
       src/MPSSEDeviceManager.cc
     )
   endif(GB_USE_FT232H)
+  if (GB_USE_MCP2210)
+    list(APPEND GB_SPI_CORE_CLASSES
+      src/MCP2210IO.cc
+    )
+  endif(GB_USE_MCP2210)
 endif(GB_USE_SPI)
 
 if (GB_USE_LJM)
@@ -109,6 +119,17 @@ add_library(GBCore SHARED
   ${GB_I2C_CORE_CLASSES}
   ${GB_VERSA_API_CORE_CLASSES}
   )
+message(DEBUG "-- Classes to be compile as GBCore:
+  ${GB_CORE_CLASSES}
+  ${GB_SPI_CORE_CLASSES}
+  ${GB_LJM_CORE_CLASSES}
+  ${GB_MYSQL_CORE_CLASSES}
+  ${GB_MOSQUITTO_CORE_CLASSES}
+  ${GB_SOCKET_CLIENT_CORE_CLASSES}
+  ${GB_SOCKET_SERVER_CORE_CLASSES}
+  ${GB_I2C_CORE_CLASSES}
+  ${GB_VERSA_API_CORE_CLASSES}
+")
 
 target_link_libraries(GBCore
   ${BOOST_LIB}
@@ -122,7 +143,21 @@ target_link_libraries(GBCore
   ${LJM_LIB}
   ${BME_LIB}
   ${BME280_LIB}
+  ${MCP2210_LIB}
   )
+message(DEBUG "-- Libraries to be linked with GBCore:
+ ${BOOST_LIB}
+  ${D2XX_LIB}
+  ${MPSSE_LIB}
+  ${WAVEFORMS_LIB}
+  ${ICM20948_LIB}
+  ${MYSQL_LIB}
+  ${MOSQUITTO_LIB}
+  ${VERSALOGIC_LIB}
+  ${LJM_LIB}
+  ${BME_LIB}
+  ${BME280_LIB}
+")
 target_compile_definitions(GBCore PUBLIC ${cxx_definitions})
 
 install(TARGETS GBCore LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

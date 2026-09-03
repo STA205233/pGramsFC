@@ -1,9 +1,14 @@
 #include "SPIManager.hh"
+#include "PDUCSMapping.hh"
 #include "SPIInterfaceMultiplexer.hh"
+#include <cstdint>
+#include <memory>
 #ifdef USE_FT232H
 #include "FT232HIO.hh"
 #endif
-
+#ifdef USE_MCP2210
+#include "MCP2210IO.hh"
+#endif
 #ifdef USE_BAYCAT
 #include "BayCatSPIIO.hh"
 #endif
@@ -19,15 +24,16 @@ SPIManager::~SPIManager() {
 
 ANLStatus SPIManager::mod_define() {
   define_parameter("channel", &mod_class::channel_);
+  define_parameter("path", &mod_class::path_);
   define_parameter("baudrate", &mod_class::baudrate_);
   define_parameter("spi_config_options", &mod_class::spiConfigOptions_);
   define_parameter("spi_control_type", &mod_class::spiControlType_);
+  define_parameter("use_multiplexer", &mod_class::useMultiplexer_);
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
 ANLStatus SPIManager::mod_pre_initialize() {
   std::shared_ptr<SPIInterface> base_interface = nullptr;
-  interface_ = std::make_shared<SPIInterfaceMultiplexer>();
   if (spiControlType_ == "baycat") {
 #ifdef USE_BAYCAT
     base_interface = std::make_shared<BayCatSPIIO>();
@@ -44,17 +50,37 @@ ANLStatus SPIManager::mod_pre_initialize() {
     return AS_ERROR;
 #endif
   }
+  else if (spiControlType_ == "mcp2210") {
+#ifdef USE_MCP2210
+    base_interface = std::make_shared<MCP2210IO>();
+#else
+    std::cerr << "MCP2210 SPI control type is not supported in this build." << std::endl;
+    return AS_ERROR;
+#endif
+  }
   else {
     std::cerr << "Invalid SPI control type: " << spiControlType_ << std::endl;
     return AS_ERROR;
   }
-  interface_->setBaseInterface(std::move(base_interface));
-  return AS_OK;
-}
-ANLStatus SPIManager::mod_initialize() {
-  const std::string send_telem_md = "SendTelemetry";
-  if (exist_module(send_telem_md)) {
-    get_module_NC(send_telem_md, &sendTelemetry_);
+
+  base_interface->setBaudrate(baudrate_);
+  base_interface->setConfigOptions(spiConfigOptions_);
+  const int status = base_interface->Open(channel_, path_.c_str());
+  if (status != 0) {
+    std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
+    if (sendTelemetry_) {
+      sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
+    }
+  }
+
+  if (useMultiplexer_) {
+    auto mul_interface = std::make_shared<SPIInterfaceMultiplexer>();
+    mul_interface->setBaseInterface(base_interface);
+    mul_interface->setMappingChipSelect(std::make_unique<PDUCSMapping>(0x1f0000));
+    interface_ = mul_interface;
+  }
+  else {
+    interface_ = base_interface;
   }
 
   if (!interface_) {
@@ -65,14 +91,12 @@ ANLStatus SPIManager::mod_initialize() {
     return AS_ERROR;
   }
 
-  interface_->setBaudrate(baudrate_);
-  interface_->setConfigOptions(spiConfigOptions_);
-  int status = interface_->Open(channel_);
-  if (status != 0) {
-    std::cerr << "SPI_OpenChannel failed: status = " << status << std::endl;
-    if (sendTelemetry_) {
-      sendTelemetry_->getErrorManager()->setError(ErrorType::SPI_OPEN_ERROR); // TODO: To be implemented
-    }
+  return AS_OK;
+}
+ANLStatus SPIManager::mod_initialize() {
+  const std::string send_telem_md = "SendTelemetry";
+  if (exist_module(send_telem_md)) {
+    get_module_NC(send_telem_md, &sendTelemetry_);
   }
   return AS_OK;
 }
@@ -93,6 +117,15 @@ ANLStatus SPIManager::mod_finalize() {
     }
   }
   return AS_OK;
+}
+
+int SPIManager::controlGPIO(uint32_t cs, bool value) {
+  if (!interface_) {
+    return -1;
+  }
+  const uint32_t val = (static_cast<uint32_t>(value) << cs);
+  const uint32_t csBit = (1 << cs);
+  return interface_->controlGPIOBit(csBit, val);
 }
 
 } // namespace gramsballoon::pgrams

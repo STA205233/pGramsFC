@@ -4,14 +4,14 @@ from enum import Enum
 class CommandParameter:
     def __init__(self, name: str, description: str | None = None, range=None):
         self.name = name
-        self.description = description if description is not None else name
+        self.description = description if description is not None else ""
         self.range = range
 
     def __repr__(self) -> str:
         return f"CommandParameter(name={self.name}, description={self.description}, range={self.range})"
 
     def __str__(self) -> str:
-        return f"{self.name} : {self.description}. {self.range}" if self.range else f"{self.name} : {self.description}"
+        return f"{self.name} : {self.description} {self.range}" if self.range else f"{self.name} : {self.description}"
 
     def get_range(self):
         return self.range
@@ -77,6 +77,53 @@ command_collection.add_command("Hub", CommandItem("Prepare Restart", "Prepare th
 command_collection.add_command("Hub", CommandItem("Exec Restart", "Execute the restart of the hub"))
 command_collection.add_command("Hub", CommandItem("Reset Error", "Reset the error flags in the hub"))
 command_collection.add_command("Hub", CommandItem("Set Link", "Set the link", [CommandParameter("Link state", "Used link, 0: iridium, 1: starlink", range=(0, 1))]))
+command_collection.add_command("Hub", CommandItem("TB Bias ON", "Enable Bias Control", [CommandParameter("Ch", "Channel",range=(0, 7))]))
+command_collection.add_command("Hub", CommandItem("TB Bias OFF", "Disable Bias Control", [CommandParameter("Ch", "Channel",range=(0, 7))]))
+command_collection.add_command("Hub", CommandItem("TB Set V offset", "Set V Offset", [CommandParameter("Voffset", range=(0, 20))]))
+command_collection.add_command("Hub", CommandItem("TB Set V def", "Set V def", [CommandParameter("Ch", "Channel",range=(0, 127)), CommandParameter("Vdef", range=(136, 172))]))
+command_collection.add_command("Hub",CommandItem("TB Set Tmux", "Set T mux channel",[CommandParameter("Ch", range=(0, 15)), CommandParameter("Thermometer Select", "0: primary, 1: secondary", range=(0, 1))]))
+command_collection.add_command("Hub", CommandItem("TB Query Bias Info", "Get full information of TOF bias control", []))
+
+command_collection.add_command("PDU", CommandItem("TOF Bias ON", ""))
+command_collection.add_command("PDU", CommandItem("TOF Bias OFF", ""))
+command_collection.add_command("PDU", CommandItem("Cold TPC HV ON", ""))
+command_collection.add_command("PDU", CommandItem("Cold TPC HV OFF", ""))
+command_collection.add_command("PDU", CommandItem("Cold Charge PreAmp ON", ""))
+command_collection.add_command("PDU", CommandItem("Cold Charge PreAmp OFF", ""))
+command_collection.add_command("PDU", CommandItem("Cold SiPM PreAmp ON", ""))
+command_collection.add_command("PDU", CommandItem("Cold SiPM PreAmp OFF", ""))
+command_collection.add_command("PDU", CommandItem("Warm TPC Shaper ON", ""))
+command_collection.add_command("PDU", CommandItem("Warm TPC Shaper OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 0 ON", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 0 OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 1 ON", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 1 OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 2 ON", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 2 OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 3 ON", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 3 OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 4 ON", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 4 OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 5 ON", ""))
+command_collection.add_command("PDU", CommandItem("SiPM 5 OFF", ""))
+command_collection.add_command("PDU", CommandItem("Tof ON", ""))
+command_collection.add_command("PDU", CommandItem("Tof OFF", ""))
+command_collection.add_command("PDU", CommandItem("CAEN P3V3 ON", ""))
+command_collection.add_command("PDU", CommandItem("CAEN P3V3 OFF", ""))
+command_collection.add_command("PDU", CommandItem("CAEN PM5V ON", ""))
+command_collection.add_command("PDU", CommandItem("CAEN PM5V OFF", ""))
+command_collection.add_command("PDU", CommandItem("CAEN P12V ON", ""))
+command_collection.add_command("PDU", CommandItem("CAEN P12V OFF", ""))
+command_collection.add_command("PDU", CommandItem("DAQ CPU ON", ""))
+command_collection.add_command("PDU", CommandItem("DAQ CPU OFF", ""))
+command_collection.add_command("PDU", CommandItem("SiPM0 VSET", "", [CommandParameter("Voltage")]))
+command_collection.add_command("PDU", CommandItem("SiPM1 VSET", "", [CommandParameter("Voltage")]))
+command_collection.add_command("PDU", CommandItem("SiPM2 VSET", "", [CommandParameter("Voltage")]))
+command_collection.add_command("PDU", CommandItem("SiPM3 VSET", "", [CommandParameter("Voltage")]))
+command_collection.add_command("PDU", CommandItem("SiPM4 VSET", "", [CommandParameter("Voltage")]))
+command_collection.add_command("PDU", CommandItem("SiPM5 VSET", "", [CommandParameter("Voltage")]))
+command_collection.add_command("PDU", CommandItem("PressureReg VSET", "", [CommandParameter("voltage")]))
+
 
 # Orchestrator commands
 command_collection.add_command("ORC", CommandItem("Exec CPU Restart", "Execute CPU restart"))
