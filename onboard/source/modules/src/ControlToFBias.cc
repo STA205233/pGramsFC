@@ -23,13 +23,19 @@ anlnext::ANLStatus ControlToFBias::mod_define() {
 }
 
 ANLStatus ControlToFBias::mod_initialize() {
+  if (exist_module("SendTelemetry")) {
+    get_module_NC("SendTelemetry", &sendTelemetry_);
+  }
   if (exist_module(mosquittoManagerName_)) {
     get_module_IFNC(mosquittoManagerName_, &mosquittoManager_);
+    if (!mosquittoManager_ ) {
+      std::cerr << module_id() << " error: Type of MosquittoManager incorrect" << std::endl;
+    }
+  }
+  else {
+    std::cerr << module_id() << " error: MosquittoManager " << mosquittoManagerName_ << "not found" << std::endl;
   }
 
-  if (exist_module("SendTelemetry")) {
-    get_module_IFNC("SendTelemetry", &sendTelemetry_);
-  }
 
   duration_ = std::chrono::seconds(minDurationSec_);
   index_ = 0;

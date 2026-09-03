@@ -10,7 +10,7 @@ ANLStatus SendCommandToDAQComputer::mod_define() {
   define_parameter("DistributeCommand_name", &mod_class::distributeCommandName_);
   set_parameter_description("Name of DistributeCommand");
   define_parameter("duration_between_heartbeat", &mod_class::durationBetweenHeartbeat_);
-  set_parameter_description("Duration between heartbeat in ms");
+  set_parameter_description("Duration between heartbeat in ms. If negative, no heartbeat is sent.");
   set_parameter_unit(1.0, "ms");
   define_parameter("subsystem", &mod_class::subsystemInt_);
   set_parameter_description("Subsystem enum value");
@@ -229,7 +229,7 @@ void SendCommandToDAQComputer::sendHeartbeatIfNeeded() {
     }
     return;
   }
-  const bool need_heartbeat = (!lastTime_) || (lastTime_ && (now - *lastTime_) > *durationBetweenHeartbeatChrono_);
+  const bool need_heartbeat = (!lastTime_) || (lastTime_ && (now - *lastTime_) > *durationBetweenHeartbeatChrono_ && durationBetweenHeartbeat_ >= 0);
   if (!lastTime_) {
     lastTime_ = std::make_shared<std::chrono::time_point<std::chrono::high_resolution_clock>>(now);
   }

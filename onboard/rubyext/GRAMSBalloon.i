@@ -53,7 +53,9 @@
 #include "VDBDataStore.hh"
 #include "VHousekeepingModule.hh"
 #include "SetHKEvs.hh"
+#ifdef USE_MYSQL
 #include "PushTBTelemetryToMySQL.hh"
+#endif
 %}
 
 %include "std_vector.i"
@@ -293,11 +295,13 @@ public:
   ~SetHKEvs();
 };
 
+#ifdef USE_MYSQL
 class PushTBTelemetryToMySQL: public anlnext::BasicModule {
 public:
   PushTBTelemetryToMySQL();
   ~PushTBTelemetryToMySQL();
 };
+#endif
 } // namespace pgrams
 } // namespace GRAMSBalloon
 %template(TelemMosquittoManager) gramsballoon::pgrams::MosquittoManager<std::string>;

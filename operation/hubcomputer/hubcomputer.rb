@@ -91,9 +91,13 @@ class MyApp < ANL::ANLApp
           m.set_singleton(0)
         end
         @main_modules << "DistributeCommand_#{subsystem}#{com}"
-        
+        if com == "" 
+          duration = 1000
+        else 
+          duration = -1
+        end
         chain GRAMSBalloon::SendCommandToDAQComputer, "SendCommandToDAQComputer_" + subsystem + com
-          with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: 1000, DistributeCommand_name: "DistributeCommand_#{subsystem}#{com}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
+          with_parameters(SocketCommunicationManager_name: "SocketCommunicationManager_#{subsystem}", duration_between_heartbeat: duration, DistributeCommand_name: "DistributeCommand_#{subsystem}#{com}", subsystem: subsystemInts[subsystem], chatter: 0) do |m|
           m.set_singleton(0)
         end
         @main_modules << "SendCommandToDAQComputer_" + subsystem + com
@@ -142,7 +146,7 @@ class MyApp < ANL::ANLApp
     @main_modules << "GetComputerStatus"
     
     chain GRAMSBalloon::ControlToFBias
-    with_parameters(path: "/dev/ttyUSB0", timeout_usec: 5000, topic: @inifile["TOFBias"]["teltopic"], starlink_topic: @inifile["TOFBias"]["iridiumteltopic"],chatter: 0, minimum_duration_sec: 600) do |m|
+    with_parameters(path: "/dev/ttyUSB0", timeout_usec: 100000, MosquittoManager_name: "TelemMosquittoManager", topic: @inifile["TOFBias"]["iridiumteltopic"], starlink_topic: @inifile["TOFBias"]["teltopic"], chatter: 4, minimum_duration_sec: 10) do |m|
       m.set_singleton(0)
     end
     @main_modules << "ControlToFBias"

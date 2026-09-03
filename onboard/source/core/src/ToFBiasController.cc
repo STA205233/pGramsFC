@@ -61,7 +61,7 @@ int ToFBiasController::sendCommand(std::string_view data) {
       return ret;
     }
     constexpr char suffix[] = "OK!\r\n";
-    if (dataStr_.rfind(suffix) == (dataStr_.length() - sizeof(suffix))) { // To handle the output of setting Voffset.
+    if (dataStr_.rfind(suffix) == (dataStr_.length() + 1 - sizeof(suffix))) { // To handle the output of setting Voffset.
       return 0;
     }
     else {
