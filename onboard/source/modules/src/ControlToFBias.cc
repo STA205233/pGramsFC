@@ -28,14 +28,13 @@ ANLStatus ControlToFBias::mod_initialize() {
   }
   if (exist_module(mosquittoManagerName_)) {
     get_module_IFNC(mosquittoManagerName_, &mosquittoManager_);
-    if (!mosquittoManager_ ) {
+    if (!mosquittoManager_) {
       std::cerr << module_id() << " error: Type of MosquittoManager incorrect" << std::endl;
     }
   }
   else {
     std::cerr << module_id() << " error: MosquittoManager " << mosquittoManagerName_ << "not found" << std::endl;
   }
-
 
   duration_ = std::chrono::seconds(minDurationSec_);
   index_ = 0;
@@ -78,6 +77,11 @@ ANLStatus ControlToFBias::mod_analyze() {
       treatError();
       return AS_OK;
     }
+    const int ret2 = controller_->disableDataStream();
+    if (ret2 < 0) {
+      treatError();
+      return AS_OK;
+    }
   }
 
   // For full output status
@@ -102,7 +106,7 @@ ANLStatus ControlToFBias::mod_analyze() {
     telemetryStr_.clear();
     telemetryStr_ = controller_->getData();
     if (chatter_ > 0) {
-      std::cout<< module_id() << ": Full Output was taken" << std::endl; 
+      std::cout << module_id() << ": Full Output was taken" << std::endl;
     }
     if (chatter_ > 1) {
       std::cout << telemetryStr_ << std::endl;
@@ -204,6 +208,7 @@ void ControlToFBias::treatError() {
   if (singleton_self()->sendTelemetry_) {
     singleton_self()->sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
   }
+  controller_->refresh();
 }
 
 int ControlToFBias::queryFullOutput() {

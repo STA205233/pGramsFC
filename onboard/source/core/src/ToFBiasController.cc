@@ -1,19 +1,23 @@
 #include "ToFBiasController.hh"
+#include <charconv>
 #include <chrono>
 #include <cstdint>
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <system_error>
 #define TOF_BIAS_DEBUG 0
 
 namespace gramsballoon::pgrams {
 ToFBiasController::ToFBiasController(const std::string &serial_path) : EncodedSerialCommunication(serial_path, B115200, O_RDWR), HKDataSaver<std::string>(100000, "tof_bias_data", NUM_DATA * sizeof(uint8_t)), firstTimeout_(1000000) {
   dataStr_.reserve(NUM_DATA);
   fullOutputStr_.reserve(NUM_FULL_DATA);
+  cmdStr_.reserve(NUM_CMD_DATA);
 }
 ToFBiasController::ToFBiasController() : ToFBiasController("/dev/ttyUSB0") {
   dataStr_.reserve(NUM_DATA);
   fullOutputStr_.reserve(NUM_FULL_DATA);
+  cmdStr_.reserve(NUM_CMD_DATA);
 }
 ToFBiasController::~ToFBiasController() {
   disableDataStream();
@@ -55,13 +59,13 @@ int ToFBiasController::sendCommand(std::string_view data) {
     }
   }
   {
-    const int ret = ReadDataUntilSpecificStr(dataStr_, "\r\n", 50);
+    constexpr char suffix[] = "OK!\r\n";
+    const int ret = ReadDataUntilSpecificStr(dataStr_, suffix, 50);
     if (ret < 0) {
       std::cerr << "TOFBiasController::sendCommand: failed to receive command code" << ret << std::endl;
       return ret;
     }
-    constexpr char suffix[] = "OK!\r\n";
-    if (dataStr_.rfind(suffix) == (dataStr_.length() + 1 - sizeof(suffix))) { // To handle the output of setting Voffset.
+    if (dataStr_.rfind(suffix) == (dataStr_.length() + 1 - sizeof(suffix))) {
       return 0;
     }
     else {
@@ -115,27 +119,62 @@ int ToFBiasController::disableDataStream() {
   return ret;
 }
 
+void ToFBiasController::appendInt(int value) {
+  char buf[12];
+  const auto res = std::to_chars(buf, buf + sizeof(buf), value);
+  if (res.ec != std::errc()) {
+    return;
+  }
+  cmdStr_.append(buf, res.ptr);
+}
+
 int ToFBiasController::enableDCDC(int channel) {
-  return sendCommand("enable " + std::to_string(static_cast<int>(channel)) + " on\r\n");
+  cmdStr_.clear();
+  cmdStr_ += "enable ";
+  appendInt(channel);
+  cmdStr_ += " on\r\n";
+  return sendCommand(cmdStr_);
 }
 
 int ToFBiasController::disableDCDC(int channel) {
-  return sendCommand("enable " + std::to_string(static_cast<int>(channel)) + " off\r\n");
+  cmdStr_.clear();
+  cmdStr_ += "enable ";
+  appendInt(channel);
+  cmdStr_ += " off\r\n";
+  return sendCommand(cmdStr_);
 }
 
 int ToFBiasController::setVoffset(int voltage) {
-  return sendCommand("voffset " + std::to_string(voltage) + "\r\n");
+  cmdStr_.clear();
+  cmdStr_ += "voffset ";
+  appendInt(voltage);
+  cmdStr_ += "\r\n";
+  return sendCommand(cmdStr_);
 }
 
 int ToFBiasController::setTmuxChannel(int channel, int on_off) {
   if (on_off != 0 && on_off != 1) {
     return -1;
   }
-  return sendCommand("tmux " + std::to_string(channel) + (on_off == 1 ? " on\r\n" : " off\r\n"));
+  cmdStr_.clear();
+  cmdStr_ += "tmux ";
+  appendInt(channel);
+  cmdStr_ += (on_off == 1 ? " on\r\n" : " off\r\n");
+  return sendCommand(cmdStr_);
 }
 
 int ToFBiasController::setVdef(int channel, int voltage) {
-  return sendCommand("vdef " + std::to_string(channel) + " " + std::to_string(voltage) + "\r\n");
+  cmdStr_.clear();
+  cmdStr_ += "vdef ";
+  appendInt(channel);
+  cmdStr_ += ' ';
+  appendInt(voltage);
+  cmdStr_ += "\r\n";
+  return sendCommand(cmdStr_);
+}
+
+int ToFBiasController::setMode(TofBiasMode mode) {
+  return sendCommand(mode == TofBiasMode::DEBUG ? "mode debug\r\n" : "mode auto\r\n");
 }
 
 int ToFBiasController::refresh() {
