@@ -511,12 +511,12 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
       }
       const auto result = spiManager_->controlGPIO(id, is_on);
       if (result != 0) {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command" << std::hex << code << std::dec << " failed" << std::endl;
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command " << std::hex << code << std::dec << " failed" << std::endl;
         return false;
       }
       return true;
     }
-    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. id: " << id << std::endl;
+    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. id: " << id << std::endl;
     return false;
   }
   else if (argc == 1) {
@@ -525,7 +525,7 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
     if (ret_mapping) {
       const auto result = controlPDU_->setVoltageRaw(cs, arguments[0]);
       if (result != 0) {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
         return false;
       }
       return true;
