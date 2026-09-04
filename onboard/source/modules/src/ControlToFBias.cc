@@ -50,6 +50,7 @@ ANLStatus ControlToFBias::mod_initialize() {
     return AS_OK;
   }
   controller_->disableDataStream();
+  controller_->setMode(ToFBiasController::TofBiasMode::AUTO);
   controller_->refresh();
   return AS_OK;
 }
@@ -79,6 +80,11 @@ ANLStatus ControlToFBias::mod_analyze() {
     }
     const int ret2 = controller_->disableDataStream();
     if (ret2 < 0) {
+      treatError();
+      return AS_OK;
+    }
+    const int ret3 = controller_->setMode(ToFBiasController::TofBiasMode::AUTO);
+    if (ret3 < 0) {
       treatError();
       return AS_OK;
     }
