@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cctype>
 namespace {
-uint16_t crc_calc(const std::vector<uint8_t>& byte_array) {
+uint16_t crc_calc(const std::vector<uint8_t> &byte_array) {
   uint16_t crc = 0;
   for (const uint8_t i: byte_array) {
     crc = crc ^ i;
@@ -26,9 +26,9 @@ uint16_t crc_calc(const std::vector<uint8_t>& byte_array) {
 
 namespace gramsballoon {
 
-void replace_all(std::string& s,
-                 const std::string& from,
-                 const std::string& to) {
+void replace_all(std::string &s,
+                 const std::string &from,
+                 const std::string &to) {
   if (from.empty()) return;
 
   std::size_t pos = 0;
@@ -38,7 +38,7 @@ void replace_all(std::string& s,
   }
 }
 
-void add_code_map(std::map<std::string, CommandProperty>& code_map,
+void add_code_map(std::map<std::string, CommandProperty> &code_map,
                   const std::string_view enum_name, const pgrams::communication::CommunicationCodes code,
                   const int argnum) {
   CommandProperty property;
@@ -74,6 +74,8 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(HUB_TB_Set_V_Def, 2);
   ADD_CODE_MAP(HUB_TB_Set_Tmux, 2);
   ADD_CODE_MAP(HUB_TB_Query_bias_info, 0);
+  add_code_map(code_map_, "HUB_TB_Set_Tmux_File", pgrams::communication::CommunicationCodes::HUB_TB_Set_Tmux, 16);
+  add_code_map(code_map_, "HUB_TB_Set_V_Def_File", pgrams::communication::CommunicationCodes::HUB_TB_Set_V_Def, 128);
 
   ADD_CODE_MAP(PDU_Tof_Bias_ON, 0);
   ADD_CODE_MAP(PDU_Tof_Bias_OFF, 0);
@@ -198,7 +200,7 @@ CommandBuilder::CommandBuilder() {
 }
 #undef ADD_CODE_MAP
 
-CommandProperty CommandBuilder::get_command_property(const std::string& name) const {
+CommandProperty CommandBuilder::get_command_property(const std::string &name) const {
   auto command = code_map_.find(name);
   if (command == code_map_.end()) {
     throw CommandException("Invalid command name");
@@ -207,15 +209,15 @@ CommandProperty CommandBuilder::get_command_property(const std::string& name) co
   return command->second;
 }
 
-uint16_t CommandBuilder::get_command_code(const std::string& name) const {
+uint16_t CommandBuilder::get_command_code(const std::string &name) const {
   return get_command_property(name).code;
 }
 
-int CommandBuilder::get_argnum(const std::string& name) const {
+int CommandBuilder::get_argnum(const std::string &name) const {
   return get_command_property(name).argnum;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<uint32_t>& arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::vector<uint32_t> &arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);
@@ -252,7 +254,7 @@ std::vector<uint8_t> CommandBuilder::make_byte_array(uint16_t code, const std::v
   return command;
 }
 
-std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string& name, const std::vector<uint32_t>& arg_array) const {
+std::vector<uint8_t> CommandBuilder::make_byte_array(const std::string &name, const std::vector<uint32_t> &arg_array) const {
   std::vector<uint8_t> command;
   command.push_back(0xEB);
   command.push_back(0x90);

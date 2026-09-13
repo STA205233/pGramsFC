@@ -239,15 +239,15 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     sendTelemetry_->setLastComCode(Subsystem::HUB, code);
   }
 
-  if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy1) && argc == 0) {
+  if (code == to_u16(CommunicationCodes::HUB_Dummy1) && argc == 0) {
     std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Dummy0 command received." << std::endl;
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy2) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_Dummy2) && argc == 1) {
     std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Dummy1 command received. Argument: " << arguments[0] << std::endl;
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Prepare_Shutdown) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Prepare_Shutdown) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setPrepareShutdown(true);
@@ -264,7 +264,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Exec_Shutdown) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Exec_Shutdown) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setShutdown(true);
@@ -281,7 +281,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Prepare_Restart) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Prepare_Restart) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setPrepareReboot(true);
@@ -298,7 +298,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Exec_Restart) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Exec_Restart) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setReboot(true);
@@ -315,7 +315,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
@@ -326,7 +326,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Reset_Error) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Reset_Error) && argc == 0) {
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->resetError();
       if (chatter_ >= 1) {
@@ -335,7 +335,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Link) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_Set_Link) && argc == 1) {
     if (telemetryMosquittoManager_) {
       CommunicationLinkType link_type;
       if (arguments[0] == 0) {
@@ -362,7 +362,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_On) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Bias_On) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Ch: " << arguments[0] << std::endl;
     }
@@ -378,7 +378,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return false;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Ch: " << arguments[0] << std::endl;
     }
@@ -397,7 +397,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       return false;
     }
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query Info command received." << std::endl;
     }
@@ -416,7 +416,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       return false;
     }
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Vdef command received." << std::endl;
     }
@@ -433,7 +433,23 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_V_Def) && argc == ControlToFBias::NUM_VDEF_CH) {
+    if (controlTofBias_) {
+      for (int i = 0; i < ControlToFBias::NUM_VDEF_CH; ++i) {
+        const int ret = controlTofBias_->setVdef(i, arguments[i]);
+        if (ret < 0) {
+          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+          if (sendTelemetry_) {
+            sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+          }
+          return false;
+        }
+      }
+      return true;
+    }
+    return true;
+  }
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Tmux command received. Index: " << arguments[0] << ", on/off: " << arguments[1] << std::endl;
     }
@@ -450,7 +466,23 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_Tmux) && argc == ControlToFBias::NUM_TMUX_CH) {
+    if (controlTofBias_) {
+      for (int i = 0; i < ControlToFBias::NUM_TMUX_CH; ++i) {
+        const int ret = controlTofBias_->setTmuxChannel(i, arguments[i]);
+        if (ret < 0) {
+          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+          if (sendTelemetry_) {
+            sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+          }
+          return false;
+        }
+      }
+      return true;
+    }
+    return true;
+  }
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset received. Voff: " << arguments[0] << std::endl;
     }

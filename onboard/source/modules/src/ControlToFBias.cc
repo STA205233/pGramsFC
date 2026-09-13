@@ -157,6 +157,9 @@ int ControlToFBias::setVoffset(uint32_t voltage) {
 }
 
 int ControlToFBias::setTmuxChannel(uint32_t channel, int onOff) {
+  if (!rangeCheck(channel, NUM_TMUX_CH)) {
+    return ERR_INVALID;
+  }
   const auto ret = singleton_self()->controller_->setTmuxChannel(channel, onOff);
   if (ret < 0) {
     if (singleton_self()->sendTelemetry_) {
@@ -167,6 +170,9 @@ int ControlToFBias::setTmuxChannel(uint32_t channel, int onOff) {
 }
 
 int ControlToFBias::enableDCDC(uint32_t channel) {
+  if (!rangeCheck(channel, NUM_DCDC_CH)) {
+    return ERR_INVALID;
+  }
   const int ret = singleton_self()->controller_->enableDCDC(channel);
   if (ret < 0) {
     if (singleton_self()->sendTelemetry_) {
@@ -176,6 +182,9 @@ int ControlToFBias::enableDCDC(uint32_t channel) {
   return ret;
 }
 int ControlToFBias::disableDCDC(uint32_t channel) {
+  if (!rangeCheck(channel, NUM_DCDC_CH)) {
+    return ERR_INVALID;
+  }
   const int ret = singleton_self()->controller_->disableDCDC(channel);
   if (ret < 0) {
     if (singleton_self()->sendTelemetry_) {
@@ -186,6 +195,9 @@ int ControlToFBias::disableDCDC(uint32_t channel) {
 }
 
 int ControlToFBias::setVdef(uint32_t channel, uint32_t voltage) {
+  if (!rangeCheck(channel, NUM_VDEF_CH)) {
+    return ERR_INVALID;
+  }
   const int ret = singleton_self()->controller_->setVdef(channel, voltage);
   if (ret < 0) {
     if (singleton_self()->sendTelemetry_) {
@@ -224,5 +236,16 @@ int ControlToFBias::queryFullOutput() {
   }
   singleton_self()->fullPacketStatus_ = FullOutputStatus::REQUESTING;
   return 0;
+}
+
+bool ControlToFBias::rangeCheck(uint32_t ch, uint32_t upper, uint32_t lower) {
+  const bool ok = (ch >= lower) && (ch <= upper);
+  if (!ok) {
+    if (singleton_self()->sendTelemetry_) {
+      singleton_self()->sendTelemetry_->getErrorManager()->setError(ErrorType::INVALID_COMMAND);
+    }
+    std::cerr << module_id() << " error: invalid range (" << lower << "-" << upper << ", received " << ch << ")" << std::endl;
+  }
+  return ok;
 }
 } // namespace gramsballoon::pgrams
