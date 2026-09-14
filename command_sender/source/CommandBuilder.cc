@@ -195,7 +195,7 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(TOF_Macro_Stage0_Prebreakdown_BN, 0);
   ADD_CODE_MAP(TOF_Macro_Stage1_Unbiased_TDC, 0);
   ADD_CODE_MAP(TOF_Macro_Stage2_Prebreakdown_QDC, 0);
-  ADD_CODE_MAP(TOF_Macro_Stage3_Operational_D, 0);
+  ADD_CODE_MAP(TOF_Macro_Stage3_Operational_D, 1);
   ADD_CODE_MAP(TOF_Macro_Auto_Run_Cycle, 0);
 }
 #undef ADD_CODE_MAP

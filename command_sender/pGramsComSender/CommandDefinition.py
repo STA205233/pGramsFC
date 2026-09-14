@@ -227,6 +227,6 @@ command_collection.add_command("TOF", CommandItem("Macro Thermal Calib", ""))
 command_collection.add_command("TOF", CommandItem("Macro Stage0 Prebreakdown BN", ""))
 command_collection.add_command("TOF", CommandItem("Macro Stage1 Unbiased TDC", ""))
 command_collection.add_command("TOF", CommandItem("Macro Stage2 Prebreakdown QDC", ""))
-command_collection.add_command("TOF", CommandItem("Macro Stage3 Operational D", ""))
+command_collection.add_command("TOF", CommandItem("Macro Stage3 Operational D", "", [CommandParameter("name")]))
 command_collection.add_command("TOF", CommandItem("Macro Auto Run Cycle", ""))
 
