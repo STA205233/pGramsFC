@@ -66,7 +66,7 @@ class MyApp < ANL::ANLApp
     
     comms.each do |com|
       chain GRAMSBalloon::ReceiveCommand, "ReceiveCommand#{com}"
-      with_parameters(topic: @inifile["Hub"]["#{com}comtopic"], chatter: 0, qos: 0, binary_filename_base: "command/command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names) do |m|
+      with_parameters(topic: @inifile["Hub"]["#{com}comtopic"], chatter: 0, qos: 0, binary_filename_base: "command/command", SendCommandToDAQComputer_names: sendCommandToDAQComputer_names, SPIManager_name: "SPIManager_baycat") do |m|
         m.set_singleton(0)
       end
       @main_modules << "ReceiveCommand#{com}"
@@ -128,17 +128,17 @@ class MyApp < ANL::ANLApp
       @main_modules << "PassTelemetry_#{subsystem}_iridium"
     end
     
-    chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
-    with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_usec: 1000) do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "MHADCManager"
+    #chain GRAMSBalloon::EncodedSerialCommunicator, "MHADCManager"
+    #with_parameters(filename: "/dev/ttyACM0", baudrate:15, chatter: 0, timeout_usec: 1000) do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "MHADCManager"
     
-    chain GRAMSBalloon::GetMHADCData
-    with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter:0) do |m|
-      m.set_singleton(0)
-    end
-    @main_modules << "GetMHADCData"
+    #chain GRAMSBalloon::GetMHADCData
+    #with_parameters(MHADCManager_name: "MHADCManager", channel_per_section: 6, num_section:8, chatter:0) do |m|
+    #  m.set_singleton(0)
+    #end
+    #@main_modules << "GetMHADCData"
     
     chain GRAMSBalloon::GetComputerStatus  do |m|
       m.set_singleton(0)
@@ -159,7 +159,7 @@ class MyApp < ANL::ANLApp
           save_telemetry: false,
           binary_filename_base: "telemetry/telemetry",
           num_telem_per_file: 10000,
-          chatter: 0,
+          chatter: 2,
     ) do |m|
       m.set_singleton(0)
     end

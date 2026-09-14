@@ -51,13 +51,13 @@ bool PDUMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) const
   case ChannelMapping(1, 7):
     setter = &HubHKTelemetry::setPduHVTemp<1>;
     break;
-  case ChannelMapping(2, 0):
+  case ChannelMapping(3, 2):
     setter = &HubHKTelemetry::setPduCurMainBat;
     break;
-  case ChannelMapping(2, 1):
+  case ChannelMapping(3, 3):
     setter = &HubHKTelemetry::setPduVolMainBat;
     break;
-  case ChannelMapping(2, 2):
+  case ChannelMapping(3, 4):
     setter = &HubHKTelemetry::setPduMainBatTemp;
     break;
   case ChannelMapping(2, 3):
@@ -81,13 +81,13 @@ bool PDUMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) const
   case ChannelMapping(3, 1):
     setter = &HubHKTelemetry::setPduChargePreAmpM5VVol;
     break;
-  case ChannelMapping(3, 2):
+  case ChannelMapping(2, 0):
     setter = &HubHKTelemetry::setPduChargePreAmpP5VCur;
     break;
-  case ChannelMapping(3, 3):
+  case ChannelMapping(2, 1):
     setter = &HubHKTelemetry::setPduChargePreAmpP5VVol;
     break;
-  case ChannelMapping(3, 4):
+  case ChannelMapping(2, 2):
     setter = &HubHKTelemetry::setPduChargePreAmpTemp;
     break;
   case ChannelMapping(3, 5):
