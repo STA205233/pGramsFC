@@ -1,8 +1,7 @@
 #ifndef GB_SocketCommunicationServer_hh
 #define GB_SocketCommunicationServer_hh 1
 
-#include "boost/asio.hpp" #
-#include "boost/system/detail/error_code.hpp"
+#include "boost/asio.hpp"
 #include <atomic>
 #include <cstddef>
 #include <iostream>
@@ -20,6 +19,7 @@ namespace gramsballoon::pgrams {
  *
  * @author Shota Arai
  * @date 2025-05-09 | first draft
+ * @date 2026-09-16 | fix in resetting failed flag
  */
 class SocketCommunication: public std::enable_shared_from_this<SocketCommunication> {
 public:
