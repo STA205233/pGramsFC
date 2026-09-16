@@ -1,16 +1,17 @@
 #ifndef GB_SocketCommunicationServer_hh
 #define GB_SocketCommunicationServer_hh 1
 
-#include "boost/asio.hpp"
-#include "boost/asio/steady_timer.hpp"
-#include "boost/bind/bind.hpp"
+#include "boost/asio.hpp" #
+#include "boost/system/detail/error_code.hpp"
 #include <atomic>
+#include <cstddef>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <string>
 #include <vector>
 namespace gramsballoon::pgrams {
-class SocketSession;
 /**
  * @brief SocketCommunicationServer class for managing socket communication.
  *
@@ -200,6 +201,7 @@ int SocketCommunication::receiveImpl(std::vector<T> &data) {
       return -1;
     }
     data.resize(ret / sizeof(T));
+    resetFailed();
     return ret;
   }
   return -1;
