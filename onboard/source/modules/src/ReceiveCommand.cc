@@ -535,13 +535,14 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is enable command" << std::endl;
     }
     PDUCodeMapDIO::value_t id;
-    const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id);
+    bool inversed = false;
+    const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id, inversed);
     if (ret_mapping && spiManager_) {
       const bool is_on = PDUCodeMapDIO::isOnCode(code);
       if (chatter_ > 3) {
         std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is " << (is_on ? "on" : "off") << " command" << std::endl;
       }
-      const auto result = spiManager_->controlGPIO(id, is_on);
+      const auto result = spiManager_->controlGPIO(id, inversed ? !is_on : is_on);
       if (result != 0) {
         std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command " << std::hex << code << std::dec << " failed" << std::endl;
         return false;
