@@ -3,7 +3,6 @@
 // include headers of my modules
 #include <anlnext/BasicModule.hh>
 #include <string>
-#include "SimpleLoop.hh"
 #include "Sleep.hh"
 #include "ReceiveCommand.hh"
 #include "SendTelemetry.hh"
@@ -42,9 +41,6 @@
 #include "PassTelemetry.hh"
 #include "IoContextManager.hh"
 #include "SendCommandToDAQComputer.hh"
-#include "DetectErrorCallbackFromDAQ.hh"
-#include "PressureGaugeManager.hh"
-#include "GetPressure.hh"
 #include "ControlToFBias.hh"
 #ifdef USE_LJM
 #include "GetLabJackData.hh"
@@ -67,12 +63,6 @@
 
 namespace gramsballoon {
 
-class SimpleLoop : public anlnext::BasicModule
-{
-public:
-  SimpleLoop();
-  ~SimpleLoop();
-};
 namespace pgrams{
 class Sleep : public anlnext::BasicModule
 {
@@ -241,24 +231,6 @@ public:
   ~SendPacketByMQTT();
 };
 
-class DetectErrorCallbackFromDAQ: public anlnext::BasicModule {
-public:
-  DetectErrorCallbackFromDAQ();
-  ~DetectErrorCallbackFromDAQ();
-};
-
-class PressureGaugeManager: public anlnext::BasicModule
-{
-public:
-  PressureGaugeManager();
-  ~PressureGaugeManager();
-};
-
-class GetPressure: public anlnext::BasicModule {
-public:
-  GetPressure();
-  ~GetPressure();
-};
 class ControlToFBias: public anlnext::BasicModule {
 public:
   ControlToFBias();
