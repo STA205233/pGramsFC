@@ -1,0 +1,1096 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<anlmodules>
+  <namespace>GRAMSBalloon</namespace>
+  <module>
+    <name>EncodedSerialCommunicator</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>filename</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>/dev/ttyACM0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>sleep_for_usec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1000</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>timeout_usec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1000000</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>baudrate</name>
+        <type>integer</type>
+        <unit></unit>
+        <default_value>13</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>mode</name>
+        <type>integer</type>
+        <unit></unit>
+        <default_value>2050</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ControlPDU</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>SPIManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>SPIManager</default_value>
+        <description>SPIManager name for accessing SPI interface</description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>DistributeCommand</name>
+    <version>2.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>command</default_value>
+        <description>Topic to subscribe</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>DividePacket</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>ReceiveStatusFromDAQComputer_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>ReceiveStatusFromDAQComputer</default_value>
+        <description>Name of ReceiveStatusFromDAQComputer</description>
+      </param>
+      <param container_type=''>
+        <name>starlink_code</name>
+        <type>vector&lt;int&gt;</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>overwritten_packet_code</name>
+        <type>integer</type>
+        <unit></unit>
+        <default_value>65535</default_value>
+        <description>Packet codes for overwriting packets</description>
+      </param>
+      <param container_type=''>
+        <name>maxPacketSize</name>
+        <type>integer</type>
+        <unit></unit>
+        <default_value>10000</default_value>
+        <description>Maximum packet size to publish (in bytes)</description>
+      </param>
+      <param container_type=''>
+        <name>save_status</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>binary_filename_base</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>status</default_value>
+        <description>Base name for the binary files to save the received status.</description>
+      </param>
+      <param container_type=''>
+        <name>num_status_per_file</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>100</default_value>
+        <description>Number of status messages to save per binary file.</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>GetMHADCData</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>num_section</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>6</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>channel_per_section</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>8</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>MHADCManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>EncodedSerialCommunicator</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>num_trials</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>10</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>GetComputerStatus</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>temperature_filename</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>/sys/class/thermal/thermal_zone0/temp</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>memory_filename</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>/proc/meminfo</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>path</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>/</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>InterpretTelemetry</name>
+    <version>2.2</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>save_telemetry</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description>Switch for saving telemetry</description>
+      </param>
+      <param container_type=''>
+        <name>num_telem_per_file</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>100</default_value>
+        <description>
+          number of packet per a file. This parameter is valid only when
+          save_telemetry is true
+        </description>
+      </param>
+      <param container_type=''>
+        <name>run_ID_filename</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>/Users/grams/settings/run_id/run_id.txt</default_value>
+        <description>Filename of run id, This paramater is valid only when save_telemetry is true</description>
+      </param>
+      <param container_type=''>
+        <name>binary_filename_base</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>Telemetry</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>receiver_module_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>ReceiveTelemetry</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>telemetry_type</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>HK</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>IoContextManager</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters/>
+  </module>
+  <module>
+    <name>ComMosquittoManager</name>
+    <version>2.3</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>host</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>localhost</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>port</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1883</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>keep_alive</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>60</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>time_out</name>
+        <type>int</type>
+        <unit>msec</unit>
+        <default_value>10</default_value>
+        <description>
+          Timeout for the connection. If negative, default value (1000 ms) is
+          used according to the reference of mosquittopp.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>user</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>password</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>device_id</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>MosquittoManager</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>do_initialize</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>
+          If true, initialization of mosquitto library will be performed at
+          mod_pre_initialize. This should be true only one module.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>do_cleanup</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>
+          If true, cleanup of mosquitto library will be performed at
+          mod_finalyze. This should be true only one module.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>TelemMosquittoManager</name>
+    <version>2.3</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>host</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>localhost</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>port</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1883</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>keep_alive</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>60</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>time_out</name>
+        <type>int</type>
+        <unit>msec</unit>
+        <default_value>10</default_value>
+        <description>
+          Timeout for the connection. If negative, default value (1000 ms) is
+          used according to the reference of mosquittopp.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>user</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>password</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>device_id</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>MosquittoManager</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>do_initialize</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>
+          If true, initialization of mosquitto library will be performed at
+          mod_pre_initialize. This should be true only one module.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>do_cleanup</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>
+          If true, cleanup of mosquitto library will be performed at
+          mod_finalyze. This should be true only one module.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>PassTelemetry</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>MosquittoManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>TelemMosquittoManager</default_value>
+        <description>Name of MosquittoManager</description>
+      </param>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>Telemetry</default_value>
+        <description>Topic for iridium packets</description>
+      </param>
+      <param container_type=''>
+        <name>starlink_topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>StarlinkTelemetry</default_value>
+        <description>Topic for Starlink packets</description>
+      </param>
+      <param container_type=''>
+        <name>DividePacket_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>DividePacket</default_value>
+        <description>Name of DividePacket module</description>
+      </param>
+      <param container_type=''>
+        <name>qos</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>QoS level for MQTT</description>
+      </param>
+      <param container_type=''>
+        <name>is_starlink_only</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description>Set true if this module handles not critical packets only via Starlink</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>PushToMySQL</name>
+    <version>3.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>data_store_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>InterpretTelemetry</default_value>
+        <description>Module name of data store module</description>
+      </param>
+      <param container_type=''>
+        <name>table_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>HubHK</default_value>
+        <description>Table name for data</description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ReceiveTelemetry</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>Telemetry</default_value>
+        <description>Topic to subscribe</description>
+      </param>
+      <param container_type=''>
+        <name>qos</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>QoS</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ReceiveStatusFromDAQComputer</name>
+    <version>1.1</version>
+    <text>
+      This module is responsible for receiving status from DAQ computers.
+      SocketCommunicationManager is required for communication.
+    </text>
+    <parameters>
+      <param container_type=''>
+        <name>SocketCommunicationManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>SocketCommunicationManager</default_value>
+        <description>Name of SocketCommunicationManager</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>dead_communication_time</name>
+        <type>int</type>
+        <unit>ms</unit>
+        <default_value>1000</default_value>
+        <description>
+          Time in milliseconds to consider the communication dead if no data is
+          received. If 0 is specified, assumes no dead communication time.
+        </description>
+      </param>
+      <param container_type=''>
+        <name>save_status</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>Whether to save the received status to a binary file.</description>
+      </param>
+      <param container_type=''>
+        <name>binary_filename_base</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description>Base name for the binary files to save the received status.</description>
+      </param>
+      <param container_type=''>
+        <name>num_status_per_file</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>100</default_value>
+        <description>Number of status messages to save per binary file.</description>
+      </param>
+      <param container_type=''>
+        <name>subsystem</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>RunIDManager</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>filename</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>/home/grams/settings/run_id/run_id.txt</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>60</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SendCommandToDAQComputer</name>
+    <version>1.3</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>SocketCommunicationManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>SocketCommunicationManager</default_value>
+        <description>Name of SocketCommunicationManager</description>
+      </param>
+      <param container_type=''>
+        <name>DistributeCommand_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>DistributeCommand</default_value>
+        <description>Name of DistributeCommand</description>
+      </param>
+      <param container_type=''>
+        <name>duration_between_heartbeat</name>
+        <type>int</type>
+        <unit>ms</unit>
+        <default_value>800</default_value>
+        <description>Duration between heartbeat in ms. If negative, no heartbeat is sent.</description>
+      </param>
+      <param container_type=''>
+        <name>subsystem</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>Subsystem enum value</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>Chatter level</description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SendTelemetry</name>
+    <version>3.3</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>save_telemetry</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>binary_filename_base</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>Telemetry</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>num_telem_per_file</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1000</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>telemetry</default_value>
+        <description>MQTT topic for telemetry publishing via Iridium</description>
+      </param>
+      <param container_type=''>
+        <name>starlink_topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>StarlinkTelemetry</default_value>
+        <description>MQTT topic for telemetry publishing via Starlink</description>
+      </param>
+      <param container_type=''>
+        <name>qos</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ShutdownSystem</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>buffer_time_sec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>60</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SocketCommunicationManager</name>
+    <version>1.0</version>
+    <text>
+      This module is responsible for socket communication, mainly between the
+      DAQ computer
+    </text>
+    <parameters>
+      <param container_type=''>
+        <name>ip</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description>ip address of the server</description>
+      </param>
+      <param container_type=''>
+        <name>port</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>port of the server</description>
+      </param>
+      <param container_type=''>
+        <name>handle_SIGPIPE</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>Flag for handling SIGPIPE. This process is normally necessary once per process.</description>
+      </param>
+      <param container_type=''>
+        <name>timeout</name>
+        <type>int</type>
+        <unit>msec</unit>
+        <default_value>-1</default_value>
+        <description>Receive Timeout</description>
+      </param>
+      <param container_type=''>
+        <name>subsystem</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SPIManager</name>
+    <version>2.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>channel</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>path</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>baudrate</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>100000</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>spi_config_options</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>spi_control_type</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>baycat</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>use_multiplexer</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>TreatToFCallback</name>
+    <version>2.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>table_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>HubHK</default_value>
+        <description>Table name for HubHK telemetry data</description>
+      </param>
+      <param container_type=''>
+        <name>InterpretTelemetry_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>InterpretTelemetry</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>MySQLManager</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>host</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>localhost</default_value>
+        <description>MySQL server host</description>
+      </param>
+      <param container_type=''>
+        <name>port</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>33060</default_value>
+        <description>MySQL server port</description>
+      </param>
+      <param container_type=''>
+        <name>user</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>test</default_value>
+        <description>MySQL user name</description>
+      </param>
+      <param container_type=''>
+        <name>password</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>test</default_value>
+        <description>MySQL user password</description>
+      </param>
+      <param container_type=''>
+        <name>database</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>pgrams</default_value>
+        <description>MySQL database name</description>
+      </param>
+      <param container_type=''>
+        <name>check_exist</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description>Check existence of tables and columns before inserting data</description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SendArrayByMQTT</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>InterpretTelemetry_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>InterpretTelemetry</default_value>
+        <description>InterpretTelemetry name</description>
+      </param>
+      <param container_type=''>
+        <name>MosquittoManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>MosquittoManager</default_value>
+        <description>MosquittoManager name.</description>
+      </param>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>Telemetry_array</default_value>
+        <description>MQTT topic to publish.</description>
+      </param>
+      <param container_type=''>
+        <name>qos</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>MQTT QoS level.</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SendPacketByMQTT</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>InterpretTelemetry_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>InterpretTelemetry</default_value>
+        <description>InterpretTelemetry name</description>
+      </param>
+      <param container_type=''>
+        <name>MosquittoManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>MosquittoManager</default_value>
+        <description>MosquittoManager name.</description>
+      </param>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>pgrams/telemetry</default_value>
+        <description>MQTT topic to publish.</description>
+      </param>
+      <param container_type=''>
+        <name>qos</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description>MQTT QoS level.</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>GetLabJackData</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>range_setting</name>
+        <type>double</type>
+        <unit></unit>
+        <default_value>0.1</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>GetEnvironmentalData</name>
+    <version>2.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>I2C_manager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>I2CManager</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>I2CManager</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters/>
+  </module>
+</anlmodules>
