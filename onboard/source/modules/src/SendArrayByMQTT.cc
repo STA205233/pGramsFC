@@ -5,6 +5,7 @@
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus SendArrayByMQTT::mod_define() {
+  set_module_description("Module to send telemetries formatted in python dictionary");
   define_parameter("InterpretTelemetry_name", &mod_class::interpretTelemetryName_);
   set_parameter_description("InterpretTelemetry name");
   define_parameter("MosquittoManager_name", &mod_class::mosquittoManagerName_);

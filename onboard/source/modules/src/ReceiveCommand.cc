@@ -43,14 +43,21 @@ ReceiveCommand::ReceiveCommand()
 ReceiveCommand::~ReceiveCommand() = default;
 
 ANLStatus ReceiveCommand::mod_define() {
-  define_parameter("timeout_sec", &mod_class::timeoutSec_);
+  set_module_description("Module for receiving commands from the ground");
   define_parameter("save_command", &mod_class::saveCommand_);
-  define_parameter("SendCommandToDAQComputer_names", &mod_class::sendCommandToDAQComputerNames_);
-  define_parameter("SPIManager_name", &mod_class::spiManagerName_);
+  set_parameter_description("Switch for saving command");
   define_parameter("binary_filename_base", &mod_class::binaryFilenameBase_);
+  set_parameter_description("Filename base for saving");
   define_parameter("num_command_per_file", &mod_class::numCommandPerFile_);
+  set_parameter_description("Number of commands per 1 file");
+  define_parameter("SendCommandToDAQComputer_names", &mod_class::sendCommandToDAQComputerNames_);
+  set_parameter_description("Names of SendCommandToDAQComputer.");
+  define_parameter("SPIManager_name", &mod_class::spiManagerName_);
+  set_parameter_description("Name of SPIManager. This SPIManager is used for enabling PDUs");
   define_parameter("topic", &mod_class::topic_);
+  set_parameter_description("MQTT topic");
   define_parameter("qos", &mod_class::qos_);
+  set_parameter_description("MQTT QoS");
   define_parameter("chatter", &mod_class::chatter_);
   return AS_OK;
 }
@@ -450,7 +457,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-    else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
+  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset received. Voff: " << arguments[0] << std::endl;
     }

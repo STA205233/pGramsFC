@@ -5,6 +5,7 @@ using namespace pgrams::communication;
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus SendCommandToDAQComputer::mod_define() {
+  set_module_description("Module for sending commands from the ground to the DAQ computer. This module requires DistributeCommand and SocketCommunication modules");
   define_parameter("SocketCommunicationManager_name", &mod_class::socketCommunicationManagerName_);
   set_parameter_description("Name of SocketCommunicationManager");
   define_parameter("DistributeCommand_name", &mod_class::distributeCommandName_);

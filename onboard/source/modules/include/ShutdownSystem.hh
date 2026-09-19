@@ -1,11 +1,6 @@
 #ifndef ShutdownSystem_H
 #define ShutdownSystem_H 1
 #ifdef USE_SYSTEM_MODULES
-/**
- * Test module for shutdown system
- * @author Shota Arai, Tsubasa Tamba
- * @date 2023-04-16
- */
 
 #include "SendTelemetry.hh"
 #include <anlnext/BasicModule.hh>
@@ -15,6 +10,11 @@
 
 namespace gramsballoon::pgrams {
 class SendTelemetry;
+/**
+   * Module for shutdown system
+   * @author Shota Arai, Tsubasa Tamba
+   * @date 2023-04-16
+   */
 class ShutdownSystem: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ShutdownSystem, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -57,6 +57,6 @@ private:
   int chatter_ = 0;
 };
 
-} /* namespace gramsballoon */
+} // namespace gramsballoon::pgrams
 #endif /* USE_SYSTEM_MODULES */
 #endif /*ShutdownSystem_H*/

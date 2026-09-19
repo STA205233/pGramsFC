@@ -45,7 +45,15 @@ public:
 
 private:
   std::shared_ptr<SPIInterface> interface_ = nullptr;
-  std::string spiControlType_ = "baycat"; // "baycat" or "ft232h"
+
+  /**
+    * @brief Type of the controller. "baycat", "mcp2210" and "ft232h" can be specfied.
+    */
+  std::string spiControlType_ = "baycat";
+
+  /**
+    * @brief Switch for multiplexer. If so, the chip select is interpreted as the multiplexer channel.
+    */
   bool useMultiplexer_ = true;
   int channel_ = 0;
   std::string path_ = "";

@@ -15,6 +15,11 @@ class IridiumPacketPool;
 class BaseTelemetryDefinition;
 template <typename T>
 class CommunicationSaver;
+
+/** @brief Module for dividing bytes from the DAQ computer into packet.
+  * @author Shota Arai
+  * @date **-**-** | Shota Arai | Initial version (v1.0)
+  */
 class DividePacket: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(DividePacket, 1.0);
   ENABLE_PARALLEL_RUN();

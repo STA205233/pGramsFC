@@ -5,6 +5,7 @@ using namespace anlnext;
 
 namespace gramsballoon::pgrams {
 ANLStatus ReceiveTelemetry::mod_define() {
+  set_module_description("Module for receiving telemetries");
   define_parameter("topic", &mod_class::subTopic_);
   set_parameter_description("Topic to subscribe");
   define_parameter("qos", &mod_class::qos_);

@@ -6,6 +6,7 @@
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus SendPacketByMQTT::mod_define() {
+  set_module_description("Module to send telemetries from the DAQ computers formatted in raw packet.");
   define_parameter("InterpretTelemetry_name", &mod_class::interpretTelemetryName_);
   set_parameter_description("InterpretTelemetry name");
   define_parameter("MosquittoManager_name", &mod_class::mosquittoManagerName_);

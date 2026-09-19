@@ -100,7 +100,6 @@ private:
   MosquittoIO<std::vector<uint8_t>> *mosq_ = nullptr;
   std::string topic_ = "command";
   int qos_ = 0;
-  int timeoutSec_ = 2;
 
   std::shared_ptr<CommunicationSaver<std::vector<uint8_t>>> commandSaver_ = nullptr;
   std::vector<SendCommandToDAQComputer *> sendCommandToDAQComputers_;

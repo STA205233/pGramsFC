@@ -23,6 +23,7 @@ SPIManager::~SPIManager() {
 };
 
 ANLStatus SPIManager::mod_define() {
+  set_module_description("Module for managing SPI device.");
   define_parameter("channel", &mod_class::channel_);
   define_parameter("path", &mod_class::path_);
   define_parameter("baudrate", &mod_class::baudrate_);
