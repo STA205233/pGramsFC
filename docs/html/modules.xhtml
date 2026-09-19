@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>pGramsFC/ANL Modules</title>
+    <link rel="stylesheet" type="text/css" href="design_top.css"/>
+  </head>
+  <body><h1>pGramsFC/ANL Modules</h1><h2>List of modules</h2><ul><li><a href="#EncodedSerialCommunicator">EncodedSerialCommunicator</a></li><li><a href="#ControlPDU">ControlPDU</a></li><li><a href="#DistributeCommand">DistributeCommand</a></li><li><a href="#DividePacket">DividePacket</a></li><li><a href="#GetMHADCData">GetMHADCData</a></li><li><a href="#GetComputerStatus">GetComputerStatus</a></li><li><a href="#InterpretTelemetry">InterpretTelemetry</a></li><li><a href="#IoContextManager">IoContextManager</a></li><li><a href="#ComMosquittoManager">ComMosquittoManager</a></li><li><a href="#TelemMosquittoManager">TelemMosquittoManager</a></li><li><a href="#PassTelemetry">PassTelemetry</a></li><li><a href="#PushToMySQL">PushToMySQL</a></li><li><a href="#ReceiveTelemetry">ReceiveTelemetry</a></li><li><a href="#ReceiveStatusFromDAQComputer">ReceiveStatusFromDAQComputer</a></li><li><a href="#RunIDManager">RunIDManager</a></li><li><a href="#SendCommandToDAQComputer">SendCommandToDAQComputer</a></li><li><a href="#SendTelemetry">SendTelemetry</a></li><li><a href="#ShutdownSystem">ShutdownSystem</a></li><li><a href="#SocketCommunicationManager">SocketCommunicationManager</a></li><li><a href="#SPIManager">SPIManager</a></li><li><a href="#TreatToFCallback">TreatToFCallback</a></li><li><a href="#MySQLManager">MySQLManager</a></li><li><a href="#SendArrayByMQTT">SendArrayByMQTT</a></li><li><a href="#SendPacketByMQTT">SendPacketByMQTT</a></li><li><a href="#GetLabJackData">GetLabJackData</a></li><li><a href="#GetEnvironmentalData">GetEnvironmentalData</a></li><li><a href="#I2CManager">I2CManager</a></li><li><a href="#Sleep">Sleep</a></li><li><a href="#GetPDUInfo">GetPDUInfo</a></li><li><a href="#ReceiveCommand">ReceiveCommand</a></li><li><a href="#ControlToFBias">ControlToFBias</a></li><li><a href="#ConvertHubHKTelemetry">ConvertHubHKTelemetry</a></li><li><a href="#SetHKEvs">SetHKEvs</a></li><li><a href="#PushTBTelemetryToMySQL">PushTBTelemetryToMySQL</a></li></ul>
+    <h3 id="EncodedSerialCommunicator">EncodedSerialCommunicator</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>filename</td><td>string</td><td/><td>/dev/ttyACM0</td><td/></tr><tr><td>sleep_for_usec</td><td>int</td><td/><td>1000</td><td/></tr><tr><td>timeout_usec</td><td>int</td><td/><td>1000000</td><td/></tr><tr><td>baudrate</td><td>integer</td><td/><td>13</td><td/></tr><tr><td>mode</td><td>integer</td><td/><td>2050</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="ControlPDU">ControlPDU</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>SPIManager_name</td><td>string</td><td/><td>SPIManager</td><td>SPIManager name for accessing SPI interface</td></tr></tbody></table>
+  
+    <h3 id="DistributeCommand">DistributeCommand</h3>
+    <p>Version: 2.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>topic</td><td>string</td><td/><td>command</td><td>Topic to subscribe</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="DividePacket">DividePacket</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>ReceiveStatusFromDAQComputer_name</td><td>string</td><td/><td>ReceiveStatusFromDAQComputer</td><td>Name of ReceiveStatusFromDAQComputer</td></tr><tr><td>starlink_code</td><td>vector&lt;int&gt;</td><td/><td/><td/></tr><tr><td>overwritten_packet_code</td><td>integer</td><td/><td>65535</td><td>Packet codes for overwriting packets</td></tr><tr><td>maxPacketSize</td><td>integer</td><td/><td>10000</td><td>Maximum packet size to publish (in bytes)</td></tr><tr><td>save_status</td><td>bool</td><td/><td>0</td><td/></tr><tr><td>binary_filename_base</td><td>string</td><td/><td>status</td><td>Base name for the binary files to save the received status.</td></tr><tr><td>num_status_per_file</td><td>int</td><td/><td>100</td><td>Number of status messages to save per binary file.</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="GetMHADCData">GetMHADCData</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>num_section</td><td>int</td><td/><td>6</td><td/></tr><tr><td>channel_per_section</td><td>int</td><td/><td>8</td><td/></tr><tr><td>MHADCManager_name</td><td>string</td><td/><td>EncodedSerialCommunicator</td><td/></tr><tr><td>num_trials</td><td>int</td><td/><td>10</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="GetComputerStatus">GetComputerStatus</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>temperature_filename</td><td>string</td><td/><td>/sys/class/thermal/thermal_zone0/temp</td><td/></tr><tr><td>memory_filename</td><td>string</td><td/><td>/proc/meminfo</td><td/></tr><tr><td>path</td><td>string</td><td/><td>/</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="InterpretTelemetry">InterpretTelemetry</h3>
+    <p>Version: 2.2</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>save_telemetry</td><td>bool</td><td/><td>1</td><td>Switch for saving telemetry</td></tr><tr><td>num_telem_per_file</td><td>int</td><td/><td>100</td><td>
+          number of packet per a file. This parameter is valid only when
+          save_telemetry is true
+        </td></tr><tr><td>run_ID_filename</td><td>string</td><td/><td>/Users/grams/settings/run_id/run_id.txt</td><td>Filename of run id, This paramater is valid only when save_telemetry is true</td></tr><tr><td>binary_filename_base</td><td>string</td><td/><td>Telemetry</td><td/></tr><tr><td>receiver_module_name</td><td>string</td><td/><td>ReceiveTelemetry</td><td/></tr><tr><td>telemetry_type</td><td>string</td><td/><td>HK</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="IoContextManager">IoContextManager</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody/></table>
+  
+    <h3 id="ComMosquittoManager">ComMosquittoManager</h3>
+    <p>Version: 2.3</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>host</td><td>string</td><td/><td>localhost</td><td/></tr><tr><td>port</td><td>int</td><td/><td>1883</td><td/></tr><tr><td>keep_alive</td><td>int</td><td/><td>60</td><td/></tr><tr><td>time_out</td><td>int</td><td>msec</td><td>10</td><td>
+          Timeout for the connection. If negative, default value (1000 ms) is
+          used according to the reference of mosquittopp.
+        </td></tr><tr><td>user</td><td>string</td><td/><td/><td/></tr><tr><td>password</td><td>string</td><td/><td/><td/></tr><tr><td>device_id</td><td>string</td><td/><td>MosquittoManager</td><td/></tr><tr><td>do_initialize</td><td>bool</td><td/><td>0</td><td>
+          If true, initialization of mosquitto library will be performed at
+          mod_pre_initialize. This should be true only one module.
+        </td></tr><tr><td>do_cleanup</td><td>bool</td><td/><td>0</td><td>
+          If true, cleanup of mosquitto library will be performed at
+          mod_finalyze. This should be true only one module.
+        </td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="TelemMosquittoManager">TelemMosquittoManager</h3>
+    <p>Version: 2.3</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>host</td><td>string</td><td/><td>localhost</td><td/></tr><tr><td>port</td><td>int</td><td/><td>1883</td><td/></tr><tr><td>keep_alive</td><td>int</td><td/><td>60</td><td/></tr><tr><td>time_out</td><td>int</td><td>msec</td><td>10</td><td>
+          Timeout for the connection. If negative, default value (1000 ms) is
+          used according to the reference of mosquittopp.
+        </td></tr><tr><td>user</td><td>string</td><td/><td/><td/></tr><tr><td>password</td><td>string</td><td/><td/><td/></tr><tr><td>device_id</td><td>string</td><td/><td>MosquittoManager</td><td/></tr><tr><td>do_initialize</td><td>bool</td><td/><td>0</td><td>
+          If true, initialization of mosquitto library will be performed at
+          mod_pre_initialize. This should be true only one module.
+        </td></tr><tr><td>do_cleanup</td><td>bool</td><td/><td>0</td><td>
+          If true, cleanup of mosquitto library will be performed at
+          mod_finalyze. This should be true only one module.
+        </td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="PassTelemetry">PassTelemetry</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>MosquittoManager_name</td><td>string</td><td/><td>TelemMosquittoManager</td><td>Name of MosquittoManager</td></tr><tr><td>topic</td><td>string</td><td/><td>Telemetry</td><td>Topic for iridium packets</td></tr><tr><td>starlink_topic</td><td>string</td><td/><td>StarlinkTelemetry</td><td>Topic for Starlink packets</td></tr><tr><td>DividePacket_name</td><td>string</td><td/><td>DividePacket</td><td>Name of DividePacket module</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>QoS level for MQTT</td></tr><tr><td>is_starlink_only</td><td>bool</td><td/><td>1</td><td>Set true if this module handles not critical packets only via Starlink</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="PushToMySQL">PushToMySQL</h3>
+    <p>Version: 3.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr><tr><td>data_store_name</td><td>string</td><td/><td>InterpretTelemetry</td><td>Module name of data store module</td></tr><tr><td>table_name</td><td>string</td><td/><td>HubHK</td><td>Table name for data</td></tr></tbody></table>
+  
+    <h3 id="ReceiveTelemetry">ReceiveTelemetry</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>topic</td><td>string</td><td/><td>Telemetry</td><td>Topic to subscribe</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>QoS</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="ReceiveStatusFromDAQComputer">ReceiveStatusFromDAQComputer</h3>
+    <p>Version: 1.1</p>
+    <p>
+      This module is responsible for receiving status from DAQ computers.
+      SocketCommunicationManager is required for communication.
+    </p>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>SocketCommunicationManager_name</td><td>string</td><td/><td>SocketCommunicationManager</td><td>Name of SocketCommunicationManager</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr><tr><td>dead_communication_time</td><td>int</td><td>ms</td><td>1000</td><td>
+          Time in milliseconds to consider the communication dead if no data is
+          received. If 0 is specified, assumes no dead communication time.
+        </td></tr><tr><td>save_status</td><td>bool</td><td/><td>0</td><td>Whether to save the received status to a binary file.</td></tr><tr><td>binary_filename_base</td><td>string</td><td/><td/><td>Base name for the binary files to save the received status.</td></tr><tr><td>num_status_per_file</td><td>int</td><td/><td>100</td><td>Number of status messages to save per binary file.</td></tr><tr><td>subsystem</td><td>int</td><td/><td>1</td><td/></tr></tbody></table>
+  
+    <h3 id="RunIDManager">RunIDManager</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>filename</td><td>string</td><td/><td>/home/grams/settings/run_id/run_id.txt</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>2762651</td><td/></tr></tbody></table>
+  
+    <h3 id="SendCommandToDAQComputer">SendCommandToDAQComputer</h3>
+    <p>Version: 1.3</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>SocketCommunicationManager_name</td><td>string</td><td/><td>SocketCommunicationManager</td><td>Name of SocketCommunicationManager</td></tr><tr><td>DistributeCommand_name</td><td>string</td><td/><td>DistributeCommand</td><td>Name of DistributeCommand</td></tr><tr><td>duration_between_heartbeat</td><td>int</td><td>ms</td><td>800</td><td>Duration between heartbeat in ms. If negative, no heartbeat is sent.</td></tr><tr><td>subsystem</td><td>int</td><td/><td>0</td><td>Subsystem enum value</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td>Chatter level</td></tr></tbody></table>
+  
+    <h3 id="SendTelemetry">SendTelemetry</h3>
+    <p>Version: 3.3</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>save_telemetry</td><td>bool</td><td/><td>1</td><td/></tr><tr><td>binary_filename_base</td><td>string</td><td/><td>Telemetry</td><td/></tr><tr><td>num_telem_per_file</td><td>int</td><td/><td>1000</td><td/></tr><tr><td>topic</td><td>string</td><td/><td>telemetry</td><td>MQTT topic for telemetry publishing via Iridium</td></tr><tr><td>starlink_topic</td><td>string</td><td/><td>StarlinkTelemetry</td><td>MQTT topic for telemetry publishing via Starlink</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="ShutdownSystem">ShutdownSystem</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>buffer_time_sec</td><td>int</td><td/><td>60</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="SocketCommunicationManager">SocketCommunicationManager</h3>
+    <p>Version: 1.0</p>
+    <p>
+      This module is responsible for socket communication, mainly between the
+      DAQ computer
+    </p>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>ip</td><td>string</td><td/><td/><td>ip address of the server</td></tr><tr><td>port</td><td>int</td><td/><td>0</td><td>port of the server</td></tr><tr><td>handle_SIGPIPE</td><td>bool</td><td/><td>0</td><td>Flag for handling SIGPIPE. This process is normally necessary once per process.</td></tr><tr><td>timeout</td><td>int</td><td>msec</td><td>-1</td><td>Receive Timeout</td></tr><tr><td>subsystem</td><td>int</td><td/><td>0</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="SPIManager">SPIManager</h3>
+    <p>Version: 2.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>channel</td><td>int</td><td/><td>0</td><td/></tr><tr><td>path</td><td>string</td><td/><td/><td/></tr><tr><td>baudrate</td><td>int</td><td/><td>100000</td><td/></tr><tr><td>spi_config_options</td><td>int</td><td/><td>0</td><td/></tr><tr><td>spi_control_type</td><td>string</td><td/><td>baycat</td><td/></tr><tr><td>use_multiplexer</td><td>bool</td><td/><td>1</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="TreatToFCallback">TreatToFCallback</h3>
+    <p>Version: 2.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr><tr><td>table_name</td><td>string</td><td/><td>HubHK</td><td>Table name for HubHK telemetry data</td></tr><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td/></tr></tbody></table>
+  
+    <h3 id="MySQLManager">MySQLManager</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>host</td><td>string</td><td/><td>localhost</td><td>MySQL server host</td></tr><tr><td>port</td><td>int</td><td/><td>33060</td><td>MySQL server port</td></tr><tr><td>user</td><td>string</td><td/><td>test</td><td>MySQL user name</td></tr><tr><td>password</td><td>string</td><td/><td>test</td><td>MySQL user password</td></tr><tr><td>database</td><td>string</td><td/><td>pgrams</td><td>MySQL database name</td></tr><tr><td>check_exist</td><td>bool</td><td/><td>1</td><td>Check existence of tables and columns before inserting data</td></tr></tbody></table>
+  
+    <h3 id="SendArrayByMQTT">SendArrayByMQTT</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td>InterpretTelemetry name</td></tr><tr><td>MosquittoManager_name</td><td>string</td><td/><td>MosquittoManager</td><td>MosquittoManager name.</td></tr><tr><td>topic</td><td>string</td><td/><td>Telemetry_array</td><td>MQTT topic to publish.</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>MQTT QoS level.</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="SendPacketByMQTT">SendPacketByMQTT</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td>InterpretTelemetry name</td></tr><tr><td>MosquittoManager_name</td><td>string</td><td/><td>MosquittoManager</td><td>MosquittoManager name.</td></tr><tr><td>topic</td><td>string</td><td/><td>pgrams/telemetry</td><td>MQTT topic to publish.</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>MQTT QoS level.</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="GetLabJackData">GetLabJackData</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>range_setting</td><td>double</td><td/><td>0.1</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="GetEnvironmentalData">GetEnvironmentalData</h3>
+    <p>Version: 2.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>I2C_manager_name</td><td>string</td><td/><td>I2CManager</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="I2CManager">I2CManager</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody/></table>
+  
+    <h3 id="Sleep">Sleep</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>sleep_sec</td><td>int</td><td>sec</td><td>0</td><td>Sleep time</td></tr></tbody></table>
+  
+    <h3 id="GetPDUInfo">GetPDUInfo</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>SPIManager_name</td><td>string</td><td/><td/><td>SPIManager name for accessing SPI interface</td></tr><tr><td>v_ref</td><td>double</td><td/><td>3.3</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="ReceiveCommand">ReceiveCommand</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>timeout_sec</td><td>int</td><td/><td>2</td><td/></tr><tr><td>save_command</td><td>bool</td><td/><td>1</td><td/></tr><tr><td>SendCommandToDAQComputer_names</td><td>vector&lt;string&gt;</td><td/><td/><td/></tr><tr><td>SPIManager_name</td><td>string</td><td/><td>SPIManager</td><td/></tr><tr><td>binary_filename_base</td><td>string</td><td/><td>Command</td><td/></tr><tr><td>num_command_per_file</td><td>int</td><td/><td>100</td><td/></tr><tr><td>topic</td><td>string</td><td/><td>command</td><td/></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="ControlToFBias">ControlToFBias</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>path</td><td>string</td><td/><td/><td/></tr><tr><td>MosquittoManager_name</td><td>string</td><td/><td>TelemMosquittoManager</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr><tr><td>minimum_duration_sec</td><td>int</td><td/><td>1</td><td/></tr><tr><td>starlink_topic</td><td>string</td><td/><td>TB_Telemetry_Starlink</td><td/></tr><tr><td>topic</td><td>string</td><td/><td>TB_Telemetry</td><td/></tr><tr><td>timeout_usec</td><td>int</td><td/><td>50000</td><td/></tr></tbody></table>
+  
+    <h3 id="ConvertHubHKTelemetry">ConvertHubHKTelemetry</h3>
+    <p>Version: 1.1</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td/></tr><tr><td>verbose</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="SetHKEvs">SetHKEvs</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>duration_msec</td><td>int</td><td/><td>1000</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  
+    <h3 id="PushTBTelemetryToMySQL">PushTBTelemetryToMySQL</h3>
+    <p>Version: 1.0</p>
+    <p/>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td>Module name of data store module</td></tr><tr><td>table_name_full</td><td>string</td><td/><td>TofBias_full</td><td>Table name for full output</td></tr><tr><td>table_name_summary</td><td>string</td><td/><td>TofBias_summary</td><td>Table name for summary output</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+  </body>
+</html>
