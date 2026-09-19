@@ -59,6 +59,20 @@ a.push GetEnvironmentalData.new
 
 a.push I2CManager.new
 
+a.push Sleep.new
+
+a.push GetPDUInfo.new
+
+a.push ReceiveCommand.new
+
+a.push ControlToFBias.new
+
+a.push ConvertHubHKTelemetry.new
+
+a.push SetHKEvs.new
+
+a.push PushTBTelemetryToMySQL.new
+
 ### make documentation
 begin
   a.define
