@@ -44,3 +44,4 @@
 .cache
 .VSCodeCounter
 compile_commands.json
+docs/html/doxygen
