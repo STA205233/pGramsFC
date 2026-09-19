@@ -98,15 +98,9 @@ endif(GB_USE_MYSQL)
 set(GB_MOSQUITTO_CORE_CLASSES
     src/MosquittoIO.cc
   )
-if (GB_SOCKET_CLIENT)
-  set(GB_SOCKET_CLIENT_CORE_CLASSES
-    src/SocketCommunicationClient.cc
-  )
-else(GB_SOCKET_CLIENT)
-  set(GB_SOCKET_SERVER_CORE_CLASSES
-    src/SocketCommunicationServer.cc
-  )
-endif(GB_SOCKET_CLIENT)
+set(GB_SOCKET_SERVER_CORE_CLASSES
+  src/SocketCommunicationServer.cc
+)
 
 add_library(GBCore SHARED
   ${GB_CORE_CLASSES}
@@ -114,7 +108,6 @@ add_library(GBCore SHARED
   ${GB_LJM_CORE_CLASSES}
   ${GB_MYSQL_CORE_CLASSES}
   ${GB_MOSQUITTO_CORE_CLASSES}
-  ${GB_SOCKET_CLIENT_CORE_CLASSES}
   ${GB_SOCKET_SERVER_CORE_CLASSES}
   ${GB_I2C_CORE_CLASSES}
   ${GB_VERSA_API_CORE_CLASSES}

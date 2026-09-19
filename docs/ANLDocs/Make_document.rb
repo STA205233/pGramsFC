@@ -13,14 +13,11 @@ a.push DistributeCommand.new
 
 a.push DividePacket.new
 
-a.push PassTelemetry.new
-
 a.push GetMHADCData.new
 
 a.push GetComputerStatus.new
 
 a.push InterpretTelemetry.new
-a.push InterpretHKTelemetry.new
 
 a.push IoContextManager.new
 
@@ -56,13 +53,25 @@ a.push SendArrayByMQTT.new
 
 a.push SendPacketByMQTT.new
 
-a.push DetectErrorCallbackFromDAQ.new
-
 a.push GetLabJackData.new
 
-a.GetEnvironmentalData.new
+a.push GetEnvironmentalData.new
 
 a.push I2CManager.new
+
+a.push Sleep.new
+
+a.push GetPDUInfo.new
+
+a.push ReceiveCommand.new
+
+a.push ControlToFBias.new
+
+a.push ConvertHubHKTelemetry.new
+
+a.push SetHKEvs.new
+
+a.push PushTBTelemetryToMySQL.new
 
 ### make documentation
 begin

@@ -20,13 +20,10 @@ link_directories(
 )
 
 set(GB_MODULES
-  src/SimpleLoop.cc
   src/ReceiveTelemetry.cc
   src/RunIDManager.cc
   src/EncodedSerialCommunicator.cc
   src/GetMHADCData.cc
-  src/GetPressure.cc
-  src/PressureGaugeManager.cc
   src/InterpretTelemetry.cc
   src/Sleep.cc
   src/MosquittoManager.cc
@@ -41,7 +38,6 @@ set(GB_MODULES
   src/SendTelemetry.cc
   src/SendArrayByMQTT.cc
   src/SendPacketByMQTT.cc
-  src/DetectErrorCallbackFromDAQ.cc
   src/ControlToFBias.cc
   src/ConvertHubHKTelemetry.cc
   src/VHousekeepingModule.cc

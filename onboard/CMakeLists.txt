@@ -21,7 +21,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(USE_RUBY ON)
-set(GB_SOCKET_CLIENT OFF)
 set(MY_LIBRARY GRAMSBalloon)
 set(cxx_definitions)
 
@@ -57,11 +56,7 @@ find_path(GB_PGRAMSBALLOON_INC_DIR NAMES CommunicationCodes.hh REQUIRED HINTS "$
 message("-- Include file of pGRAMSBalloon Found")
 message("-- GB_PGRAMSBALLOON_INC_DIR: ${GB_PGRAMSBALLOON_INC_DIR}")
 
-if (GB_USE_BAYCAT OR GB_USE_FT232H)
-  set(GB_USE_SPI ON)
-else()
-  set(GB_USE_SPI OFF)
-endif()
+
   
 # shortcut options
 option(GB_GROUND "shortcut for ground system" OFF)
@@ -76,6 +71,11 @@ set(GB_USE_BAYCAT OFF)
 set(GB_USE_MCP2210 OFF)
 endif(GB_GROUND)
 
+if(GB_USE_BAYCAT OR GB_USE_FT232H OR GB_USE_MCP2210)
+  set(GB_USE_SPI ON)
+else()
+  set(GB_USE_SPI OFF)
+endif()
 
 if (GB_USE_FT232H)
   add_compile_definitions("USE_FT232H")
@@ -104,9 +104,6 @@ message("-- GB_USE_SPI: ${GB_USE_SPI}")
 message("-- GB_USE_I2C: ${GB_USE_I2C}")
 message("-- GB_USE_BAYCAT: ${GB_USE_BAYCAT}")
 
-if(GB_USE_HSQUICKLOOK)
-  add_compile_definitions("USE_HSQUICKLOOK")
-endif(GB_USE_HSQUICKLOOK)
 
 if(GB_USE_SYSTEM_MODULES)
   add_compile_definitions("USE_SYSTEM_MODULES")
