@@ -652,7 +652,7 @@
         <name>chatter</name>
         <type>int</type>
         <unit></unit>
-        <default_value>60</default_value>
+        <default_value>2762651</default_value>
         <description></description>
       </param>
     </parameters>
@@ -1092,5 +1092,250 @@
     <version>1.0</version>
     <text></text>
     <parameters/>
+  </module>
+  <module>
+    <name>Sleep</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>sleep_sec</name>
+        <type>int</type>
+        <unit>sec</unit>
+        <default_value>0</default_value>
+        <description>Sleep time</description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>GetPDUInfo</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>SPIManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description>SPIManager name for accessing SPI interface</description>
+      </param>
+      <param container_type=''>
+        <name>v_ref</name>
+        <type>double</type>
+        <unit></unit>
+        <default_value>3.3</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ReceiveCommand</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>timeout_sec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>2</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>save_command</name>
+        <type>bool</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>SendCommandToDAQComputer_names</name>
+        <type>vector&lt;string&gt;</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>SPIManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>SPIManager</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>binary_filename_base</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>Command</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>num_command_per_file</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>100</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>command</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>qos</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ControlToFBias</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>path</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>MosquittoManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>TelemMosquittoManager</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>minimum_duration_sec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>starlink_topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>TB_Telemetry_Starlink</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>topic</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>TB_Telemetry</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>timeout_usec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>50000</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>ConvertHubHKTelemetry</name>
+    <version>1.1</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>InterpretTelemetry_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>InterpretTelemetry</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>verbose</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>SetHKEvs</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>duration_msec</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>1000</default_value>
+        <description></description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
+  </module>
+  <module>
+    <name>PushTBTelemetryToMySQL</name>
+    <version>1.0</version>
+    <text></text>
+    <parameters>
+      <param container_type=''>
+        <name>InterpretTelemetry_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>InterpretTelemetry</default_value>
+        <description>Module name of data store module</description>
+      </param>
+      <param container_type=''>
+        <name>table_name_full</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>TofBias_full</default_value>
+        <description>Table name for full output</description>
+      </param>
+      <param container_type=''>
+        <name>table_name_summary</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>TofBias_summary</default_value>
+        <description>Table name for summary output</description>
+      </param>
+      <param container_type=''>
+        <name>chatter</name>
+        <type>int</type>
+        <unit></unit>
+        <default_value>0</default_value>
+        <description></description>
+      </param>
+    </parameters>
   </module>
 </anlmodules>
