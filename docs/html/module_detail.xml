@@ -549,7 +549,7 @@
   <module>
     <name>ReceiveTelemetry</name>
     <version>1.0</version>
-    <text></text>
+    <text>Module for receiving telemetries</text>
     <parameters>
       <param container_type=''>
         <name>topic</name>
@@ -652,7 +652,7 @@
         <name>chatter</name>
         <type>int</type>
         <unit></unit>
-        <default_value>2762651</default_value>
+        <default_value>-1593435160</default_value>
         <description></description>
       </param>
     </parameters>
@@ -660,7 +660,10 @@
   <module>
     <name>SendCommandToDAQComputer</name>
     <version>1.3</version>
-    <text></text>
+    <text>
+      Module for sending commands from the ground to the DAQ computer. This
+      module requires DistributeCommand and SocketCommunication modules
+    </text>
     <parameters>
       <param container_type=''>
         <name>SocketCommunicationManager_name</name>
@@ -758,7 +761,10 @@
   <module>
     <name>ShutdownSystem</name>
     <version>1.0</version>
-    <text></text>
+    <text>
+      Time between prepare command and exec command. If this time passes after
+      prepare command issues, the following exec command will be ignored.
+    </text>
     <parameters>
       <param container_type=''>
         <name>buffer_time_sec</name>
@@ -831,7 +837,7 @@
   <module>
     <name>SPIManager</name>
     <version>2.1</version>
-    <text></text>
+    <text>Module for managing SPI device.</text>
     <parameters>
       <param container_type=''>
         <name>channel</name>
@@ -964,7 +970,7 @@
   <module>
     <name>SendArrayByMQTT</name>
     <version>1.0</version>
-    <text></text>
+    <text>Module to send telemetries formatted in python dictionary</text>
     <parameters>
       <param container_type=''>
         <name>InterpretTelemetry_name</name>
@@ -1006,7 +1012,7 @@
   <module>
     <name>SendPacketByMQTT</name>
     <version>1.0</version>
-    <text></text>
+    <text>Module to send telemetries from the DAQ computers formatted in raw packet.</text>
     <parameters>
       <param container_type=''>
         <name>InterpretTelemetry_name</name>
@@ -1138,63 +1144,56 @@
   <module>
     <name>ReceiveCommand</name>
     <version>1.1</version>
-    <text></text>
+    <text>Module for receiving commands from the ground</text>
     <parameters>
-      <param container_type=''>
-        <name>timeout_sec</name>
-        <type>int</type>
-        <unit></unit>
-        <default_value>2</default_value>
-        <description></description>
-      </param>
       <param container_type=''>
         <name>save_command</name>
         <type>bool</type>
         <unit></unit>
         <default_value>1</default_value>
-        <description></description>
-      </param>
-      <param container_type=''>
-        <name>SendCommandToDAQComputer_names</name>
-        <type>vector&lt;string&gt;</type>
-        <unit></unit>
-        <default_value></default_value>
-        <description></description>
-      </param>
-      <param container_type=''>
-        <name>SPIManager_name</name>
-        <type>string</type>
-        <unit></unit>
-        <default_value>SPIManager</default_value>
-        <description></description>
+        <description>Switch for saving command</description>
       </param>
       <param container_type=''>
         <name>binary_filename_base</name>
         <type>string</type>
         <unit></unit>
         <default_value>Command</default_value>
-        <description></description>
+        <description>Filename base for saving</description>
       </param>
       <param container_type=''>
         <name>num_command_per_file</name>
         <type>int</type>
         <unit></unit>
         <default_value>100</default_value>
-        <description></description>
+        <description>Number of commands per 1 file</description>
+      </param>
+      <param container_type=''>
+        <name>SendCommandToDAQComputer_names</name>
+        <type>vector&lt;string&gt;</type>
+        <unit></unit>
+        <default_value></default_value>
+        <description>Names of SendCommandToDAQComputer.</description>
+      </param>
+      <param container_type=''>
+        <name>SPIManager_name</name>
+        <type>string</type>
+        <unit></unit>
+        <default_value>SPIManager</default_value>
+        <description>Name of SPIManager. This SPIManager is used for enabling PDUs</description>
       </param>
       <param container_type=''>
         <name>topic</name>
         <type>string</type>
         <unit></unit>
         <default_value>command</default_value>
-        <description></description>
+        <description>MQTT topic</description>
       </param>
       <param container_type=''>
         <name>qos</name>
         <type>int</type>
         <unit></unit>
         <default_value>0</default_value>
-        <description></description>
+        <description>MQTT QoS</description>
       </param>
       <param container_type=''>
         <name>chatter</name>

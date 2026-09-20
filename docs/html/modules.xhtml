@@ -89,7 +89,7 @@
   
     <h3 id="ReceiveTelemetry">ReceiveTelemetry</h3>
     <p>Version: 1.0</p>
-    <p/>
+    <p>Module for receiving telemetries</p>
     <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>topic</td><td>string</td><td/><td>Telemetry</td><td>Topic to subscribe</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>QoS</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
   
     <h3 id="ReceiveStatusFromDAQComputer">ReceiveStatusFromDAQComputer</h3>
@@ -106,11 +106,14 @@
     <h3 id="RunIDManager">RunIDManager</h3>
     <p>Version: 1.0</p>
     <p/>
-    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>filename</td><td>string</td><td/><td>/home/grams/settings/run_id/run_id.txt</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>2762651</td><td/></tr></tbody></table>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>filename</td><td>string</td><td/><td>/home/grams/settings/run_id/run_id.txt</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>-1593435160</td><td/></tr></tbody></table>
   
     <h3 id="SendCommandToDAQComputer">SendCommandToDAQComputer</h3>
     <p>Version: 1.3</p>
-    <p/>
+    <p>
+      Module for sending commands from the ground to the DAQ computer. This
+      module requires DistributeCommand and SocketCommunication modules
+    </p>
     <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>SocketCommunicationManager_name</td><td>string</td><td/><td>SocketCommunicationManager</td><td>Name of SocketCommunicationManager</td></tr><tr><td>DistributeCommand_name</td><td>string</td><td/><td>DistributeCommand</td><td>Name of DistributeCommand</td></tr><tr><td>duration_between_heartbeat</td><td>int</td><td>ms</td><td>800</td><td>Duration between heartbeat in ms. If negative, no heartbeat is sent.</td></tr><tr><td>subsystem</td><td>int</td><td/><td>0</td><td>Subsystem enum value</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td>Chatter level</td></tr></tbody></table>
   
     <h3 id="SendTelemetry">SendTelemetry</h3>
@@ -120,7 +123,10 @@
   
     <h3 id="ShutdownSystem">ShutdownSystem</h3>
     <p>Version: 1.0</p>
-    <p/>
+    <p>
+      Time between prepare command and exec command. If this time passes after
+      prepare command issues, the following exec command will be ignored.
+    </p>
     <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>buffer_time_sec</td><td>int</td><td/><td>60</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
   
     <h3 id="SocketCommunicationManager">SocketCommunicationManager</h3>
@@ -133,7 +139,7 @@
   
     <h3 id="SPIManager">SPIManager</h3>
     <p>Version: 2.1</p>
-    <p/>
+    <p>Module for managing SPI device.</p>
     <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>channel</td><td>int</td><td/><td>0</td><td/></tr><tr><td>path</td><td>string</td><td/><td/><td/></tr><tr><td>baudrate</td><td>int</td><td/><td>100000</td><td/></tr><tr><td>spi_config_options</td><td>int</td><td/><td>0</td><td/></tr><tr><td>spi_control_type</td><td>string</td><td/><td>baycat</td><td/></tr><tr><td>use_multiplexer</td><td>bool</td><td/><td>1</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
   
     <h3 id="TreatToFCallback">TreatToFCallback</h3>
@@ -148,12 +154,12 @@
   
     <h3 id="SendArrayByMQTT">SendArrayByMQTT</h3>
     <p>Version: 1.0</p>
-    <p/>
+    <p>Module to send telemetries formatted in python dictionary</p>
     <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td>InterpretTelemetry name</td></tr><tr><td>MosquittoManager_name</td><td>string</td><td/><td>MosquittoManager</td><td>MosquittoManager name.</td></tr><tr><td>topic</td><td>string</td><td/><td>Telemetry_array</td><td>MQTT topic to publish.</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>MQTT QoS level.</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
   
     <h3 id="SendPacketByMQTT">SendPacketByMQTT</h3>
     <p>Version: 1.0</p>
-    <p/>
+    <p>Module to send telemetries from the DAQ computers formatted in raw packet.</p>
     <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>InterpretTelemetry_name</td><td>string</td><td/><td>InterpretTelemetry</td><td>InterpretTelemetry name</td></tr><tr><td>MosquittoManager_name</td><td>string</td><td/><td>MosquittoManager</td><td>MosquittoManager name.</td></tr><tr><td>topic</td><td>string</td><td/><td>pgrams/telemetry</td><td>MQTT topic to publish.</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>MQTT QoS level.</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
   
     <h3 id="GetLabJackData">GetLabJackData</h3>
@@ -183,8 +189,8 @@
   
     <h3 id="ReceiveCommand">ReceiveCommand</h3>
     <p>Version: 1.1</p>
-    <p/>
-    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>timeout_sec</td><td>int</td><td/><td>2</td><td/></tr><tr><td>save_command</td><td>bool</td><td/><td>1</td><td/></tr><tr><td>SendCommandToDAQComputer_names</td><td>vector&lt;string&gt;</td><td/><td/><td/></tr><tr><td>SPIManager_name</td><td>string</td><td/><td>SPIManager</td><td/></tr><tr><td>binary_filename_base</td><td>string</td><td/><td>Command</td><td/></tr><tr><td>num_command_per_file</td><td>int</td><td/><td>100</td><td/></tr><tr><td>topic</td><td>string</td><td/><td>command</td><td/></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td/></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
+    <p>Module for receiving commands from the ground</p>
+    <table frame="border" rules="all"><caption class="mod_param_cap">Module parameters</caption><colgroup><col width="20%"/><col width="10%"/><col width="10%"/><col width="10%"/><col width="50%"/></colgroup><thead><tr><th>Name</th><th>Type</th><th>Unit</th><th>Default value</th><th>Description</th></tr></thead><tbody><tr><td>save_command</td><td>bool</td><td/><td>1</td><td>Switch for saving command</td></tr><tr><td>binary_filename_base</td><td>string</td><td/><td>Command</td><td>Filename base for saving</td></tr><tr><td>num_command_per_file</td><td>int</td><td/><td>100</td><td>Number of commands per 1 file</td></tr><tr><td>SendCommandToDAQComputer_names</td><td>vector&lt;string&gt;</td><td/><td/><td>Names of SendCommandToDAQComputer.</td></tr><tr><td>SPIManager_name</td><td>string</td><td/><td>SPIManager</td><td>Name of SPIManager. This SPIManager is used for enabling PDUs</td></tr><tr><td>topic</td><td>string</td><td/><td>command</td><td>MQTT topic</td></tr><tr><td>qos</td><td>int</td><td/><td>0</td><td>MQTT QoS</td></tr><tr><td>chatter</td><td>int</td><td/><td>0</td><td/></tr></tbody></table>
   
     <h3 id="ControlToFBias">ControlToFBias</h3>
     <p>Version: 1.0</p>
