@@ -154,19 +154,19 @@
 
 1. Install additional prerequisite software
 
-   #### Installing versaAPI
+#### Installing versaAPI
 
-    Download source code from the website of Baycat and run the `vl_install.sh`
+Download source code from the website of Baycat and run the `vl_install.sh`
 
-    Note: This software needs 3 kernel modules, which is installed when running `vl_install.sh`. However, once kernel version is updated, the modules would not be loaded. To load it forever, you should register dkms system.
+Note: This software needs 3 kernel modules, which is installed when running `vl_install.sh`. However, once kernel version is updated, the modules would not be loaded. To load it forever, you should register dkms system.
 
-   #### Installing libd2xx
+#### Installing libd2xx
 
-    Download source code from FTDI website and place the library file to somewhere.
+Download source code from FTDI website and place the library file to somewhere.
 
-   #### Installing LJM library
+#### Installing LJM library
 
-    Download library Installer from LabJack webpage and install it.
+Download library Installer from LabJack webpage and install it.
 
 2. Install GRAMSBalloon
 
@@ -219,36 +219,36 @@
 
     `cd (source)/(to)/(pGramsFC)/examples/`
 
-   #### DAQ Computer communication example
+#### DAQ Computer communication example
 
-    Before running this example, you may need to change the serial port setting by modifying [network.cfg](../settings/network.cfg)
+Before running this example, you may need to change the serial port setting by modifying [network.cfg](../settings/network.cfg)
 
-    This file is written like below:
+This file is written like below:
 
-    ```ini
-    [Orchestrator]// Subsystem name
+```ini
+[Orchestrator]// Subsystem name
 
-    ip="localhost" // IP address of the server (Usually localhost)
-    telport=50000 // Telemetry port
-    comport=50001 // Command port
-    comtopic="Orchestrator" // Command topic
-    teltopic="Orchestrator_Telemetry" // Telemetry topic
-    iridiumteltopic="Orchestrator_Iridium_Telemetry" // Iridium telemetry topic
-    ```
+ip="localhost" // IP address of the server (Usually localhost)
+telport=50000 // Telemetry port
+comport=50001 // Command port
+comtopic="Orchestrator" // Command topic
+teltopic="Orchestrator_Telemetry" // Telemetry topic
+iridiumteltopic="Orchestrator_Iridium_Telemetry" // Iridium telemetry topic
+```
 
-    And you have to specify subsystem which you want to enable in `DAQ_Com_communication.rb`. Specified subsystem in network.cfg should be same as this.
+And you have to specify subsystem which you want to enable in `DAQ_Com_communication.rb`. Specified subsystem in network.cfg should be same as this.
 
-    ```ruby
-    subsystems = ["Orchestrator", ] # Specify subsystems to enable
-    ```
+```ruby
+subsystems = ["Orchestrator", ] # Specify subsystems to enable
+```
 
-    And Run ID information is written and read from `~/settings/run_id/run_id_onboard.txt` by default. You may need to create this file before running the example. (You can change this path by modifying `DAQ_com_communication.rb` in line 29.)
+And Run ID information is written and read from `~/settings/run_id/run_id_onboard.txt` by default. You may need to create this file before running the example. (You can change this path by modifying `DAQ_com_communication.rb` in line 29.)
 
-    Then, run the example:
+Then, run the example:
 
-    `cd DAQ_com_communication`
+`cd DAQ_com_communication`
 
-    `./DAQ_com_communication.rb`
+`./DAQ_com_communication.rb`
 
 4. Register the software as a service (optional)
 
@@ -288,62 +288,62 @@
 
     `make install`
 
-   #### Interpret Telemetry example
+#### Interpret Telemetry example
 
-      Before running this example, you may need to change the mosquitto broker information by modifying `pGramsFC/settings/network.cfg` (See above).
+  Before running this example, you may need to change the mosquitto broker information by modifying `pGramsFC/settings/network.cfg` (See above).
 
-      Then, run the example:
+  Then, run the example:
 
-      `cd interpret_telemetry`
+  `cd interpret_telemetry`
 
-      `./interpret_telemetry.rb`
+  `./interpret_telemetry.rb`
 
-   #### Send Command example - Raw command sending
+#### Send Command example - Raw command sending
 
-    Command sending software is different from the main software. You need to build it separately. The software requires Boost and Mosquitto libraries.
+Command sending software is different from the main software. You need to build it separately. The software requires Boost and Mosquitto libraries.
 
-    `cd (source)/(to)/(pGramsFC)/command_sender/`
+`cd (source)/(to)/(pGramsFC)/command_sender/`
 
-    `mkdir build && cd build`
+`mkdir build && cd build`
 
-    `cmake ..`
+`cmake ..`
 
-    `make`
+`make`
 
-    Then, run the executable. Currently only raw command sending is supported for pGRAMS:
+Then, run the executable. Currently only raw command sending is supported for pGRAMS:
 
-    `./send_command_raw (subsystem_name) (command code in decimal) (parameter1 in decimal) (parameter2 in decimal) ...`
+`./send_command_raw (subsystem_name) (command code in decimal) (parameter1 in decimal) (parameter2 in decimal) ...`
 
-    Subsystem name should be same as specified in [network.cfg](../settings/network.cfg). CRC and Argc are automatically calculated and added to the command.
+Subsystem name should be same as specified in [network.cfg](../settings/network.cfg). CRC and Argc are automatically calculated and added to the command.
 
-    Example (Sending command code 0x64 (100 in decimal) with arguments 57, 2 to the Orchestrator subsystem):
+Example (Sending command code 0x64 (100 in decimal) with arguments 57, 2 to the Orchestrator subsystem):
 
-    `./send_command_raw Orchestrator 100 57 2`
+`./send_command_raw Orchestrator 100 57 2`
 
-    NOTE: Please make sure that the MQTT broker is running and its IP address, port, username, and password are correctly set in the environment variables before running the examples.
+NOTE: Please make sure that the MQTT broker is running and its IP address, port, username, and password are correctly set in the environment variables before running the examples.
 
-   #### Send Command example (for ground system) - More user-friendly command sending
+#### Send Command example (for ground system) - More user-friendly command sending
 
-    (Added at 2025-12-13)
-    A more user-friendly command sending software is also provided. This software allows you to send commands by specifying command name and parameters.
+(Added at 2025-12-13)
+A more user-friendly command sending software is also provided. This software allows you to send commands by specifying command name and parameters.
 
-    Compile the software as follows (same as before):
-    `cd (source)/(to)/(pGramsFC)/command_sender/`
+Compile the software as follows (same as before):
+`cd (source)/(to)/(pGramsFC)/command_sender/`
 
-    `mkdir build && cd build`
+`mkdir build && cd build`
 
-    `cmake ..`
+`cmake ..`
 
-    `make`
+`make`
 
-    send_command_(subsystem) executables corresponding to each subsystem are created (e.g., send_command_orc). Subsystem names are {"orc": Orchestrator, "tpc": Columbia Readout system, "tof": ToF readout, "pdu": PDU, "hub": hub computer}.
-    Then, run the executable as follows:
+send_command_(subsystem) executables corresponding to each subsystem are created (e.g., send_command_orc). Subsystem names are {"orc": Orchestrator, "tpc": Columbia Readout system, "tof": ToF readout, "pdu": PDU, "hub": hub computer}.
+Then, run the executable as follows:
 
-    `./send_command_(subsystem) (command_name) (parameter1) (parameter2) ...`
+`./send_command_(subsystem) (command_name) (parameter1) (parameter2) ...`
 
-    If you have MQTT-Explorer, you can monitor the topics and messages being sent and received. (The command is sent in binary format, so you may not be able to read it directly, but you can confirm that the message is being sent.)
+If you have MQTT-Explorer, you can monitor the topics and messages being sent and received. (The command is sent in binary format, so you may not be able to read it directly, but you can confirm that the message is being sent.)
 
-    ![MQTT-Explorer](MQTT-Explorer.png)
+![MQTT-Explorer](MQTT-Explorer.png)
 
 ### Custom Installation
 

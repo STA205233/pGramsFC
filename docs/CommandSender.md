@@ -2,7 +2,7 @@
 
 ## Preparation
 
-The command sending software is different from the main software. You need to build it separately. See [Installation](../Installation.md).
+The command sending software is different from the main software. You need to build it separately. See [Installation](Installation.md).
 
 Also, you need to install python library tkinter to use GUI software.
 You can install it via pip:

@@ -1,0 +1,52 @@
+/**
+ * @mainpage pGRAMSFC (pGRAMS Flight Computer)
+ *
+ * Software for pGRAMS flight computer
+ *
+ * ## Author
+ *
+ * - Shota Arai
+ *
+ * ## Aims
+ *
+ * This repository is intended for the following usage:
+ *
+ * - Collect data from housekeeping (HK) sensors
+ * - Create packets and send them to the ground
+ * - Send commands from the ground
+ * - Interpret the received packets to push to MySQL database for Grafana displaying
+ *
+ * ## Topics
+ *
+ * The classes are grouped into four categories. Each category is split into the core classes,
+ * which are the library components, and the modules, which are the ANL Next modules assembled
+ * by the operation scripts.
+ *
+ * - @ref device "Device" : hardware I/O and interface classes
+ *   (@ref device_core "Core" / @ref device_module "Module")
+ * - @ref daqcom "DAQ Communication" : communication with the DAQ computers
+ *   (@ref daqcom_core "Core" / @ref daqcom_module "Module")
+ * - @ref telecom "Telecom" : telemetry and command handling including MQTT
+ *   (@ref telecom_core "Core" / @ref telecom_module "Module")
+ * - @ref ground "Ground" : processing on the ground
+ *   (@ref ground_core "Core" / @ref ground_module "Module")
+ *
+ * ## Structure
+ *
+ * - [onboard](https://github.com/STA205233/pGramsFC/tree/master/onboard) : Onboard software and ground receiver
+ * - [command_sender](https://github.com/STA205233/pGramsFC/tree/master/command_sender) : Command sender software
+ * - [operation](https://github.com/STA205233/pGramsFC/tree/master/operation) : Ruby scripts to execute the software
+ * - [examples](https://github.com/STA205233/pGramsFC/tree/master/examples) : Example code for unit tests
+ * - [service](https://github.com/STA205233/pGramsFC/tree/master/service) : Scripts to create deamon for onboard/ground software
+ * - [settings](https://github.com/STA205233/pGramsFC/tree/master/settings) : Example of setting files
+ * - [tools](https://github.com/STA205233/pGramsFC/tree/master/tools) : Useful tools and scripts for basic tests
+ *
+ * ## Environment
+ *
+ * - MacOS Tahoe
+ * - Ubuntu 20.04
+ *
+ * ## Installation
+ *
+ * Please look at [this page](../docs/Installation.md).
+ */
