@@ -1,34 +1,71 @@
 #ifndef GB_CommandWriter_hh
 #define GB_CommandWriter_hh 1
-#include "BinaryFileManipulater.hh"
+#include "CommunicationFormat.hh"
 #include <fstream>
+#include <iomanip>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <tuple>
-#include <iomanip>
 namespace gramsballoon {
 class BinaryFileManipulater;
 }
 namespace gramsballoon::pgrams {
+/**
+ * @brief A class to save the sent or received commands into binary files, which are split into a new file every given number of commands
+ * @author Shota Arai
+ * @date 2025-**-** | Shota Arai | First commit
+ */
 template <typename ContentType>
 class CommunicationSaver {
 public:
   CommunicationSaver() = default;
   virtual ~CommunicationSaver();
+  /**
+   * @brief Open a new binary file whose name is composed of the filename base, the run ID, the timestamp, the type and the file index
+   * @param[in] type Type of the file, 0 for the failed commands and 1 for the normal ones
+   * @param[in] type_str String which expresses the type in the filename
+   * @return Pointer to the opened file stream
+   */
   std::unique_ptr<std::ofstream> openFile(int type, const std::string &type_str);
+  /**
+   * @brief Write one command to the file of the corresponding type, opening a new file if the current one is full
+   * @param[in] failed Set true if the command failed, which sorts it into the file for the failed commands
+   * @param[in] command Command to be written
+   */
   void writeCommandToFile(bool failed, const ContentType &command);
+  /**
+   * @brief Set the number of the commands written into one file
+   * @param[in] n Number of the commands per file
+   */
   void setNumCommandPerFile(int n) { numCommandPerFile_ = n; }
+  /**
+   * @brief Set the base of the output filename
+   * @param[in] base Base of the filename
+   */
   void setBinaryFilenameBase(const std::string &base) { binaryFilenameBase_ = base; }
+  /**
+   * @brief Set the run ID used in the output filename
+   * @param[in] runId Run ID
+   */
   void setRunID(int runId) {
     std::ostringstream run_id_sout;
     run_id_sout << std::setfill('0') << std::right << std::setw(6) << runId;
     runIdStr_ = run_id_sout.str();
   }
+  /**
+   * @brief Set the timestamp string used in the output filename
+   * @param[in] timeStamp Timestamp string in the YYYYMMDDHHMMSS format
+   */
   void setTimeStampStr(const std::string &timeStamp) { timeStampStr_ = timeStamp; }
 
 private:
+  /**
+   * @brief Write one command to the given file stream as binary
+   * @param[in,out] file File stream to be written to
+   * @param[in] command Command to be written
+   */
   void write(std::ofstream *file, const ContentType &command);
   std::map<int, std::tuple<int, int, std::unique_ptr<std::ofstream>>> fileMap_;
   int numCommandPerFile_ = 100;

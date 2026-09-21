@@ -99,7 +99,7 @@ enum class ErrorType {
 };
 
 /**
- * A class to handle software error
+ * @brief A class to handle software error
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-04-27
@@ -109,12 +109,38 @@ class ErrorManager {
 public:
   static constexpr int NUM_ERROR_FLAGS = 4;
   ErrorManager();
+  /**
+   * @brief Clear all the error flags
+   */
   void resetError();
+  /**
+   * @brief Raise the flag of the given error
+   * @param[in] v Error type to be raised
+   */
   void setError(ErrorType v);
+  /**
+   * @brief Convert the name of an error type into its bit position
+   * @param[in] s Name of the error type
+   * @return Bit position of the error type, or -1 if the name is unknown
+   */
   static int strToBit(const std::string &s);
+  /**
+   * @brief Convert the bit position of an error type into its name
+   * @param[in] v Bit position of the error type
+   * @return Name of the error type, or an empty string if the position is unknown
+   */
   static std::string bitToStr(int v);
 
+  /**
+   * @brief Return all the error flags
+   * @return Error flags, where each bit corresponds to one error type
+   */
   std::array<uint32_t, NUM_ERROR_FLAGS> ErrorCode() { return errorCode_; }
+  /**
+   * @brief Return one word of the error flags
+   * @param[in] i Index of the word
+   * @return Error flags of the word, or 0 if the index is out of range
+   */
   uint32_t ErrorCode(int i) {
     if (i < 0 || i > NUM_ERROR_FLAGS - 1) {
       std::cerr << "ErrorManager::ErrorCode: Index out of range. Returning 0." << std::endl;
@@ -122,13 +148,26 @@ public:
     }
     return errorCode_[i];
   }
+  /**
+   * @brief Set all the error flags
+   * @param[in] v Error flags to be set
+   */
   void SetErrorCode(std::array<uint32_t, NUM_ERROR_FLAGS> v) { errorCode_ = v; }
+  /**
+   * @brief Print the names of the error types currently raised
+   */
   void PrintError();
 
 private:
   std::array<uint32_t, NUM_ERROR_FLAGS> errorCode_ = {0};
 
 public:
+  /**
+   * @brief Return the communication error type of the given subsystem
+   * @param[in] subsystem Subsystem which failed to communicate
+   * @param[in] is_command Set true for an error on the command line, false for an error on the telemetry line
+   * @return Corresponding error type, or OTHER_ERRORS if the subsystem has no such error type
+   */
   static ErrorType GetDaqComErrorType(Subsystem subsystem, bool is_command) {
     switch (subsystem) {
     case Subsystem::COL:
@@ -143,6 +182,12 @@ public:
       return ErrorType::OTHER_ERRORS;
     }
   }
+  /**
+   * @brief Return the format error type of the given subsystem
+   * @param[in] subsystem Subsystem which sent or received the invalid data
+   * @param[in] is_command Set true for an error on the command line, false for an error on the telemetry line
+   * @return Corresponding error type, or OTHER_ERRORS if the subsystem has no such error type
+   */
   static ErrorType GetDaqFormatErrorType(Subsystem subsystem, bool is_command) {
     switch (subsystem) {
     case Subsystem::COL:

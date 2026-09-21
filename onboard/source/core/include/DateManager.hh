@@ -9,6 +9,10 @@
 
 namespace gramsballoon {
 
+/**
+ * @brief Return the current local time as a string
+ * @return Time string in the YYYYMMDDHHMMSS format
+ */
 std::string getTimeStr();
 
 } /* namespace gramsballoon */

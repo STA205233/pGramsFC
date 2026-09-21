@@ -24,41 +24,114 @@ public:
 
   /**
    * @brief Set data from vector<uint8_t> with validation
+   * @param[in] v Data to be set
+   * @return True if the data passes the validation
    */
   bool setData(const std::vector<uint8_t> &v);
   /**
    * @brief Set data from string with validation
+   * @param[in] s Data to be set
+   * @return True if the data passes the validation
    */
   bool setData(const std::string &s);
 
+  /**
+   * @brief Check whether the data has the correct start code and stop code
+   * @param[in] v Data to be checked
+   * @return True if both the start code and the stop code are correct
+   */
   template <typename T>
   bool checkHeaderFooter(const T &v);
+  /**
+   * @brief Check whether the data has the expected length and the correct CRC16
+   * @param[in] v Data to be checked
+   * @param[in] argc Number of the arguments expected in the data
+   * @return True if the data is valid
+   */
   template <typename T>
   bool validate(const T &v, uint16_t argc);
 
+  /**
+   * @brief Extract the code and the arguments from the data
+   */
   void interpret();
+  /**
+   * @brief Write the data as binary to the given stream
+   * @param[in,out] stream Output stream to be written to
+   * @return The given stream
+   */
   std::ostream &write(std::ostream &stream);
+  /**
+   * @brief Get a value of the type T placed at the given position of the data, in the big endian order
+   * @param[in] index Index of the first byte of the value
+   * @return Value read from the data
+   */
   template <typename T>
   T getValue(int index);
+  /**
+   * @brief Get successive values of the type T placed at the given position of the data
+   * @param[in] index Index of the first byte of the values
+   * @param[in] num Number of the values to be read
+   * @param[out] vec Destination of the values
+   */
   template <typename T>
   void getVector(int index, int num, std::vector<T> &vec);
 
+  /**
+   * @brief Return the read-only data including the header and the footer
+   * @return Data of the command
+   */
   const std::vector<uint8_t> &Command() const { return command_; }
+  /**
+   * @brief Return the modifiable data including the header and the footer
+   * @return Data of the command
+   */
   std::vector<uint8_t> &CommandNC() { return command_; }
+  /**
+   * @brief Copy the data into a string
+   * @param[out] outStr Destination of the data
+   */
   void CommandStr(std::string &outStr) const { outStr.assign(command_.begin(), command_.end()); }
+  /**
+   * @brief Return the code of the command
+   * @return Code of the command
+   */
   uint16_t Code() const { return code_; }
+  /**
+   * @brief Return the number of the arguments
+   * @return Number of the arguments
+   */
   uint16_t Argc() const { return argc_; }
+  /**
+   * @brief Return the arguments of the command
+   * @return Arguments of the command
+   */
   const std::vector<uint32_t> &Arguments() const { return arguments_; }
+  /**
+   * @brief Build the data from the code and the arguments, adding the header, the CRC16 and the footer
+   */
   void update();
+  /**
+   * @brief Set the code of the command
+   * @param[in] code Code of the command
+   */
   void setCode(uint16_t code) {
     code_ = code;
     updated_ = false;
   }
+  /**
+   * @brief Set the number of the arguments and resize the argument container
+   * @param[in] argc Number of the arguments
+   */
   void setArgc(uint16_t argc) {
     argc_ = argc;
     arguments_.resize(argc_);
     updated_ = false;
   }
+  /**
+   * @brief Set all the arguments of the command
+   * @param[in] arguments Arguments to be set
+   */
   void setArguments(const std::vector<uint32_t> &arguments) {
     setArgc(static_cast<uint16_t>(arguments.size()));
     for (uint16_t i = 0; i < argc_; ++i) {
@@ -66,6 +139,11 @@ public:
     }
     updated_ = false;
   }
+  /**
+   * @brief Set one argument of the command
+   * @param[in] index Index of the argument
+   * @param[in] argument Value of the argument
+   */
   void setArguments(uint16_t index, uint32_t argument) {
     if (index >= argc_) {
       std::cerr << "Error in CommunicationFormat: index(" << index << ") is larger than argc (" << argc_ << ")" << std::endl;
@@ -74,6 +152,11 @@ public:
     arguments_[index] = argument;
     updated_ = false;
   }
+  /**
+   * @brief Return one argument of the command
+   * @param[in] index Index of the argument
+   * @return Value of the argument, or 0 if the index is out of range
+   */
   uint32_t getArguments(uint16_t index) const {
     if (index < argc_) {
       return arguments_[index];
@@ -83,6 +166,7 @@ public:
 
   /**
    * @brief Set command data directly without validation (use with caution)
+   * @param[in] command Data to be set
    * @note Do not use this function when you want to interpret data. Use setData() instead.
    */
   void setCommand(const std::vector<uint8_t> &command) {
@@ -92,6 +176,7 @@ public:
 
   /**
    * @brief Set command data directly without validation (use with caution)
+   * @param[in] command Data to be set
    * @note Do not use this function when you want to interpret data. Use setData() instead.
    */
   void setCommand(const std::string &command) {
@@ -100,6 +185,8 @@ public:
   }
   /**
    * @brief Print the command details to the given stream
+   * @param[in,out] stream Output stream to be printed to
+   * @return The given stream
    * @note This function is not useful when the command is not interpreted yet.
    */
   std::ostream &print(std::ostream &stream) {

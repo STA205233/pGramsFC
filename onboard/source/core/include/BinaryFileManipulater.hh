@@ -8,6 +8,12 @@
 
 
 namespace gramsballoon {
+/**
+ * @brief Write the contents of a vector to a binary file in the big endian order
+ * @param[in] filename Name of the output file
+ * @param[in] append Set true to append to the file, false to overwrite it
+ * @param[in] vec Vector to be written
+ */
 template <typename T> void writeVectorToBinaryFile(const std::string& filename, bool append, const std::vector<T>& vec)
 {
   std::ofstream ofs;

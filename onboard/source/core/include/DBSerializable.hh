@@ -12,9 +12,14 @@ class DBFieldSink;
 class DBSerializable {
   /**
    * @brief Initialize DB table structure (setting column names and types...)
-   * @param sink DBFieldSink object
+   * @param[in,out] sink DBFieldSink object
+   * @param[in] table_name Name of the table which receives the data
    */
   virtual void initializeDBTable(DBFieldSink *sink, const std::string &table_name) const = 0;
+  /**
+   * @brief Send the current values of the data to the DB field sink
+   * @param[in,out] sink DBFieldSink object
+   */
   virtual void serialize(DBFieldSink *sink) const = 0;
 };
 } // namespace gramsballoon::pgrams
