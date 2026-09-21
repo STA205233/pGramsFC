@@ -12,13 +12,14 @@ enum class CommunicationLinkType : uint32_t {
 class SendTelemetry;
 
 /**
- * Module for managing Mosquitto
+ * @brief Module for managing Mosquitto
  * @author Shota Arai
  * @date 2024-**-** Shota Arai| First implementation.
  * @date 2025-09-20 Shota Arai| Changed to template class to handle different types of telemetry. (v2.0)
  * @date 2026-02-05 Shota Arai| Added doInitialize parameter to control mosqpp::lib_init and lib_cleanup calls. (v2.1)
  * @date 2026-02-05 Shota Arai| Multi-threading (v2.2)
  * @date 2026-07-08 Shota Arai| Use of loop_start() (v2.3)
+ * @ingroup telecom_module ground_module
 **/
 template <typename TelemType>
 class MosquittoManager: public anlnext::BasicModule {

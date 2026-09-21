@@ -9,6 +9,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @note This class is under assumption that only one LabJack device is connected to the computer for now.
  * @date 2026-04-04  | First version
+ * @ingroup device_core
  */
 class LabJackIO {
   using Address_t = LabJackAddresses::Address_t;

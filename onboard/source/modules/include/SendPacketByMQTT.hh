@@ -13,6 +13,7 @@ class MosquittoManager;
  * @brief Send CommunicationFormat from telemetry to the other subsystem ground software
  * @author Shota Arai
  * @date 2026-03-07 | First created (v1.0)
+ * @ingroup ground_module
  */
 class SendPacketByMQTT: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(SendPacketByMQTT, 1.0);

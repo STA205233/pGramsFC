@@ -11,6 +11,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-08-11 | Shota Arai | Created
  * @date 2026-08-21 | Shota Arai | Finished implementation
+ * @ingroup device_core
  */
 class MCP2210IO final: public SPIInterface {
 public:

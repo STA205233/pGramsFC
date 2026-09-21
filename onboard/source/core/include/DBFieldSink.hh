@@ -5,12 +5,14 @@
 namespace gramsballoon::pgrams {
 /**
  * @brief A tag type which lets addField() create a text field. Text type expresses text with variable length.
+ * @ingroup ground_core
  */
 class Text {};
 /**
  * @brief Interface class for database field sink
  * @author Shota Arai
  * @date 2025-12-14 | Shota Arai | Created
+ * @ingroup ground_core
  */
 class DBFieldSink {
 public:

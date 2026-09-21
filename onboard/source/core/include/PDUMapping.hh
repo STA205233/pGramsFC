@@ -8,6 +8,7 @@ namespace gramsballoon::pgrams {
  * @note This class is used for Telemetry Creation
  * @author Shota Arai
  * @date 2026-02-20 | Shota Arai | Created
+ * @ingroup device_core
  */
 class PDUMapping: public VHKTelemetryMapping {
 public:

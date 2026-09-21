@@ -8,6 +8,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-02-21 | Shota Arai | Created
  * @date 2026-07-22 | Shota Arai | Rename
+ * @ingroup device_core
  */
 class PDUCSMapping: public VCSMapping {
 public:

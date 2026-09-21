@@ -9,6 +9,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2025-10-22 | Shota Arai | Created
  * @date 2026-06-14 | Shota Arai | Using std::get<> to ensure the range of the array.
+ * @ingroup telecom_core
  */
 class VHKTelemetryMapping {
 protected:

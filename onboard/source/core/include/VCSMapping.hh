@@ -13,6 +13,7 @@ namespace gramsballoon::pgrams {
  * @date 2026-02-21 | Shota Arai | Created
  * @date 2026-07-10 | Shota Arai | implementation changed
  * @date 2026-08-17 | Shota Arai | Channels() returns channel numbers instead of chip select values
+ * @ingroup device_core
  */
 class VCSMapping {
 public:

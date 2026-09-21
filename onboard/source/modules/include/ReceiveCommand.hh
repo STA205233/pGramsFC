@@ -37,12 +37,13 @@ class PDUCodeMapDIO;
 class PDUCodeMapCS;
 #endif
 /**
- * Receive commands from ground.
+ * @brief Receive commands from ground.
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
  * @date 2024-11-28 Shota Arai| Modified for pGRAMS telemetry and command system.
  * @date 2025-12-14 Shota Arai| Added access to SendCommandToDAQComputer modules and emergency DAQ shutdown feature. (v1.1)
+ * @ingroup telecom_module
  */
 class ReceiveCommand: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveCommand, 1.1);

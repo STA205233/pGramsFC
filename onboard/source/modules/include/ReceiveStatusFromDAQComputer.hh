@@ -13,11 +13,12 @@ class SendTelemetry;
 class SocketCommunicationManager;
 
 /**
-  * Module for receiving from DAQ computers.
+  * @brief Module for receiving from DAQ computers.
   *
   * @author Shota Arai
   * @date 2025-03-24 | First design
   * @date 2026-02-05 | Disabling Dead Communication time if 0 is specified.
+  * @ingroup daqcom_module
   */
 class ReceiveStatusFromDAQComputer: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveStatusFromDAQComputer, 1.1);

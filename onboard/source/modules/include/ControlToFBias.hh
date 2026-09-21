@@ -17,6 +17,12 @@ class MosquittoManager;
 class ToFBiasTelemetry;
 class CommunicationFormat;
 
+/**
+ * @brief Module to control the ToF SiPM bias board and to send its telemetry
+ * @author Shota Arai
+ * @date 2026-09-** | Shota Arai | First version
+ * @ingroup device_module
+ */
 class ControlToFBias: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ControlToFBias, 1.0);
   ENABLE_PARALLEL_RUN();
@@ -54,7 +60,7 @@ private:
   MosquittoManager<std::string> *mosquittoManager_ = nullptr;
   std::string mosquittoManagerName_ = "TelemMosquittoManager";
 
-  bool rangeCheck(uint32_t ch, uint32_t upper, uint32_t lower=0);
+  bool rangeCheck(uint32_t ch, uint32_t upper, uint32_t lower = 0);
 
   enum class FullOutputStatus {
     WAITING,

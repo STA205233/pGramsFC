@@ -8,6 +8,7 @@ class DBFieldSink;
   @brief Virtual class to push database
   @author Shota Arai
   @date 2026-06-04 | Shota Arai | Detached from BaseTelemetryDefinition
+  @ingroup ground_core
  */
 class DBSerializable {
   /**

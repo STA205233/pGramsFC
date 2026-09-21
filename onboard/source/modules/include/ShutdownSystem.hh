@@ -11,9 +11,10 @@
 namespace gramsballoon::pgrams {
 class SendTelemetry;
 /**
-   * Module for shutdown system
+   * @brief Module for shutdown system
    * @author Shota Arai, Tsubasa Tamba
    * @date 2023-04-16
+   * @ingroup telecom_module
    */
 class ShutdownSystem: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ShutdownSystem, 1.0);

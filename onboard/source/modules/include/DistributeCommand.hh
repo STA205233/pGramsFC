@@ -13,12 +13,13 @@ template <typename T>
 class MosquittoManager;
 
 /**
- * Module for distributing command to other subsystems.
+ * @brief Module for distributing command to other subsystems.
  *
  * @author Shota Arai
  * @date 2025-02-** | First design
  * @date 2025-03-24 | Delete socket communication feature and make based on SocketCommunicationManager
  *
+ * @ingroup daqcom_module
  */
 class DistributeCommand: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(DistributeCommand, 2.0);

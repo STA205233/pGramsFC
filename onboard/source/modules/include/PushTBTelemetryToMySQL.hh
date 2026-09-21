@@ -12,6 +12,12 @@ namespace mysql {
 class MySQLIO;
 }
 
+/**
+ * @brief Module to push the ToF bias telemetry interpreted by InterpretTelemetry into the MySQL database
+ * @author Shota Arai
+ * @date 2026-09-04 | Shota Arai | First version
+ * @ingroup ground_module
+ */
 class PushTBTelemetryToMySQL final: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(PushTBTelemetryToMySQL, 1.0);
   ENABLE_PARALLEL_RUN();

@@ -33,6 +33,7 @@ std::ostream &operator<<(std::ostream &os, const Subsystem &subsystem);
  * @date 2025-xx-xx | Shota Arai | Created
  * @date 2025-12-14 | Shota Arai | Added DB serialization functions
  * @date 2026-06-14 | Shota Arai | Detached DB serialization functions to DBSerializable
+ * @ingroup telecom_core
  */
 class BaseTelemetryDefinition: public DBSerializable {
 public:

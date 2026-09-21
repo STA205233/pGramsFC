@@ -10,6 +10,7 @@ namespace gramsballoon::pgrams {
  * @brief Class for managing Iridium packets with an option to overwrite a packet with a specific code.
  * @author Shota Arai
  * @date 2025-10-16 | First implementation.
+ * @ingroup telecom_core
  */
 class IridiumPacketPool {
 public:

@@ -16,11 +16,12 @@ class IoContextManager;
 class SocketCommunication;
 
 /**
- * Module for managing the socket communication.
+ * @brief Module for managing the socket communication.
  *
  * @author Shota Arai
  * @date 2025-03-24 | first draft
  *
+ * @ingroup daqcom_module
 */
 class SocketCommunicationManager: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(SocketCommunicationManager, 1.0);

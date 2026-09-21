@@ -3,6 +3,9 @@
 #include "anlnext/BasicModule.hh"
 
 namespace gramsballoon::pgrams {
+/**
+ * @brief Module to sleep for the given seconds in every analysis loop
+ */
 class Sleep: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(Sleep, 1.0);
   ENABLE_PARALLEL_RUN();

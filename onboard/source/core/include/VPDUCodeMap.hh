@@ -10,6 +10,7 @@ namespace gramsballoon::pgrams {
  * @note This is used as singleton. This class converts CommunicationCodes -> channel value (CS/DIO) value.
  * @author Shota Arai
  * @date 2026-07-24 | Shota Arai | First version
+ * @ingroup device_core
  */
 class VPDUCodeMap {
 

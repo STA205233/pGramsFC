@@ -7,6 +7,7 @@ namespace gramsballoon::pgrams::mpsse {
  * @brief Class to manage MPSSE devices.
  * @author Shota Arai
  * @date 2026-01-14 | Initial version
+ * @ingroup device_core
  */
 class MPSSEDeviceManager {
 public:

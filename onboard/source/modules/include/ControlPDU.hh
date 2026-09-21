@@ -12,6 +12,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-02-20 | Shota Arai | Created (v1.0)
  * @date 2026-07-11 | Shota Arai | Added setVoltage (v1.1)
+ * @ingroup device_module
  */
 class ControlPDU: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ControlPDU, 1.1);

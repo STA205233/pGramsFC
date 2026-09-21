@@ -1,0 +1,51 @@
+/**
+ * @defgroup device Device
+ * @brief Hardware I/O and interface classes
+ */
+/**
+ * @defgroup device_core Core
+ * @ingroup device
+ */
+/**
+ * @defgroup device_module Module
+ * @ingroup device
+ */
+
+/**
+ * @defgroup daqcom DAQ Communication
+ * @brief Communication with the DAQ computers
+ */
+/**
+ * @defgroup daqcom_core Core
+ * @ingroup daqcom
+ */
+/**
+ * @defgroup daqcom_module Module
+ * @ingroup daqcom
+ */
+
+/**
+ * @defgroup telecom Telecom
+ * @brief Telemetry and command handling including MQTT
+ */
+/**
+ * @defgroup telecom_core Core
+ * @ingroup telecom
+ */
+/**
+ * @defgroup telecom_module Module
+ * @ingroup telecom
+ */
+
+/**
+ * @defgroup ground Ground
+ * @brief Processing on the ground
+ */
+/**
+ * @defgroup ground_core Core
+ * @ingroup ground
+ */
+/**
+ * @defgroup ground_module Module
+ * @ingroup ground
+ */

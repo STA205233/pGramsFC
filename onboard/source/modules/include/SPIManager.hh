@@ -14,13 +14,14 @@ class SendTelemetry;
 class SPIInterface;
 
 /**
- * SPI Manager
+ * @brief SPI Manager
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
  * @date 2025-05-02 | Shota Arai | Modified to use the FT232H
  * @date 2026-02-20 | Shota Arai | Refactor to use SPIInterfaceMultiplexer and support multiple SPI control types (v2.0)
  * @date 2026-08-21 | Shota Arai | Added MCP2210 (v2.1)
+ * @ingroup device_module
  */
 class SPIManager: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(SPIManager, 2.1);

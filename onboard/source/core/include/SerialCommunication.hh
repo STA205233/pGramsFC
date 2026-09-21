@@ -22,6 +22,7 @@ namespace gramsballoon::pgrams {
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-02
  * @date 2026-08-22 | Shota Arai | Refactored
+ * @ingroup device_core
  */
 class SerialCommunication {
 public:

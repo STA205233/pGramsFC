@@ -10,6 +10,7 @@ namespace gramsballoon::pgrams::mpsse {
  * @author Shota Arai
  * @date 2026-01-14 | Initial version
  * @date 2026-07-10 | Added WriteGPIOMulti
+ * @ingroup device_core
  */
 class MPSSEController {
 public:

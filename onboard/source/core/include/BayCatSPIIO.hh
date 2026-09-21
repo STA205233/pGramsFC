@@ -12,6 +12,7 @@ namespace gramsballoon::pgrams {
  * @date 2025-**-** | Shota Arai | Created
  * @date 2026-04-10 | Shota Arai | Refactored to use BayCatAPICaller
  * @date 2026-07-10 | Shota Arai | Added controlGPIOBit
+ * @ingroup device_core
  */
 class BayCatSPIIO: public SPIInterface, public BayCatAPICaller {
 public:

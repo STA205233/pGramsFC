@@ -20,6 +20,7 @@ namespace gramsballoon::pgrams {
   *
   * @author Shota Arai
   * @date 2026-05-08 | Shota Arai | First design
+  * @ingroup device_core
   */
 class BME280IO {
 public:

@@ -17,6 +17,7 @@ class VCSMapping;
  * @author Shota Arai
  * @date 2025-10-27 | Shota Arai | Created
  * @date 2026-02-20 | Shota Arai | Refactor to use only one SPIInterface per multiplexer
+ * @ingroup device_core
  */
 
 class SPIInterfaceMultiplexer: public SPIInterface {

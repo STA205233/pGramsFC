@@ -5,6 +5,13 @@
 #include <thread>
 
 namespace gramsballoon::pgrams {
+/**
+ * @brief Module to run a boost::asio io_context in a dedicated thread and share it with the other modules
+ * @author Shota Arai
+ * @date 2025-**-** | Shota Arai | First version
+ * @date 2026-09-** | Shota Arai | Fix bug
+ * @ingroup daqcom_module
+ */
 class IoContextManager: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(IoContextManager, 1.0);
   ENABLE_PARALLEL_RUN();

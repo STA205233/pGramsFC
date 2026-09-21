@@ -35,7 +35,7 @@ template <typename T>
 class MosquittoIO;
 
 /**
- * Module for Sending telemetry.
+ * @brief Module for Sending telemetry.
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-25
@@ -43,6 +43,7 @@ class MosquittoIO;
  * @date 2025-09-20 | Json-wrapped telemetry. (v3.0)
  * @date 2026-02-04 | Add command rejected index for each subsystem. (v3.2)
  * @date 2026-08-28 | Use of VHousekeepingModule (v3.3)
+ * @ingroup telecom_module
  */
 class SendTelemetry: public VHousekeepingModule {
   DEFINE_ANL_MODULE(SendTelemetry, 3.3);

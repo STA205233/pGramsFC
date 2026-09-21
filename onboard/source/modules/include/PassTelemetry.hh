@@ -9,6 +9,12 @@ template <typename T>
 class MosquittoManager;
 class ReceiveStatusFromDAQComputer;
 class BaseTelemetryDefinition;
+/**
+ * @brief Module to pass the telemetry divided by DividePacket to the MQTT telemetry link
+ * @author Shota Arai
+ * @date 2025-**-** | Shota Arai | First version
+ * @ingroup daqcom_module telecom_module
+ */
 class PassTelemetry: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(PassTelemetry, 1.0);
   ENABLE_PARALLEL_RUN();

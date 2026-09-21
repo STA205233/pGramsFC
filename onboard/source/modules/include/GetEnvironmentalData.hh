@@ -21,6 +21,7 @@ class SendTelemetry;
  * @date 2023-03-01
  * @date 2026-04-12 | Shota Arai | Modified for pGRAMS
  * @date 2026-08-28 | Shota Arai | Use of VHousekeepingModule
+ * @ingroup device_module
  */
 class GetEnvironmentalData: public VHousekeepingModule {
   DEFINE_ANL_MODULE(GetEnvironmentalData, 2.1);

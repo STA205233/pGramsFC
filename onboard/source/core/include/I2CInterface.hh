@@ -4,6 +4,7 @@
 namespace gramsballoon::pgrams {
 /**
  * @brief Interface class for I2C communication
+ * @ingroup device_core
  */
 class I2CInterface {
 public:

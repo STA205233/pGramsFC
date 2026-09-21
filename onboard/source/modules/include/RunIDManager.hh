@@ -8,10 +8,11 @@ namespace gramsballoon::pgrams {
 class SendTelemetry;
 
 /**
- * Module for managing Run ID
+ * @brief Module for managing Run ID
  *
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-03-01
+ * @ingroup telecom_module
  */
 class RunIDManager : public anlnext::BasicModule
 {

@@ -10,6 +10,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2026-07-10 | Shota Arai | First version
  * @date 2026-07-24 | Shota Arai | Inherited from VPDUCodeMap and rename
+ * @ingroup device_core
  */
 class PDUCodeMapCS final: public VPDUCodeMap {
 

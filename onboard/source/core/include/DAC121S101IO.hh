@@ -4,13 +4,7 @@
 #include <cstdint>
 namespace gramsballoon::pgrams {
 /**
- * @brief DAC121S101IO class for handling DAC121S101
- *
- * This class provides an interface to control the DAC121S101 digital-to-analog converter.
- * It allows setting the output voltage and reading the current output voltage.
- *
- * @author Shota Arai
- * @date 2025-05-12 | first draft
+ * @brief Operation mode of the DAC121S101
  */
 enum class DAC121S101Mode : uint8_t {
   DAC121S101_MODE_NORMAL = 0,
@@ -18,6 +12,16 @@ enum class DAC121S101Mode : uint8_t {
   DAC121S101_MODE_PowerDown_100kohm = 2,
   DAC121S101_MODE_PowerDown_HiZ = 3,
 };
+/**
+ * @brief DAC121S101IO class for handling DAC121S101
+ *
+ * This class provides an interface to control the DAC121S101 digital-to-analog converter.
+ * It allows setting the output voltage and reading the current output voltage.
+ *
+ * @author Shota Arai
+ * @date 2025-05-12 | first draft
+ * @ingroup device_core
+ */
 class DAC121S101IO {
 public:
   /**

@@ -8,6 +8,7 @@ namespace gramsballoon::pgrams {
  * @brief A class to handle the ADC128S102, an 8-channel 12-bit ADC read out via SPI
  * @author Shota Arai
  * @date 2025-**-** | Shota Arai | First version
+ * @ingroup device_core
  */
 class ADC128S102IO {
 public:

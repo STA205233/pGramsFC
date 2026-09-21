@@ -17,6 +17,7 @@ namespace gramsballoon::pgrams {
   * @date 2023-03-25
   * @date 2025-03-11 | Modified to fit the pGRAMS command format.
   * @date 2025-04-01 | Name changed from CommandDefinition to CommunicationFormat
+  * @ingroup daqcom_core telecom_core
   */
 class CommunicationFormat {
 public:

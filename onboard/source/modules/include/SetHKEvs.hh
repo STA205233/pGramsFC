@@ -9,6 +9,7 @@ namespace gramsballoon::pgrams {
  * @brief Class to manage time for Housekeeping data taking
  * @author Shota Arai
  * @date 2026-08-28 | Shota Arai | First version (v1.0)
+ * @ingroup telecom_module
  */
 class SetHKEvs: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(SetHKEvs, 1.0);

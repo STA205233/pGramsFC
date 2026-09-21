@@ -23,7 +23,7 @@ class PushToMongoDB;
 #endif // USE_HSQUICKLOOK
 
 /**
- * Module for interpretation of telemetry
+ * @brief Module for interpretation of telemetry
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-**-**
  * @date 2025-09-20 Shota Arai| Comparatible to different type of telemetry. (v2.0)
@@ -31,6 +31,7 @@ class PushToMongoDB;
  * @date 2025-12-14 Shota Arai| Added DB serialization functions
  * @date 2026-06-16 Shota Arai | Added some functions (v2.1)
  * @date 2026-07-09 Shota Arai | Inherited from VDBDataStore (v2.2)
+ * @ingroup ground_module
  */
 class InterpretTelemetry: public anlnext::BasicModule, public VDBDataStore {
   DEFINE_ANL_MODULE(InterpretTelemetry, 2.2);

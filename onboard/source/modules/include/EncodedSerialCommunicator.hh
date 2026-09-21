@@ -4,6 +4,10 @@
 #include "anlnext/BasicModule.hh"
 
 namespace gramsballoon::pgrams {
+/**
+ * @brief Module which owns a string based serial port and provides the access to it for the other modules
+ * @ingroup device_module
+ */
 class EncodedSerialCommunicator: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(EncodedSerialCommunicator, 1.0);
   ENABLE_PARALLEL_RUN();

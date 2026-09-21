@@ -1095,7 +1095,9 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which Doxygen is
 # run.
 
-EXCLUDE                = ./onboard/source/core/include/magic_enum.hpp
+EXCLUDE                = ./onboard/source/core/include/magic_enum.hpp \
+                         ./onboard/BME280_SensorAPI \
+                         ./onboard/BME68x_SensorAPI
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -2491,7 +2493,9 @@ INCLUDE_FILE_PATTERNS  =
 # recursively expanded use the := operator instead of the = operator.
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
-PREDEFINED             =
+PREDEFINED             = USE_SYSTEM_MODULES \
+                         USE_LJM \
+                         USE_SPI
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The

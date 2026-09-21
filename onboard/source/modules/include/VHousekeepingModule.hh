@@ -9,6 +9,7 @@ namespace gramsballoon::pgrams {
  * @brief Virtual class for house keeping data taking modules
  * @author Shota Arai
  * @date 2026-08-28 | Shota Arai | First version (v1.0)
+ * @ingroup telecom_module
  */
 class VHousekeepingModule: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(VHousekeepingModule, 1.0)

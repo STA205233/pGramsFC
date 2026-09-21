@@ -12,6 +12,13 @@ class MosquittoManager;
 template <typename T>
 class MosquittoIO;
 
+/**
+ * @brief Module to receive a telemetry string from the MQTT broker
+ * @author Tsubasa Tamba, Shota Arai
+ * @date 2023-**-** | Tsubasa Tamba | First version
+ * @date 2025-**-** | Shota Arai    | USe of MQTT
+ * @ingroup ground_module
+ */
 class ReceiveTelemetry: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(ReceiveTelemetry, 1.0);
 

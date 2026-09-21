@@ -11,6 +11,7 @@ namespace gramsballoon::pgrams {
  * @brief A DBFieldSink implementation for MySQL database using MySQLIO.
  * @author Shota Arai
  * @date 2025-12-14 | First design
+ * @ingroup ground_core
  */
 class MySQLFieldSink: public DBFieldSink {
 public:

@@ -104,6 +104,7 @@ using table_t = std::map<std::string, std::pair<std::optional<value_t>, std::str
  * @author Shota Arai
  * @date 2025-02-** | First design
  * @date 2025-12-14 | Shota Arai | Refactoring to use a MySQLFieldSink class (v2.0)
+ * @ingroup ground_core
  */
 class MySQLIO {
 

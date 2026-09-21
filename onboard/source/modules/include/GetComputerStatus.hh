@@ -9,11 +9,12 @@ namespace gramsballoon::pgrams {
 
 class SendTelemetry;
 /**
- * GetComputerStatus sample module of the ANL Next framework
+ * @brief GetComputerStatus sample module of the ANL Next framework
  *
  * @author 
  * @date
  *
+ * @ingroup telecom_module
  */
 class GetComputerStatus: public VHousekeepingModule {
   DEFINE_ANL_MODULE(GetComputerStatus, 1.1);

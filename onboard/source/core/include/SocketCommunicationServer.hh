@@ -20,6 +20,7 @@ namespace gramsballoon::pgrams {
  * @author Shota Arai
  * @date 2025-05-09 | first draft
  * @date 2026-09-16 | fix in resetting failed flag
+ * @ingroup daqcom_core
  */
 class SocketCommunication: public std::enable_shared_from_this<SocketCommunication> {
 public:

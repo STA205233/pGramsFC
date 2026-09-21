@@ -9,6 +9,7 @@ namespace gramsballoon::pgrams {
  * @brief Send array interpreted from telemetry to the other subsystem ground software
  * @author Shota Arai
  * @date 2025-12-18 | First created (v.1.0)
+ * @ingroup ground_module
  */
 class SendArrayByMQTT: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(SendArrayByMQTT, 1.0);

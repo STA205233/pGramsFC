@@ -8,11 +8,12 @@ class SendTelemetry;
 class EncodedSerialCommunicator;
 
 /**
- *  Module for communicating with MHADC.
+ *  @brief Module for communicating with MHADC.
  *
  * @author Shota Arai
  * @date 2024-09-19
  * @date 2026-08-28  | Use of VHousekeepingModule
+ *  @ingroup device_module
  */
 class GetMHADCData: public VHousekeepingModule {
   DEFINE_ANL_MODULE(GetMHADCData, 1.1);

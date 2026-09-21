@@ -18,6 +18,7 @@ class InterpretTelemetry;
  * @date 2025-12-14 | Shota Arai | Refactoring (v2.0)
  * @date 2026-02-04 | Shota Arai | Use MySQLManager (v3.0)
  * @date 2026-07-09 | Shota Arai | Use of VDBDataStore (v3.1)
+ * @ingroup ground_module
  */
 class PushToMySQL: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(PushToMySQL, 3.1);

@@ -11,6 +11,7 @@ namespace gramsballoon::pgrams {
  * @brief Control class for ToF Bias
  * @author Shota Arai
  * @date 2026-07-06 | Shota Arai | First version
+ * @ingroup device_core
  */
 class ToFBiasController final: public EncodedSerialCommunication, public HKDataSaver<std::string> {
   // for telemetry

@@ -16,6 +16,7 @@ namespace gramsballoon::pgrams {
  * @brief A class to save the sent or received commands into binary files, which are split into a new file every given number of commands
  * @author Shota Arai
  * @date 2025-**-** | Shota Arai | First commit
+ * @ingroup telecom_core
  */
 template <typename ContentType>
 class CommunicationSaver {

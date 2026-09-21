@@ -10,6 +10,7 @@ namespace gramsballoon::pgrams {
  * @date 2026-04-10 | Shota Arai | Created
  * @date 2026-04-11 | Shota Arai | Added API wrapper functions
  * @date 2026-07-10 | Shota Arai | Added DIOGetChannelLevel
+ * @ingroup device_core
  */
 class BayCatAPICaller {
 public:

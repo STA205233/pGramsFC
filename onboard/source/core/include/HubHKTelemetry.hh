@@ -43,6 +43,7 @@ namespace gramsballoon::pgrams {
  * @date 2025-12-15 | Shota Arai | Added serialize and initializeDBTable methods
  * @date 2026-01-22 | Shota Arai | Introduce command rejected index and remove TOF bias setting
  * @date 2026-06-13 | Shota Arai | Updated Telemetry Definition and introduce setter for array with std::get<>
+ * @ingroup telecom_core
  */
 class HubHKTelemetry: public BaseTelemetryDefinition {
 public:

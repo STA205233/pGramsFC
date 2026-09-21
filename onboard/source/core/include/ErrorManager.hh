@@ -104,6 +104,7 @@ enum class ErrorType {
  * @author Tsubasa Tamba, Shota Arai
  * @date 2023-04-27
  * @date 2025-10-13 | Changed for pGRAMS
+ * @ingroup telecom_core
  */
 class ErrorManager {
 public:

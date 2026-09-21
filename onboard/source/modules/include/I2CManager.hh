@@ -7,6 +7,7 @@ namespace gramsballoon::pgrams {
  * @brief A module to manage I2C communication.
  * @author Shota Arai
  * @date 2026-04-12 | Shota Arai | Created
+ * @ingroup device_module
  */
 class I2CManager: public anlnext::BasicModule {
   DEFINE_ANL_MODULE(I2CManager, 1.0);

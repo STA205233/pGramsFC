@@ -6,6 +6,7 @@ namespace gramsballoon::pgrams {
  * @brief Pure virtual class for Database handling
  * @author Shota Arai
  * @date 2026-07-09 | Shota Arai | First version
+ * @ingroup ground_module
  */
 class VDBDataStore {
 public:

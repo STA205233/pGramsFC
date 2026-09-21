@@ -14,6 +14,7 @@ class SendTelemetry;
  * @author Shota Arai
  * @date 2026-02-20 | Shota Arai | Created (v1.0)
  * @date 2026-08-28  | Use of VHousekeepingModule
+ * @ingroup device_module
  */
 class GetPDUInfo: public VHousekeepingModule {
   DEFINE_ANL_MODULE(GetPDUInfo, 1.1);

@@ -8,6 +8,7 @@ namespace gramsballoon::pgrams {
  * @brief A class to control the I2C interface of BayCat via the VersaLogic API
  * @author Shota Arai
  * @date 2026-**-** | Shota Arai | First version
+ * @ingroup device_core
  */
 class BayCatI2CIO: public I2CInterface, public BayCatAPICaller {
 public:

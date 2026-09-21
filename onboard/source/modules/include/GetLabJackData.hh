@@ -3,14 +3,14 @@
 #include "LabJackIO.hh"
 #include "VHousekeepingModule.hh"
 namespace gramsballoon::pgrams {
+class SendTelemetry;
 /**
   * @brief A module to get data from a LabJack device.
   * @author Shota Arai
   * @date 2026-04-04  | First version
   * @date 2026-08-28  | Use of VHousekeepingModule
+  * @ingroup device_module
   */
-
-class SendTelemetry;
 class GetLabJackData: public VHousekeepingModule {
   using float32 = LabJackAddresses::float32;
   DEFINE_ANL_MODULE(GetLabJackData, 1.1);

@@ -28,6 +28,7 @@ namespace gramsballoon::pgrams {
  * @brief Housekeeping Telemetry Definition for converted value
  * @author Shota Arai
  * @date 2026-06-16 | Shota Arai | First version
+ * @ingroup ground_core
  */
 class ConvertedHubHKTelemetry: public DBSerializable {
 public:

@@ -20,6 +20,7 @@ namespace gramsballoon::pgrams {
   *
   * @author Tsubasa Tamba, Shota Arai
   * @date 2023-03-01
+  * @ingroup device_core
   */
 class BME680IO {
 public:

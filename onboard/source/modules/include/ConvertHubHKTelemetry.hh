@@ -15,6 +15,7 @@ class HubHKTelemetry;
  * @author Shota Arai
  * @date 2026-06-16 | Shota Arai | First version (v1.0)
  * @date 2026-07-09 | Shota Arai | Inherited from VDBDataStore
+ * @ingroup ground_module
  */
 class ConvertHubHKTelemetry: public anlnext::BasicModule, public VDBDataStore {
   DEFINE_ANL_MODULE(ConvertHubHKTelemetry, 1.1);

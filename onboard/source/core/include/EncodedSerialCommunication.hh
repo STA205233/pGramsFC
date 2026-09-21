@@ -12,6 +12,7 @@ namespace pgrams {
  * @brief A class of serial communication which handles the data as a string instead of a byte array
  * @author Shota Arai
  * @date 2025-02-** | Shota Arai | First version
+ * @ingroup device_core
  */
 class EncodedSerialCommunication: public SerialCommunication {
 public:
