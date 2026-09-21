@@ -80,8 +80,8 @@ command_collection.add_command("Hub", CommandItem("Set Link", "Set the link", [C
 command_collection.add_command("Hub", CommandItem("TB Bias ON", "Enable Bias Control", [CommandParameter("Ch", "Channel",range=(0, 7))]))
 command_collection.add_command("Hub", CommandItem("TB Bias OFF", "Disable Bias Control", [CommandParameter("Ch", "Channel",range=(0, 7))]))
 command_collection.add_command("Hub", CommandItem("TB Set V offset", "Set V Offset", [CommandParameter("Voffset", range=(0, 20))]))
-command_collection.add_command("Hub", CommandItem("TB Set V def", "Set V def", [CommandParameter("Ch", "Channel",range=(0, 127)), CommandParameter("Vdef", range=(136, 172))]))
-command_collection.add_command("Hub",CommandItem("TB Set Tmux", "Set T mux channel",[CommandParameter("Ch", range=(0, 15)), CommandParameter("Thermometer Select", "0: primary, 1: secondary", range=(0, 1))]))
+command_collection.add_command("Hub", CommandItem("TB Set V def", "Set V def", [CommandParameter("Ch", "Channel",range=(0, 127)), CommandParameter("Vdef", range=(136, 172))], file_loadable=True))
+command_collection.add_command("Hub",CommandItem("TB Set Tmux", "Set T mux channel",[CommandParameter("Ch", range=(0, 15)), CommandParameter("Thermometer Select", "0: primary, 1: secondary", range=(0, 1))], file_loadable=True))
 command_collection.add_command("Hub", CommandItem("TB Query Bias Info", "Get full information of TOF bias control", []))
 
 command_collection.add_command("PDU", CommandItem("TOF Bias ON", ""))
@@ -227,6 +227,6 @@ command_collection.add_command("TOF", CommandItem("Macro Thermal Calib", ""))
 command_collection.add_command("TOF", CommandItem("Macro Stage0 Prebreakdown BN", ""))
 command_collection.add_command("TOF", CommandItem("Macro Stage1 Unbiased TDC", ""))
 command_collection.add_command("TOF", CommandItem("Macro Stage2 Prebreakdown QDC", ""))
-command_collection.add_command("TOF", CommandItem("Macro Stage3 Operational D", ""))
+command_collection.add_command("TOF", CommandItem("Macro Stage3 Operational D", "", [CommandParameter("name")]))
 command_collection.add_command("TOF", CommandItem("Macro Auto Run Cycle", ""))
 

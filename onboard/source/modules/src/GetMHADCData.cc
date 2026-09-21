@@ -54,6 +54,9 @@ ANLStatus GetMHADCData::mod_analyze() {
   if (!isInHKLoop()) {
     return AS_OK;
   }
+  if (!isInHKLoop()) {
+    return AS_OK;
+  }
   std::vector<bool> failed_ch(numCh_, false);
   adcData_.resize(numCh_, 0);
   if (!encodedSerialCommunicator_) {

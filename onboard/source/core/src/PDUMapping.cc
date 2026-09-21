@@ -52,43 +52,43 @@ bool PDUMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) const
     setter = &HubHKTelemetry::setPduHVTemp<1>;
     break;
   case ChannelMapping(2, 0):
-    setter = &HubHKTelemetry::setPduCurMainBat;
+    setter = &HubHKTelemetry::setPduSiPMPreAmpP2V5Cur;
     break;
   case ChannelMapping(2, 1):
-    setter = &HubHKTelemetry::setPduVolMainBat;
+    setter = &HubHKTelemetry::setPduSiPMPreAmpM5VCur;
     break;
   case ChannelMapping(2, 2):
-    setter = &HubHKTelemetry::setPduMainBatTemp;
+    setter = &HubHKTelemetry::setPduSiPMPreAmpTemp;
     break;
   case ChannelMapping(2, 3):
-    setter = &HubHKTelemetry::setPduSiPMPreAmpP2V5Cur;
+    setter = &HubHKTelemetry::setPduSiPMPreAmpM5VVol;
     break;
   case ChannelMapping(2, 4):
     setter = &HubHKTelemetry::setPduSiPMPreAmpP2V5Vol;
     break;
   case ChannelMapping(2, 5):
-    setter = &HubHKTelemetry::setPduSiPMPreAmpM5VCur;
+    setter = &HubHKTelemetry::setPduChargePreAmpTemp;
     break;
   case ChannelMapping(2, 6):
-    setter = &HubHKTelemetry::setPduSiPMPreAmpM5VVol;
+    setter = &HubHKTelemetry::setPduChargePreAmpM5VVol;
     break;
   case ChannelMapping(2, 7):
-    setter = &HubHKTelemetry::setPduSiPMPreAmpTemp;
+    setter = &HubHKTelemetry::setPduChargePreAmpP5VVol;
     break;
   case ChannelMapping(3, 0):
     setter = &HubHKTelemetry::setPduChargePreAmpM5VCur;
     break;
   case ChannelMapping(3, 1):
-    setter = &HubHKTelemetry::setPduChargePreAmpM5VVol;
-    break;
-  case ChannelMapping(3, 2):
     setter = &HubHKTelemetry::setPduChargePreAmpP5VCur;
     break;
+  case ChannelMapping(3, 2):
+    setter = &HubHKTelemetry::setPduCurMainBat;
+    break;
   case ChannelMapping(3, 3):
-    setter = &HubHKTelemetry::setPduChargePreAmpP5VVol;
+    setter = &HubHKTelemetry::setPduVolMainBat;
     break;
   case ChannelMapping(3, 4):
-    setter = &HubHKTelemetry::setPduChargePreAmpTemp;
+    setter = &HubHKTelemetry::setPduMainBatTemp;
     break;
   case ChannelMapping(3, 5):
     setter = &HubHKTelemetry::setPduTofP12VCur;
@@ -124,40 +124,40 @@ bool PDUMapping::getSetter(int index, VHKTelemetryMapping::Setter &setter) const
     setter = &HubHKTelemetry::setPduCaenNevisP12VVol;
     break;
   case ChannelMapping(5, 0):
-    setter = &HubHKTelemetry::setPduShaperPCur<0>;
-    break;
-  case ChannelMapping(5, 1):
-    setter = &HubHKTelemetry::setPduShaperMCur<0>;
-    break;
-  case ChannelMapping(5, 2):
-    setter = &HubHKTelemetry::setPduShaperPCur<1>;
-    break;
-  case ChannelMapping(5, 3):
-    setter = &HubHKTelemetry::setPduShaperMCur<1>;
-    break;
-  case ChannelMapping(5, 4):
-    setter = &HubHKTelemetry::setPduShaperPCur<2>;
-    break;
-  case ChannelMapping(5, 5):
-    setter = &HubHKTelemetry::setPduShaperMCur<2>;
-    break;
-  case ChannelMapping(5, 6):
-    setter = &HubHKTelemetry::setPduShaperPCur<3>;
-    break;
-  case ChannelMapping(5, 7):
-    setter = &HubHKTelemetry::setPduShaperMCur<3>;
-    break;
-  case ChannelMapping(6, 0):
-    setter = &HubHKTelemetry::setPduShaperPCur<4>;
-    break;
-  case ChannelMapping(6, 1):
-    setter = &HubHKTelemetry::setPduShaperMCur<4>;
-    break;
-  case ChannelMapping(6, 2):
     setter = &HubHKTelemetry::setPduShaperPCur<5>;
     break;
-  case ChannelMapping(6, 3):
+  case ChannelMapping(5, 1):
     setter = &HubHKTelemetry::setPduShaperMCur<5>;
+    break;
+  case ChannelMapping(5, 2):
+    setter = &HubHKTelemetry::setPduShaperPCur<4>;
+    break;
+  case ChannelMapping(5, 3):
+    setter = &HubHKTelemetry::setPduShaperMCur<4>;
+    break;
+  case ChannelMapping(5, 4):
+    setter = &HubHKTelemetry::setPduShaperPCur<3>;
+    break;
+  case ChannelMapping(5, 5):
+    setter = &HubHKTelemetry::setPduShaperMCur<3>;
+    break;
+  case ChannelMapping(5, 6):
+    setter = &HubHKTelemetry::setPduShaperPCur<2>;
+    break;
+  case ChannelMapping(5, 7):
+    setter = &HubHKTelemetry::setPduShaperMCur<2>;
+    break;
+  case ChannelMapping(6, 0):
+    setter = &HubHKTelemetry::setPduShaperPCur<0>;
+    break;
+  case ChannelMapping(6, 1):
+    setter = &HubHKTelemetry::setPduShaperMCur<0>;
+    break;
+  case ChannelMapping(6, 2):
+    setter = &HubHKTelemetry::setPduShaperPCur<1>;
+    break;
+  case ChannelMapping(6, 3):
+    setter = &HubHKTelemetry::setPduShaperMCur<1>;
     break;
   case ChannelMapping(6, 4):
     setter = &HubHKTelemetry::setPduShaperP3V3Vol;

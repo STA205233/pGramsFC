@@ -1,7 +1,11 @@
 #include "BaseTelemetryDefinition.hh"
 #include "CommunicationCodes.hh"
+#include <ctime>
+#include <exception>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
+#include <string>
 namespace gramsballoon::pgrams {
 BaseTelemetryDefinition::BaseTelemetryDefinition(bool instantiateContents) : DBSerializable() {
   if (instantiateContents) {
@@ -78,6 +82,18 @@ std::string BaseTelemetryDefinition::getTimeString(std::time_t t) {
   std::strftime(buffer, sizeof(buffer), "%m%d%H%M%S", std::localtime(&t));
   return std::string(buffer);
 }
+std::time_t BaseTelemetryDefinition::ConvertFromTimeString(const std::string &s) {
+  constexpr char format[] = "%m%d%H%M%S";
+  const std::time_t now = std::time(nullptr);
+  std::tm t;
+  std::stringstream ss(s);
+  ss >> std::get_time(&t, format);
+  if (ss.fail()) {
+    throw std::exception();
+  }
+  t.tm_year = std::localtime(&now)->tm_year;
+  return std::mktime(&t);
+}
 void BaseTelemetryDefinition::initializeDBTable(DBFieldSink *sink, const std::string &table_name) const {
   sink->initializeTable(table_name);
   sink->addField("send_time", static_cast<uint64_t>(timeStamp_));
@@ -106,7 +122,7 @@ bool BaseTelemetryDefinition::parseJSON(const std::string &jsonString) {
     return false;
   }
   try {
-    timeStamp_ = std::stol(t);
+    timeStamp_ = ConvertFromTimeString(t);
   }
   catch (const std::exception &e) {
     std::cerr << "BaseTelemetryDefinition::parseJSON error: time conversion failed: " << e.what() << std::endl;

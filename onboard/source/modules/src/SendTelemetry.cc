@@ -97,7 +97,6 @@ ANLStatus SendTelemetry::mod_initialize() {
 }
 
 ANLStatus SendTelemetry::mod_analyze() {
-  if (chatter_ > 0) std::cout << "SendTelemetry::mod_analyze" << std::endl;
   telemetryStr_.clear();
   if (mosq_ == nullptr) {
     std::cout << module_id() << ": mosq_ is nullptr" << std::endl;

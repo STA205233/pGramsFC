@@ -115,6 +115,7 @@ public:
   }
   std::time_t TimeStamp() const { return timeStamp_; }
   static std::string getTimeString(std::time_t t);
+  static std::time_t ConvertFromTimeString(const std::string &str);
   virtual void update() {
     if (contents_)
       contents_->update();

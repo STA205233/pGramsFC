@@ -19,6 +19,13 @@ class ToFBiasController final: public EncodedSerialCommunication, public HKDataS
   // for command
   static constexpr int NUM_DCDC_SETTING = 8;
   static constexpr int NUM_TEMP_SETTING = 16;
+  static constexpr int NUM_CMD_DATA = 64;
+
+public:
+  enum class TofBiasMode {
+    DEBUG,
+    AUTO
+  };
 
 public:
   ToFBiasController();
@@ -34,8 +41,11 @@ public:
   int setVoffset(int voltage);
   int setTmuxChannel(int channel, int on_off);
   int setVdef(int channel, int voltage);
+  int setMode(TofBiasMode mode);
   const std::string &getData() const { return fullOutputStr_; }
   int refresh();
+
+  static constexpr std::string_view Mode2Str(TofBiasMode mode);
 
 protected:
   using EncodedSerialCommunication::ReadDataUntilBreak;
@@ -45,11 +55,19 @@ protected:
   int sendCommand(std::string_view data);
 
 private:
+  void appendInt(int value);
+
+private:
   std::string dataStr_;
   bool isFullOutputQueried_ = false;
   std::chrono::microseconds firstTimeout_;
   std::string fullOutputStr_;
+  std::string cmdStr_;
 };
+
+constexpr std::string_view ToFBiasController::Mode2Str(ToFBiasController::TofBiasMode mode) {
+  return mode == TofBiasMode::DEBUG ? "debug" : "auto";
+}
 
 } // namespace gramsballoon::pgrams
 #endif //GB_ToFBiasController_hh
