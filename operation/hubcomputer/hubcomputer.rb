@@ -51,6 +51,16 @@ class MyApp < ANL::ANLApp
     end
     @main_modules << "GetPDUInfo"
     
+    chain GRAMSBalloon::SPIManager, "SPIManager_mcp"
+    with_parameters(channel: 0, spi_config_options: 2, spi_control_type: "mcp2210", use_multiplexer: false, path: "/dev/hidraw0") do |m|
+      m.set_singleton(0)
+    end
+    @main_modules << "SPIManager_mcp"
+    chain GRAMSBalloon::ControlPDU, "ControlPDUForTPC"
+    with_parameters(SPIManager_name: "SPIManager_mcp") do |m|
+      m.set_singleton(0)
+    end
+    
     
     subsystems = ["TPC", "TOF", "Orchestrator", "TPCMonitor"]
     subsystem_overwritten={"TPC"=>0, "TPCMonitor"=>0,"TOF"=>0, "Orchestrator"=>12320}

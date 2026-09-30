@@ -194,6 +194,18 @@ void ReceiveCommand::getModules() {
     }
   }
   {
+    const std::string name = "ControlPDUForTPC";
+    if (exist_module(name)) {
+      get_module_NC(name, &controlPDUForTPC_);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: ControlPDU module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+  {
     if (exist_module(spiManagerName_)) {
       get_module_NC(spiManagerName_, &spiManager_);
     }
@@ -551,6 +563,14 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
     }
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. id: " << id << std::endl;
     return false;
+  }
+  else if (code == to_u16(CommunicationCodes::PDU_TPCHV_VSET) && argc == 1) {
+    const auto result = controlPDUForTPC_->setVoltageRaw(0, arguments[0]);
+    if (result != 0) {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+      return false;
+    }
+    return true;
   }
   else if (argc == 1) {
     PDUCodeMapCS::value_t cs;
