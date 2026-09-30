@@ -46,7 +46,7 @@ int MCP2210IO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uin
       return -1;
     }
   }
-  auto ret = spi_data_xfer(handler_, writeBuffer, readBuffer, size, spiMode_, Baudrate(), ALL_HIGH, ALL_HIGH, 1, 1, 1, 1);
+  auto ret = spi_data_xfer(handler_, writeBuffer, readBuffer, size, spiMode_, Baudrate(), ALL_HIGH, ALL_HIGH, 0, 1, 1, 1);
 
   if (ret < 0) {
     std::cerr << "Error: SPI write failed " << ret << std::endl;
