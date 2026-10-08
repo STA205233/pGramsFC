@@ -146,6 +146,8 @@ command_collection.add_command("ORC", CommandItem("Restart Orchestrator", ""))
 command_collection.add_command("ORC", CommandItem("Clear Errors", ""))
 command_collection.add_command("ORC", CommandItem("Set Data SSD0", "write to SSD 0"))
 command_collection.add_command("ORC", CommandItem("Set Data SSD1", "write to SSD 1"))
+command_collection.add_command("ORC", CommandItem("Start Data Mirroring", "systemctl start data_mirror for this boot"))
+command_collection.add_command("ORC", CommandItem("Stop Data Mirroring", "systemctl stop data_mirror"))
 
 
 command_collection.add_command("TPC", CommandItem("Configure", "Configure the TPC readout system", [CommandParameter("Configuration type", "Configuration type", range=(0, 3))], file_loadable=True))
