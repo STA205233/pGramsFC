@@ -137,6 +137,8 @@ CommandBuilder::CommandBuilder() {
   ADD_CODE_MAP(ORC_Clear_Errors, 0);
   ADD_CODE_MAP(ORC_Set_Data_SSD0, 0);
   ADD_CODE_MAP(ORC_Set_Data_SSD1, 0);
+  ADD_CODE_MAP(ORC_Start_Data_Mirroring, 0);
+  ADD_CODE_MAP(ORC_Stop_Data_Mirroring, 0);
 
   ADD_CODE_MAP(TPC_Configure, 1);
   add_code_map(code_map_, "TPC_Configure_File", pgrams::communication::CommunicationCodes::TPC_Configure, 101);
