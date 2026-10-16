@@ -2,15 +2,15 @@
 #define GB_SocketCommunicationServer_hh 1
 
 #include "boost/asio.hpp"
-#include "boost/asio/steady_timer.hpp"
-#include "boost/bind/bind.hpp"
 #include <atomic>
+#include <cstddef>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <optional>
+#include <string>
 #include <vector>
 namespace gramsballoon::pgrams {
-class SocketSession;
 /**
  * @brief SocketCommunicationServer class for managing socket communication.
  *
@@ -19,6 +19,7 @@ class SocketSession;
  *
  * @author Shota Arai
  * @date 2025-05-09 | first draft
+ * @date 2026-09-16 | fix in resetting failed flag
  */
 class SocketCommunication: public std::enable_shared_from_this<SocketCommunication> {
 public:
@@ -200,6 +201,7 @@ int SocketCommunication::receiveImpl(std::vector<T> &data) {
       return -1;
     }
     data.resize(ret / sizeof(T));
+    resetFailed();
     return ret;
   }
   return -1;

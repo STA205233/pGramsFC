@@ -95,7 +95,8 @@ ANLStatus DividePacket::mod_analyze() {
       argc |= byte;
       currentPacket_.push_back(byte);
       lastPacketSize_ = 14 + 4 * argc;
-      std::cout << "packet_size: " << static_cast<int>(lastPacketSize_) << std::endl;
+      if (chatter_ > 0)
+        std::cout << module_id() << " packet_size: " << static_cast<int>(lastPacketSize_) << std::endl;
     }
     else if ((sz > 4 && sz < lastPacketSize_ - 4) || (sz == 4) || (sz == 5)) {
       currentPacket_.push_back(byte);

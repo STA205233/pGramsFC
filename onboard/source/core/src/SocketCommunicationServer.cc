@@ -1,5 +1,13 @@
 #include "SocketCommunicationServer.hh"
+#include <atomic>
+#include <cstddef>
 #include <iostream>
+#include <memory>
+#include <mutex>
+#include <signal.h>
+#include <sys/signal.h>
+#include <utility>
+
 namespace gramsballoon::pgrams {
 void SigPipeHander(int) {
 }
@@ -29,7 +37,7 @@ SocketCommunication::SocketCommunication(std::shared_ptr<boost::asio::io_context
       acceptor_ = std::make_shared<boost::asio::ip::tcp::acceptor>(
           *ioContext_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
     }
-    catch (const boost::system::system_error& e) {
+    catch (const boost::system::system_error &e) {
       std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
       failed_->store(true, std::memory_order_release);
     }
@@ -52,7 +60,7 @@ SocketCommunication::~SocketCommunication() {
 }
 void SocketCommunication::accept() {
   std::weak_ptr<SocketCommunication> weak_self = weak_from_this();
-  acceptor_->async_accept([this, weak_self](const boost::system::error_code& error, boost::asio::ip::tcp::socket socket) {
+  acceptor_->async_accept([this, weak_self](const boost::system::error_code &error, boost::asio::ip::tcp::socket socket) {
     auto self = weak_self.lock();
     if (!self) {
       return;
@@ -63,7 +71,7 @@ void SocketCommunication::accept() {
       try {
         std::cout << "Accepted connection from " << newsocket->remote_endpoint().address().to_string() << ":" << newsocket->remote_endpoint().port() << "(Server port: " << localPort_ << ")" << std::endl;
       }
-      catch (const boost::system::system_error& e) {
+      catch (const boost::system::system_error &e) {
         std::cerr << "Error in SocketCommunication: " << e.what() << std::endl;
       }
 
@@ -77,6 +85,7 @@ void SocketCommunication::accept() {
           socketAccepted_ = std::move(newsocket);
         }
       }
+      resetFailed();
 
       if (oldsocket) {
         std::cout << "Socket is already accepted. Closing the old socket" << std::endl;
@@ -118,6 +127,7 @@ int SocketCommunication::send(const void *buf, size_t n) {
         std::cerr << "Error in SocketCommunication: No data sent." << std::endl;
         return -1;
       }
+      resetFailed();
       return ret;
     }
   }

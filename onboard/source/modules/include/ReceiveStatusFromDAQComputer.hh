@@ -1,13 +1,13 @@
 #ifndef GB_ReceiveStatusFromDAQComputer_hh
 #define GB_ReceiveStatusFromDAQComputer_hh 1
-#include "CommunicationFormat.hh"
 #include "SendTelemetry.hh"
 #include "SocketCommunicationManager.hh"
 #include "anlnext/BasicModule.hh"
 #include <chrono>
+#include <cstdint>
 #include <memory>
-#include <queue>
 #include <string>
+#include <vector>
 namespace gramsballoon::pgrams {
 class SendTelemetry;
 class SocketCommunicationManager;
@@ -33,6 +33,7 @@ protected:
 public:
   anlnext::ANLStatus mod_define() override;
   anlnext::ANLStatus mod_initialize() override;
+  anlnext::ANLStatus mod_begin_run() override;
   anlnext::ANLStatus mod_analyze() override;
   anlnext::ANLStatus mod_finalize() override;
   uint8_t PopAndGetOneByte() {

@@ -1,7 +1,12 @@
 #include "ReceiveStatusFromDAQComputer.hh"
 #include "CommunicationSaver.hh"
 #include "RunIDManager.hh"
-#include <iomanip>
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 using namespace anlnext;
 namespace gramsballoon::pgrams {
 ANLStatus ReceiveStatusFromDAQComputer::mod_define() {
@@ -60,6 +65,12 @@ ANLStatus ReceiveStatusFromDAQComputer::mod_initialize() {
   }
   return AS_OK;
 }
+
+ANLStatus ReceiveStatusFromDAQComputer::mod_begin_run() {
+  lastReceivedTime_ = std::chrono::steady_clock::now();
+  return AS_OK;
+}
+
 ANLStatus ReceiveStatusFromDAQComputer::mod_analyze() {
   if (!socketCommunicationManager_) {
     std::cerr << module_id() << "::mod_analyze: SocketCommunicationManager is nullptr." << std::endl;

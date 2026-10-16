@@ -194,6 +194,18 @@ void ReceiveCommand::getModules() {
     }
   }
   {
+    const std::string name = "ControlPDUForTPC";
+    if (exist_module(name)) {
+      get_module_NC(name, &controlPDUForTPC_);
+    }
+    else {
+      std::cerr << "Error in ReceiveCommand::mod_initialize: ControlPDU module " << name << " not found." << std::endl;
+      if (sendTelemetry_) {
+        sendTelemetry_->getErrorManager()->setError(ErrorType::MODULE_ACCESS_ERROR);
+      }
+    }
+  }
+  {
     if (exist_module(spiManagerName_)) {
       get_module_NC(spiManagerName_, &spiManager_);
     }
@@ -239,15 +251,15 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     sendTelemetry_->setLastComCode(Subsystem::HUB, code);
   }
 
-  if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy1) && argc == 0) {
+  if (code == to_u16(CommunicationCodes::HUB_Dummy1) && argc == 0) {
     std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Dummy0 command received." << std::endl;
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Dummy2) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_Dummy2) && argc == 1) {
     std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Dummy1 command received. Argument: " << arguments[0] << std::endl;
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Prepare_Shutdown) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Prepare_Shutdown) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setPrepareShutdown(true);
@@ -264,7 +276,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Exec_Shutdown) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Exec_Shutdown) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setShutdown(true);
@@ -281,7 +293,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Prepare_Restart) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Prepare_Restart) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setPrepareReboot(true);
@@ -298,7 +310,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Exec_Restart) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Exec_Restart) && argc == 0) {
 #ifdef USE_SYSTEM_MODULES
     if (shutdownSystem_) {
       shutdownSystem_->setReboot(true);
@@ -315,7 +327,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return error_in_shutdown_system_not_enabled(sendTelemetry_, module_id());
 #endif
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Emergency_Daq_shutdown) && argc == 0) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": Emergency Daq Shutdown command received." << std::endl;
     }
@@ -326,7 +338,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Reset_Error) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_Reset_Error) && argc == 0) {
     if (sendTelemetry_) {
       sendTelemetry_->getErrorManager()->resetError();
       if (chatter_ >= 1) {
@@ -335,7 +347,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_Set_Link) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_Set_Link) && argc == 1) {
     if (telemetryMosquittoManager_) {
       CommunicationLinkType link_type;
       if (arguments[0] == 0) {
@@ -362,7 +374,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_On) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Bias_On) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias ON command received. Ch: " << arguments[0] << std::endl;
     }
@@ -378,7 +390,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return false;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Bias_Off) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias OFF command received. Ch: " << arguments[0] << std::endl;
     }
@@ -397,7 +409,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       return false;
     }
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Query_bias_info) && argc == 0) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Query Info command received." << std::endl;
     }
@@ -416,7 +428,7 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
       return false;
     }
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_V_Def) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Vdef command received." << std::endl;
     }
@@ -433,7 +445,23 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-  else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_V_Def) && argc == ControlToFBias::NUM_VDEF_CH) {
+    if (controlTofBias_) {
+      for (int i = 0; i < ControlToFBias::NUM_VDEF_CH; ++i) {
+        const int ret = controlTofBias_->setVdef(i, arguments[i]);
+        if (ret < 0) {
+          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+          if (sendTelemetry_) {
+            sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+          }
+          return false;
+        }
+      }
+      return true;
+    }
+    return true;
+  }
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_Tmux) && argc == 2) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Tmux command received. Index: " << arguments[0] << ", on/off: " << arguments[1] << std::endl;
     }
@@ -450,7 +478,23 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     }
     return true;
   }
-    else if (code == static_cast<uint16_t>(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_Tmux) && argc == ControlToFBias::NUM_TMUX_CH) {
+    if (controlTofBias_) {
+      for (int i = 0; i < ControlToFBias::NUM_TMUX_CH; ++i) {
+        const int ret = controlTofBias_->setTmuxChannel(i, arguments[i]);
+        if (ret < 0) {
+          std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Failed to Query Info command" << std::endl;
+          if (sendTelemetry_) {
+            sendTelemetry_->getErrorManager()->setError(ErrorType::TOF_BIAS_COM_ERROR);
+          }
+          return false;
+        }
+      }
+      return true;
+    }
+    return true;
+  }
+  else if (code == to_u16(CommunicationCodes::HUB_TB_Set_V_Offset) && argc == 1) {
     if (chatter_ >= 1) {
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": TOF Bias Set Voffset received. Voff: " << arguments[0] << std::endl;
     }
@@ -478,6 +522,17 @@ bool ReceiveCommand::applyCommand(const std::vector<uint8_t> &command) {
     return false;
 #endif
   }
+  else if (isSubsystem(code, COM_SUBSYSTEM_PDU_MSK) && argc <= 1) {
+    if (chatter_ >= 1) {
+      std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": 0x" << std::hex << code << std::dec << " command for PDU received." << std::endl;
+    }
+#ifdef USE_SPI
+    return applySPICommand(code, argc, arguments);
+#else
+    std::cerr << termutil::red << "[error]" << termutil::reset << "SPI feature is not available in this build" << std::endl;
+    return false;
+#endif
+  }
   else {
     std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": Unknown command received. Code: " << code << ", Argc: " << argc << std::endl;
     return false;
@@ -492,21 +547,30 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
       std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is enable command" << std::endl;
     }
     PDUCodeMapDIO::value_t id;
-    const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id);
+    bool inversed = false;
+    const bool ret_mapping = pduCodeMapDIO_.getMapping(code, id, inversed);
     if (ret_mapping && spiManager_) {
       const bool is_on = PDUCodeMapDIO::isOnCode(code);
       if (chatter_ > 3) {
         std::cout << module_id() << termutil::green << "[info]" << termutil::reset << ": command 0x" << std::hex << code << std::dec << " is " << (is_on ? "on" : "off") << " command" << std::endl;
       }
-      const auto result = spiManager_->controlGPIO(id, is_on);
+      const auto result = spiManager_->controlGPIO(id, inversed ? !is_on : is_on);
       if (result != 0) {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command" << std::hex << code << std::dec << " failed" << std::endl;
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": execution of the command " << std::hex << code << std::dec << " failed" << std::endl;
         return false;
       }
       return true;
     }
-    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. id: " << id << std::endl;
+    std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. id: " << id << std::endl;
     return false;
+  }
+  else if (code == to_u16(CommunicationCodes::PDU_TPCHV_VSET) && argc == 1) {
+    const auto result = controlPDUForTPC_->setVoltageRaw(0, arguments[0]);
+    if (result != 0) {
+      std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+      return false;
+    }
+    return true;
   }
   else if (argc == 1) {
     PDUCodeMapCS::value_t cs;
@@ -514,7 +578,7 @@ bool ReceiveCommand::applySPICommand(const uint16_t code, const uint16_t argc, c
     if (ret_mapping) {
       const auto result = controlPDU_->setVoltageRaw(cs, arguments[0]);
       if (result != 0) {
-        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command" << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
+        std::cerr << module_id() << termutil::red << "[error]" << termutil::reset << ": command " << std::hex << code << std::dec << " has error. Voltage: " << arguments[0] << std::endl;
         return false;
       }
       return true;

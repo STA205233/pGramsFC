@@ -121,8 +121,8 @@ message(DEBUG "-- Classes to be compile as GBCore:
   ${GB_SOCKET_CLIENT_CORE_CLASSES}
   ${GB_SOCKET_SERVER_CORE_CLASSES}
   ${GB_I2C_CORE_CLASSES}
-  ${GB_VERSA_API_CORE_CLASSES}
-")
+  ${GB_VERSA_API_CORE_CLASSES}"
+  )
 
 target_link_libraries(GBCore
   ${BOOST_LIB}

@@ -48,7 +48,6 @@ std::string get_topic(const std::string &subsystem_name, const std::string &inif
   }
   const std::string com_type = std::string(COM_TYPE) == "starlink" ? "" : "iridium";
   const boost::optional<std::string> topic_opt = pt.get_optional<std::string>(mapped_name + "." + com_type + "comtopic");
-  std::cout << mapped_name + "." + com_type + "comtopic" << std::endl;
   if (!topic_opt) {
     std::cerr << "No topic found for subsystem " << mapped_name << std::endl;
     return "";

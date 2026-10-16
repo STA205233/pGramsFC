@@ -19,18 +19,19 @@ public:
   VPDUCodeMap() = default;
   ~VPDUCodeMap() = default;
 
-  VPDUCodeMap& operator=(const VPDUCodeMap&) = delete;
-  VPDUCodeMap(VPDUCodeMap&) = delete;
+  VPDUCodeMap &operator=(const VPDUCodeMap &) = delete;
+  VPDUCodeMap(VPDUCodeMap &) = delete;
 
 public:
-  bool getMapping(com_code_t code, value_t& cs) const;
+  bool getMapping(com_code_t code, value_t &cs, bool &inversed) const;
+  bool getMapping(com_code_t code, value_t &cs) const;
 
 protected:
   virtual void construct() = 0;
-  void addOne(::pgrams::communication::CommunicationCodes code, value_t cs);
+  void addOne(::pgrams::communication::CommunicationCodes code, value_t cs, bool inversed = false);
 
 private:
-  std::map<com_code_t, value_t> mapping_;
+  std::map<com_code_t, std::pair<value_t, bool>> mapping_;
 };
 } // namespace gramsballoon::pgrams
 

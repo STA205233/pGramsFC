@@ -46,7 +46,7 @@ int MCP2210IO::WriteAndRead(int cs, uint8_t *writeBuffer, unsigned int size, uin
       return -1;
     }
   }
-  auto ret = spi_data_xfer(handler_, writeBuffer, readBuffer, size, spiMode_, Baudrate(), ALL_HIGH, ALL_HIGH, 1, 1, 1, 1);
+  auto ret = spi_data_xfer(handler_, writeBuffer, readBuffer, size, spiMode_, Baudrate(), ALL_HIGH, ALL_HIGH, 0, 1, 1, 1);
 
   if (ret < 0) {
     std::cerr << "Error: SPI write failed " << ret << std::endl;
@@ -100,18 +100,18 @@ int MCP2210IO::controlGPIOBit(uint32_t cs, uint32_t state) {
     return -1;
   }
   int read_value = 0;
-  const int pre_ret = gpio_read(handler_, &read_value, ALL_HIGH);
+  const int pre_ret = gpio_getval(handler_, &read_value);
   if (pre_ret < 0) {
     std::cerr << "MCP2210IO::controlGPIO: Read GPIO failed" << pre_ret << std::endl;
     return -1;
   }
   const int val_bit = (state & cs) | (read_value & (~cs));
   std::cout << std::hex << "val_bit: " << val_bit << " cs: " << cs << " state: " << state << " read_value: " << read_value << std::dec << std::endl;
-  const int ret = gpio_write(handler_, val_bit, ALL_HIGH);
+  const int ret = gpio_setval(handler_, val_bit);
   if (ret < 0) {
     std::cerr << "MCP2210IO::controlGPIO: Control GPIO failed" << ret << std::endl;
   }
-  gpio_read(handler_, &read_value, ALL_HIGH);
+  gpio_getval(handler_, &read_value);
   std::cout << "read_value: " << std::hex << read_value << std::dec << std::endl;
   return ret;
 }

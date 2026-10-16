@@ -93,6 +93,7 @@ private:
 #ifdef USE_SPI
   SPIManager *spiManager_ = nullptr;
   ControlPDU *controlPDU_ = nullptr;
+  ControlPDU *controlPDUForTPC_ = nullptr;
   #endif
   std::string spiManagerName_ = "SPIManager";
 

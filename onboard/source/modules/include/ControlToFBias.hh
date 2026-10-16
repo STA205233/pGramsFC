@@ -2,7 +2,9 @@
 #define GB_ControlTofBias_hh 1
 #include "anlnext/BasicModule.hh"
 #include <chrono>
+#include <cstdint>
 #include <memory>
+#include <string>
 namespace pgrams::communication {
 enum class TelemetryCodes : uint16_t;
 }
@@ -41,10 +43,18 @@ public:
   int disableDCDC(uint32_t channel);
   int queryFullOutput();
 
+  static constexpr int NUM_VDEF_CH = 128;
+  static constexpr int NUM_TMUX_CH = 16;
+  static constexpr int NUM_DCDC_CH = 8;
+
+  static constexpr int ERR_INVALID = -100;
+
 private:
   SendTelemetry *sendTelemetry_ = nullptr;
   MosquittoManager<std::string> *mosquittoManager_ = nullptr;
   std::string mosquittoManagerName_ = "TelemMosquittoManager";
+
+  bool rangeCheck(uint32_t ch, uint32_t upper, uint32_t lower=0);
 
   enum class FullOutputStatus {
     WAITING,
